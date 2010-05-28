@@ -1,0 +1,58 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>
+    <title>tween.js / hello world!</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<script type="text/javascript" src="../src/tween.js"></script>
+  </head>
+  <body>
+	  <div id="target" style="position:absolute; top: 0px; left: 0px; width: 100px; height: 100px; background: #a0dde9; padding: 1em;">
+		  hello world!
+	  </div>
+
+	<script type="text/javascript">
+
+		var position;
+		var target;
+		var tween, tweenBack;
+
+		init();
+		setInterval(loop, 1000 / 60);
+
+
+		function init()
+		{
+			position = {x: 0, y: 0, rotation: 0};
+			target = document.getElementById('target');
+			tween = new TWEEN.Tween(position)
+				.property('x', 100, 700)
+				.property('y', 100, 200)
+				.property('rotation', 0, 359)
+				.length(2)
+				.delay(1);
+
+			tweenBack = new TWEEN.Tween(position).property('x', 700, 100).property('y', 200, 100).property('rotation', 359, 0).length(3);
+
+			tween.chain(tweenBack);
+			tweenBack.chain(tween);
+
+			TWEEN_MANAGER.addTween(tween);
+			TWEEN_MANAGER.addTween(tweenBack);
+
+			tween.start();
+		}
+
+		function loop()
+		{
+			target.style.left = position.x + 'px';
+			target.style.top = position.y + 'px';
+			var r = 'rotate(' + Math.floor(position.rotation) + 'deg)';
+			target.style.webkitTransform = r;
+			target.style.MozTransform = r;
+
+			TWEEN_MANAGER.update();
+		}
+
+	</script>
+  </body>
+</html>
