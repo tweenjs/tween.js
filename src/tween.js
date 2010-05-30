@@ -1,3 +1,6 @@
+/**
+ * @author sole / http://soledadpenades.com/
+ */
 var TWEEN_MANAGER = TWEEN_MANAGER || {}
 
 TWEEN_MANAGER = {
@@ -89,7 +92,7 @@ TWEEN.Property = function(name, valueStart, valueChange) {
 
 TWEEN.Tween = function(object) {
 	this._dstObject = object;
-	this._length = 1000;
+	this._duration = 1000;
 	this._delayTime = 0;
 	this._startTime = 0;
 	this._objectProperties = {};
@@ -110,12 +113,12 @@ TWEEN.Tween = function(object) {
 
 			this._objectProperties[propertyName] = new TWEEN.Property(propertyName, currValue, valueEnd - currValue);
 		}
-		
+
 		return this;
 	}
 
-	this.length = function(amount) {
-		this._length = amount * 1000;
+	this.duration = function(amount) {
+		this._duration = amount * 1000;
 		return this;
 	}
 
@@ -153,7 +156,7 @@ TWEEN.Tween = function(object) {
 		if(this._complete) {
 			return;
 		}
-		var length = this._length;
+		var length = this._duration;
 		var elapsed = new Date().getTime() - this._startTime;
 		var properties = this._objectProperties;
 		var p;
@@ -169,7 +172,7 @@ TWEEN.Tween = function(object) {
 				this._complete = true;
 			}
 		}
-		
+
 		for(var k in properties) {
 			p = properties[k];
 			obj[p.name] = easingFunction(elapsed, p.valueStart, p.valueChange, length);
@@ -180,4 +183,3 @@ TWEEN.Tween = function(object) {
 		}
 	}
 }
-

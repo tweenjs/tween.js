@@ -28,10 +28,10 @@
 				.property('x', 100, 700)
 				.property('y', 100, 200)
 				.property('rotation', 0, 359)
-				.length(2)
+				.duration(2)
 				.delay(1);
 
-			tweenBack = new TWEEN.Tween(position).property('x', 700, 100).property('y', 200, 100).property('rotation', 359, 0).length(3);
+			tweenBack = new TWEEN.Tween(position).property('x', 700, 100).property('y', 200, 100).property('rotation', 359, 0).duration(3);
 
 			tween.chain(tweenBack);
 			tweenBack.chain(tween);

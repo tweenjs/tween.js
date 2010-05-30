@@ -43,8 +43,8 @@
 
 				elem.margin = start;
 
-				var tween = new TWEEN.Tween(elem).property('margin', start, end).length(4).delay(Math.random()).start();
-				var tweenBack = new TWEEN.Tween(elem).property('margin', end, start).length(4).delay(Math.random());
+				var tween = new TWEEN.Tween(elem).property('margin', start, end).duration(4).delay(Math.random()).start();
+				var tweenBack = new TWEEN.Tween(elem).property('margin', end, start).duration(4).delay(Math.random());
 				
 				tween.chain(tweenBack);
 				tweenBack.chain(tween);
