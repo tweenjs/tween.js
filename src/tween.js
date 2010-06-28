@@ -100,6 +100,7 @@ TWEEN.Tween = function(object) {
 	this._nextTween = null;
 	this._complete = false;
 	this._onUpdateFunction = null;
+	this._onCompleteFunction = null;
 
 	this.property = function(propertyName, a, b) {
 		var valueStart, valueEnd, currValue;
@@ -142,6 +143,11 @@ TWEEN.Tween = function(object) {
 		return this;
 	}
 
+	this.onComplete = function(onCompleteFunction) {
+		this._onCompleteFunction = onCompleteFunction;
+		return this;
+	}
+
 	this.start = function()	{
 		this._complete = false;
 		this._startTime = new Date().getTime() + this._delayTime;
@@ -167,9 +173,15 @@ TWEEN.Tween = function(object) {
 		if(elapsed > length) {
 			if(this._nextTween !== null) {
 				this._complete = true;
+				if(this._onCompleteFunction !== null) {
+					this._onCompleteFunction();
+				}
 				this._nextTween.start();
 			} else {
 				this._complete = true;
+				if(this._onCompleteFunction !== null) {
+					this._onCompleteFunction();
+				}
 			}
 		}
 
@@ -183,3 +195,4 @@ TWEEN.Tween = function(object) {
 		}
 	}
 }
+
