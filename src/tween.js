@@ -1,51 +1,169 @@
 /**
  * @author sole / http://soledadpenades.com/
+ * @author mr.doob / http://mrdoob.com/
  */
-var TWEEN_MANAGER = TWEEN_MANAGER || {}
 
-TWEEN_MANAGER = {
-	_tweens : [],
+var TWEEN_MANAGER = TWEEN_MANAGER || ( function() {
 
-	addTween : function(tween) {
-		if(this._tweens.indexOf(tween) == -1) {
-			this._tweens.push(tween);
+	var i, l, time, tweens = [];
+
+	this.addTween = function ( tween ) {
+
+		tweens.push( tween );
+	};
+
+	this.update = function() {
+
+		i = 0;
+		time = new Date().getTime();
+
+		while( i < tweens.length ) {
+
+			tweens[ i ].update( time ) ? i ++ : tweens.splice( i, 1 );
+
 		}
-	},
 
-	update : function() {
-		var numTweens = this._tweens.length;
-		for(var i = 0; i < numTweens; i++) {
-			this._tweens[i].update();
-		}
-	}
-}
+	};
+
+	return this;
+} )();
 
 var TWEEN = TWEEN || {}
 
-TWEEN.Easing = {Back: {}, Elastic: {}, Expo: {}};
+TWEEN.Tween = function ( object, property ) {
 
-TWEEN.Easing.Back.EaseIn = function(t, b, c, d) {
-	var s = 1.70158;
-	return c*(t/=d)*t*((s+1)*t - s) + b;
+	var _object = object,
+	_valuesStart = {},
+	_valuesChange = {},
+	_duration = 1000,
+	_startTime = new Date().getTime(),
+	_objectProperties = {},
+	_easingFunction = TWEEN.Easing.Elastic.EaseInOut,
+	_nextTween = null,
+	_onUpdateFunction = null,
+	_onCompleteFunction = null;
+
+	this.to = function( duration, properties ) {
+
+		_duration = duration * 1000;
+
+		for ( var property in properties ) {
+
+			if ( _object[ property ] === null ) {
+
+				continue;
+
+			}
+
+			_valuesStart[ property ] = _object[ property ];
+			_valuesChange[ property ] = properties[ property ] - _object[ property ];
+
+		}
+
+		return this;
+
+	};
+
+	this.delay = function ( amount ) {
+
+		_startTime += amount * 1000;
+		return this;
+
+	};
+
+	this.easing = function ( easing ) {
+
+		_easingFunction = easing;
+		return this;
+
+	};
+
+	this.onUpdate = function ( onUpdateFunction ) {
+
+		_onUpdateFunction = onUpdateFunction;
+		return this;
+
+	};
+
+	this.onComplete = function ( onCompleteFunction ) {
+
+		_onCompleteFunction = onCompleteFunction;
+		return this;
+
+	};
+
+	this.update = function ( time ) {
+
+		if ( time < _startTime ) {
+
+			return true;
+
+		}
+
+		var elapsed = time - _startTime;
+
+		if ( elapsed > _duration ) {
+
+			if ( _onCompleteFunction !== null ) {
+
+				_onCompleteFunction();
+			}
+
+			return false;
+
+		}
+
+		for ( var property in _valuesChange ) {
+
+			_object[ property ] = _easingFunction( elapsed, _valuesStart[ property ], _valuesChange[ property ], _duration );
+
+		}
+
+		if ( _onUpdateFunction !== null ) {
+
+			_onUpdateFunction();
+
+		}
+
+		return true;
+	};
+
+	TWEEN_MANAGER.addTween( this );
 }
 
-TWEEN.Easing.Back.EaseOut = function(t, b, c, d) {
+TWEEN.Easing = { Back: {}, Elastic: {}, Expo: {} };
+
+TWEEN.Easing.Back.EaseIn = function( t, b, c, d ) {
+
 	var s = 1.70158;
-	return c*((t=t/d-1)*t*((s+1)*t + s) + 1) + b;
+	return c * ( t /= d  ) * t * ( ( s + 1 ) * t - s ) + b;
+
 }
 
-TWEEN.Easing.Back.EaseInOut = function(t, b, c, d) {
+TWEEN.Easing.Back.EaseOut = function( t, b, c, d ) {
+
 	var s = 1.70158;
-	if ((t/=d/2) < 1) return c/2*(t*t*(((s*=(1.525))+1)*t - s)) + b;
-	return c/2*((t-=2)*t*(((s*=(1.525))+1)*t + s) + 2) + b;
+	return c * ( ( t = t / d - 1 ) * t * ( ( s + 1 ) * t + s ) + 1 ) + b;
+
 }
 
-TWEEN.Easing.Elastic.EaseIn = function(t, b, c, d) {
-	if (t==0) return b;  if ((t/=d)==1) return b+c;
-	var p=d*.3;
-	var a=c;
-	var s=p/4;
-	return -(a*Math.pow(2,10*(t-=1)) * Math.sin( (t*d-s)*(2*Math.PI)/p )) + b;
+TWEEN.Easing.Back.EaseInOut = function( t, b, c, d ) {
+
+	var s = 1.70158;
+	if ( ( t /= d / 2 ) < 1 ) return c / 2 * ( t * t * ( ( ( s *= ( 1.525 ) ) + 1 ) * t - s ) ) + b;
+	return c / 2 * ( ( t -= 2 ) * t * ( ( ( s *= ( 1.525 ) ) + 1 ) * t + s ) + 2 ) + b;
+
+}
+
+TWEEN.Easing.Elastic.EaseIn = function( t, b, c, d ) {
+
+	if ( t == 0 ) return b;
+	if ( ( t /= d ) == 1 ) return b + c;
+	var p = d * .3;
+	var a = c;
+	var s = p / 4;
+	return - ( a * Math.pow( 2, 10 * ( t -= 1 ) ) * Math.sin( ( t * d - s ) * ( 2 * Math.PI ) / p ) ) + b;
+
 }
 
 TWEEN.Easing.Elastic.EaseOut = function(t, b, c, d) {
@@ -57,142 +175,34 @@ TWEEN.Easing.Elastic.EaseOut = function(t, b, c, d) {
 }
 
 TWEEN.Easing.Elastic.EaseInOut = function(t, b, c, d) {
-	if(t==0) return b;
-	if((t/=d/2)==2) return b+c;
-	var p=d*(.3*1.5);
-	var a=c;
-	var s=p/4;
-	if (t < 1) return -.5*(a*Math.pow(2,10*(t-=1)) * Math.sin( (t*d-s)*(2*Math.PI)/p )) + b;
-	return a*Math.pow(2,-10*(t-=1)) * Math.sin( (t*d-s)*(2*Math.PI)/p )*.5 + c + b;
+
+	if ( t == 0 ) return b;
+	if ( ( t /= d / 2 ) == 2 ) return b + c;
+	var p = d * ( .3 * 1.5 );
+	var a = c;
+	var s = p / 4;
+	if ( t < 1 ) return - .5 * ( a * Math.pow( 2, 10 * ( t -= 1 ) ) * Math.sin( ( t * d - s ) * ( 2 * Math.PI ) / p ) ) + b;
+	return a * Math.pow( 2, - 10 * ( t -= 1 ) ) * Math.sin( ( t * d - s ) * ( 2 * Math.PI ) / p ) * .5 + c + b;
+
 }
 
 TWEEN.Easing.Expo.EaseIn = function(t, b, c, d) {
-	return (t==0) ? b : c * Math.pow(2, 10 * (t/d - 1)) + b;
+
+	return ( t == 0) ? b : c * Math.pow( 2, 10 * ( t / d - 1 ) ) + b;
+
 }
 
 TWEEN.Easing.Expo.EaseOut = function(t, b, c, d) {
-	return (t==d) ? b+c : c * (-Math.pow(2, -10 * t/d) + 1) + b;
+
+	return ( t == d ) ? b + c : c * ( - Math.pow( 2, - 10 * t / d) + 1) + b;
+
 }
 
 TWEEN.Easing.Expo.EaseInOut = function(t, b, c, d) {
-	if (t==0) return b;
-	if (t==d) return b+c;
-	if ((t/=d/2) < 1) return c/2 * Math.pow(2, 10 * (t - 1)) + b;
-	return c/2 * (-Math.pow(2, -10 * --t) + 2) + b;
+
+	if ( t == 0 ) return b;
+	if ( t == d ) return b+c;
+	if ( ( t /= d / 2 ) < 1) return c / 2 * Math.pow( 2, 10 * ( t - 1 ) ) + b;
+	return c / 2 * ( - Math.pow( 2, - 10 * --t ) + 2) + b;
+
 }
-
-
-
-
-TWEEN.Property = function(name, valueStart, valueChange) {
-	this.name = name;
-	this.valueStart = valueStart;
-	this.valueChange = valueChange;
-}
-
-TWEEN.Tween = function(object) {
-	this._dstObject = object;
-	this._duration = 1000;
-	this._delayTime = 0;
-	this._startTime = 0;
-	this._objectProperties = {};
-	this._easingFunction = TWEEN.Easing.Elastic.EaseInOut;
-	this._nextTween = null;
-	this._complete = false;
-	this._onUpdateFunction = null;
-	this._onCompleteFunction = null;
-
-	this.property = function(propertyName, a, b) {
-		var valueStart, valueEnd, currValue;
-		if(arguments.length == 3) {
-			valueStart = a;
-			valueEnd = b;
-			this._objectProperties[propertyName] = new TWEEN.Property(propertyName, valueStart, valueEnd - valueStart);
-		} else if(arguments.length == 2) {
-			currValue = this._dstObject[propertyName];
-			valueEnd = a;
-
-			this._objectProperties[propertyName] = new TWEEN.Property(propertyName, currValue, valueEnd - currValue);
-		}
-
-		return this;
-	}
-
-	this.duration = function(amount) {
-		this._duration = amount * 1000;
-		return this;
-	}
-
-	this.delay = function(amount) {
-		this._delayTime = amount * 1000;
-		return this;
-	}
-
-	this.easing = function(easing) {
-		this._easingFunction = easing;
-		return this;
-	}
-
-	this.chain = function(tween) {
-		this._nextTween = tween;
-		return this;
-	}
-
-	this.onUpdate = function(onUpdateFunction) {
-		this._onUpdateFunction = onUpdateFunction;
-		return this;
-	}
-
-	this.onComplete = function(onCompleteFunction) {
-		this._onCompleteFunction = onCompleteFunction;
-		return this;
-	}
-
-	this.start = function()	{
-		this._complete = false;
-		this._startTime = new Date().getTime() + this._delayTime;
-		return this;
-	}
-
-	this.getTarget = function() {
-		return this._dstObject;
-	}
-
-	this.update = function() {
-		if(this._complete) {
-			return;
-		}
-		var length = this._duration;
-		var elapsed = new Date().getTime() - this._startTime;
-		var properties = this._objectProperties;
-		var p;
-		var obj = this._dstObject;
-		var easingFunction = this._easingFunction;
-
-
-		if(elapsed > length) {
-			if(this._nextTween !== null) {
-				this._complete = true;
-				if(this._onCompleteFunction !== null) {
-					this._onCompleteFunction();
-				}
-				this._nextTween.start();
-			} else {
-				this._complete = true;
-				if(this._onCompleteFunction !== null) {
-					this._onCompleteFunction();
-				}
-			}
-		}
-
-		for(var k in properties) {
-			p = properties[k];
-			obj[p.name] = easingFunction(elapsed, p.valueStart, p.valueChange, length);
-		}
-
-		if(this._onUpdateFunction !== null) {
-			this._onUpdateFunction();
-		}
-	}
-}
-
