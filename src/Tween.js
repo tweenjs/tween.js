@@ -198,7 +198,7 @@ TWEEN.Tween = function ( object ) {
 
 }
 
-TWEEN.Easing = { Back: {}, Elastic: {}, Expo: {} };
+TWEEN.Easing = { Back: {}, Elastic: {}, Expo: {}, Linear: {} };
 
 TWEEN.Easing.Back.EaseIn = function( t, b, c, d ) {
 
@@ -276,3 +276,28 @@ TWEEN.Easing.Expo.EaseInOut = function(t, b, c, d) {
 	return c / 2 * ( - Math.pow( 2, - 10 * --t ) + 2) + b;
 
 }
+
+TWEEN.Easing.Linear.EaseNone = function (t, b, c, d) {
+
+		return c*t/d + b;
+
+}
+
+TWEEN.Easing.Linear.EaseIn = function (t, b, c, d) {
+
+		return c*t/d + b;
+
+}
+
+TWEEN.Easing.Linear.EaseOut = function (t, b, c, d) {
+
+		return c*t/d + b;
+
+}
+
+TWEEN.Easing.Linear.EaseInOut = function (t, b, c, d) {
+
+		return c*t/d + b;
+
+}
+
