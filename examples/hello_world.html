@@ -1,12 +1,12 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html>
+<!DOCTYPE html> 
+<html lang="en">
   <head>
-    <title>tween.js / hello world!</title>
+    <title>Tween.js / hello world!</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-	<script type="text/javascript" src="../src/tween.js"></script>
+	<script type="text/javascript" src="../src/Tween.js"></script>
   </head>
   <body>
-	  <div id="target" style="position:absolute; top: 0px; left: 0px; width: 100px; height: 100px; background: #a0dde9; padding: 1em;">
+	  <div id="target" style="position:absolute; top: 100px; left: 100px; width: 100px; height: 100px; background: #a0dde9; padding: 1em;">
 		  hello world!
 	  </div>
 
@@ -22,22 +22,17 @@
 
 		function init()
 		{
-			position = {x: 0, y: 0, rotation: 0};
+			position = {x: 100, y: 100, rotation: 0};
 			target = document.getElementById('target');
 			tween = new TWEEN.Tween(position)
-				.property('x', 100, 700)
-				.property('y', 100, 200)
-				.property('rotation', 0, 359)
-				.duration(2)
+				.to(2, {x: 700, y: 200, rotation: 359})
 				.delay(1);
 
-			tweenBack = new TWEEN.Tween(position).property('x', 700, 100).property('y', 200, 100).property('rotation', 359, 0).duration(3);
+			tweenBack = new TWEEN.Tween(position)
+				.to(3, {x: 100, y: 100, rotation: 0});
 
 			tween.chain(tweenBack);
 			tweenBack.chain(tween);
-
-			TWEEN_MANAGER.addTween(tween);
-			TWEEN_MANAGER.addTween(tweenBack);
 
 			tween.start();
 		}

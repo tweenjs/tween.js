@@ -1,15 +1,30 @@
 /**
  * @author sole / http://soledadpenades.com/
  * @author mr.doob / http://mrdoob.com/
+ * Easing equations by Robert Penner http://www.robertpenner.com/easing/ (BSD license)
  */
 
 var TWEEN_MANAGER = TWEEN_MANAGER || ( function() {
 
-	var i, l, time, tweens = [];
+	var i, time, tweens = [];
 
-	this.addTween = function ( tween ) {
+	this.add = function ( tween ) {
 
 		tweens.push( tween );
+	};
+
+	this.remove = function ( tween ) {
+
+		for ( var i = 0, l = tweens.length; i < l; i++ ) {
+
+			if ( tween == tweens[ i ] ) {
+
+				tweens.splice( i, 1 );
+				return;
+
+			}
+		}
+
 	};
 
 	this.update = function() {
@@ -19,29 +34,34 @@ var TWEEN_MANAGER = TWEEN_MANAGER || ( function() {
 
 		while( i < tweens.length ) {
 
-			tweens[ i ].update( time ) ? i ++ : tweens.splice( i, 1 );
+			tweens[ i ].update( time ) ? i++ : tweens.splice( i, 1 );
 
 		}
 
 	};
 
 	return this;
-} )();
 
-var TWEEN = TWEEN || {}
+} )(),
 
-TWEEN.Tween = function ( object, property ) {
+TWEEN = TWEEN || {};
+
+TWEEN.Tween = function ( object ) {
+
+	TWEEN_MANAGER.add( this );
 
 	var _object = object,
 	_valuesStart = {},
 	_valuesChange = {},
+	_valuesTo = {},
 	_duration = 1000,
-	_startTime = new Date().getTime(),
-	_objectProperties = {},
+	_delayTime = 0,
+	_startTime = null,
 	_easingFunction = TWEEN.Easing.Elastic.EaseInOut,
 	_nextTween = null,
 	_onUpdateFunction = null,
-	_onCompleteFunction = null;
+	_onCompleteFunction = null,
+	_completed = false;
 
 	this.to = function( duration, properties ) {
 
@@ -55,8 +75,9 @@ TWEEN.Tween = function ( object, property ) {
 
 			}
 
-			_valuesStart[ property ] = _object[ property ];
-			_valuesChange[ property ] = properties[ property ] - _object[ property ];
+			// The current values are read when the tween starts;
+			// here we only store the final desired values
+			_valuesTo[ property ] = properties[ property ];
 
 		}
 
@@ -64,9 +85,27 @@ TWEEN.Tween = function ( object, property ) {
 
 	};
 
+	this.start = function() {
+		_completed = false;
+		_startTime = new Date().getTime() + _delayTime;
+		for ( var property in _valuesTo ) {
+
+			if ( _object[ property ] === null ) {
+
+				continue;
+
+			}
+
+			_valuesStart[ property ] = _object[ property ];
+			_valuesChange[ property ] = _valuesTo[ property ] - _object[ property ];
+
+		}
+		return this;
+	}
+
 	this.delay = function ( amount ) {
 
-		_startTime += amount * 1000;
+		_delayTime = amount * 1000;
 		return this;
 
 	};
@@ -77,6 +116,10 @@ TWEEN.Tween = function ( object, property ) {
 		return this;
 
 	};
+
+	this.chain = function ( chainedTween ) {
+		_nextTween = chainedTween;
+	}
 
 	this.onUpdate = function ( onUpdateFunction ) {
 
@@ -94,26 +137,44 @@ TWEEN.Tween = function ( object, property ) {
 
 	this.update = function ( time ) {
 
-		if ( time < _startTime ) {
+		var property, elapsed;
+
+		if ( time < _startTime || _startTime === null) {
 
 			return true;
 
 		}
 
-		var elapsed = time - _startTime;
+		if ( _completed ) {
 
-		if ( elapsed > _duration ) {
-
-			if ( _onCompleteFunction !== null ) {
-
-				_onCompleteFunction();
-			}
-
-			return false;
+			return (_nextTween === null);
 
 		}
 
-		for ( var property in _valuesChange ) {
+		elapsed = time - _startTime;
+
+		if( elapsed > _duration ) {
+
+			_completed = true;
+			_startTime = null;
+
+			if(_onCompleteFunction !== null) {
+				_onCompleteFunction();
+			}
+
+			if(_nextTween !== null) {
+
+				_nextTween.start();
+				return true; // this tween cannot be safely destroyed
+
+			} else {
+
+				return false; // no associated tweens, tween can be destroyed
+
+			}
+		}
+
+		for ( property in _valuesChange ) {
 
 			_object[ property ] = _easingFunction( elapsed, _valuesStart[ property ], _valuesChange[ property ], _duration );
 
@@ -121,14 +182,20 @@ TWEEN.Tween = function ( object, property ) {
 
 		if ( _onUpdateFunction !== null ) {
 
-			_onUpdateFunction();
+			_onUpdateFunction.apply(_object);
 
 		}
 
 		return true;
+
 	};
 
-	TWEEN_MANAGER.addTween( this );
+	this.destroy = function () {
+
+		TWEEN_MANAGER.remove( this );
+
+	};
+
 }
 
 TWEEN.Easing = { Back: {}, Elastic: {}, Expo: {} };
@@ -166,12 +233,15 @@ TWEEN.Easing.Elastic.EaseIn = function( t, b, c, d ) {
 
 }
 
-TWEEN.Easing.Elastic.EaseOut = function(t, b, c, d) {
-	if (t==0) return b;  if ((t/=d)==1) return b+c;
-	var p=d*.3;
-	var a=c;
-	var s=p/4;
-	return (a*Math.pow(2,-10*t) * Math.sin( (t*d-s)*(2*Math.PI)/p ) + c + b);
+TWEEN.Easing.Elastic.EaseOut = function( t, b, c, d ) {
+
+	if ( t == 0 ) return b;
+	if ( ( t /= d ) == 1 ) return b + c;
+	var p = d * .3;
+	var a = c;
+	var s = p / 4;
+	return ( a * Math.pow( 2, - 10 * t ) * Math.sin( ( t * d - s ) * ( 2 * Math.PI ) / p ) + c + b );
+
 }
 
 TWEEN.Easing.Elastic.EaseInOut = function(t, b, c, d) {

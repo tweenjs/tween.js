@@ -1,10 +1,10 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html>
+<!DOCTYPE html> 
+<html lang="en">
   <head>
-    <title>bars / tween.js</title>
+    <title>bars / Tween.js</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-	<script type="text/javascript" src="../src/tween.js"></script>
-	<script type="text/javascript" src="http://github.com/mrdoob/stats.js/raw/master/build/stats.js"></script>
+	<script type="text/javascript" src="../src/Tween.js"></script>
+	<script type="text/javascript" src="http://github.com/mrdoob/stats.js/raw/master/build/Stats.js"></script>
   </head>
   <body>
 	<div id="target"></div>
@@ -13,7 +13,7 @@
 		var elems = [];
 
 		init();
-		setInterval(loop, 1000/60);
+		setInterval(loop, 1000/120);
 
 		function init() {
 			stats = new Stats();
@@ -28,10 +28,10 @@
 				domElement.style.position = 'absolute';
 				domElement.style.top = (Math.random() * window.innerHeight) + 'px';
 				domElement.style.background = '#' + bg.toString(16);
-				
-				var start = 500 + (Math.random() - Math.random()) * 250;
-				var end = 500 + (Math.random() - Math.random()) * 250;
-				domElement.style.marginLeft = start + 'px';
+
+				var startValue = 500 + (Math.random() - Math.random()) * 250;
+				var endValue = 500 + (Math.random() - Math.random()) * 250;
+				domElement.style.marginLeft = startValue + 'px';
 				domElement.style.fontFamily = 'Helvetica, Arial, sans-serif';
 				domElement.style.fontSize = '6px';
 				domElement.style.lineHeight = 0.5;
@@ -41,29 +41,35 @@
 
 				elem.domElement = domElement;
 
-				elem.margin = start;
+				elem.margin = startValue;
 
-				var tween = new TWEEN.Tween(elem).property('margin', start, end).duration(4).delay(Math.random()).start();
-				var tweenBack = new TWEEN.Tween(elem).property('margin', end, start).duration(4).delay(Math.random());
-				
+				var updateFunction = function() {
+					this.domElement.style.marginLeft = this.margin + 'px';
+				}
+
+				var tween = new TWEEN.Tween(elem)
+					.to(4, { margin: endValue })
+					.delay(Math.random())
+					.onUpdate(updateFunction)
+					.easing(TWEEN.Easing.Back.EaseOut)
+					.start();
+
+				var tweenBack = new TWEEN.Tween(elem, false)
+					.to(4, { margin: startValue})
+					.delay(Math.random())
+					.onUpdate(updateFunction);
+
 				tween.chain(tweenBack);
 				tweenBack.chain(tween);
-
-				TWEEN_MANAGER.addTween(tween);
-				TWEEN_MANAGER.addTween(tweenBack);
 
 				document.body.appendChild(elem.domElement);
 
 				elems.push(elem);
 			}
-			
+
 		}
 
 		function loop() {
-			for(var i = 0; i < elems.length; i++) {
-				var e = elems[i];
-				e.domElement.style.marginLeft = e.margin + 'px';
-			}
 			stats.update();
 			TWEEN_MANAGER.update();
 		}
