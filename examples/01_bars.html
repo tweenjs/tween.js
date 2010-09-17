@@ -1,0 +1,89 @@
+<!DOCTYPE html> 
+<html lang="en">
+	<head>
+		<title>bars / Tween.js</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<link href="http://github.com/sole/sole.github.com/raw/master/tween.js/assets/style.css" media="screen" rel="stylesheet" type="text/css" />
+		<script type="text/javascript" src="../build/Tween.js"></script>
+		<script type="text/javascript" src="http://github.com/mrdoob/stats.js/raw/master/build/Stats.js"></script>
+	</head>
+	<body>
+		<div id="info">
+				<h1><a href="http://github.com/sole/tween.js">tween.js</a></h1>
+				<h2>01 _ Bars</h2>
+				<p>1000 bars, moving horizontally, looped.</p>
+			</div>
+		<div id="target"></div>
+		<script type="text/javascript">
+			var stats;
+			var elems = [];
+
+			init();
+			setInterval(loop, 1000/120);
+
+			function init() {
+				stats = new Stats();
+				var sds = stats.domElement.style;
+				sds.position = 'absolute';
+				sds.right = '0px';
+				sds.top = '0px';
+				sds.margin = '4em 3em';
+				document.body.appendChild(stats.domElement);
+			
+				elems = [];
+
+				for(var i = 0; i < 1000; i++) {
+					var elem = {};
+					var domElement = document.createElement('div');
+					var bg = (Math.random() * 0xffffff) >> 0;
+					domElement.style.position = 'absolute';
+					domElement.style.top = (Math.random() * window.innerHeight) + 'px';
+					domElement.style.background = '#' + bg.toString(16);
+
+					var startValue = 500 + (Math.random() - Math.random()) * 250;
+					var endValue = 500 + (Math.random() - Math.random()) * 250;
+					domElement.style.marginLeft = startValue + 'px';
+					domElement.style.fontFamily = 'Helvetica, Arial, sans-serif';
+					domElement.style.fontSize = '6px';
+					domElement.style.lineHeight = 0.5;
+					domElement.style.width = '100px';
+					domElement.style.height = '2px';
+					domElement.innerHTML = '' + i;
+
+					elem.domElement = domElement;
+
+					elem.margin = startValue;
+
+					var updateFunction = function() {
+						this.domElement.style.marginLeft = this.margin + 'px';
+					}
+
+					var tween = new TWEEN.Tween(elem)
+						.to(4, { margin: endValue })
+						.delay(Math.random())
+						.onUpdate(updateFunction)
+						.easing(TWEEN.Easing.Back.EaseOut)
+						.start();
+
+					var tweenBack = new TWEEN.Tween(elem, false)
+						.to(4, { margin: startValue})
+						.delay(Math.random())
+						.onUpdate(updateFunction);
+
+					tween.chain(tweenBack);
+					tweenBack.chain(tween);
+
+					document.body.appendChild(elem.domElement);
+
+					elems.push(elem);
+				}
+
+			}
+
+			function loop() {
+				stats.update();
+				TWEEN_MANAGER.update();
+			}
+		</script>
+	</body>
+</html>

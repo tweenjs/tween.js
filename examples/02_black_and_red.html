@@ -3,14 +3,24 @@
 	<head>
 		<title>Black and Red / Tween.js</title>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-		<script type="text/javascript" src="../src/Tween.js"></script>
+		<link href="http://github.com/sole/sole.github.com/raw/master/tween.js/assets/style.css" media="screen" rel="stylesheet" type="text/css" />
+		<script type="text/javascript" src="../build/Tween.js"></script>
 		<script type="text/javascript" src="http://github.com/mrdoob/stats.js/raw/master/build/Stats.js"></script>
 	</head>
 	<body>
+		<div id="info">
+			<h1><a href="http://github.com/sole/tween.js">tween.js</a></h1>
+			<h2>02 _ Black and red</h2>
+			<p>4096 continuously changing color cells (in a 64x64 table)</p>
+			<p></p>
+		</div>
+		<div id="target"></div>
+	
 		<style>
 			body { font-family: Arial, Helvetica, sans; }
 			table { border-collapse:collapse; }
-			td { width: 10px; height: 10px; }
+			td { width: 5px; height: 5px; }
+			#target { position: absolute; top: 4em; right: 3em; }
 		</style>
 		<script type="text/javascript">
 			var stats;
@@ -19,8 +29,9 @@
 			setInterval(loop, 1000/120);
 
 			function init() {
+				var target = document.getElementById('target');
 				stats = new Stats();
-				document.body.appendChild(stats.domElement);
+				target.appendChild(stats.domElement);
 
 				var t = document.createElement('table');
 				var index = 0;
@@ -58,7 +69,7 @@
 					}
 				}
 
-				document.body.appendChild(t);
+				target.appendChild(t);
 			}
 
 			function loop() {

@@ -1,0 +1,60 @@
+<!DOCTYPE html> 
+<html lang="en">
+	<head>
+		<title>Tween.js / hello world!</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<script type="text/javascript" src="../build/Tween.js"></script>
+		<link href="http://github.com/sole/sole.github.com/raw/master/tween.js/assets/style.css" media="screen" rel="stylesheet" type="text/css" />
+	</head>
+	<body>
+		<div id="info">
+			<h1><a href="http://github.com/sole/tween.js">tween.js</a></h1>
+			<h2>00 _ hello world</h2>
+			<p>Simple example for illustrating the creation and chaining of tweens.</p>
+		</div>
+		<div id="target" style="position:absolute; top: 100px; left: 100px; width: 100px; height: 100px; background: #a0dde9; padding: 1em;">
+			hello world!
+		</div>
+		
+
+		<script type="text/javascript">
+
+			var position;
+			var target;
+			var tween, tweenBack;
+
+			init();
+			setInterval(loop, 1000 / 60);
+
+
+			function init() {
+
+				position = {x: 100, y: 100, rotation: 0};
+				target = document.getElementById('target');
+				tween = new TWEEN.Tween(position)
+					.to(2, {x: 700, y: 200, rotation: 359})
+					.delay(1);
+
+				tweenBack = new TWEEN.Tween(position)
+					.to(3, {x: 100, y: 100, rotation: 0});
+
+				tween.chain(tweenBack);
+				tweenBack.chain(tween);
+
+				tween.start();
+			}
+
+			function loop() {
+
+				target.style.left = position.x + 'px';
+				target.style.top = position.y + 'px';
+				var r = 'rotate(' + Math.floor(position.rotation) + 'deg)';
+				target.style.webkitTransform = r;
+				target.style.MozTransform = r;
+
+				TWEEN_MANAGER.update();
+			}
+
+		</script>
+	</body>
+</html>
