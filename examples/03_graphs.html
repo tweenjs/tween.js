@@ -1,0 +1,123 @@
+<!DOCTYPE html> 
+<html lang="en">
+	<head>
+		<title>Tween.js / graphs</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<style>
+			body { 
+				background: #fff;
+				font-size: 13px;
+				font-family: Helvetica, Arial, sans;
+				margin: 20px;
+			}
+		</style>
+	</head>
+	<body>
+		<script type="text/javascript" src="../build/Tween.js"></script>
+		<script type="text/javascript">
+
+			document.body.appendChild( createGraph( "Linear.EaseNone", TWEEN.Easing.Linear.EaseNone, false ) );
+
+			document.body.appendChild( createGraph( "Quadratic.EaseIn", TWEEN.Easing.Quadratic.EaseIn, true ) );
+			document.body.appendChild( createGraph( "Quadratic.EaseOut", TWEEN.Easing.Quadratic.EaseOut, false ) );
+			document.body.appendChild( createGraph( "Quadratic.EaseInOut", TWEEN.Easing.Quadratic.EaseInOut, false ) );
+
+			document.body.appendChild( createGraph( "Cubic.EaseIn", TWEEN.Easing.Cubic.EaseIn, false ) );
+			document.body.appendChild( createGraph( "Cubic.EaseOut", TWEEN.Easing.Cubic.EaseOut, false ) );
+			document.body.appendChild( createGraph( "Cubic.EaseInOut", TWEEN.Easing.Cubic.EaseInOut, false ) );
+
+			document.body.appendChild( createGraph( "Quartic.EaseIn", TWEEN.Easing.Quartic.EaseIn, true ) );
+			document.body.appendChild( createGraph( "Quartic.EaseOut", TWEEN.Easing.Quartic.EaseOut, false ) );
+			document.body.appendChild( createGraph( "Quartic.EaseInOut", TWEEN.Easing.Quartic.EaseInOut, false ) );
+
+			document.body.appendChild( createGraph( "Quintic.EaseIn", TWEEN.Easing.Quintic.EaseIn, false ) );
+			document.body.appendChild( createGraph( "Quintic.EaseOut", TWEEN.Easing.Quintic.EaseOut, false ) );
+			document.body.appendChild( createGraph( "Quintic.EaseInOut", TWEEN.Easing.Quintic.EaseInOut, false ) );
+
+			document.body.appendChild( createGraph( "Sinusoidal.EaseIn", TWEEN.Easing.Sinusoidal.EaseIn, true ) );
+			document.body.appendChild( createGraph( "Sinusoidal.EaseOut", TWEEN.Easing.Sinusoidal.EaseOut, false ) );
+			document.body.appendChild( createGraph( "Sinusoidal.EaseInOut", TWEEN.Easing.Sinusoidal.EaseInOut, false ) );
+
+			document.body.appendChild( createGraph( "Exponential.EaseIn", TWEEN.Easing.Exponential.EaseIn, false ) );
+			document.body.appendChild( createGraph( "Exponential.EaseOut", TWEEN.Easing.Exponential.EaseOut, false ) );
+			document.body.appendChild( createGraph( "Exponential.EaseInOut", TWEEN.Easing.Exponential.EaseInOut, false ) );
+
+			document.body.appendChild( createGraph( "Circular.EaseIn", TWEEN.Easing.Circular.EaseIn, true ) );
+			document.body.appendChild( createGraph( "Circular.EaseOut", TWEEN.Easing.Circular.EaseOut, false ) );
+			document.body.appendChild( createGraph( "Circular.EaseInOut", TWEEN.Easing.Circular.EaseInOut, false ) );
+
+			document.body.appendChild( createGraph( "Elastic.EaseIn", TWEEN.Easing.Elastic.EaseIn, false ) );
+			document.body.appendChild( createGraph( "Elastic.EaseOut", TWEEN.Easing.Elastic.EaseOut, false ) );
+			document.body.appendChild( createGraph( "Elastic.EaseInOut", TWEEN.Easing.Elastic.EaseInOut, false ) );
+
+			document.body.appendChild( createGraph( "Back.EaseIn", TWEEN.Easing.Back.EaseIn, true ) );
+			document.body.appendChild( createGraph( "Back.EaseOut", TWEEN.Easing.Back.EaseOut, false ) );
+			document.body.appendChild( createGraph( "Back.EaseInOut", TWEEN.Easing.Back.EaseInOut, false ) );
+
+			document.body.appendChild( createGraph( "Bounce.EaseIn", TWEEN.Easing.Bounce.EaseIn, false ) );
+			document.body.appendChild( createGraph( "Bounce.EaseOut", TWEEN.Easing.Bounce.EaseOut, false ) );
+			document.body.appendChild( createGraph( "Bounce.EaseInOut", TWEEN.Easing.Bounce.EaseInOut, false ) );
+
+
+			setInterval( loop, 1000 / 120 );
+
+			function createGraph( t, f, c ) {
+
+				var div = document.createElement( 'div' );
+				div.style.width = '200px';
+				div.style.height = '120px';
+				div.style.float = 'left';
+				if ( c ) div.style.clear = 'both';
+				div.appendChild( document.createTextNode( t ) );
+
+				var canvas = document.createElement( 'canvas' );
+				canvas.width = 180;
+				canvas.height = 100;
+				div.appendChild( canvas );
+
+				var context = canvas.getContext( '2d' );
+				context.fillStyle = "rgb(250,250,250)";
+				context.fillRect( 0, 0, 180, 100 );
+
+				context.lineWidth = 0.5;
+				context.strokeStyle = "rgb(230,230,230)";
+
+				context.beginPath();
+				context.moveTo( 0, 20 );
+				context.lineTo( 180, 20 );
+				context.moveTo( 0, 80 );
+				context.lineTo( 180, 80 );
+				context.closePath();
+				context.stroke();
+
+				context.lineWidth = 2;
+				context.strokeStyle = "rgb(255,127,127)";
+
+				var position = { x: 5, y: 80 };
+				var position_old = { x: 5, y: 80 };
+
+				new TWEEN.Tween( position ).to( 2, { x: 175 }).easing( TWEEN.Easing.Linear.EaseNone ).start();
+				new TWEEN.Tween( position ).to( 2, { y: 20 }).easing( f ).onUpdate( function() {
+
+					context.beginPath();
+					context.moveTo( position_old.x, position_old.y );
+					context.lineTo( position.x, position.y );
+					context.closePath();
+					context.stroke();
+
+					position_old.x = position.x;
+					position_old.y = position.y;
+
+				}).start();
+
+				return div;
+			}
+
+			function loop() {
+
+				TWEEN_MANAGER.update();
+			}
+
+		</script>
+	</body>
+</html>
