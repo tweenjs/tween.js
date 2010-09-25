@@ -156,18 +156,27 @@ TWEEN.Tween = function ( object ) {
 
 		}
 
-		elapsed = time - _startTime;
+		elapsed = ( time - _startTime ) / _duration;
+		elapsed = elapsed > 1 ? 1 : elapsed;
 
-		if ( elapsed > _duration ) {
+		value = _easingFunction( elapsed );
+
+		for ( property in _valuesDelta ) {
+
+			_object[ property ] = _valuesStart[ property ] + _valuesDelta[ property ] * value;
+
+		}
+
+		if ( _onUpdateFunction !== null ) {
+
+			_onUpdateFunction.call( _object );
+
+		}
+
+		if ( elapsed == 1 ) {
 
 			_completed = true;
 			_startTime = null;
-
-			for ( property in _valuesEnd ) {
-
-				_object[ property ] = _valuesEnd[ property ];
-
-			}
 
 			if ( _onCompleteFunction !== null ) {
 
@@ -185,21 +194,6 @@ TWEEN.Tween = function ( object ) {
 				return false; // no associated tweens, tween can be destroyed
 
 			}
-		}
-
-		value = _easingFunction( elapsed / _duration );
-
-		for ( property in _valuesDelta ) {
-
-			_object[ property ] = _valuesStart[ property ] + _valuesDelta[ property ] * value;
-
-		}
-
-
-		if ( _onUpdateFunction !== null ) {
-
-			_onUpdateFunction.call( _object );
-
 		}
 
 		return true;
