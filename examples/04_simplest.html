@@ -1,0 +1,39 @@
+<!DOCTYPE html> 
+<html lang="en">
+	<head>
+		<title>Tween.js / simplest possible example!</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<script type="text/javascript" src="../build/Tween.js"></script>
+		<link href="http://github.com/sole/sole.github.com/raw/master/tween.js/assets/style.css" media="screen" rel="stylesheet" type="text/css" />
+	</head>
+	<body>
+		<div id="info">
+			<h1><a href="http://github.com/sole/tween.js">tween.js</a></h1>
+			<h2>04 _ simplest possible example</h2>
+			<p>Creating a tween and doing little else apart from that :)</p>
+		</div>
+		
+		<div id="target" style="position: absolute; left: 50px; top: 300px; font-size: 100px; letter-spacing: -7px; ">
+		</div>
+		
+		<script type="text/javascript">
+
+			var position = { x: 50, y: 0 };
+			var tween = new TWEEN.Tween(position).to(2, {x: 400}).start();
+			var output = document.createElement('div');
+			var target = document.getElementById('target');
+			target.appendChild(output);
+		
+			setInterval(function() {
+				TWEEN_MANAGER.update();
+			
+				var newX = position.x;
+				
+				output.innerHTML = 'x == ' + Math.round(newX);
+				target.style.left = ( newX ) + 'px';
+				
+			}, 1000 / 60);
+
+		</script>
+	</body>
+</html>
