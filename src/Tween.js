@@ -369,92 +369,58 @@ TWEEN.Easing.Circular.EaseInOut = function ( k ) {
 
 TWEEN.Easing.Elastic.EaseIn = function( k ) {
 
-	return TWEEN.Easing.Elastic.EaseInWith( k, 0.1, 0.4 );
+	var s, a = 0.1, p = 0.4;
+	if ( k == 0 ) return 0; if ( k == 1 ) return 1; if ( !p ) p = 0.3;
+	if ( !a || a < 1 ) { a = 1; s = p / 4; }
+	else s = p / ( 2 * Math.PI ) * Math.asin( 1 / a );
+	return - ( a * Math.pow( 2, 10 * ( k -= 1 ) ) * Math.sin( ( k - s ) * ( 2 * Math.PI ) / p ) );
 
 };
 
 TWEEN.Easing.Elastic.EaseOut = function( k ) {
 
-	return TWEEN.Easing.Elastic.EaseOutWith( k, 0.1, 0.4 );
+	var s, a = 0.1, p = 0.4;
+	if ( k == 0 ) return 0; if ( k == 1 ) return 1; if ( !p ) p = 0.3;
+	if ( !a || a < 1 ) { a = 1; s = p / 4; }
+	else s = p / ( 2 * Math.PI ) * Math.asin( 1 / a );
+	return ( a * Math.pow( 2, - 10 * k) * Math.sin( ( k - s ) * ( 2 * Math.PI ) / p ) + 1 );
 
 };
 
 TWEEN.Easing.Elastic.EaseInOut = function( k ) {
 
-	return TWEEN.Easing.Elastic.EaseInOutWith( k, 0.1, 0.4 );
-
-};
-
-TWEEN.Easing.Elastic.EaseInWith = function( k, a, p ) {
-
+	var s, a = 0.1, p = 0.4;
 	if ( k == 0 ) return 0; if ( k == 1 ) return 1; if ( !p ) p = 0.3;
-	var s;
-	if ( !a || a < 1 ) { a = 1; s = p / 4; }
-	else s = p / ( 2 * Math.PI ) * Math.asin( 1 / a );
-	return - ( a * Math.pow( 2, 10 * ( k -= 1 ) ) * Math.sin( ( k - s ) * ( 2 * Math.PI ) / p ) );
-
-}
-
-TWEEN.Easing.Elastic.EaseOutWith = function( k, a, p ) {
-
-	if ( k == 0 ) return 0; if ( k == 1 ) return 1; if ( !p ) p = 0.3;
-	var s;
-	if ( !a || a < 1 ) { a = 1; s = p / 4; }
-	else s = p / ( 2 * Math.PI ) * Math.asin( 1 / a );
-	return ( a * Math.pow( 2, - 10 * k) * Math.sin( ( k - s ) * ( 2 * Math.PI ) / p ) + 1 );
-
-}
-
-TWEEN.Easing.Elastic.EaseInOutWith = function( k, a, p ) {
-
-	if ( k == 0 ) return 0; if ( k == 1 ) return 1; if ( !p ) p = 0.3;
-        var s;
         if ( !a || a < 1 ) { a = 1; s = p / 4; }
         else s = p / ( 2 * Math.PI ) * Math.asin( 1 / a );
         if ( ( k *= 2 ) < 1 ) return - 0.5 * ( a * Math.pow( 2, 10 * ( k -= 1 ) ) * Math.sin( ( k - s ) * ( 2 * Math.PI ) / p ) );
         return a * Math.pow( 2, -10 * ( k -= 1 ) ) * Math.sin( ( k - s ) * ( 2 * Math.PI ) / p ) * 0.5 + 1;
 
-}
+};
 
 //
 
 TWEEN.Easing.Back.EaseIn = function( k ) {
 
-	return TWEEN.Easing.Back.EaseInWith( k, 1.70158 );
+	var s = 1.70158;
+	return k * k * ( ( s + 1 ) * k - s );
 
 };
 
 TWEEN.Easing.Back.EaseOut = function( k ) {
 
-	return TWEEN.Easing.Back.EaseOutWith( k, 1.70158 );
+	var s = 1.70158;
+	return ( k = k - 1 ) * k * ( ( s + 1 ) * k + s ) + 1;
 
 };
 
 TWEEN.Easing.Back.EaseInOut = function( k ) {
 
-	return TWEEN.Easing.Back.EaseInOutWith( k, 1.70158 );
-
-};
-
-TWEEN.Easing.Back.EaseInWith = function( k, s ) {
-
-	return k * k * ( ( s + 1 ) * k - s );
-
-}
-
-TWEEN.Easing.Back.EaseOutWith = function( k, s ) {
-
-	return ( k = k - 1 ) * k * ( ( s + 1 ) * k + s ) + 1;
-
-}
-
-TWEEN.Easing.Back.EaseInOutWith = function( k, s ) {
-
-	s *= 1.525;
+	var s = 1.70158 * 1.525;
 	if ( ( k *= 2 ) < 1 ) return 0.5 * ( k * k * ( ( s + 1 ) * k - s ) );
 	return 0.5 * ( ( k -= 2 ) * k * ( ( s + 1 ) * k + s ) + 2 );
 
-}
+};
 
 // 
 
