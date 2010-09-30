@@ -180,7 +180,7 @@ TWEEN.Tween = function ( object ) {
 
 			if ( _onCompleteFunction !== null ) {
 
-				_onCompleteFunction();
+				_onCompleteFunction.call( _object );
 
 			}
 
