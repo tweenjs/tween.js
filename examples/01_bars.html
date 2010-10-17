@@ -20,6 +20,7 @@
 
 			init();
 			setInterval(loop, 1000/120);
+			TWEEN.rate = 1000 / 120;
 
 			function init() {
 				stats = new Stats();
@@ -59,19 +60,19 @@
 					}
 
 					var tween = new TWEEN.Tween(elem)
-						.to(4, { margin: endValue })
-						.delay(Math.random())
+						.to({ margin: endValue }, 4000)
+						.delay(Math.random()*1000)
 						.onUpdate(updateFunction)
-						.easing(TWEEN.Easing.Back.EaseOut)
+						.easing(TWEEN.ease.BackEaseOut)
 						.start();
 
 					var tweenBack = new TWEEN.Tween(elem, false)
-						.to(4, { margin: startValue})
-						.delay(Math.random())
+						.to( { margin: startValue}, 4000)
+						.delay(Math.random()*1000)
 						.onUpdate(updateFunction);
 
-					tween.chain(tweenBack);
-					tweenBack.chain(tween);
+					tween.next(tweenBack);
+					tweenBack.next(tween);
 
 					document.body.appendChild(elem.domElement);
 
@@ -82,7 +83,7 @@
 
 			function loop() {
 				stats.update();
-				TWEEN_MANAGER.update();
+				TWEEN.update();
 			}
 		</script>
 	</body>

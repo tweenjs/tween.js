@@ -20,7 +20,7 @@
 
 			var position;
 			var target;
-			var tween, tweenBack;
+			var tween1, tween2, tween3;
 
 			init();
 			setInterval(loop, 1000 / 60);
@@ -28,31 +28,36 @@
 
 			function init() {
 
-				position = {x: 100, y: 100, rotation: 0};
 				target = document.getElementById('target');
-				tween = new TWEEN.Tween(position)
-					.to(2, {x: 700, y: 200, rotation: 359})
-					.delay(1);
 
-				tweenBack = new TWEEN.Tween(position)
-					.to(3, {x: 100, y: 100, rotation: 0});
+				position = {x: 100, y: 100, rotation: 0};
+				
+				tween1 = new TWEEN.Tween(position)
+					.to({x: 700, y: 200, rotation: 360}, 2000)
+					.delay(1000);
 
-				tween.chain(tweenBack);
-				tweenBack.chain(tween);
+				tween2 = new TWEEN.Tween(position)
+					.to({x:700, y: 500, rotation: 720}, 3000);
 
-				tween.start();
+				tween3 = new TWEEN.Tween(position)
+					.to({x: 100, y: 100, rotation: 0}, 3000)
+
+				tween1.next(tween2);
+				tween2.next(tween3);
+				tween3.next(tween1);
+
+				tween1.start();
 			}
 
 			function loop() {
 
-				TWEEN_MANAGER.update();
+				TWEEN.update();
 
 				target.style.left = position.x + 'px';
 				target.style.top = position.y + 'px';
-				var r = 'rotate(' + Math.floor(position.rotation) + 'deg)';
+				var r = 'rotate(' + (position.rotation|0) + 'deg)';
 				target.style.webkitTransform = r;
 				target.style.MozTransform = r;
-
 			}
 
 		</script>

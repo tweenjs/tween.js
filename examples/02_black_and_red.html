@@ -4,8 +4,16 @@
 		<title>Black and Red / Tween.js</title>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 		<link href="http://github.com/sole/sole.github.com/raw/master/tween.js/assets/style.css" media="screen" rel="stylesheet" type="text/css" />
-		<script type="text/javascript" src="../build/Tween.js"></script>
-		<script type="text/javascript" src="http://github.com/mrdoob/stats.js/raw/master/build/Stats.js"></script>
+		<script type="text/javascript" src="../src/Tween.js"></script>
+
+
+		<style type="text/css">
+			body { font-family: Arial, Helvetica, sans; }
+			table { border-collapse:collapse; }
+			td { width: 5px; height: 5px; }
+			#target { position: absolute; top: 4em; right: 3em; }
+		</style>
+
 	</head>
 	<body>
 		<div id="info">
@@ -16,22 +24,17 @@
 		</div>
 		<div id="target"></div>
 	
-		<style>
-			body { font-family: Arial, Helvetica, sans; }
-			table { border-collapse:collapse; }
-			td { width: 5px; height: 5px; }
-			#target { position: absolute; top: 4em; right: 3em; }
-		</style>
 		<script type="text/javascript">
-			var stats;
+	
 
 			init();
 			setInterval(loop, 1000/120);
 
+			TWEEN.rate = 1000/120;
+
 			function init() {
 				var target = document.getElementById('target');
-				stats = new Stats();
-				target.appendChild(stats.domElement);
+
 
 				var t = document.createElement('table');
 				var index = 0;
@@ -41,28 +44,26 @@
 					for(var j = 0; j < 64; j++) {
 						var td = tr.insertCell(-1);
 						td.style.background = '#000';
-						var x = (i+j) * 0.1;
+
 						var cell = { 'td': td, value : 0 };
 						var tween = new TWEEN.Tween(cell)
-							.to(8, { value: 1 })
-							.delay(0.001 * index + Math.random())
-							.easing(TWEEN.Easing.Elastic.EaseInOut)
+							.to({ value: 1 }, 8000)
+							.delay(index + 1000 * Math.random())
+							.easing(TWEEN.ease.ElasticEaseInOut)
 							.onUpdate(function() {
-								var c = (this.value * 0xff).toFixed(0);
-								this.td.style.background = 'rgb(' + c + ', 0, 0)';
+								this.td.style.background = 'rgb(' + (this.value * 0xff|0) + ', 0, 0)';
 							});
 
 						var tweenBack = new TWEEN.Tween(cell)
-							.to(4, { value: 0 })
-							.delay(0.001*index + Math.random())
-							.easing(TWEEN.Easing.Elastic.EaseInOut)
+							.to({ value: 0 }, 4000)
+							.delay(index + 1000 * Math.random())
+							.easing(TWEEN.ease.ElasticEaseInOut)
 							.onUpdate(function() {
-								var c = (this.value * 0xff).toFixed(0);
-								this.td.style.background = 'rgb(' + c + ', 0, 0)';
+								this.td.style.background = 'rgb(' + (this.value * 0xff|0) + ', 0, 0)';
 							});
 
-						tween.chain(tweenBack);
-						tweenBack.chain(tween);
+						tween.next(tweenBack);
+						tweenBack.next(tween);
 
 						tween.start();
 						index++;
@@ -73,8 +74,8 @@
 			}
 
 			function loop() {
-				stats.update();
-				TWEEN_MANAGER.update();
+				
+				TWEEN.update();
 			}
 		</script>
 	</body>

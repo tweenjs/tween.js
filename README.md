@@ -38,7 +38,7 @@ The following code creates a Tween which will change the 'x' attribute in a posi
 		target.appendChild(output);
 	
 		setInterval(function() {
-			TWEEN_MANAGER.update();
+			TWEEN.update();
 		
 			var newX = position.x;
 			
@@ -56,4 +56,4 @@ Have a look at that folder to discover more functionalities of the library!
 
 People who have contributed directly or indirectly to this project :-D
 
-[sole](http://soledadpenades.com), [mrdoob](http://mrdoob.com), [Robert Penner](http://www.robertpenner.com/), [Philippe Elsass](http://philippe.elsass.me)
+[sole](http://soledadpenades.com), [mrdoob](http://mrdoob.com), [Robert Penner](http://www.robertpenner.com/), [Philippe Elsass](http://philippe.elsass.me), [infusion](http://www.xarg.org)
