@@ -3,8 +3,8 @@
 	<head>
 		<title>Tween.js / hello world!</title>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-		<script type="text/javascript" src="../build/Tween.js"></script>
-		<link href="http://github.com/sole/sole.github.com/raw/master/tween.js/assets/style.css" media="screen" rel="stylesheet" type="text/css" />
+		<script type="text/javascript" src="../src/Tween.js"></script>
+		<link href="style.css" media="screen" rel="stylesheet" type="text/css" />
 	</head>
 	<body>
 		<div id="info">
@@ -31,11 +31,11 @@
 				position = {x: 100, y: 100, rotation: 0};
 				target = document.getElementById('target');
 				tween = new TWEEN.Tween(position)
-					.to(2, {x: 700, y: 200, rotation: 359})
-					.delay(1);
+					.to({x: 700, y: 200, rotation: 359}, 2000)
+					.delay(1000);
 
 				tweenBack = new TWEEN.Tween(position)
-					.to(3, {x: 100, y: 100, rotation: 0});
+					.to({x: 100, y: 100, rotation: 0}, 3000);
 
 				tween.chain(tweenBack);
 				tweenBack.chain(tween);
@@ -45,7 +45,7 @@
 
 			function loop() {
 
-				TWEEN_MANAGER.update();
+				TWEEN.update();
 
 				target.style.left = position.x + 'px';
 				target.style.top = position.y + 'px';

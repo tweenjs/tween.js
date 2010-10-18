@@ -3,8 +3,8 @@
 	<head>
 		<title>Tween.js / simplest possible example!</title>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-		<script type="text/javascript" src="../build/Tween.js"></script>
-		<link href="http://github.com/sole/sole.github.com/raw/master/tween.js/assets/style.css" media="screen" rel="stylesheet" type="text/css" />
+		<script type="text/javascript" src="../src/Tween.js"></script>
+		<link href="style.css" media="screen" rel="stylesheet" type="text/css" />
 	</head>
 	<body>
 		<div id="info">
@@ -19,13 +19,13 @@
 		<script type="text/javascript">
 
 			var position = { x: 50, y: 0 };
-			var tween = new TWEEN.Tween(position).to(2, {x: 400}).start();
+			var tween = new TWEEN.Tween(position).to({x: 400}, 2000).start();
 			var output = document.createElement('div');
 			var target = document.getElementById('target');
 			target.appendChild(output);
 		
 			setInterval(function() {
-				TWEEN_MANAGER.update();
+				TWEEN.update();
 			
 				var newX = position.x;
 				

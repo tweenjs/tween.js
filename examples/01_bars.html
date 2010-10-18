@@ -3,8 +3,8 @@
 	<head>
 		<title>bars / Tween.js</title>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-		<link href="http://github.com/sole/sole.github.com/raw/master/tween.js/assets/style.css" media="screen" rel="stylesheet" type="text/css" />
-		<script type="text/javascript" src="../build/Tween.js"></script>
+		<link href="style.css" media="screen" rel="stylesheet" type="text/css" />
+		<script type="text/javascript" src="../src/Tween.js"></script>
 		<script type="text/javascript" src="http://github.com/mrdoob/stats.js/raw/master/build/Stats.js"></script>
 	</head>
 	<body>
@@ -48,27 +48,26 @@
 					domElement.style.lineHeight = 0.5;
 					domElement.style.width = '100px';
 					domElement.style.height = '2px';
-					domElement.innerHTML = '' + i;
 
 					elem.domElement = domElement;
 
 					elem.margin = startValue;
 
-					var updateFunction = function() {
+					var updateCallback = function() {
 						this.domElement.style.marginLeft = this.margin + 'px';
 					}
 
 					var tween = new TWEEN.Tween(elem)
-						.to(4, { margin: endValue })
-						.delay(Math.random())
-						.onUpdate(updateFunction)
+						.to({ margin: endValue }, 4000)
+						.delay(Math.random() * 1000)
+						.onUpdate(updateCallback)
 						.easing(TWEEN.Easing.Back.EaseOut)
 						.start();
 
 					var tweenBack = new TWEEN.Tween(elem, false)
-						.to(4, { margin: startValue})
-						.delay(Math.random())
-						.onUpdate(updateFunction);
+						.to({ margin: startValue}, 4000)
+						.delay(Math.random() * 1000)
+						.onUpdate(updateCallback);
 
 					tween.chain(tweenBack);
 					tweenBack.chain(tween);
@@ -82,7 +81,7 @@
 
 			function loop() {
 				stats.update();
-				TWEEN_MANAGER.update();
+				TWEEN.update();
 			}
 		</script>
 	</body>

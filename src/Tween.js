@@ -1,22 +1,24 @@
 /**
  * @author sole / http://soledadpenades.com
  * @author mr.doob / http://mrdoob.com
+ * @author Robert Eisele / http://www.xarg.org
  * @author Philippe / http://philippe.elsass.me
  * @author Robert Penner / http://www.robertpenner.com/easing_terms_of_use.html
  */
 
-var TWEEN_MANAGER = TWEEN_MANAGER || ( function() {
+var TWEEN = TWEEN || ( function() {
 
 	var i, time, tweens = [];
 
 	this.add = function ( tween ) {
 
 		tweens.push( tween );
+
 	};
 
 	this.remove = function ( tween ) {
 
-		for ( var i = 0, l = tweens.length; i < l; i++ ) {
+		for ( var i = 0, n = tweens.length; i < n; i++ ) {
 
 			if ( tween == tweens[ i ] ) {
 
@@ -43,13 +45,11 @@ var TWEEN_MANAGER = TWEEN_MANAGER || ( function() {
 
 	return this;
 
-} )(),
-
-TWEEN = TWEEN || {};
+} )();
 
 TWEEN.Tween = function ( object ) {
 
-	TWEEN_MANAGER.add( this );
+	TWEEN.add( this );
 
 	var _object = object,
 	_valuesStart = {},
@@ -60,16 +60,21 @@ TWEEN.Tween = function ( object ) {
 	_startTime = null,
 	_easingFunction = TWEEN.Easing.Elastic.EaseInOut,
 	_chainedTween = null,
-	_onUpdateFunction = null,
-	_onCompleteFunction = null,
+	_onUpdateCallback = null,
+	_onCompleteCallback = null,
 	_completed = false;
 
-	this.to = function ( duration, properties ) {
+	this.to = function ( properties, duration ) {
 
-		_duration = duration * 1000;
+		if( duration !== null ) {
+
+			_duration = duration;
+
+		}
 
 		for ( var property in properties ) {
 
+			// This prevents the engine from interpolating null values
 			if ( _object[ property ] === null ) {
 
 				continue;
@@ -93,6 +98,7 @@ TWEEN.Tween = function ( object ) {
 
 		for ( var property in _valuesEnd ) {
 
+			// Again, prevent dealing with null values
 			if ( _object[ property ] === null ) {
 
 				continue;
@@ -108,7 +114,7 @@ TWEEN.Tween = function ( object ) {
 
 	this.delay = function ( amount ) {
 
-		_delayTime = amount * 1000;
+		_delayTime = amount;
 		return this;
 
 	};
@@ -126,16 +132,16 @@ TWEEN.Tween = function ( object ) {
 
 	};
 
-	this.onUpdate = function ( onUpdateFunction ) {
+	this.onUpdate = function ( onUpdateCallback ) {
 
-		_onUpdateFunction = onUpdateFunction;
+		_onUpdateCallback = onUpdateCallback;
 		return this;
 
 	};
 
-	this.onComplete = function ( onCompleteFunction ) {
+	this.onComplete = function ( onCompleteCallback ) {
 
-		_onCompleteFunction = onCompleteFunction;
+		_onCompleteCallback = onCompleteCallback;
 		return this;
 
 	};
@@ -144,7 +150,7 @@ TWEEN.Tween = function ( object ) {
 
 		var property, elapsed, value;
 
-		if ( time < _startTime || _startTime === null) {
+		if ( _startTime === null || time < _startTime ) {
 
 			return true;
 
@@ -167,9 +173,9 @@ TWEEN.Tween = function ( object ) {
 
 		}
 
-		if ( _onUpdateFunction !== null ) {
+		if ( _onUpdateCallback !== null ) {
 
-			_onUpdateFunction.call( _object );
+			_onUpdateCallback.call( _object, value );
 
 		}
 
@@ -178,9 +184,9 @@ TWEEN.Tween = function ( object ) {
 			_completed = true;
 			_startTime = null;
 
-			if ( _onCompleteFunction !== null ) {
+			if ( _onCompleteCallback !== null ) {
 
-				_onCompleteFunction.call( _object );
+				_onCompleteCallback.call( _object );
 
 			}
 
@@ -202,7 +208,7 @@ TWEEN.Tween = function ( object ) {
 
 	this.destroy = function () {
 
-		TWEEN_MANAGER.remove( this );
+		TWEEN.remove( this );
 
 	};
 

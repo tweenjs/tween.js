@@ -3,7 +3,7 @@
 	<head>
 		<title>Tween.js / graphs</title>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-		<script type="text/javascript" src="../build/Tween.js"></script>
+		<script type="text/javascript" src="../src/Tween.js"></script>
 		<style>
 			body {
 				margin: 0px;
@@ -15,7 +15,7 @@
 			}
 			
 		</style>
-		<link href="http://github.com/sole/sole.github.com/raw/master/tween.js/assets/style.css" media="screen" rel="stylesheet" type="text/css" />
+		<link href="style.css" media="screen" rel="stylesheet" type="text/css" />
 	</head>
 	<body>
 		<div id="info" style="position: relative;">
@@ -108,8 +108,8 @@
 				var position = { x: 5, y: 80 };
 				var position_old = { x: 5, y: 80 };
 
-				new TWEEN.Tween( position ).to( 2, { x: 175 }).easing( TWEEN.Easing.Linear.EaseNone ).start();
-				new TWEEN.Tween( position ).to( 2, { y: 20 }).easing( f ).onUpdate( function() {
+				new TWEEN.Tween( position ).to( { x: 175 }, 2000 ).easing( TWEEN.Easing.Linear.EaseNone ).start();
+				new TWEEN.Tween( position ).to( { y: 20 }, 2000 ).easing( f ).onUpdate( function() {
 
 					context.beginPath();
 					context.moveTo( position_old.x, position_old.y );
@@ -127,7 +127,7 @@
 
 			function loop() {
 
-				TWEEN_MANAGER.update();
+				TWEEN.update();
 			}
 
 		</script>
