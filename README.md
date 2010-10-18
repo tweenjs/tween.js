@@ -56,4 +56,4 @@ Have a look at that folder to discover more functionalities of the library!
 
 People who have contributed directly or indirectly to this project :-D
 
-[sole](http://soledadpenades.com), [mrdoob](http://mrdoob.com), [Robert Penner](http://www.robertpenner.com/), [Philippe Elsass](http://philippe.elsass.me)
+[sole](http://soledadpenades.com), [mrdoob](http://mrdoob.com), [Robert Eisele](http://www.xarg.org/), [Robert Penner](http://www.robertpenner.com/), [Philippe Elsass](http://philippe.elsass.me)
