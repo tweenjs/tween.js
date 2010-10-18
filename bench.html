@@ -1,0 +1,560 @@
+
+
+
+
+
+<script type="text/javascript">
+
+
+
+
+
+    TWEEN = {};
+
+    TWEEN.Easing = {};
+
+    TWEEN.ease = {};
+
+
+    TWEEN.Easing.LinearEaseNone = function ( k ) {
+
+	return k;
+
+    };
+
+    //
+
+    TWEEN.Easing.QuadraticEaseIn = function ( k ) {
+
+	return k * k;
+
+    };
+
+    TWEEN.Easing.QuadraticEaseOut = function ( k ) {
+
+	return - k * ( k - 2 );
+
+    };
+
+    TWEEN.Easing.QuadraticEaseInOut = function ( k ) {
+
+	if ( ( k *= 2 ) < 1 ) return 0.5 * k * k;
+	return - 0.5 * ( --k * ( k - 2 ) - 1 );
+
+    };
+
+    //
+
+    TWEEN.Easing.CubicEaseIn = function ( k ) {
+
+	return k * k * k;
+
+    };
+
+    TWEEN.Easing.CubicEaseOut = function ( k ) {
+
+	return --k * k * k + 1;
+
+    };
+
+    TWEEN.Easing.CubicEaseInOut = function ( k ) {
+
+	if ( ( k *= 2 ) < 1 ) return 0.5 * k * k * k;
+	return 0.5 * ( ( k -= 2 ) * k * k + 2 );
+
+    };
+
+    //
+
+    TWEEN.Easing.QuarticEaseIn = function ( k ) {
+
+	return k * k * k * k;
+
+    };
+
+    TWEEN.Easing.QuarticEaseOut = function ( k ) {
+
+	return - ( --k * k * k * k - 1 );
+
+    }
+
+    TWEEN.Easing.QuarticEaseInOut = function ( k ) {
+
+	if ( ( k *= 2 ) < 1) return 0.5 * k * k * k * k;
+	return - 0.5 * ( ( k -= 2 ) * k * k * k - 2 );
+
+    };
+
+    //
+
+    TWEEN.Easing.QuinticEaseIn = function ( k ) {
+
+	return k * k * k * k * k;
+
+    };
+
+    TWEEN.Easing.QuinticEaseOut = function ( k ) {
+
+	return ( k = k - 1 ) * k * k * k * k + 1;
+
+    };
+
+    TWEEN.Easing.QuinticEaseInOut = function ( k ) {
+
+	if ( ( k *= 2 ) < 1 ) return 0.5 * k * k * k * k * k;
+	return 0.5 * ( ( k -= 2 ) * k * k * k * k + 2 );
+
+    };
+
+    //
+
+    TWEEN.Easing.SinusoidalEaseIn = function ( k ) {
+
+	return - Math.cos( k * Math.PI / 2 ) + 1;
+
+    };
+
+    TWEEN.Easing.SinusoidalEaseOut = function ( k ) {
+
+	return Math.sin( k * Math.PI / 2 );
+
+    };
+
+    TWEEN.Easing.SinusoidalEaseInOut = function ( k ) {
+
+	return - 0.5 * ( Math.cos( Math.PI * k ) - 1 );
+
+    };
+
+    //
+
+    TWEEN.Easing.ExponentialEaseIn = function ( k ) {
+
+	return k == 0 ? 0 : Math.pow( 2, 10 * ( k - 1 ) );
+
+    };
+
+    TWEEN.Easing.ExponentialEaseOut = function ( k ) {
+
+	return k == 1 ? 1 : - Math.pow( 2, - 10 * k ) + 1;
+
+    };
+
+    TWEEN.Easing.ExponentialEaseInOut = function ( k ) {
+
+	if ( k == 0 ) return 0;
+        if ( k == 1 ) return 1;
+        if ( ( k *= 2 ) < 1 ) return 0.5 * Math.pow( 2, 10 * ( k - 1 ) );
+        return 0.5 * ( - Math.pow( 2, - 10 * ( k - 1 ) ) + 2 );
+
+    };
+
+    //
+
+    TWEEN.Easing.CircularEaseIn = function ( k ) {
+
+	return - ( Math.sqrt( 1 - k * k ) - 1);
+
+    };
+
+    TWEEN.Easing.CircularEaseOut = function ( k ) {
+
+	return Math.sqrt( 1 - --k * k );
+
+    };
+
+    TWEEN.Easing.CircularEaseInOut = function ( k ) {
+
+	if ( ( k /= 0.5 ) < 1) return - 0.5 * ( Math.sqrt( 1 - k * k) - 1);
+	return 0.5 * ( Math.sqrt( 1 - ( k -= 2) * k) + 1);
+
+    };
+
+    //
+
+    TWEEN.Easing.ElasticEaseIn = function( k ) {
+
+	var s, a = 0.1, p = 0.4;
+	if ( k == 0 ) return 0; if ( k == 1 ) return 1; if ( !p ) p = 0.3;
+	if ( !a || a < 1 ) { a = 1; s = p / 4; }
+	else s = p / ( 2 * Math.PI ) * Math.asin( 1 / a );
+	return - ( a * Math.pow( 2, 10 * ( k -= 1 ) ) * Math.sin( ( k - s ) * ( 2 * Math.PI ) / p ) );
+
+    };
+
+    TWEEN.Easing.ElasticEaseOut = function( k ) {
+
+	var s, a = 0.1, p = 0.4;
+	if ( k == 0 ) return 0; if ( k == 1 ) return 1; if ( !p ) p = 0.3;
+	if ( !a || a < 1 ) { a = 1; s = p / 4; }
+	else s = p / ( 2 * Math.PI ) * Math.asin( 1 / a );
+	return ( a * Math.pow( 2, - 10 * k) * Math.sin( ( k - s ) * ( 2 * Math.PI ) / p ) + 1 );
+
+    };
+
+    TWEEN.Easing.ElasticEaseInOut = function( k ) {
+
+	var s, a = 0.1, p = 0.4;
+	if ( k == 0 ) return 0; if ( k == 1 ) return 1; if ( !p ) p = 0.3;
+        if ( !a || a < 1 ) { a = 1; s = p / 4; }
+        else s = p / ( 2 * Math.PI ) * Math.asin( 1 / a );
+        if ( ( k *= 2 ) < 1 ) return - 0.5 * ( a * Math.pow( 2, 10 * ( k -= 1 ) ) * Math.sin( ( k - s ) * ( 2 * Math.PI ) / p ) );
+        return a * Math.pow( 2, -10 * ( k -= 1 ) ) * Math.sin( ( k - s ) * ( 2 * Math.PI ) / p ) * 0.5 + 1;
+
+    };
+
+    //
+
+    TWEEN.Easing.BackEaseIn = function( k ) {
+
+	var s = 1.70158;
+	return k * k * ( ( s + 1 ) * k - s );
+
+    };
+
+    TWEEN.Easing.BackEaseOut = function( k ) {
+
+	var s = 1.70158;
+	return ( k = k - 1 ) * k * ( ( s + 1 ) * k + s ) + 1;
+
+    };
+
+    TWEEN.Easing.BackEaseInOut = function( k ) {
+
+	var s = 1.70158 * 1.525;
+	if ( ( k *= 2 ) < 1 ) return 0.5 * ( k * k * ( ( s + 1 ) * k - s ) );
+	return 0.5 * ( ( k -= 2 ) * k * ( ( s + 1 ) * k + s ) + 2 );
+
+    };
+
+    //
+
+    TWEEN.Easing.BounceEaseIn = function( k ) {
+
+	return 1 - TWEEN.Easing.BounceEaseOut( 1 - k );
+
+    };
+
+    TWEEN.Easing.BounceEaseOut = function( k ) {
+
+	if ( ( k /= 1 ) < ( 1 / 2.75 ) ) {
+
+	    return 7.5625 * k * k;
+
+	} else if ( k < ( 2 / 2.75 ) ) {
+
+	    return 7.5625 * ( k -= ( 1.5 / 2.75 ) ) * k + 0.75;
+
+	} else if ( k < ( 2.5 / 2.75 ) ) {
+
+	    return 7.5625 * ( k -= ( 2.25 / 2.75 ) ) * k + 0.9375;
+
+	} else {
+
+	    return 7.5625 * ( k -= ( 2.625 / 2.75 ) ) * k + 0.984375;
+
+	}
+
+    };
+
+    TWEEN.Easing.BounceEaseInOut = function( k ) {
+
+	if ( k < 0.5 ) return TWEEN.Easing.BounceEaseIn( k * 2 ) * 0.5;
+	return TWEEN.Easing.BounceEaseOut( k * 2 - 1 ) * 0.5 + 0.5;
+
+    };
+
+    ////////////////////////////
+    ////////////////////////////
+    ////////////////////////////
+    ////////////////////////////
+    ////////////////////////////
+    ////////////////////////////
+    ////////////////////////////
+    ////////////////////////////
+    ////////////////////////////
+    ////////////////////////////
+    ////////////////////////////
+    ////////////////////////////
+    ////////////////////////////
+    ////////////////////////////
+    ////////////////////////////
+    ////////////////////////////
+    ////////////////////////////
+    ////////////////////////////
+    ////////////////////////////
+    ////////////////////////////
+    ////////////////////////////
+    ////////////////////////////
+    ////////////////////////////
+    ////////////////////////////
+    ////////////////////////////
+    ////////////////////////////
+    ////////////////////////////
+    ////////////////////////////
+    ////////////////////////////
+
+    TWEEN.ease.LinearEaseNone = function(k) {
+
+	return k;
+    };
+
+    //
+
+    TWEEN.ease.QuadraticEaseIn = function(k) {
+
+	return k * k;
+    };
+
+    TWEEN.ease.QuadraticEaseOut = function(k) {
+
+	return -k * (k - 2);
+    };
+
+    TWEEN.ease.QuadraticEaseInOut = function(k) {
+
+	if ((k*= 2) < 1)
+	    return 0.5 * k * k;
+	return -0.5 * (--k * (k - 2) - 1);
+    };
+
+    //
+
+    TWEEN.ease.CubicEaseIn = function(k) {
+
+	return k * k * k;
+    };
+
+    TWEEN.ease.CubicEaseOut = function(k) {
+
+	return 1 + --k * k * k;
+    };
+
+    TWEEN.ease.CubicEaseInOut = function(k) {
+
+	if ((k*= 2) < 1)
+	    return 0.5 * k * k * k;
+	return 0.5 * ((k -= 2) * k * k + 2);
+    };
+
+    //
+
+    TWEEN.ease.QuarticEaseIn = function(k) {
+
+	return k * k * k * k;
+    };
+
+    TWEEN.ease.QuarticEaseOut = function(k) {
+
+	return -(--k * k * k * k - 1);
+
+    }
+
+    TWEEN.ease.QuarticEaseInOut = function(k) {
+
+	if ((k*= 2) < 1)
+	    return 0.5 * k * k * k * k;
+	return - 0.5 * ((k-= 2) * k * k * k - 2);
+    };
+
+    //
+
+    TWEEN.ease.QuinticEaseIn = function(k) {
+
+	return k * k * k * k * k;
+    };
+
+    TWEEN.ease.QuinticEaseOut = function(k) {
+
+	return --k * k * k * k * k + 1;
+    };
+
+    TWEEN.ease.QuinticEaseInOut = function(k) {
+
+	if ((k*= 2) < 1)
+	    return 0.5 * k * k * k * k * k;
+	return 0.5 * ((k-= 2) * k * k * k * k + 2);
+    };
+
+    //
+
+    TWEEN.ease.SinusoidalEaseIn = function(k) {
+
+	return 1 - Math.cos(k * Math.PI / 2);
+    };
+
+    TWEEN.ease.SinusoidalEaseOut = function(k) {
+
+	return Math.sin(k * Math.PI / 2);
+    };
+
+    TWEEN.ease.SinusoidalEaseInOut = function(k) {
+
+	return 0.5 - 0.5 * Math.cos(Math.PI * k);
+    };
+
+    //
+
+    TWEEN.ease.ExponentialEaseIn = function(k) {
+
+	return k !== 0 ? Math.pow(1024, k - 1) : 0;
+    };
+
+    TWEEN.ease.ExponentialEaseOut = function(k) {
+
+	return k !== 1 ? 1 - Math.pow(1024, -k) : 1;
+
+    };
+
+    TWEEN.ease.ExponentialEaseInOut = function(k) {
+
+	if (k === 0)
+	    return 0;
+	if (k === 1)
+	    return 1;
+	if ((k*= 2) < 1)
+	    return 0.5 * Math.pow(1024, k - 1);
+
+	return 1 - 512 * Math.pow(1024, -k);
+    };
+
+    //
+
+    TWEEN.ease.CircularEaseIn = function(k) {
+
+	return 1 - Math.sqrt(1 - k * k);
+    };
+
+    TWEEN.ease.CircularEaseOut = function(k) {
+
+	return Math.sqrt(1 - --k * k);
+
+    };
+
+    TWEEN.ease.CircularEaseInOut = function(k) {
+
+	if ((k*= 2) < 1)
+	    return 0.5 - 0.5 * Math.sqrt(1 - k * k);
+	return 0.5 + 0.5 * Math.sqrt(1 - (k-= 2) * k);
+    };
+
+    //
+
+    TWEEN.ease.ElasticEaseIn = function(k) {
+
+	if (k === 0)
+	    return 0;
+	if (k === 1)
+	    return 1;
+
+	return -(Math.pow(1024, --k) * Math.sin((k - 0.1) * 15.7079633));
+    };
+
+    TWEEN.ease.ElasticEaseOut = function(k) {
+
+	if (k === 0)
+	    return 0;
+	if (k === 1)
+	    return 1;
+
+	return 1 + Math.pow(1024, -k) * Math.sin((k - 0.1) * 15.7079633);
+
+    };
+
+    TWEEN.ease.ElasticEaseInOut = function(k) {
+
+	if (k === 0)
+	    return 0;
+	if (k === 1)
+	    return 1;
+
+	if ((k*= 2) < 1)
+	    return -Math.pow(1024, --k) * 0.5 * Math.sin((k - 0.1) * 15.7079633);
+
+	return 1 + Math.pow(1024, - --k) * 0.5 * Math.sin((k - 0.1) * 15.7079633);
+    };
+
+    //
+
+    TWEEN.ease.BackEaseIn = function(k) {
+
+	return k * k * (2.70158 * k - 1.70158);
+    };
+
+    TWEEN.ease.BackEaseOut = function(k) {
+
+	return 1 + --k * k * (2.70158 * k + 1.70158);
+    };
+
+    TWEEN.ease.BackEaseInOut = function(k) {
+
+	var s = 1.70158 * 1.525;
+	if ((k*= 2) < 1)
+	    return 0.5 * (k * k * ((s + 1) * k - s));
+	return 0.5 * ((k-= 2) * k * ((s + 1) * k + s) + 2);
+    };
+
+    //
+
+    TWEEN.ease.BounceEaseIn = function(k) {
+
+	return 1 - TWEEN.ease.BounceEaseOut(1 - k);
+    };
+
+    TWEEN.ease.BounceEaseOut = function(k) {
+
+	if (k < (4 / 11)) {
+	    return 7.5625 * k * k;
+	} else if (k < (8 / 11)) {
+	    return 0.75 + 7.5625 * (k-= 6 / 11) * k;
+	} else if (k < (10 / 11)) {
+	    return 0.9375 + 7.5625 * (k-= 9 / 11) * k;
+	} else {
+	    return 0.984375 + 7.5625 * (k-= 21 / 22) * k;
+	}
+
+    };
+
+    TWEEN.ease.BounceEaseInOut = function(k) {
+
+	if (k < 0.5)
+	    return TWEEN.ease.BounceEaseIn(k * 2) * 0.5;
+	return TWEEN.ease.BounceEaseOut(k * 2 - 1) * 0.5 + 0.5;
+    };
+
+    (function(){
+
+	var j, start1, start2, end1, end2, timings = [];
+
+
+
+	for (var i in TWEEN.ease) {
+
+	    start1 = new Date().getTime();
+	    for(j=0; j<=1000000; j++) {
+		TWEEN.ease[i](j/1000000);
+	    }
+	    end1 = new Date().getTime();
+
+
+	    start2 = new Date().getTime();
+	    for(j=0; j<=1000000; j++) {
+		TWEEN.Easing[i](j/1000000);
+	    }
+	    end2 = new Date().getTime();
+
+
+
+	    timings.push([i, end1 - start1, end2 - start2]);
+	}
+
+	for (i in timings) {
+
+	    document.write(timings[i][0] + ": new("+timings[i][1]+") vs. old("+timings[i][2]+")"+(1-timings[i][1]/timings[i][2])*100+"%<br>");
+
+	}
+
+
+    })();
+
+</script>
