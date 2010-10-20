@@ -124,7 +124,14 @@ TWEEN.Tween = function ( object ) {
 		}
 
 		return this;
-	}
+	};
+
+	this.stop = function () {
+
+		TWEEN.remove( this );
+		return this;
+
+	};
 
 	this.delay = function ( amount ) {
 
