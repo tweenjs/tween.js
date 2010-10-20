@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="en">
 	<head>
 		<title>Tween.js / graphs</title>
@@ -8,14 +8,14 @@
 			body {
 				margin: 0px;
 			}
-			
+
 			#target {
 				font-size: 13px;
 				padding: 0px 32px;
 			}
-			
+
 		</style>
-		<link href="style.css" media="screen" rel="stylesheet" type="text/css" />
+		<link href="css/style.css" media="screen" rel="stylesheet" type="text/css" />
 	</head>
 	<body>
 		<div id="info" style="position: relative;">
@@ -23,12 +23,12 @@
 			<h2>03 _ graphs</h2>
 			<p>The curves, visualised.</p>
 		</div>
-		
+
 		<div id="target"></div>
 
 		<script type="text/javascript">
 			var target = document.getElementById('target');
-			
+
 			target.appendChild( createGraph( "Linear.EaseNone", TWEEN.Easing.Linear.EaseNone, false ) );
 
 			target.appendChild( createGraph( "Quadratic.EaseIn", TWEEN.Easing.Quadratic.EaseIn, true ) );
@@ -70,7 +70,7 @@
 			target.appendChild( createGraph( "Bounce.EaseIn", TWEEN.Easing.Bounce.EaseIn, false ) );
 			target.appendChild( createGraph( "Bounce.EaseOut", TWEEN.Easing.Bounce.EaseOut, false ) );
 			target.appendChild( createGraph( "Bounce.EaseInOut", TWEEN.Easing.Bounce.EaseInOut, false ) );
-			
+
 			setInterval( loop, 1000 / 120 );
 
 			function createGraph( t, f, c ) {

@@ -1,10 +1,10 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="en">
 	<head>
 		<title>Tween.js / simplest possible example!</title>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 		<script type="text/javascript" src="../src/Tween.js"></script>
-		<link href="style.css" media="screen" rel="stylesheet" type="text/css" />
+		<link href="css/style.css" media="screen" rel="stylesheet" type="text/css" />
 	</head>
 	<body>
 		<div id="info">
@@ -12,10 +12,10 @@
 			<h2>04 _ simplest possible example</h2>
 			<p>Creating a tween and doing little else apart from that :)</p>
 		</div>
-		
+
 		<div id="target" style="position: absolute; left: 50px; top: 300px; font-size: 100px; letter-spacing: -7px; ">
 		</div>
-		
+
 		<script type="text/javascript">
 
 			var position = { x: 50, y: 0 };
@@ -23,15 +23,15 @@
 			var output = document.createElement('div');
 			var target = document.getElementById('target');
 			target.appendChild(output);
-		
+
 			setInterval(function() {
 				TWEEN.update();
-			
+
 				var newX = position.x;
-				
+
 				output.innerHTML = 'x == ' + Math.round(newX);
 				target.style.left = ( newX ) + 'px';
-				
+
 			}, 1000 / 60);
 
 		</script>

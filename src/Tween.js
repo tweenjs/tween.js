@@ -8,7 +8,7 @@
 
 var TWEEN = TWEEN || ( function() {
 
-	var i, time, tweens = [];
+	var i, n, time, tweens = [];
 
 	this.add = function ( tween ) {
 
@@ -18,7 +18,9 @@ var TWEEN = TWEEN || ( function() {
 
 	this.remove = function ( tween ) {
 
-		for ( var i = 0, n = tweens.length; i < n; i++ ) {
+		i = 0; n = tweens.length;
+
+		while ( i < n ) {
 
 			if ( tween == tweens[ i ] ) {
 
@@ -26,18 +28,31 @@ var TWEEN = TWEEN || ( function() {
 				return;
 
 			}
+
+			i++;
+
 		}
 
 	};
 
-	this.update = function() {
+	this.update = function () {
 
 		i = 0;
+		n = tweens.length;
 		time = new Date().getTime();
 
-		while( i < tweens.length ) {
+		while ( i < n ) {
 
-			tweens[ i ].update( time ) ? i++ : tweens.splice( i, 1 );
+			if ( tweens[ i ].update( time ) ) {
+
+				i++;
+
+			} else {
+
+				tweens.splice( i, 1 );
+				n--;
+
+			}
 
 		}
 
@@ -49,8 +64,6 @@ var TWEEN = TWEEN || ( function() {
 
 TWEEN.Tween = function ( object ) {
 
-	TWEEN.add( this );
-
 	var _object = object,
 	_valuesStart = {},
 	_valuesDelta = {},
@@ -61,8 +74,7 @@ TWEEN.Tween = function ( object ) {
 	_easingFunction = TWEEN.Easing.Elastic.EaseInOut,
 	_chainedTween = null,
 	_onUpdateCallback = null,
-	_onCompleteCallback = null,
-	_completed = false;
+	_onCompleteCallback = null;
 
 	this.to = function ( properties, duration ) {
 
@@ -93,7 +105,8 @@ TWEEN.Tween = function ( object ) {
 
 	this.start = function () {
 
-		_completed = false;
+		TWEEN.add( this );
+
 		_startTime = new Date().getTime() + _delayTime;
 
 		for ( var property in _valuesEnd ) {
@@ -109,6 +122,7 @@ TWEEN.Tween = function ( object ) {
 			_valuesDelta[ property ] = _valuesEnd[ property ] - _object[ property ];
 
 		}
+
 		return this;
 	}
 
@@ -150,15 +164,9 @@ TWEEN.Tween = function ( object ) {
 
 		var property, elapsed, value;
 
-		if ( _startTime === null || time < _startTime ) {
+		if ( time < _startTime ) {
 
 			return true;
-
-		}
-
-		if ( _completed ) {
-
-			return ( _chainedTween === null );
 
 		}
 
@@ -181,7 +189,6 @@ TWEEN.Tween = function ( object ) {
 
 		if ( elapsed == 1 ) {
 
-			_completed = true;
 			_startTime = null;
 
 			if ( _onCompleteCallback !== null ) {
@@ -193,11 +200,7 @@ TWEEN.Tween = function ( object ) {
 			if ( _chainedTween !== null ) {
 
 				_chainedTween.start();
-				return true; // this tween cannot be safely destroyed
-
-			} else {
-
-				return false; // no associated tweens, tween can be destroyed
+				return false;
 
 			}
 		}
