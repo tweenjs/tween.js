@@ -18,18 +18,11 @@ var TWEEN = TWEEN || ( function() {
 
 	this.remove = function ( tween ) {
 
-		i = 0; n = tweens.length;
+		i = tweens.indexOf( tween );
 
-		while ( i < n ) {
+		if ( i !== -1 ) {
 
-			if ( tween == tweens[ i ] ) {
-
-				tweens.splice( i, 1 );
-				return;
-
-			}
-
-			i++;
+			tween.splice( i, 1 );
 
 		}
 
