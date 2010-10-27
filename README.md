@@ -19,6 +19,7 @@ We are still developing this so the API might change from commit to commit.
 
 ### Projects using tween.js ###
 
+[![Floweroscope](http://github.com/sole/sole.github.com/raw/master/tween.js/assets/projects/02_floweroscope.png)](http://www.floweroscope.com/)
 [![The Wilderness Downtown](http://github.com/sole/sole.github.com/raw/master/tween.js/assets/projects/01_wilderness.png)](http://thewildernessdowntown.com/)
 [![Linechart](http://github.com/sole/sole.github.com/raw/master/tween.js/assets/projects/00_linechart.png)](http://dejavis.org/linechart)
 
