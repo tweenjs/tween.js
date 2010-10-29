@@ -22,7 +22,7 @@ var TWEEN = TWEEN || ( function() {
 
 		if ( i !== -1 ) {
 
-			tween.splice( i, 1 );
+			tweens.splice( i, 1 );
 
 		}
 
@@ -64,7 +64,7 @@ TWEEN.Tween = function ( object ) {
 	_duration = 1000,
 	_delayTime = 0,
 	_startTime = null,
-	_easingFunction = TWEEN.Easing.Elastic.EaseInOut,
+	_easingFunction = TWEEN.Easing.Linear.EaseNone,
 	_chainedTween = null,
 	_onUpdateCallback = null,
 	_onCompleteCallback = null;
@@ -189,8 +189,6 @@ TWEEN.Tween = function ( object ) {
 
 		if ( elapsed == 1 ) {
 
-			_startTime = null;
-
 			if ( _onCompleteCallback !== null ) {
 
 				_onCompleteCallback.call( _object );
@@ -200,21 +198,24 @@ TWEEN.Tween = function ( object ) {
 			if ( _chainedTween !== null ) {
 
 				_chainedTween.start();
-				return false;
 
 			}
+
+			return false;
+
 		}
 
 		return true;
 
 	};
 
+	/*
 	this.destroy = function () {
 
 		TWEEN.remove( this );
 
 	};
-
+	*/
 }
 
 TWEEN.Easing = { Linear: {}, Quadratic: {}, Cubic: {}, Quartic: {}, Quintic: {}, Sinusoidal: {}, Exponential: {}, Circular: {}, Elastic: {}, Back: {}, Bounce: {} };

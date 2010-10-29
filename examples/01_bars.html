@@ -67,7 +67,8 @@
 					var tweenBack = new TWEEN.Tween(elem, false)
 						.to({ margin: startValue}, 4000)
 						.delay(Math.random() * 1000)
-						.onUpdate(updateCallback);
+						.onUpdate(updateCallback)
+						.easing(TWEEN.Easing.Elastic.EaseInOut);
 
 					tween.chain(tweenBack);
 					tweenBack.chain(tween);
