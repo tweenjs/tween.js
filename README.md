@@ -10,7 +10,7 @@ Super simple, fast and easy to use tweening engine which incorporates optimised 
 We are still developing this so the API might change from commit to commit.
 
 ### Examples ###
-
+[![Spline](http://sole.github.com/tween.js/assets/examples/05_spline.png)](http://sole.github.com/tween.js/examples/05_spline.html)
 [![Simplest possible example](http://sole.github.com/tween.js/assets/examples/04_simplest.png)](http://sole.github.com/tween.js/examples/04_simplest.html)
 [![Graphs](http://sole.github.com/tween.js/assets/examples/03_graphs.png)](http://sole.github.com/tween.js/examples/03_graphs.html)
 [![Black and red](http://sole.github.com/tween.js/assets/examples/02_black_and_red.png)](http://sole.github.com/tween.js/examples/02_black_and_red.html)
