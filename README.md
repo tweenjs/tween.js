@@ -34,22 +34,23 @@ The following code creates a Tween which will change the 'x' attribute in a posi
 
 	<script type="text/javascript">
 
-		var position = {x: 50, y: 0};
-		var tween = new TWEEN.Tween(position).to({x: 400}, 2000).start();
+		TWEEN.start();
+
 		var output = document.createElement('div');
 		var target = document.getElementById('target');
 		target.appendChild(output);
 
-		setInterval(function() {
+		var position = {x: 50, y: 0};
+		var tween = new TWEEN.Tween(position).to({x: 400}, 2000).onUpdate(update).start();
 
-			TWEEN.update();
+		function update() {
 
 			var newX = position.x;
 
 			output.innerHTML = 'x == ' + Math.round(newX);
 			target.style.left = (newX) + 'px';
 
-		}, 1000 / 60);
+		};
 
 	</script>
 
