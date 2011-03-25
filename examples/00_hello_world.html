@@ -23,8 +23,7 @@
 			var tween, tweenBack;
 
 			init();
-			setInterval(loop, 1000 / 60);
-
+			TWEEN.start();
 
 			function init() {
 
@@ -33,11 +32,13 @@
 				tween = new TWEEN.Tween(position)
 					.to({x: 700, y: 200, rotation: 359}, 2000)
 					.delay(1000)
-					.easing(TWEEN.Easing.Elastic.EaseInOut);
+					.easing(TWEEN.Easing.Elastic.EaseInOut)
+					.onUpdate(update);
 
 				tweenBack = new TWEEN.Tween(position)
 					.to({x: 100, y: 100, rotation: 0}, 3000)
-					.easing(TWEEN.Easing.Elastic.EaseInOut);
+					.easing(TWEEN.Easing.Elastic.EaseInOut)
+					.onUpdate(update);;
 
 				tween.chain(tweenBack);
 				tweenBack.chain(tween);
@@ -45,9 +46,7 @@
 				tween.start();
 			}
 
-			function loop() {
-
-				TWEEN.update();
+			function update() {
 
 				target.style.left = position.x + 'px';
 				target.style.top = position.y + 'px';

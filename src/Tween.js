@@ -6,52 +6,65 @@
  * @author Robert Penner / http://www.robertpenner.com/easing_terms_of_use.html
  */
 
-var TWEEN = TWEEN || ( function() {
+var TWEEN = TWEEN || ( function () {
 
-	var i, n, time, tweens = [];
+	var i, tl, interval, time, tweens = [];
 
-	this.add = function ( tween ) {
+	return {
 
-		tweens.push( tween );
+		start: function ( fps ) {
 
-	};
+			interval = setInterval( this.update, 1000 / ( fps || 60 ) );
 
-	this.remove = function ( tween ) {
+		},
 
-		i = tweens.indexOf( tween );
+		stop: function () {
 
-		if ( i !== -1 ) {
+			clearInterval( interval );
 
-			tweens.splice( i, 1 );
+		},
 
-		}
+		add: function ( tween ) {
 
-	};
+			tweens.push( tween );
 
-	this.update = function () {
+		},
 
-		i = 0;
-		n = tweens.length;
-		time = new Date().getTime();
+		remove: function ( tween ) {
 
-		while ( i < n ) {
+			i = tweens.indexOf( tween );
 
-			if ( tweens[ i ].update( time ) ) {
-
-				i++;
-
-			} else {
+			if ( i !== -1 ) {
 
 				tweens.splice( i, 1 );
-				n--;
+
+			}
+
+		},
+
+		update: function () {
+
+			i = 0; tl = tweens.length;
+			time = new Date().getTime();
+
+			while ( i < tl ) {
+
+				if ( tweens[ i ].update( time ) ) {
+
+					i++;
+
+				} else {
+
+					tweens.splice( i, 1 );
+					tl--;
+
+				}
 
 			}
 
 		}
 
 	};
-
-	return this;
 
 } )();
 

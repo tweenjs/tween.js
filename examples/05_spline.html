@@ -29,7 +29,7 @@
 		<script type="text/javascript">
 
 			init();
-			setInterval( loop, 1000 / 120 );
+			TWEEN.start();
 
 			function init() {
 
@@ -114,12 +114,6 @@
 					return ( 2 * p1 - 2 * p2 + v0 + v1 ) * t3 + ( - 3 * p1 + 3 * p2 - 2 * v0 - v1 ) * t2 + v0 * t + p1;
 
 				}
-
-			}
-
-			function loop() {
-
-				TWEEN.update();
 
 			}
 
