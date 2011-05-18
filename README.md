@@ -60,6 +60,13 @@ Note: this corresponds to the example 04_simplest.html that you can find in the 
 
 Have a look at that folder to discover more functionalities of the library!
 
+### Change log ###
+
+2011 05 18 - **r1**
+
+* Started using revision numbers in the build file
+* Consider this kind of an stable revision :-)
+
 ### Contributors ###
 
 People who have contributed directly or indirectly to this project :-D
