@@ -1,4 +1,4 @@
-Tween.js
+tween.js
 ========
 
 #### Javascript Tweening Engine ####
