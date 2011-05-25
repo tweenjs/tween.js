@@ -66,7 +66,7 @@ var TWEEN = TWEEN || ( function () {
 
 	};
 
-} )();
+} ).call({});
 
 TWEEN.Tween = function ( object ) {
 
