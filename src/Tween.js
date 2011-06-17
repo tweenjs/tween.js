@@ -30,6 +30,18 @@ var TWEEN = TWEEN || ( function () {
 
 		},
 
+		getAll: function() {
+
+			return tweens;
+
+		},
+
+		removeAll: function() {
+
+			tweens = [];
+
+		},
+
 		remove: function ( tween ) {
 
 			i = tweens.indexOf( tween );
