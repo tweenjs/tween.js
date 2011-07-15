@@ -62,6 +62,10 @@ Have a look at that folder to discover more functionalities of the library!
 
 ### Change log ###
 
+2011 06 18 - **r2**
+
+Added new utility methods getAll and removeAll for getting and removing all tweens (by Paul Lewis)
+
 2011 05 18 - **r1**
 
 * Started using revision numbers in the build file
@@ -71,4 +75,4 @@ Have a look at that folder to discover more functionalities of the library!
 
 People who have contributed directly or indirectly to this project :-D
 
-[sole](http://soledadpenades.com), [mrdoob](http://mrdoob.com), [Robert Eisele](http://www.xarg.org/), [Robert Penner](http://www.robertpenner.com/), [Philippe Elsass](http://philippe.elsass.me)
+[sole](http://soledadpenades.com), [mrdoob](http://mrdoob.com), [Robert Eisele](http://www.xarg.org/), [Robert Penner](http://www.robertpenner.com/), [Philippe Elsass](http://philippe.elsass.me), [Paul Lewis](http://www.aerotwist.com/)
