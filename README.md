@@ -61,6 +61,8 @@ Note: this corresponds to the example [04_simplest.html](http://sole.github.com/
 
 Have a look at that folder to discover more functionalities of the library!
 
+Also, Jerome Etienne has written a [tutorial](http://learningthreejs.com/blog/2011/08/17/tweenjs-for-smooth-animation/) demonstrating how to use tween.js with three.js, and it's also great for understanding how tweens work!
+
 ## Frequently Asked Questions (FAQ) ##
 
 <dl>
