@@ -101,21 +101,7 @@ TWEEN.Tween = function ( object ) {
 			_duration = duration;
 
 		}
-
-		for ( var property in properties ) {
-
-			// This prevents the engine from interpolating null values
-			if ( _object[ property ] === null ) {
-
-				continue;
-
-			}
-
-			// The current values are read when the tween starts;
-			// here we only store the final desired values
-			_valuesEnd[ property ] = properties[ property ];
-
-		}
+		_valuesEnd	= properties;
 
 		return this;
 
@@ -137,7 +123,6 @@ TWEEN.Tween = function ( object ) {
 			}
 
 			_valuesStart[ property ] = _object[ property ];
-			_valuesDelta[ property ] = _valuesEnd[ property ] - _object[ property ];
 
 		}
 
@@ -200,12 +185,19 @@ TWEEN.Tween = function ( object ) {
 
 		value = _easingFunction( elapsed );
 
-		for ( property in _valuesDelta ) {
+		for ( property in _valuesEnd ) {
 
-			_object[ property ] = _valuesStart[ property ] + _valuesDelta[ property ] * value;
+			// Again, prevent dealing with null values
+			if( _valuesEnd[ property ] === null ){
 
+				continue;
+			
+			}
+
+			_object[ property ] = _valuesStart[ property ] + (_valuesEnd[property] - _valuesStart[ property ]) * value;
 		}
 
+			
 		if ( _onUpdateCallback !== null ) {
 
 			_onUpdateCallback.call( _object, value );
