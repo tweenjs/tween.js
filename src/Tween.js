@@ -8,13 +8,21 @@
 
 var TWEEN = TWEEN || ( function () {
 
-	var i, tl, interval, time, tweens = [];
+	var i, tl, interval, time, fps = 60, auto = false, tweens = [];
 
 	return {
 
-		start: function ( fps ) {
+		setFPS: function ( f ) {
 
-			interval = setInterval( this.update, 1000 / ( fps || 60 ) );
+			fps = f || 60;
+
+		},
+
+		start: function ( f ) {
+
+			this.setFPS(f);
+
+			interval = setInterval( this.update, 1000 / fps );
 
 		},
 
@@ -24,9 +32,23 @@ var TWEEN = TWEEN || ( function () {
 
 		},
 
+		autostart: function (fps) {
+
+			auto = true;
+
+			this.start(fps);
+
+		},
+
 		add: function ( tween ) {
 
 			tweens.push( tween );
+
+			if (auto && !interval) {
+
+				this.start();
+
+			}
 
 		},
 
@@ -71,6 +93,12 @@ var TWEEN = TWEEN || ( function () {
 					tl--;
 
 				}
+
+			}
+
+			if (tl == 0 && auto == true) {
+
+				this.stop();
 
 			}
 
