@@ -54,10 +54,10 @@ var TWEEN = TWEEN || ( function () {
 
 		},
 
-		update: function () {
+		update: function (_time) {
 
 			i = 0; tl = tweens.length;
-			time = new Date().getTime();
+			time = _time || new Date().getTime();
 
 			while ( i < tl ) {
 
@@ -121,11 +121,11 @@ TWEEN.Tween = function ( object ) {
 
 	};
 
-	this.start = function () {
+	this.start = function (_time) {
 
 		TWEEN.add( this );
 
-		_startTime = new Date().getTime() + _delayTime;
+		_startTime = _time ? _time + _delayTime : new Date().getTime() + _delayTime;
 
 		for ( var property in _valuesEnd ) {
 
