@@ -57,7 +57,7 @@ var TWEEN = TWEEN || ( function () {
 		update: function (_time) {
 
 			i = 0; tl = tweens.length;
-			time = time || new Date().getTime();
+			time = _time || new Date().getTime();
 
 			while ( i < tl ) {
 
