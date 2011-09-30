@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>Tween.js / video and time</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<script type="text/javascript" src="../src/Tween.js"></script>
+		<link href="css/style.css" media="screen" rel="stylesheet" type="text/css" />
+	</head>
+	<body>
+		<div id="info">
+			<h1><a href="http://github.com/sole/tween.js">tween.js</a></h1>
+			<h2>06 _ video and time</h2>
+			<p>Playing a video, synchronizing a tween to it</p>
+		</div>
+		
+		<div id="target" style="position: absolute; left: 50px; top: 300px; font-size: 100px; letter-spacing: -7px; ">
+			<video id="video" src="video/sintel.webm" width="320" height="138" autoplay></video>
+		</div>
+
+		<script type="text/javascript">
+
+			var output = document.createElement('div');
+
+			var target = document.getElementById('target');
+			target.appendChild(output);
+
+			var position = { x: 50, y: 0 };
+
+			var tween, interval;
+			
+			var video = document.getElementById('video');
+			video.addEventListener('play', function() {
+				tween = new TWEEN.Tween(position).to({x: 400}, this.duration).easing(TWEEN.Easing.Bounce.EaseOut).onUpdate(update);
+				
+				interval = setInterval(function() {
+					TWEEN.update(video.currentTime);
+				}, 1000 / 30);
+				
+				tween.start(this.currentTime);
+			}, false);
+			
+			video.addEventListener('ended', function () {
+				clearInterval(interval);
+			}, false);
+
+			function update() {
+
+				var newX = position.x;
+
+				output.innerHTML = 'x == ' + Math.round(newX);
+				target.style.left = ( newX ) + 'px';
+				
+			};
+
+		</script>
+	</body>
+</html>

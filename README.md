@@ -11,6 +11,7 @@ We are still developing this so the API might change from commit to commit.
 
 ## Examples ##
 
+[![Video and time](http://sole.github.com/tween.js/assets/examples/06_video_and_time.png)](http://sole.github.com/tween.js/examples/06_video_and_time.html)
 [![Spline](http://sole.github.com/tween.js/assets/examples/05_spline.png)](http://sole.github.com/tween.js/examples/05_spline.html)
 [![Simplest possible example](http://sole.github.com/tween.js/assets/examples/04_simplest.png)](http://sole.github.com/tween.js/examples/04_simplest.html)
 [![Graphs](http://sole.github.com/tween.js/assets/examples/03_graphs.png)](http://sole.github.com/tween.js/examples/03_graphs.html)
@@ -78,6 +79,11 @@ Also, Jerome Etienne has written a [tutorial](http://learningthreejs.com/blog/20
 
 ## Change log ##
 
+2011 09 30 - **r3**
+
+* Added new ``time`` parameter to TWEEN.update, in order to allow synchronizing the tweens to an external timeline (by lechecacharro).
+* Added example to demonstrate the new synchronizing feature.
+
 2011 06 18 - **r2**
 
 Added new utility methods getAll and removeAll for getting and removing all tweens (by Paul Lewis)
@@ -91,4 +97,4 @@ Added new utility methods getAll and removeAll for getting and removing all twee
 
 People who have contributed directly or indirectly to this project :-D
 
-[sole](http://soledadpenades.com), [mrdoob](http://mrdoob.com), [Robert Eisele](http://www.xarg.org/), [Robert Penner](http://www.robertpenner.com/), [Philippe Elsass](http://philippe.elsass.me), [Paul Lewis](http://www.aerotwist.com/)
+[sole](http://soledadpenades.com), [mrdoob](http://mrdoob.com), [Robert Eisele](http://www.xarg.org/), [Robert Penner](http://www.robertpenner.com/), [Philippe Elsass](http://philippe.elsass.me), [Paul Lewis](http://www.aerotwist.com/), Lechecacharro
