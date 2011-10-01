@@ -33,7 +33,9 @@
 				tween = new TWEEN.Tween(position).to({x: 400}, this.duration).easing(TWEEN.Easing.Bounce.EaseOut).onUpdate(update);
 				
 				interval = setInterval(function() {
-					TWEEN.update(video.currentTime);
+					if (video.readyState === video.HAVE_ENOUGH_DATA) {
+						TWEEN.update(video.currentTime);
+					}
 				}, 1000 / 30);
 				
 				tween.start(this.currentTime);
