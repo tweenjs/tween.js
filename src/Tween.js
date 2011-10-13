@@ -59,7 +59,7 @@ var TWEEN = TWEEN || ( function () {
 		update: function (_time) {
 
 			i = 0; tl = tweens.length;
-			var time = _time || new Date().getTime();
+			var time = _time || Date.now();
 
 			while ( i < tl ) {
 
@@ -127,7 +127,7 @@ TWEEN.Tween = function ( object ) {
 
 		TWEEN.add( this );
 
-		_startTime = _time ? _time + _delayTime : new Date().getTime() + _delayTime;
+		_startTime = _time ? _time + _delayTime : Date.now() + _delayTime;
 
 		for ( var property in _valuesEnd ) {
 
