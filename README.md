@@ -37,7 +37,7 @@ Download the [minified library](http://github.com/sole/tween.js/raw/master/build
 <script type="text/javascript" src="js/Tween.js"></script>
 ```
 
-The following code creates a Tween which will change the 'x' attribute in a position variable, so that it goes from 50 to 400 in 2 seconds. The anonymous function set up with an interval will update the screen so that we can see something happening:
+The following code creates a Tween which will change the `x` attribute in a position variable, so that it goes from 50 to 400 in 2 seconds. The anonymous function set up with an interval will update the screen so that we can see something happening:
 
 ```html
 <script type="text/javascript">
@@ -86,7 +86,7 @@ Also, Jerome Etienne has written a [tutorial](http://learningthreejs.com/blog/20
 
 2011 10 15 - **r4**
 
-* Use Date.now() instead of new Date.getTime() as it's faster ([mrdoob](http://github.com/mrdoob))
+* Use ``Date.now()`` instead of ``new Date.getTime()`` as it's faster ([mrdoob](http://github.com/mrdoob))
 
 2011 09 30 - **r3**
 
