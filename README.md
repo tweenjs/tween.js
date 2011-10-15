@@ -21,6 +21,7 @@ We are still developing this so the API might change from commit to commit.
 
 ## Projects using tween.js ##
 
+[![Minesweeper 3D](http://sole.github.com/tween.js/assets/projects/06_minesweeper3d.png)](http://egraether.com/mine3d/)
 [![ROME](http://sole.github.com/tween.js/assets/projects/05_rome.png)](http://ro.me)
 [![WebGL Globe](http://sole.github.com/tween.js/assets/projects/04_webgl_globe.png)](http://data-arts.appspot.com/globe)
 [![Androidify](http://sole.github.com/tween.js/assets/projects/03_androidify.png)](http://www.androidify.com/)
@@ -32,31 +33,35 @@ We are still developing this so the API might change from commit to commit.
 
 Download the [minified library](http://github.com/sole/tween.js/raw/master/build/Tween.js) and include it in your html.
 
-	<script type="text/javascript" src="js/Tween.js"></script>
+```html
+<script type="text/javascript" src="js/Tween.js"></script>
+```
 
 The following code creates a Tween which will change the 'x' attribute in a position variable, so that it goes from 50 to 400 in 2 seconds. The anonymous function set up with an interval will update the screen so that we can see something happening:
 
-	<script type="text/javascript">
+```html
+<script type="text/javascript">
 
-		TWEEN.start();
+	TWEEN.start();
 
-		var output = document.createElement('div');
-		var target = document.getElementById('target');
-		target.appendChild(output);
+	var output = document.createElement('div');
+	var target = document.getElementById('target');
+	target.appendChild(output);
 
-		var position = {x: 50, y: 0};
-		var tween = new TWEEN.Tween(position).to({x: 400}, 2000).onUpdate(update).start();
+	var position = {x: 50, y: 0};
+	var tween = new TWEEN.Tween(position).to({x: 400}, 2000).onUpdate(update).start();
 
-		function update() {
+	function update() {
 
-			var newX = position.x;
+		var newX = position.x;
 
-			output.innerHTML = 'x == ' + Math.round(newX);
-			target.style.left = (newX) + 'px';
+		output.innerHTML = 'x == ' + Math.round(newX);
+		target.style.left = (newX) + 'px';
 
-		};
+	};
 
-	</script>
+</script>
+```
 
 Note: this corresponds to the example [04_simplest.html](http://sole.github.com/tween.js/examples/04_simplest.html) that you can find in the ```examples``` folder.
 
@@ -68,10 +73,10 @@ Also, Jerome Etienne has written a [tutorial](http://learningthreejs.com/blog/20
 
 <dl>
 	<dt>Is there a way to control when is update() called? I'd like to use my own interval.</dt>
-	<dd>Yes, simply don't call TWEEN.start() and run TWEEN.update() in your own periodically executing function instead.</dd>
+	<dd>Yes, simply don't call `TWEEN.start()`, and run `TWEEN.update()` in your own periodically executing function instead.</dd>
 	
 	<dt>How do you set a tween to start after a while?</dt>
-	<dd>Use the delay() method: var t = new Tween({...}).delay(1000);</dd>
+	<dd>Use the `delay()` method: `var t = new Tween({...}).delay(1000);`</dd>
 
 	<dt>Is there a jQuery plug-in?</dt>
 	<dd>No, we like to keep it simple and free of dependencies. Feel free to make one yourself, though! :-)</dd>
@@ -79,14 +84,18 @@ Also, Jerome Etienne has written a [tutorial](http://learningthreejs.com/blog/20
 
 ## Change log ##
 
+2011 10 15 - **r4**
+
+* Use Date.now() instead of new Date.getTime() as it's faster ([mrdoob](http://github.com/mrdoob))
+
 2011 09 30 - **r3**
 
-* Added new ``time`` parameter to TWEEN.update, in order to allow synchronizing the tweens to an external timeline (by lechecacharro).
-* Added example to demonstrate the new synchronizing feature.
+* Added new ``time`` parameter to TWEEN.update, in order to allow synchronizing the tweens to an external timeline ([lechecacharro](http://github.com/lechecacharro))
+* Added example to demonstrate the new synchronizing feature. ([sole](http://github.com/sole))
 
 2011 06 18 - **r2**
 
-Added new utility methods getAll and removeAll for getting and removing all tweens (by Paul Lewis)
+* Added new utility methods getAll and removeAll for getting and removing all tweens ([Paul Lewis](http://github.com/paullewis))
 
 2011 05 18 - **r1**
 
