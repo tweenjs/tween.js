@@ -6,17 +6,28 @@
  * @author Robert Penner / http://www.robertpenner.com/easing_terms_of_use.html
  * @author Paul Lewis / http://www.aerotwist.com/
  * @author lechecacharro
+ * @author Josh Faul / http://jocafa.com/
  */
 
 var TWEEN = TWEEN || ( function () {
 
-	var i, tl, interval, time, tweens = [];
+	var i, tl, interval, time, fps = 60, autostart = false, tweens = [];
 
 	return {
+	
+		setFPS: function ( f ) {
 
-		start: function ( fps ) {
+			fps = f || 60;
 
-			interval = setInterval( this.update, 1000 / ( fps || 60 ) );
+		},
+
+		start: function ( f ) {
+			
+			if( arguments.length != 0 ) {
+				this.setFPS( f );
+			}
+			
+			interval = setInterval( this.update, 1000 / fps );
 
 		},
 
@@ -26,9 +37,25 @@ var TWEEN = TWEEN || ( function () {
 
 		},
 
+		setAutostart: function ( value ) {
+
+			autostart = value;
+			
+			if(autostart && !interval) {
+				this.start();
+			}
+
+		},
+
 		add: function ( tween ) {
 
 			tweens.push( tween );
+
+			if (autostart && !interval) {
+
+				this.start();
+
+			}
 
 		},
 
@@ -58,10 +85,10 @@ var TWEEN = TWEEN || ( function () {
 
 		update: function (_time) {
 
-			i = 0; tl = tweens.length;
+			i = 0; num_tweens = tweens.length;
 			var time = _time || Date.now();
 
-			while ( i < tl ) {
+			while ( i < num_tweens ) {
 
 				if ( tweens[ i ].update( time ) ) {
 
@@ -70,9 +97,15 @@ var TWEEN = TWEEN || ( function () {
 				} else {
 
 					tweens.splice( i, 1 );
-					tl--;
+					num_tweens--;
 
 				}
+
+			}
+
+			if (num_tweens == 0 && autostart == true) {
+
+				this.stop();
 
 			}
 

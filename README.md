@@ -11,6 +11,7 @@ We are still developing this so the API might change from commit to commit.
 
 ## Examples ##
 
+[![Tween autostart](http://sole.github.com/tween.js/assets/examples/07_autostart.png)](http://sole.github.com/tween.js/examples/07_autostart.html)
 [![Video and time](http://sole.github.com/tween.js/assets/examples/06_video_and_time.png)](http://sole.github.com/tween.js/examples/06_video_and_time.html)
 [![Spline](http://sole.github.com/tween.js/assets/examples/05_spline.png)](http://sole.github.com/tween.js/examples/05_spline.html)
 [![Simplest possible example](http://sole.github.com/tween.js/assets/examples/04_simplest.png)](http://sole.github.com/tween.js/examples/04_simplest.html)
@@ -83,6 +84,12 @@ Also, Jerome Etienne has written a [tutorial](http://learningthreejs.com/blog/20
 </dl>
 
 ## Change log ##
+
+2011 10 15 - **r5**
+
+* Add autostart/stop functionalities ([jocafa](http://github.com/jocafa) and [sole](http://github.com/sole))
+* Add 07_autostart example demonstrating the new functionalities ([sole](http://github.com/sole))
+
 
 2011 10 15 - **r4**
 

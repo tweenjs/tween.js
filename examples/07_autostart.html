@@ -1,0 +1,69 @@
+<!DOCTYPE html> 
+<html lang="en">
+	<head>
+		<title>Tween.js / autostart</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<script type="text/javascript" src="../src/Tween.js"></script>
+		<link href="css/style.css" media="screen" rel="stylesheet" type="text/css" />
+	</head>
+	<body>
+		<div id="info">
+			<h1><a href="http://github.com/sole/tween.js">tween.js</a></h1>
+			<h2>07 _ autostart</h2>
+			<p>With autostart, TWEEN is started and stopped automatically.</p>
+			
+			<input type="button" value="Click me" id="clickme" />
+			
+			<div id="target" style="position: absolute; right: 10px; top: 100px;">
+			
+			</div>
+		</div>
+
+
+		<script type="text/javascript">
+
+			var target;
+	
+			init();
+
+			function init() {
+
+				TWEEN.setAutostart(true);
+				
+				target = document.getElementById('target');
+				
+				var clickme = document.getElementById('clickme');
+				clickme.addEventListener('click', function () {
+					
+					for(var i = 0; i < 50; i++) {
+						var div = document.createElement('div');
+						div.style.background = '#' + ((Math.random() * 0xffffff) >> 0).toString(16);
+						div.style.width = '5px';
+						div.style.height = '5px';
+					
+						var divProps = { x: Math.random() * 300, y: Math.random() * 300, style: div.style };
+					
+						div.style.position = 'absolute';
+						div.style.left = divProps.x + 'px';
+						div.style.top = divProps.y + 'px';
+					
+						target.appendChild(div);
+					
+						var divTween = new TWEEN.Tween(divProps).
+							to({x: Math.random() * 300, y: Math.random() * 300}, 3000)
+							.easing(TWEEN.Easing.Back.EaseOut)
+							.onUpdate(updateDiv)
+							.delay(i * 10)
+							.start();
+					}
+				}, false);
+			}
+
+			function updateDiv() {
+				this.style.left = this.x + 'px';
+				this.style.top = this.y + 'px';
+			}
+
+		</script>
+	</body>
+</html>
