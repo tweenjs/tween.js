@@ -11,23 +11,13 @@
 
 var TWEEN = TWEEN || ( function () {
 
-	var i, tl, interval, time, fps = 60, autostart = false, tweens = [];
+	var i, tl, interval, time, autostart = false, tweens = [];
 
 	return {
 
-		setFPS: function ( f ) {
+		start: function () {
 
-			fps = f || 60;
-
-		},
-
-		start: function ( f ) {
-
-			if( arguments.length != 0 ) {
-				this.setFPS( f );
-			}
-
-			interval = setInterval( this.update, 1000 / fps );
+			interval = setInterval( this.update, 1000 / 60 );
 
 		},
 
