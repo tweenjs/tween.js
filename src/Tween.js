@@ -220,8 +220,11 @@ TWEEN.Tween = function ( object ) {
 
 		}
 
-		elapsed = ( time - _startTime ) / _duration;
-		elapsed = elapsed > 1 ? 1 : elapsed;
+		if ( ( elapsed = ( time - _startTime ) / _duration ) >= 1) {
+
+			elapsed = 1;
+		}
+
 
 		value = _easingFunction( elapsed );
 
@@ -237,7 +240,7 @@ TWEEN.Tween = function ( object ) {
 
 		}
 
-		if ( elapsed == 1 ) {
+		if ( elapsed === 1 ) {
 
 			if ( _onCompleteCallback !== null ) {
 
