@@ -11,20 +11,54 @@
 
 var TWEEN = TWEEN || ( function () {
 
-	var interval, time, autostart = false, tweens = [];
+	var interval = null, time, fps = 60, autostart = false, tweens = [];
+
+    var requestAnimation =
+		window["requestAnimationFrame"]				||
+		window["webkitRequestAnimationFrame"]		||
+		window["oRequestAnimationFrame"]			||
+		window["msRequestAnimationFrame"]			||
+		window["mozRequestAnimationFrame"] && window["mozCancelRequestAnimationFrame"]
+		? window["mozRequestAnimationFrame"]
+		: null;
+
+    var cancelAnimation =
+		window["cancelAnimationFrame"]				||
+		window["webkitCancelRequestAnimationFrame"]	||
+		window["oCancelRequestAnimationFrame"]		||
+		window["msCancelRequestAnimationFrame"]		||
+		window["mozCancelRequestAnimationFrame"]	||
+		null;
 
 	return {
 
-		start: function () {
+		setFPS: function ( f ) {
 
-			interval = setInterval( this.update, 1000 / 60 );
+			fps = f || 60;
+		},
 
+		start: function (f) {
+
+			if( arguments.length != 0 ) {
+				 this.setFPS( f );
+			}
+
+			if ( requestAnimation === null ) {
+				interval = setInterval( this.update, 1000 / fps );
+			} else {
+				interval = requestAnimation( this.update );
+			}
 		},
 
 		stop: function () {
 
-			clearInterval( interval );
+			if ( cancelAnimation === null ) {
+				clearInterval( interval );
+			} else {
+				cancelAnimation( interval );
+			}
 
+			interval = null;
 		},
 
 		setAutostart: function ( value ) {
