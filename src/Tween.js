@@ -13,7 +13,7 @@ var TWEEN = TWEEN || ( function () {
 
 	var interval = null, time, fps = 60, autostart = false, tweens = [];
 
-    var requestAnimation =
+	var requestAnimation =
 		window["requestAnimationFrame"]				||
 		window["webkitRequestAnimationFrame"]		||
 		window["oRequestAnimationFrame"]			||
@@ -22,7 +22,7 @@ var TWEEN = TWEEN || ( function () {
 		? window["mozRequestAnimationFrame"]
 		: null;
 
-    var cancelAnimation =
+	var cancelAnimation =
 		window["cancelAnimationFrame"]				||
 		window["webkitCancelRequestAnimationFrame"]	||
 		window["oCancelRequestAnimationFrame"]		||
