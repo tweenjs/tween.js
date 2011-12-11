@@ -17,10 +17,10 @@ var TWEEN = TWEEN || ( function () {
 		window["requestAnimationFrame"]				||
 		window["webkitRequestAnimationFrame"]		||
 		window["oRequestAnimationFrame"]			||
-		window["msRequestAnimationFrame"]			||
+		window["msRequestAnimationFrame"]			|| (
 		window["mozRequestAnimationFrame"] && window["mozCancelRequestAnimationFrame"]
 		? window["mozRequestAnimationFrame"]
-		: null;
+		: null );
 
 	var cancelAnimation =
 		window["cancelAnimationFrame"]				||
@@ -46,7 +46,15 @@ var TWEEN = TWEEN || ( function () {
 			if ( requestAnimation === null ) {
 				interval = setInterval( this.update, 1000 / fps );
 			} else {
-				interval = requestAnimation( this.update );
+
+				var self = this;
+
+				/* We can't call this.update directly */
+				(function loop( time ) {
+					interval = requestAnimation( loop );
+
+					self.update.call( self, time );
+				}());
 			}
 		},
 
