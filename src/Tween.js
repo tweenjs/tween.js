@@ -35,16 +35,19 @@ var TWEEN = TWEEN || ( function () {
 		setFPS: function ( f ) {
 
 			fps = f || 60;
+
 		},
 
-		start: function (f) {
+		start: function ( f ) {
 
 			if( arguments.length != 0 ) {
-				 this.setFPS( f );
+				this.setFPS( f );
 			}
 
 			if ( requestAnimation === null ) {
+
 				interval = setInterval( this.update, 1000 / fps );
+
 			} else {
 
 				var self = this;
