@@ -11,7 +11,7 @@
 
 var TWEEN = TWEEN || ( function () {
 
-	var i, tl, interval, time, fps = 60, autostart = false, tweens = [];
+	var i, tl, interval, time, fps = 60, autostart = false, tweens = [], num_tweens;
 
 	return {
 	
