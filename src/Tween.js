@@ -203,6 +203,7 @@ TWEEN.Tween = function ( object ) {
 	this.chain = function ( chainedTween ) {
 
 		_chainedTween = chainedTween;
+		return this;
 
 	};
 
