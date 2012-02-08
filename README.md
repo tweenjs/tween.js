@@ -1,7 +1,7 @@
 tween.js
 ========
 
-# Javascript Tweening Engine #
+### Javascript Tweening Engine ###
 
 [![Flattr this](https://api.flattr.com/button/flattr-badge-large.png)](https://flattr.com/thing/45014/tween-js)
 
@@ -72,16 +72,18 @@ Also, Jerome Etienne has written a [tutorial](http://learningthreejs.com/blog/20
 
 ## Frequently Asked Questions (FAQ) ##
 
-<dl>
-	<dt>Is there a way to control when is update() called? I'd like to use my own interval.</dt>
-	<dd>Yes, simply don't call `TWEEN.start()`, and run `TWEEN.update()` in your own periodically executing function instead.</dd>
-	
-	<dt>How do you set a tween to start after a while?</dt>
-	<dd>Use the `delay()` method: `var t = new Tween({...}).delay(1000);`</dd>
+**Is there a way to control when is update() called? I'd like to use my own interval.**
 
-	<dt>Is there a jQuery plug-in?</dt>
-	<dd>No, we like to keep it simple and free of dependencies. Feel free to make one yourself, though! :-)</dd>
-</dl>
+Yes, simply don't call `TWEEN.start()`, and run `TWEEN.update()` in your own periodically executing function instead.
+	
+**How do you set a tween to start after a while?**
+
+Use the `delay()` method: `var t = new Tween({...}).delay(1000);`
+
+**Is there a jQuery plug-in?**
+
+No, we like to keep it simple and free of dependencies. Feel free to make one yourself, though! :-)
+
 
 ## Change log ##
 
