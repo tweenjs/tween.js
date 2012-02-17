@@ -7,6 +7,7 @@
  * @author Paul Lewis / http://www.aerotwist.com/
  * @author lechecacharro
  * @author Josh Faul / http://jocafa.com/
+ * @author Carl Calderon / http://www.carlcalderon.com/
  */
 
 var TWEEN = TWEEN || ( function () {
@@ -127,7 +128,8 @@ TWEEN.Tween = function ( object ) {
 	_easingFunction = TWEEN.Easing.Linear.EaseNone,
 	_chainedTween = null,
 	_onUpdateCallback = null,
-	_onCompleteCallback = null;
+	_onCompleteCallback = null,
+	_onCompleteCallbackArguments = null;
 
 	this.to = function ( properties, duration ) {
 
@@ -214,9 +216,24 @@ TWEEN.Tween = function ( object ) {
 
 	};
 
-	this.onComplete = function ( onCompleteCallback ) {
+	this.onComplete = function ( onCompleteCallback, onCompleteCallbackArguments ) {
 
 		_onCompleteCallback = onCompleteCallback;
+
+		if ( onCompleteCallbackArguments !== null ) {
+
+			if ( Array.isArray( onCompleteCallbackArguments ) ) {
+
+				_onCompleteCallbackArguments = onCompleteCallbackArguments;
+
+			} else {
+
+				_onCompleteCallbackArguments = [ onCompleteCallbackArguments ];
+
+			}
+			
+		}
+		
 		return this;
 
 	};
@@ -252,7 +269,7 @@ TWEEN.Tween = function ( object ) {
 
 			if ( _onCompleteCallback !== null ) {
 
-				_onCompleteCallback.call( _object );
+				_onCompleteCallback.apply( _object, _onCompleteCallbackArguments || [] );
 
 			}
 
