@@ -3,6 +3,7 @@
  * @author mr.doob / http://mrdoob.com
  * @author Robert Eisele / http://www.xarg.org
  * @author Philippe / http://philippe.elsass.me
+ * @author lechecacharro <lechecacharro@gmail.com>
  * @author Robert Penner / http://www.robertpenner.com/easing_terms_of_use.html
  */
 
