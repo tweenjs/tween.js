@@ -34,6 +34,8 @@ var TWEEN = TWEEN || ( function () {
 		stop: function () {
 
 			clearInterval( interval );
+			
+			interval = null;
 
 		},
 
