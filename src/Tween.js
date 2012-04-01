@@ -35,6 +35,8 @@ var TWEEN = TWEEN || ( function () {
 
 			clearInterval( interval );
 
+			interval = null;
+
 		},
 
 		setAutostart: function ( value ) {
@@ -105,7 +107,7 @@ var TWEEN = TWEEN || ( function () {
 
 			if (num_tweens == 0 && autostart == true) {
 
-				this.stop();
+				TWEEN.stop();
 
 			}
 
