@@ -11,7 +11,7 @@
 
 var TWEEN = TWEEN || ( function () {
 
-	var i, tl, interval, time, fps = 60, autostart = false, tweens = [], num_tweens;
+	var interval, fps = 60, autostart = false, tweens = [];
 
 	return {
 	
@@ -75,7 +75,7 @@ var TWEEN = TWEEN || ( function () {
 
 		remove: function ( tween ) {
 
-			i = tweens.indexOf( tween );
+			var i = tweens.indexOf( tween );
 
 			if ( i !== -1 ) {
 
@@ -87,8 +87,7 @@ var TWEEN = TWEEN || ( function () {
 
 		update: function (_time) {
 
-			i = 0; num_tweens = tweens.length;
-			var time = _time || Date.now();
+			var i = 0, num_tweens = tweens.length, time = _time || Date.now();
 
 			while ( i < num_tweens ) {
 
