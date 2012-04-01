@@ -11,27 +11,27 @@
 
 var TWEEN = TWEEN || ( function () {
 
-	var interval = null, fps = 60, autostart = false, tweens = [];
+	var _interval = null, _fps = 60, _autostart = false, _tweens = [];
 
 	return {
 	
-		setFPS: function ( f ) {
+		setFPS: function ( fps ) {
 
-			fps = f || 60;
+			_fps = fps || 60;
 
 		},
 
-		start: function ( f ) {
+		start: function ( fps ) {
 
-			if ( f ) {
+			if ( fps ) {
 
-				this.setFPS( f );
+				this.setFPS( fps );
 
 			}
 
-			if ( interval === null ) {
+			if ( _interval === null ) {
 
-				interval = setInterval( this.update, 1000 / fps );
+				_interval = setInterval( this.update, 1000 / _fps );
 
 			}
 
@@ -39,17 +39,17 @@ var TWEEN = TWEEN || ( function () {
 
 		stop: function () {
 
-			clearInterval( interval );
+			clearInterval( _interval );
 
-			interval = null;
+			_interval = null;
 
 		},
 
 		setAutostart: function ( value ) {
 
-			autostart = value;
+			_autostart = value;
 
-			if ( autostart && tweens.length ) {
+			if ( _autostart && _tweens.length ) {
 
 				this.start();
 
@@ -59,9 +59,9 @@ var TWEEN = TWEEN || ( function () {
 
 		add: function ( tween ) {
 
-			tweens.push( tween );
+			_tweens.push( tween );
 
-			if ( autostart ) {
+			if ( _autostart ) {
 
 				this.start();
 
@@ -71,48 +71,48 @@ var TWEEN = TWEEN || ( function () {
 
 		getAll: function () {
 
-			return tweens;
+			return _tweens;
 
 		},
 
 		removeAll: function () {
 
-			tweens = [];
+			_tweens = [];
 
 		},
 
 		remove: function ( tween ) {
 
-			var i = tweens.indexOf( tween );
+			var i = _tweens.indexOf( tween );
 
 			if ( i !== -1 ) {
 
-				tweens.splice( i, 1 );
+				_tweens.splice( i, 1 );
 
 			}
 
 		},
 
-		update: function ( _time ) {
+		update: function ( time ) {
 
-			var i = 0, num_tweens = tweens.length, time = _time || Date.now();
+			var i = 0, num_tweens = _tweens.length, time = time || Date.now();
 
 			while ( i < num_tweens ) {
 
-				if ( tweens[ i ].update( time ) ) {
+				if ( _tweens[ i ].update( time ) ) {
 
 					i++;
 
 				} else {
 
-					tweens.splice( i, 1 );
+					_tweens.splice( i, 1 );
 					num_tweens--;
 
 				}
 
 			}
 
-			if ( num_tweens === 0 && autostart ) {
+			if ( num_tweens === 0 && _autostart ) {
 
 				TWEEN.stop();
 
@@ -165,11 +165,11 @@ TWEEN.Tween = function ( object ) {
 
 	};
 
-	this.start = function ( _time ) {
+	this.start = function ( time ) {
 
 		TWEEN.add( this );
 
-		_startTime = _time ? _time + _delayTime : Date.now() + _delayTime;
+		_startTime = time ? time + _delayTime : Date.now() + _delayTime;
 
 		for ( var property in _valuesEnd ) {
 
