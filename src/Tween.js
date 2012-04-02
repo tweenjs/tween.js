@@ -7,6 +7,7 @@
  * @author Paul Lewis / http://www.aerotwist.com/
  * @author lechecacharro
  * @author Josh Faul / http://jocafa.com/
+ * @author egraether / http://egraether.com/
  */
 
 var TWEEN = TWEEN || ( function () {
