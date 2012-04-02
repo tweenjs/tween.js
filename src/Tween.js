@@ -7,51 +7,62 @@
  * @author Paul Lewis / http://www.aerotwist.com/
  * @author lechecacharro
  * @author Josh Faul / http://jocafa.com/
+ * @author egraether / http://egraether.com/
  */
 
 var TWEEN = TWEEN || ( function () {
 
-	var i, tl, interval, time, fps = 60, autostart = false, tweens = [], num_tweens;
+	var _interval = null, _fps = 60, _autostart = false, _tweens = [];
 
 	return {
 	
-		setFPS: function ( f ) {
+		setFPS: function ( fps ) {
 
-			fps = f || 60;
+			_fps = fps || 60;
 
 		},
 
-		start: function ( f ) {
-			
-			if( arguments.length != 0 ) {
-				this.setFPS( f );
+		start: function ( fps ) {
+
+			if ( fps ) {
+
+				this.setFPS( fps );
+
 			}
-			
-			interval = setInterval( this.update, 1000 / fps );
+
+			if ( _interval === null ) {
+
+				_interval = setInterval( this.update, 1000 / _fps );
+
+			}
 
 		},
 
 		stop: function () {
 
-			clearInterval( interval );
+			clearInterval( _interval );
+
+			_interval = null;
 
 		},
 
 		setAutostart: function ( value ) {
 
-			autostart = value;
-			
-			if(autostart && !interval) {
+			_autostart = value;
+
+			if ( _autostart && _tweens.length ) {
+
 				this.start();
+
 			}
 
 		},
 
 		add: function ( tween ) {
 
-			tweens.push( tween );
+			_tweens.push( tween );
 
-			if (autostart && !interval) {
+			if ( _autostart ) {
 
 				this.start();
 
@@ -59,53 +70,52 @@ var TWEEN = TWEEN || ( function () {
 
 		},
 
-		getAll: function() {
+		getAll: function () {
 
-			return tweens;
+			return _tweens;
 
 		},
 
-		removeAll: function() {
+		removeAll: function () {
 
-			tweens = [];
+			_tweens = [];
 
 		},
 
 		remove: function ( tween ) {
 
-			i = tweens.indexOf( tween );
+			var i = _tweens.indexOf( tween );
 
 			if ( i !== -1 ) {
 
-				tweens.splice( i, 1 );
+				_tweens.splice( i, 1 );
 
 			}
 
 		},
 
-		update: function (_time) {
+		update: function ( time ) {
 
-			i = 0; num_tweens = tweens.length;
-			var time = _time || Date.now();
+			var i = 0, num_tweens = _tweens.length, time = time || Date.now();
 
 			while ( i < num_tweens ) {
 
-				if ( tweens[ i ].update( time ) ) {
+				if ( _tweens[ i ].update( time ) ) {
 
 					i++;
 
 				} else {
 
-					tweens.splice( i, 1 );
+					_tweens.splice( i, 1 );
 					num_tweens--;
 
 				}
 
 			}
 
-			if (num_tweens == 0 && autostart == true) {
+			if ( num_tweens === 0 && _autostart ) {
 
-				this.stop();
+				TWEEN.stop();
 
 			}
 
@@ -156,11 +166,11 @@ TWEEN.Tween = function ( object ) {
 
 	};
 
-	this.start = function (_time) {
+	this.start = function ( time ) {
 
 		TWEEN.add( this );
 
-		_startTime = _time ? _time + _delayTime : Date.now() + _delayTime;
+		_startTime = time ? time + _delayTime : Date.now() + _delayTime;
 
 		for ( var property in _valuesEnd ) {
 
@@ -340,7 +350,7 @@ TWEEN.Easing.Quartic.EaseIn = function ( k ) {
 
 TWEEN.Easing.Quartic.EaseOut = function ( k ) {
 
-	 return - ( --k * k * k * k - 1 );
+	return - ( --k * k * k * k - 1 );
 
 }
 
@@ -409,9 +419,9 @@ TWEEN.Easing.Exponential.EaseOut = function ( k ) {
 TWEEN.Easing.Exponential.EaseInOut = function ( k ) {
 
 	if ( k == 0 ) return 0;
-        if ( k == 1 ) return 1;
-        if ( ( k *= 2 ) < 1 ) return 0.5 * Math.pow( 2, 10 * ( k - 1 ) );
-        return 0.5 * ( - Math.pow( 2, - 10 * ( k - 1 ) ) + 2 );
+	if ( k == 1 ) return 1;
+	if ( ( k *= 2 ) < 1 ) return 0.5 * Math.pow( 2, 10 * ( k - 1 ) );
+	return 0.5 * ( - Math.pow( 2, - 10 * ( k - 1 ) ) + 2 );
 
 };
 
@@ -438,7 +448,7 @@ TWEEN.Easing.Circular.EaseInOut = function ( k ) {
 
 //
 
-TWEEN.Easing.Elastic.EaseIn = function( k ) {
+TWEEN.Easing.Elastic.EaseIn = function ( k ) {
 
 	var s, a = 0.1, p = 0.4;
 	if ( k == 0 ) return 0; if ( k == 1 ) return 1; if ( !p ) p = 0.3;
@@ -448,7 +458,7 @@ TWEEN.Easing.Elastic.EaseIn = function( k ) {
 
 };
 
-TWEEN.Easing.Elastic.EaseOut = function( k ) {
+TWEEN.Easing.Elastic.EaseOut = function ( k ) {
 
 	var s, a = 0.1, p = 0.4;
 	if ( k == 0 ) return 0; if ( k == 1 ) return 1; if ( !p ) p = 0.3;
@@ -458,34 +468,34 @@ TWEEN.Easing.Elastic.EaseOut = function( k ) {
 
 };
 
-TWEEN.Easing.Elastic.EaseInOut = function( k ) {
+TWEEN.Easing.Elastic.EaseInOut = function ( k ) {
 
 	var s, a = 0.1, p = 0.4;
 	if ( k == 0 ) return 0; if ( k == 1 ) return 1; if ( !p ) p = 0.3;
-        if ( !a || a < 1 ) { a = 1; s = p / 4; }
-        else s = p / ( 2 * Math.PI ) * Math.asin( 1 / a );
-        if ( ( k *= 2 ) < 1 ) return - 0.5 * ( a * Math.pow( 2, 10 * ( k -= 1 ) ) * Math.sin( ( k - s ) * ( 2 * Math.PI ) / p ) );
-        return a * Math.pow( 2, -10 * ( k -= 1 ) ) * Math.sin( ( k - s ) * ( 2 * Math.PI ) / p ) * 0.5 + 1;
+	if ( !a || a < 1 ) { a = 1; s = p / 4; }
+	else s = p / ( 2 * Math.PI ) * Math.asin( 1 / a );
+	if ( ( k *= 2 ) < 1 ) return - 0.5 * ( a * Math.pow( 2, 10 * ( k -= 1 ) ) * Math.sin( ( k - s ) * ( 2 * Math.PI ) / p ) );
+	return a * Math.pow( 2, -10 * ( k -= 1 ) ) * Math.sin( ( k - s ) * ( 2 * Math.PI ) / p ) * 0.5 + 1;
 
 };
 
 //
 
-TWEEN.Easing.Back.EaseIn = function( k ) {
+TWEEN.Easing.Back.EaseIn = function ( k ) {
 
 	var s = 1.70158;
 	return k * k * ( ( s + 1 ) * k - s );
 
 };
 
-TWEEN.Easing.Back.EaseOut = function( k ) {
+TWEEN.Easing.Back.EaseOut = function ( k ) {
 
 	var s = 1.70158;
 	return ( k = k - 1 ) * k * ( ( s + 1 ) * k + s ) + 1;
 
 };
 
-TWEEN.Easing.Back.EaseInOut = function( k ) {
+TWEEN.Easing.Back.EaseInOut = function ( k ) {
 
 	var s = 1.70158 * 1.525;
 	if ( ( k *= 2 ) < 1 ) return 0.5 * ( k * k * ( ( s + 1 ) * k - s ) );
@@ -495,13 +505,13 @@ TWEEN.Easing.Back.EaseInOut = function( k ) {
 
 // 
 
-TWEEN.Easing.Bounce.EaseIn = function( k ) {
+TWEEN.Easing.Bounce.EaseIn = function ( k ) {
 
 	return 1 - TWEEN.Easing.Bounce.EaseOut( 1 - k );
 
 };
 
-TWEEN.Easing.Bounce.EaseOut = function( k ) {
+TWEEN.Easing.Bounce.EaseOut = function ( k ) {
 
 	if ( ( k /= 1 ) < ( 1 / 2.75 ) ) {
 
@@ -523,7 +533,7 @@ TWEEN.Easing.Bounce.EaseOut = function( k ) {
 
 };
 
-TWEEN.Easing.Bounce.EaseInOut = function( k ) {
+TWEEN.Easing.Bounce.EaseInOut = function ( k ) {
 
 	if ( k < 0.5 ) return TWEEN.Easing.Bounce.EaseIn( k * 2 ) * 0.5;
 	return TWEEN.Easing.Bounce.EaseOut( k * 2 - 1 ) * 0.5 + 0.5;
