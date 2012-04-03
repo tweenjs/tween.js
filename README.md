@@ -35,13 +35,13 @@ We are still developing this so the API might change from commit to commit.
 Download the [minified library](http://github.com/sole/tween.js/raw/master/build/Tween.js) and include it in your html.
 
 ```html
-<script type="text/javascript" src="js/Tween.js"></script>
+<script src="js/Tween.js"></script>
 ```
 
 The following code creates a Tween which will change the `x` attribute in a position variable, so that it goes from 50 to 400 in 2 seconds. The anonymous function set up with an interval will update the screen so that we can see something happening:
 
 ```html
-<script type="text/javascript">
+<script>
 
 	TWEEN.start();
 
