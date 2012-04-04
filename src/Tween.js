@@ -141,7 +141,7 @@ TWEEN.Tween = function ( object ) {
 
 	this.to = function ( properties, duration ) {
 
-		if( duration !== null ) {
+		if ( duration !== null ) {
 
 			_duration = duration;
 
@@ -181,12 +181,26 @@ TWEEN.Tween = function ( object ) {
 
 			}
 
-			_valuesStart[ property ] = _object[ property ];
-			_valuesDelta[ property ] = _valuesEnd[ property ] - _object[ property ];
+			if ( _valuesEnd[ property ] instanceof Array ) {
+
+				if ( _valuesEnd[ property ].length > 0 ) {
+
+					_valuesEnd[ property ].unshift( _object[ property ] );
+					_valuesDelta[ property ] = _valuesEnd[ property ];
+
+				}
+
+			} else {
+
+				_valuesStart[ property ] = _object[ property ];
+				_valuesDelta[ property ] = _valuesEnd[ property ] - _object[ property ];
+
+			}
 
 		}
 
 		return this;
+
 	};
 
 	this.stop = function () {
@@ -248,7 +262,15 @@ TWEEN.Tween = function ( object ) {
 
 		for ( property in _valuesDelta ) {
 
-			_object[ property ] = _valuesStart[ property ] + _valuesDelta[ property ] * value;
+			if ( _valuesDelta[ property ] instanceof Array ) {
+
+				_object[ property ] = TWEEN.Utilities.Interpolate( _valuesDelta[ property ], value );
+
+			} else {
+
+				_object[ property ] = _valuesStart[ property ] + _valuesDelta[ property ] * value;
+
+			}
 
 		}
 
@@ -542,3 +564,35 @@ TWEEN.Easing.Bounce.EaseInOut = function ( k ) {
 	return TWEEN.Easing.Bounce.EaseOut( k * 2 - 1 ) * 0.5 + 0.5;
 
 };
+
+
+TWEEN.Utilities = {
+
+	CatmullRom: function ( p0, p1, p2, p3, t ) {
+
+		var v0 = ( p2 - p0 ) * 0.5,
+			v1 = ( p3 - p1 ) * 0.5,
+			t2 = t * t,
+			t3 = t * t2;
+
+		return ( 2 * p1 - 2 * p2 + v0 + v1 ) * t3 + ( - 3 * p1 + 3 * p2 - 2 * v0 - v1 ) * t2 + v0 * t + p1;
+
+	},
+
+	Interpolate: function ( values, t ) {
+
+		var iMax = values.length - 1,
+			iFloat = iMax * t,
+			iInt = Math.floor( iFloat );
+
+		return TWEEN.Utilities.CatmullRom(
+			values[ iInt > 0 ? iInt - 1 : iInt ],
+			values[ iInt ],
+			values[ iInt > iMax - 1 ? iMax : iInt + 1 ],
+			values[ iInt > iMax - 2 ? iMax : iInt + 2 ],
+			iFloat - iInt
+		);
+
+	}
+
+}
