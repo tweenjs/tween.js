@@ -21,7 +21,7 @@
 		<div id="info" style="position: relative;">
 			<h1><a href="http://github.com/sole/tween.js">tween.js</a></h1>
 			<h2>08 _ array interpolation</h2>
-			<p>When using an Array of values.</p>
+			<p>The different interpolations if arrays are used as values.</p>
 		</div>
 
 		<div id="target"></div>
@@ -60,15 +60,15 @@
 				yA = [ height * max, height * min, height * max ];
 
 
-			target.appendChild( createGraph( 'Linear.Open', TWEEN.Interpolation.Linear.Open ) );
-			target.appendChild( createGraph( 'Linear.Closed', TWEEN.Interpolation.Linear.Closed ) );
+			target.appendChild( createPath( 'Linear.Open', TWEEN.Interpolation.Linear.Open ) );
+			target.appendChild( createPath( 'Linear.Closed', TWEEN.Interpolation.Linear.Closed ) );
 
 			target.appendChild( document.createElement( 'br' ) );
 
-			target.appendChild( createGraph( 'Spline.Open', TWEEN.Interpolation.Spline.Open ) );
-			target.appendChild( createGraph( 'Spline.Closed', TWEEN.Interpolation.Spline.Closed ) );
+			target.appendChild( createPath( 'Spline.Open', TWEEN.Interpolation.Spline.Open ) );
+			target.appendChild( createPath( 'Spline.Closed', TWEEN.Interpolation.Spline.Closed ) );
 
-			function createGraph( title, interpolation ) {
+			function createPath( title, interpolation ) {
 
 				var div = document.createElement( 'div' );
 				div.style.display = 'inline-block';
@@ -97,7 +97,7 @@
 
 				var obj = { x: x0, y: y0, old: { x: x0, y: y0 } };
 
-				new TWEEN.Tween( obj ).to( { x: xA, y: yA }, 5000 ).interpolation( interpolation ).onUpdate( function() {
+				new TWEEN.Tween( obj ).to( { x: xA, y: yA }, 3000 ).onUpdate( function() {
 
 					context.beginPath();
 					context.moveTo( this.old.x, this.old.y );
@@ -108,7 +108,7 @@
 					this.old.x = this.x;
 					this.old.y = this.y;
 
-				}).easing( TWEEN.Easing.Linear.EaseNone ).start();
+				}).interpolation( interpolation ).delay( 250 ).start();
 
 				div.appendChild( document.createTextNode( title ) );
 				div.appendChild( document.createElement( 'br' ) );
