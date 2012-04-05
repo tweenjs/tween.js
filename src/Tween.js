@@ -585,6 +585,9 @@ TWEEN.Interpolation.Linear.Open = function( v, k ) {
 		iFloat = iMax * k,
 		iInt = Math.floor( iFloat );
 
+	if ( k < 0 ) return TWEEN.Utilities.Linear( v[ 0 ], v[ 1 ], iFloat );
+	if ( k > 1 ) return TWEEN.Utilities.Linear( v[ iMax ], v[ iMax - 1 ], iMax - iFloat );
+
 	return TWEEN.Utilities.Linear(
 		v[ iInt ],
 		v[ iInt + 1 > iMax ? iMax : iInt + 1 ],
@@ -596,7 +599,7 @@ TWEEN.Interpolation.Linear.Open = function( v, k ) {
 TWEEN.Interpolation.Linear.Closed = function( v, k ) {
 
 	var iMax = v.length - 1,
-		iFloat = ( iMax + 1 ) * k,
+		iFloat = ( iMax + 1 ) * ( k < 0 ? 1 + k : k ),
 		iInt = Math.floor( iFloat );
 
 	return TWEEN.Utilities.Linear(
@@ -615,6 +618,9 @@ TWEEN.Interpolation.Spline.Open = function( v, k ) {
 		iFloat = iMax * k,
 		iInt = Math.floor( iFloat );
 
+	if ( k < 0 ) return TWEEN.Utilities.CatmullRom( v[ 1 ], v[ 1 ], v[ 0 ], v[ 0 ], 1 - iFloat );
+	if ( k > 1 ) return TWEEN.Utilities.CatmullRom( v[ iMax - 1 ], v[ iMax - 1 ], v[ iMax ], v[ iMax ], iFloat - iMax + 1 );
+
 	return TWEEN.Utilities.CatmullRom(
 		v[ iInt > 0 ? iInt - 1 : iInt ],
 		v[ iInt ],
@@ -628,7 +634,7 @@ TWEEN.Interpolation.Spline.Open = function( v, k ) {
 TWEEN.Interpolation.Spline.Closed = function( v, k ) {
 
 	var iMax = v.length - 1,
-		iFloat = ( iMax + 1 ) * k,
+		iFloat = ( iMax + 1 ) * ( k < 0 ? 1 + k : k ),
 		iInt = Math.floor( iFloat );
 
 	return TWEEN.Utilities.CatmullRom(
