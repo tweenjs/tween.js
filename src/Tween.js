@@ -182,12 +182,15 @@ TWEEN.Tween = function ( object ) {
 
 			}
 
+			// if an Array was provided as property value
 			if ( _valuesEnd[ property ] instanceof Array ) {
 
 				if ( _valuesEnd[ property ].length > 0 ) {
 
-					_valuesEnd[ property ].unshift( _object[ property ] );
-					_valuesDelta[ property ] = _valuesEnd[ property ];
+					_valuesStart[ property ] = _object[ property ];
+
+					// create a local copy of the Array with the start value at the front
+					_valuesDelta[ property ] = [ _object[ property ] ].concat( _valuesEnd[ property ] );
 
 				}
 
