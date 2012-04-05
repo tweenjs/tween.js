@@ -135,6 +135,7 @@ TWEEN.Tween = function ( object ) {
 	_delayTime = 0,
 	_startTime = null,
 	_easingFunction = TWEEN.Easing.Linear.EaseNone,
+	_interpolationFunction = TWEEN.Interpolation.Linear.Open,
 	_chainedTween = null,
 	_onUpdateCallback = null,
 	_onCompleteCallback = null;
@@ -224,6 +225,13 @@ TWEEN.Tween = function ( object ) {
 
 	};
 
+	this.interpolation = function ( interpolation ) {
+
+		_interpolationFunction = interpolation;
+		return this;
+
+	};
+
 	this.chain = function ( chainedTween ) {
 
 		_chainedTween = chainedTween;
@@ -264,7 +272,7 @@ TWEEN.Tween = function ( object ) {
 
 			if ( _valuesDelta[ property ] instanceof Array ) {
 
-				_object[ property ] = TWEEN.Utilities.Interpolate( _valuesDelta[ property ], value );
+				_object[ property ] = _interpolationFunction( _valuesDelta[ property ], value );
 
 			} else {
 
@@ -566,7 +574,78 @@ TWEEN.Easing.Bounce.EaseInOut = function ( k ) {
 };
 
 
+TWEEN.Interpolation = { Linear: {}, Spline: {} };
+
+TWEEN.Interpolation.Linear.Open = function( v, k ) {
+
+	var iMax = v.length - 1,
+		iFloat = iMax * k,
+		iInt = Math.floor( iFloat );
+
+	return TWEEN.Utilities.Linear(
+		v[ iInt ],
+		v[ iInt + 1 > iMax ? iMax : iInt + 1 ],
+		iFloat - iInt
+	);
+
+};
+
+TWEEN.Interpolation.Linear.Closed = function( v, k ) {
+
+	var iMax = v.length - 1,
+		iFloat = ( iMax + 1 ) * k,
+		iInt = Math.floor( iFloat );
+
+	return TWEEN.Utilities.Linear(
+		v[ iInt % ( iMax + 1 ) ],
+		v[ ( iInt + 1 ) % ( iMax + 1 ) ],
+		iFloat - iInt
+	);
+
+};
+
+//
+
+TWEEN.Interpolation.Spline.Open = function( v, k ) {
+
+	var iMax = v.length - 1,
+		iFloat = iMax * k,
+		iInt = Math.floor( iFloat );
+
+	return TWEEN.Utilities.CatmullRom(
+		v[ iInt > 0 ? iInt - 1 : iInt ],
+		v[ iInt ],
+		v[ iInt > iMax - 1 ? iMax : iInt + 1 ],
+		v[ iInt > iMax - 2 ? iMax : iInt + 2 ],
+		iFloat - iInt
+	);
+
+};
+
+TWEEN.Interpolation.Spline.Closed = function( v, k ) {
+
+	var iMax = v.length - 1,
+		iFloat = ( iMax + 1 ) * k,
+		iInt = Math.floor( iFloat );
+
+	return TWEEN.Utilities.CatmullRom(
+		v[ iInt > 0 ? iInt - 1 : iMax ],
+		v[ iInt % ( iMax + 1 ) ],
+		v[ ( iInt + 1 ) % ( iMax + 1 ) ],
+		v[ ( iInt + 2 ) % ( iMax + 1 ) ],
+		iFloat - iInt
+	);
+
+};
+
+
 TWEEN.Utilities = {
+
+	Linear: function ( p0, p1, t ) {
+
+		return ( p1 - p0 ) * t + p0;
+
+	},
 
 	CatmullRom: function ( p0, p1, p2, p3, t ) {
 
@@ -577,22 +656,6 @@ TWEEN.Utilities = {
 
 		return ( 2 * p1 - 2 * p2 + v0 + v1 ) * t3 + ( - 3 * p1 + 3 * p2 - 2 * v0 - v1 ) * t2 + v0 * t + p1;
 
-	},
-
-	Interpolate: function ( values, t ) {
-
-		var iMax = values.length - 1,
-			iFloat = iMax * t,
-			iInt = Math.floor( iFloat );
-
-		return TWEEN.Utilities.CatmullRom(
-			values[ iInt > 0 ? iInt - 1 : iInt ],
-			values[ iInt ],
-			values[ iInt > iMax - 1 ? iMax : iInt + 1 ],
-			values[ iInt > iMax - 2 ? iMax : iInt + 2 ],
-			iFloat - iInt
-		);
-
 	}
 
-}
+};
