@@ -135,7 +135,7 @@ TWEEN.Tween = function ( object ) {
 	_delayTime = 0,
 	_startTime = null,
 	_easingFunction = TWEEN.Easing.Linear.EaseNone,
-	_interpolationFunction = TWEEN.Interpolation.Linear.Open,
+	_interpolationFunction = TWEEN.Interpolation.Linear,
 	_chainedTween = null,
 	_onUpdateCallback = null,
 	_onCompleteCallback = null;
@@ -577,7 +577,7 @@ TWEEN.Easing.Bounce.EaseInOut = function ( k ) {
 };
 
 
-TWEEN.Interpolation = { Linear: {}, Spline: {}, Bezier: {}, Utils: {
+TWEEN.Interpolation = { Utils: {
 
 	Linear: function ( p0, p1, t ) {
 
@@ -616,7 +616,7 @@ TWEEN.Interpolation = { Linear: {}, Spline: {}, Bezier: {}, Utils: {
 
 }};
 
-TWEEN.Interpolation.Linear.Open = function( v, k ) {
+TWEEN.Interpolation.Linear = function( v, k ) {
 
 	var m = v.length - 1, f = m * k, i = Math.floor( f ), fn = TWEEN.Interpolation.Utils.Linear;
 
@@ -627,17 +627,7 @@ TWEEN.Interpolation.Linear.Open = function( v, k ) {
 
 };
 
-TWEEN.Interpolation.Linear.Closed = function( v, k ) {
-
-	var m = v.length - 1, f = ( m + 1 ) * ( k < 0 ? 1 + k : k ), i = Math.floor( f );
-
-	return TWEEN.Interpolation.Utils.Linear( v[ i % ( m + 1 ) ], v[ ( i + 1 ) % ( m + 1 ) ], f - i );
-
-};
-
-//
-
-TWEEN.Interpolation.Bezier.Open = function( v, k ) {
+TWEEN.Interpolation.Bezier = function( v, k ) {
 
 	var b = 0, n = v.length - 1, pw = Math.pow, bn = TWEEN.Interpolation.Utils.Bernstein, i;
 
@@ -649,50 +639,23 @@ TWEEN.Interpolation.Bezier.Open = function( v, k ) {
 
 };
 
-TWEEN.Interpolation.Bezier.Closed = function( v, k ) {
-
-	var b = 0, n = v.length, pw = Math.pow, bn = TWEEN.Interpolation.Utils.Bernstein, i;
-
-	if ( k < 0 ) k += 1;
-	if ( k > 1 ) k -= 1;
-
-	for ( i = 0; i <= n; i++ ) {
-		b += pw( 1 - k, n - i ) * pw( k, i ) * v[ i % n ] * bn( n, i );
-	}
-
-	return b;
-
-};
-
-//
-
-TWEEN.Interpolation.Spline.Open = function( v, k ) {
+TWEEN.Interpolation.Spline = function( v, k ) {
 
 	var m = v.length - 1, f = m * k, i = Math.floor( f ), fn = TWEEN.Interpolation.Utils.CatmullRom;
 
-	if ( k < 0 ) return v[ 0 ] - ( fn( v[ 0 ], v[ 0 ], v[ 1 ], v[ 1 ], -f ) - v[ 0 ] );
-	if ( k > 1 ) return v[ m ] - ( fn( v[ m ], v[ m ], v[ m - 1 ], v[ m - 1 ], f - m ) - v[ m ] );
+	if ( v[ 0 ] === v[ m ] ) {
 
-	return fn(
-		v[ i > 0 ? i - 1 : i ],
-		v[ i ],
-		v[ i > m - 1 ? m : i + 1 ],
-		v[ i > m - 2 ? m : i + 2 ],
-		f - i
-	);
+		if ( k < 0 ) i = Math.floor( f = m * ( 1 + k ) );
 
-};
+		return fn( v[ ( i - 1 + m ) % m ], v[ i ], v[ ( i + 1 ) % m ], v[ ( i + 2 ) % m ], f - i );
 
-TWEEN.Interpolation.Spline.Closed = function( v, k ) {
+	} else {
 
-	var m = v.length - 1, f = ( m + 1 ) * ( k < 0 ? 1 + k : k ), i = Math.floor( f );
+		if ( k < 0 ) return v[ 0 ] - ( fn( v[ 0 ], v[ 0 ], v[ 1 ], v[ 1 ], -f ) - v[ 0 ] );
+		if ( k > 1 ) return v[ m ] - ( fn( v[ m ], v[ m ], v[ m - 1 ], v[ m - 1 ], f - m ) - v[ m ] );
 
-	return TWEEN.Interpolation.Utils.CatmullRom(
-		v[ i > 0 ? i - 1 : m ],
-		v[ i % ( m + 1 ) ],
-		v[ ( i + 1 ) % ( m + 1 ) ],
-		v[ ( i + 2 ) % ( m + 1 ) ],
-		f - i
-	);
+		return fn( v[ i ? i - 1 : 0 ], v[ i ], v[ m < i + 1 ? m : i + 1 ], v[ m < i + 2 ? m : i + 2 ], f - i );
+
+	}
 
 };

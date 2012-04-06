@@ -60,18 +60,18 @@
 				yA = [ height * min, height * max ];
 
 
-			target.appendChild( createPath( 'Linear.Open', TWEEN.Interpolation.Linear.Open ) );
-			target.appendChild( createPath( 'Linear.Closed', TWEEN.Interpolation.Linear.Closed ) );
+			target.appendChild( createPath( 'Linear', TWEEN.Interpolation.Linear ) );
+			target.appendChild( createPath( 'Bezier', TWEEN.Interpolation.Bezier ) );
+			target.appendChild( createPath( 'Spline', TWEEN.Interpolation.Spline ) );
 
 			target.appendChild( document.createElement( 'br' ) );
 
-			target.appendChild( createPath( 'Bezier.Open', TWEEN.Interpolation.Bezier.Open ) );
-			target.appendChild( createPath( 'Bezier.Closed', TWEEN.Interpolation.Bezier.Closed ) );
+			xA.push( x0 );
+			yA.push( y0 );
 
-			target.appendChild( document.createElement( 'br' ) );
-
-			target.appendChild( createPath( 'Spline.Open', TWEEN.Interpolation.Spline.Open ) );
-			target.appendChild( createPath( 'Spline.Closed', TWEEN.Interpolation.Spline.Closed ) );
+			target.appendChild( createPath( 'start === end', TWEEN.Interpolation.Linear ) );
+			target.appendChild( createPath( '', TWEEN.Interpolation.Bezier ) );
+			target.appendChild( createPath( '', TWEEN.Interpolation.Spline ) );
 
 			function createPath( title, interpolation ) {
 
@@ -90,6 +90,7 @@
 
 				context.fillStyle = "rgb(200,200,200)";
 				context.fillRect( x0 - 3, y0 - 3, 6, 6 );
+				context.fillRect( xA[ xA.length - 1 ] - 3, yA[ yA.length - 1 ] - 3, 6, 6 );
 
 				for ( var i = 0; i < xA.length; i++ ) {
 
