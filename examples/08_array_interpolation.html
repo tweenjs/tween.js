@@ -55,13 +55,18 @@
 				max = 5 / 6;
 
 			var x0 = width * min,
-				y0 = height * min,
-				xA = [ width * max, width * max, width * min ],
-				yA = [ height * max, height * min, height * max ];
+				y0 = height / 2,
+				xA = [ width * max, width / 2 ],
+				yA = [ height * min, height * max ];
 
 
 			target.appendChild( createPath( 'Linear.Open', TWEEN.Interpolation.Linear.Open ) );
 			target.appendChild( createPath( 'Linear.Closed', TWEEN.Interpolation.Linear.Closed ) );
+
+			target.appendChild( document.createElement( 'br' ) );
+
+			target.appendChild( createPath( 'Bezier.Open', TWEEN.Interpolation.Bezier.Open ) );
+			target.appendChild( createPath( 'Bezier.Closed', TWEEN.Interpolation.Bezier.Closed ) );
 
 			target.appendChild( document.createElement( 'br' ) );
 
@@ -93,7 +98,7 @@
 				}
 
 				context.lineWidth = 2;
-				context.strokeStyle = "rgb(255,127,127)";
+				context.strokeStyle = "rgba(255,127,127,0.9)";
 
 				var obj = { x: x0, y: y0, old: { x: x0, y: y0 } };
 
