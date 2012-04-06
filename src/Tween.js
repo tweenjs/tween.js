@@ -577,13 +577,35 @@ TWEEN.Easing.Bounce.EaseInOut = function ( k ) {
 };
 
 
-TWEEN.Interpolation = { Linear: {}, Spline: {}, Utils: {
+TWEEN.Interpolation = { Linear: {}, Spline: {}, Bezier: {}, Utils: {
 
 	Linear: function ( p0, p1, t ) {
 
 		return ( p1 - p0 ) * t + p0;
 
 	},
+
+	Bernstein: function ( n , i ) {
+
+		var fc = TWEEN.Interpolation.Utils.Factorial;
+		return fc( n ) / fc( i ) / fc( n - i );
+
+	},
+
+	Factorial: ( function () {
+
+		var a = [ 1 ];
+
+		return function ( n ) {
+
+			var s = 1, i;
+			if ( a[ n ] ) return a[ n ];
+			for ( i = n; i > 1; i-- ) s *= i;
+			return a[ n ] = s;
+
+		}
+
+	} )(),
 
 	CatmullRom: function ( p0, p1, p2, p3, t ) {
 
@@ -610,6 +632,35 @@ TWEEN.Interpolation.Linear.Closed = function( v, k ) {
 	var m = v.length - 1, f = ( m + 1 ) * ( k < 0 ? 1 + k : k ), i = Math.floor( f );
 
 	return TWEEN.Interpolation.Utils.Linear( v[ i % ( m + 1 ) ], v[ ( i + 1 ) % ( m + 1 ) ], f - i );
+
+};
+
+//
+
+TWEEN.Interpolation.Bezier.Open = function( v, k ) {
+
+	var b = 0, n = v.length - 1, pw = Math.pow, bn = TWEEN.Interpolation.Utils.Bernstein, i;
+
+	for ( i = 0; i <= n; i++ ) {
+		b += pw( 1 - k, n - i ) * pw( k, i ) * v[ i ] * bn( n, i );
+	}
+
+	return b;
+
+};
+
+TWEEN.Interpolation.Bezier.Closed = function( v, k ) {
+
+	var b = 0, n = v.length, pw = Math.pow, bn = TWEEN.Interpolation.Utils.Bernstein, i;
+
+	if ( k < 0 ) k += 1;
+	if ( k > 1 ) k -= 1;
+
+	for ( i = 0; i <= n; i++ ) {
+		b += pw( 1 - k, n - i ) * pw( k, i ) * v[ i % n ] * bn( n, i );
+	}
+
+	return b;
 
 };
 
