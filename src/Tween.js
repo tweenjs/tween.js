@@ -15,7 +15,7 @@ var TWEEN = TWEEN || ( function () {
 	var _interval = null, _fps = 60, _autostart = false, _tweens = [];
 
 	return {
-	
+
 		setFPS: function ( fps ) {
 
 			_fps = fps || 60;
@@ -287,7 +287,7 @@ TWEEN.Tween = function ( object ) {
 
 	};
 	*/
-}
+};
 
 TWEEN.Easing = { Linear: {}, Quadratic: {}, Cubic: {}, Quartic: {}, Quintic: {}, Sinusoidal: {}, Exponential: {}, Circular: {}, Elastic: {}, Back: {}, Bounce: {} };
 
@@ -352,7 +352,7 @@ TWEEN.Easing.Quartic.EaseOut = function ( k ) {
 
 	return 1 - --k * k * k * k;
 
-}
+};
 
 TWEEN.Easing.Quartic.EaseInOut = function ( k ) {
 
@@ -382,7 +382,7 @@ TWEEN.Easing.Quintic.EaseInOut = function ( k ) {
 
 };
 
-// 
+//
 
 TWEEN.Easing.Sinusoidal.EaseIn = function ( k ) {
 
