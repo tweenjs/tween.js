@@ -38,14 +38,14 @@
 			/*
 			var x0 = Math.random() * ( width - 40 ) + 20,
 				y0 = Math.random() * ( height - 40 ) + 20,
-				x = [],
-				y = [];
-			
-			for ( var i = 0; i < 3; i++ ) {
-			
-				x.push( Math.random() * ( width - 40 ) + 20 );
-				y.push( Math.random() * ( height - 40 ) + 20 );
-			
+				xA = [],
+				yA = [];
+
+			for ( var i = 0; i < 10; i++ ) {
+
+				xA.push( Math.random() * ( width - 40 ) + 20 );
+				yA.push( Math.random() * ( height - 40 ) + 20 );
+
 			}
 			*/
 
@@ -53,7 +53,7 @@
 
 			var min = 1 / 6,
 				max = 5 / 6;
-			
+
 			var x0 = width * min,
 				y0 = height * min,
 				xA = [ width * max, width * max, width * min ],
@@ -108,7 +108,7 @@
 					this.old.x = this.x;
 					this.old.y = this.y;
 
-				}).interpolation( interpolation ).delay( 250 ).start();
+				}).interpolation( interpolation ).easing( TWEEN.Easing.Back.EaseInOut ).delay( 250 ).start();
 
 				div.appendChild( document.createTextNode( title ) );
 				div.appendChild( document.createElement( 'br' ) );

@@ -619,8 +619,8 @@ TWEEN.Interpolation.Spline.Open = function( v, k ) {
 
 	var m = v.length - 1, f = m * k, i = Math.floor( f ), fn = TWEEN.Interpolation.Utils.CatmullRom;
 
-	if ( k < 0 ) return fn( v[ 1 ], v[ 1 ], v[ 0 ], v[ 0 ], 1 - f );
-	if ( k > 1 ) return fn( v[ m - 1 ], v[ m - 1 ], v[ m ], v[ m ], f - m + 1 );
+	if ( k < 0 ) return v[ 0 ] - ( fn( v[ 0 ], v[ 0 ], v[ 1 ], v[ 1 ], -f ) - v[ 0 ] );
+	if ( k > 1 ) return v[ m ] - ( fn( v[ m ], v[ m ], v[ m - 1 ], v[ m - 1 ], f - m ) - v[ m ] );
 
 	return fn(
 		v[ i > 0 ? i - 1 : i ],
