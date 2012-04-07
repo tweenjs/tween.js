@@ -37,7 +37,7 @@
 
 					new TWEEN.Tween( { x: 50, y: 0 } )
 						.to( { x: 400 }, this.duration )
-						.easing( TWEEN.Easing.Bounce.EaseOut )
+						.easing( TWEEN.Easing.Linear.EaseNone )
 						.onUpdate( function () {
 
 							output.innerHTML = 'x == ' + Math.round( this.x );

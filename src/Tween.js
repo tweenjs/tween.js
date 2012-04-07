@@ -16,12 +16,6 @@ var TWEEN = TWEEN || ( function () {
 
 	return {
 
-		add: function ( tween ) {
-
-			_tweens.push( tween );
-
-		},
-
 		getAll: function () {
 
 			return _tweens;
@@ -31,6 +25,12 @@ var TWEEN = TWEEN || ( function () {
 		removeAll: function () {
 
 			_tweens = [];
+
+		},
+
+		add: function ( tween ) {
+
+			_tweens.push( tween );
 
 		},
 
@@ -48,18 +48,20 @@ var TWEEN = TWEEN || ( function () {
 
 		update: function ( time ) {
 
-			var i = 0, num_tweens = _tweens.length, time = time || Date.now();
+			var i = 0;
+			var num_tweens = _tweens.length;
+			var time = time !== undefined ? time : Date.now();
 
 			while ( i < num_tweens ) {
 
 				if ( _tweens[ i ].update( time ) ) {
 
-					i++;
+					i ++;
 
 				} else {
 
 					_tweens.splice( i, 1 );
-					num_tweens--;
+					num_tweens --;
 
 				}
 
@@ -117,7 +119,7 @@ TWEEN.Tween = function ( object ) {
 
 		TWEEN.add( this );
 
-		_startTime = time || Date.now();
+		_startTime = time !== undefined ? time : Date.now();
 		_startTime += _delayTime;
 
 		for ( var property in _valuesEnd ) {
