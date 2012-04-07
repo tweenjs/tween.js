@@ -28,34 +28,40 @@
 		<script src="../src/Tween.js"></script>
 		<script>
 
-			init();
+			var target = document.getElementById('target');
+
+			var canvas = document.createElement( 'canvas' );
+			canvas.width = 1024;
+			canvas.height = 512;
+			target.appendChild( canvas );
+
+			var context = canvas.getContext( '2d' );
+			context.fillStyle = "rgb(250,250,250)";
+			context.fillRect( 0, 0, 1024, 512 );
+
+			context.fillStyle = "rgba(0,0,0,0.3)";
+
+			var points = [];
+			var pointsX = [];
+			var pointsY = [];
+
+			for ( var i = 0; i < 20; i ++ ) {
+
+				points[ i ] = { x: Math.random() * 1024, y: Math.random() * 512 };
+
+				pointsX.push( points[ i ].x );
+				pointsY.push( points[ i ].y );
+
+				context.fillRect( points[ i ].x - 2, points[ i ].y - 2, 4, 4 );
+
+			}
+
+			initCustomInterpolation( context, points );
+			initTWEENInterpolation( context, pointsX, pointsY );
+
 			TWEEN.start();
 
-			function init() {
-
-				var target = document.getElementById('target');
-
-				var canvas = document.createElement( 'canvas' );
-				canvas.width = 1024;
-				canvas.height = 512;
-				target.appendChild( canvas );
-
-				var context = canvas.getContext( '2d' );
-				context.fillStyle = "rgb(250,250,250)";
-				context.fillRect( 0, 0, 1024, 512 );
-
-				context.lineWidth = 2;
-				context.strokeStyle = "rgb(255,127,127)";
-
-				context.fillStyle = "rgba(0,0,0,0.3)";
-
-				var points = [];
-
-				for ( var i = 0; i < 20; i ++ ) {
-
-					points[ i ] = { x: Math.random() * 1024, y: Math.random() * 512 };
-					context.fillRect( points[ i ].x - 2, points[ i ].y - 2, 4, 4 );
-				}
+			function initCustomInterpolation( context, points ) {
 
 				var dummy = { p: 0 };
 				var position = { x: 0, y: 0 };
@@ -67,6 +73,9 @@
 
 					position = spline.get2DPoint( points, this.p );
 
+					context.lineWidth = 2;
+					context.strokeStyle = "rgb(255,127,127)";
+
 					context.beginPath();
 					context.moveTo( position_old.x, position_old.y );
 					context.lineTo( position.x, position.y );
@@ -76,7 +85,7 @@
 					position_old.x = position.x;
 					position_old.y = position.y;
 
-				}).start();
+				}).delay( 500 ).start();
 
 			}
 
@@ -114,6 +123,37 @@
 					return ( 2 * p1 - 2 * p2 + v0 + v1 ) * t3 + ( - 3 * p1 + 3 * p2 - 2 * v0 - v1 ) * t2 + v0 * t + p1;
 
 				}
+
+			}
+
+			function initTWEENInterpolation( context, pointsX, pointsY ) {
+
+				var x0 = pointsX.shift();
+				var y0 = pointsY.shift();
+
+				var obj = { x: x0, y: y0, old: { x: x0, y: y0 }, dash: 0 };
+
+				new TWEEN.Tween( obj ).to( { x: pointsX, y: pointsY }, 20000 ).easing( TWEEN.Easing.Linear.EaseNone ).onUpdate( function() {
+
+					context.lineWidth = 1;
+					context.strokeStyle = "rgb(200,200,200)";
+
+					if ( this.dash ) {
+
+						context.beginPath();
+						context.moveTo( this.old.x, this.old.y );
+						context.lineTo( this.x, this.y );
+						context.closePath();
+						context.stroke();
+
+					}
+
+					this.old.x = this.x;
+					this.old.y = this.y;
+
+					this.dash = !this.dash;
+
+				}).interpolation( TWEEN.Interpolation.Spline ).start();
 
 			}
 

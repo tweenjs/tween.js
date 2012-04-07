@@ -135,13 +135,14 @@ TWEEN.Tween = function ( object ) {
 	_delayTime = 0,
 	_startTime = null,
 	_easingFunction = TWEEN.Easing.Linear.EaseNone,
+	_interpolationFunction = TWEEN.Interpolation.Linear,
 	_chainedTween = null,
 	_onUpdateCallback = null,
 	_onCompleteCallback = null;
 
 	this.to = function ( properties, duration ) {
 
-		if( duration !== null ) {
+		if ( duration !== null ) {
 
 			_duration = duration;
 
@@ -181,12 +182,29 @@ TWEEN.Tween = function ( object ) {
 
 			}
 
-			_valuesStart[ property ] = _object[ property ];
-			_valuesDelta[ property ] = _valuesEnd[ property ] - _object[ property ];
+			// check if an Array was provided as property value
+			if ( _valuesEnd[ property ] instanceof Array ) {
+
+				if ( _valuesEnd[ property ].length > 0 ) {
+
+					_valuesStart[ property ] = _object[ property ];
+
+					// create a local copy of the Array with the start value at the front
+					_valuesDelta[ property ] = [ _object[ property ] ].concat( _valuesEnd[ property ] );
+
+				}
+
+			} else {
+
+				_valuesStart[ property ] = _object[ property ];
+				_valuesDelta[ property ] = _valuesEnd[ property ] - _object[ property ];
+
+			}
 
 		}
 
 		return this;
+
 	};
 
 	this.stop = function () {
@@ -206,6 +224,13 @@ TWEEN.Tween = function ( object ) {
 	this.easing = function ( easing ) {
 
 		_easingFunction = easing;
+		return this;
+
+	};
+
+	this.interpolation = function ( interpolation ) {
+
+		_interpolationFunction = interpolation;
 		return this;
 
 	};
@@ -248,7 +273,15 @@ TWEEN.Tween = function ( object ) {
 
 		for ( property in _valuesDelta ) {
 
-			_object[ property ] = _valuesStart[ property ] + _valuesDelta[ property ] * value;
+			if ( _valuesDelta[ property ] instanceof Array ) {
+
+				_object[ property ] = _interpolationFunction( _valuesDelta[ property ], value );
+
+			} else {
+
+				_object[ property ] = _valuesStart[ property ] + _valuesDelta[ property ] * value;
+
+			}
 
 		}
 
@@ -540,5 +573,89 @@ TWEEN.Easing.Bounce.EaseInOut = function ( k ) {
 
 	if ( k < 0.5 ) return TWEEN.Easing.Bounce.EaseIn( k * 2 ) * 0.5;
 	return TWEEN.Easing.Bounce.EaseOut( k * 2 - 1 ) * 0.5 + 0.5;
+
+};
+
+
+TWEEN.Interpolation = { Utils: {
+
+	Linear: function ( p0, p1, t ) {
+
+		return ( p1 - p0 ) * t + p0;
+
+	},
+
+	Bernstein: function ( n , i ) {
+
+		var fc = TWEEN.Interpolation.Utils.Factorial;
+		return fc( n ) / fc( i ) / fc( n - i );
+
+	},
+
+	Factorial: ( function () {
+
+		var a = [ 1 ];
+
+		return function ( n ) {
+
+			var s = 1, i;
+			if ( a[ n ] ) return a[ n ];
+			for ( i = n; i > 1; i-- ) s *= i;
+			return a[ n ] = s;
+
+		}
+
+	} )(),
+
+	CatmullRom: function ( p0, p1, p2, p3, t ) {
+
+		var v0 = ( p2 - p0 ) * 0.5, v1 = ( p3 - p1 ) * 0.5, t2 = t * t, t3 = t * t2;
+		return ( 2 * p1 - 2 * p2 + v0 + v1 ) * t3 + ( - 3 * p1 + 3 * p2 - 2 * v0 - v1 ) * t2 + v0 * t + p1;
+
+	}
+
+}};
+
+TWEEN.Interpolation.Linear = function( v, k ) {
+
+	var m = v.length - 1, f = m * k, i = Math.floor( f ), fn = TWEEN.Interpolation.Utils.Linear;
+
+	if ( k < 0 ) return fn( v[ 0 ], v[ 1 ], f );
+	if ( k > 1 ) return fn( v[ m ], v[ m - 1 ], m - f );
+
+	return fn( v[ i ], v[ i + 1 > m ? m : i + 1 ], f - i );
+
+};
+
+TWEEN.Interpolation.Bezier = function( v, k ) {
+
+	var b = 0, n = v.length - 1, pw = Math.pow, bn = TWEEN.Interpolation.Utils.Bernstein, i;
+
+	for ( i = 0; i <= n; i++ ) {
+		b += pw( 1 - k, n - i ) * pw( k, i ) * v[ i ] * bn( n, i );
+	}
+
+	return b;
+
+};
+
+TWEEN.Interpolation.Spline = function( v, k ) {
+
+	var m = v.length - 1, f = m * k, i = Math.floor( f ), fn = TWEEN.Interpolation.Utils.CatmullRom;
+
+	if ( v[ 0 ] === v[ m ] ) {
+
+		if ( k < 0 ) i = Math.floor( f = m * ( 1 + k ) );
+
+		return fn( v[ ( i - 1 + m ) % m ], v[ i ], v[ ( i + 1 ) % m ], v[ ( i + 2 ) % m ], f - i );
+
+	} else {
+
+		if ( k < 0 ) return v[ 0 ] - ( fn( v[ 0 ], v[ 0 ], v[ 1 ], v[ 1 ], -f ) - v[ 0 ] );
+		if ( k > 1 ) return v[ m ] - ( fn( v[ m ], v[ m ], v[ m - 1 ], v[ m - 1 ], f - m ) - v[ m ] );
+
+		return fn( v[ i ? i - 1 : 0 ], v[ i ], v[ m < i + 1 ? m : i + 1 ], v[ m < i + 2 ? m : i + 2 ], f - i );
+
+	}
 
 };
