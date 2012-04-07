@@ -67,7 +67,7 @@
 
 				target.appendChild( createPath( 'Linear', TWEEN.Interpolation.Linear ) );
 				target.appendChild( createPath( 'Bezier', TWEEN.Interpolation.Bezier ) );
-				target.appendChild( createPath( 'Spline', TWEEN.Interpolation.Spline ) );
+				target.appendChild( createPath( 'CatmullRom', TWEEN.Interpolation.CatmullRom ) );
 
 				target.appendChild( document.createElement( 'br' ) );
 
@@ -76,7 +76,7 @@
 
 				target.appendChild( createPath( 'start === end', TWEEN.Interpolation.Linear ) );
 				target.appendChild( createPath( '', TWEEN.Interpolation.Bezier ) );
-				target.appendChild( createPath( '', TWEEN.Interpolation.Spline ) );
+				target.appendChild( createPath( '', TWEEN.Interpolation.CatmullRom ) );
 
 				function createPath( title, interpolation ) {
 
@@ -119,7 +119,7 @@
 						this.old.x = this.x;
 						this.old.y = this.y;
 
-					}).interpolation( interpolation ).easing( TWEEN.Easing.Linear.EaseNone ).delay( 250 ).start();
+					}).interpolation( interpolation ).easing( TWEEN.Easing.Linear.None ).delay( 250 ).start();
 
 					div.appendChild( document.createTextNode( title ) );
 					div.appendChild( document.createElement( 'br' ) );

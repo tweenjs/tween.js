@@ -32,12 +32,12 @@
 				tween = new TWEEN.Tween(position)
 					.to({x: 700, y: 200, rotation: 359}, 2000)
 					.delay(1000)
-					.easing(TWEEN.Easing.Elastic.EaseInOut)
+					.easing(TWEEN.Easing.Elastic.InOut)
 					.onUpdate(update);
 
 				tweenBack = new TWEEN.Tween(position)
 					.to({x: 100, y: 100, rotation: 0}, 3000)
-					.easing(TWEEN.Easing.Elastic.EaseInOut)
+					.easing(TWEEN.Easing.Elastic.InOut)
 					.onUpdate(update);
 
 				tween.chain(tweenBack);
