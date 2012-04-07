@@ -26,119 +26,129 @@
 		<div id="target"></div>
 
 		<script src="../src/Tween.js"></script>
+		<script src="js/RequestAnimationFrame.js"></script>
 		<script>
-			var target = document.getElementById('target');
 
-			target.appendChild( createGraph( 'Linear.EaseNone', TWEEN.Easing.Linear.EaseNone ) );
+			init();
+			animate();
 
-			target.appendChild( document.createElement( 'br' ) );
+			function init() {
 
-			target.appendChild( createGraph( 'Quadratic.EaseIn', TWEEN.Easing.Quadratic.EaseIn ) );
-			target.appendChild( createGraph( 'Quadratic.EaseOut', TWEEN.Easing.Quadratic.EaseOut ) );
-			target.appendChild( createGraph( 'Quadratic.EaseInOut', TWEEN.Easing.Quadratic.EaseInOut ) );
+				var target = document.getElementById('target');
 
-			target.appendChild( createGraph( 'Cubic.EaseIn', TWEEN.Easing.Cubic.EaseIn ) );
-			target.appendChild( createGraph( 'Cubic.EaseOut', TWEEN.Easing.Cubic.EaseOut ) );
-			target.appendChild( createGraph( 'Cubic.EaseInOut', TWEEN.Easing.Cubic.EaseInOut ) );
+				target.appendChild( createGraph( 'Linear.EaseNone', TWEEN.Easing.Linear.EaseNone ) );
 
-			target.appendChild( document.createElement( 'br' ) );
+				target.appendChild( document.createElement( 'br' ) );
 
-			target.appendChild( createGraph( 'Quartic.EaseIn', TWEEN.Easing.Quartic.EaseIn ) );
-			target.appendChild( createGraph( 'Quartic.EaseOut', TWEEN.Easing.Quartic.EaseOut ) );
-			target.appendChild( createGraph( 'Quartic.EaseInOut', TWEEN.Easing.Quartic.EaseInOut ) );
+				target.appendChild( createGraph( 'Quadratic.EaseIn', TWEEN.Easing.Quadratic.EaseIn ) );
+				target.appendChild( createGraph( 'Quadratic.EaseOut', TWEEN.Easing.Quadratic.EaseOut ) );
+				target.appendChild( createGraph( 'Quadratic.EaseInOut', TWEEN.Easing.Quadratic.EaseInOut ) );
 
-			target.appendChild( createGraph( 'Quintic.EaseIn', TWEEN.Easing.Quintic.EaseIn ) );
-			target.appendChild( createGraph( 'Quintic.EaseOut', TWEEN.Easing.Quintic.EaseOut ) );
-			target.appendChild( createGraph( 'Quintic.EaseInOut', TWEEN.Easing.Quintic.EaseInOut ) );
+				target.appendChild( createGraph( 'Cubic.EaseIn', TWEEN.Easing.Cubic.EaseIn ) );
+				target.appendChild( createGraph( 'Cubic.EaseOut', TWEEN.Easing.Cubic.EaseOut ) );
+				target.appendChild( createGraph( 'Cubic.EaseInOut', TWEEN.Easing.Cubic.EaseInOut ) );
 
-			target.appendChild( document.createElement( 'br' ) );
+				target.appendChild( document.createElement( 'br' ) );
 
-			target.appendChild( createGraph( 'Sinusoidal.EaseIn', TWEEN.Easing.Sinusoidal.EaseIn ) );
-			target.appendChild( createGraph( 'Sinusoidal.EaseOut', TWEEN.Easing.Sinusoidal.EaseOut ) );
-			target.appendChild( createGraph( 'Sinusoidal.EaseInOut', TWEEN.Easing.Sinusoidal.EaseInOut ) );
+				target.appendChild( createGraph( 'Quartic.EaseIn', TWEEN.Easing.Quartic.EaseIn ) );
+				target.appendChild( createGraph( 'Quartic.EaseOut', TWEEN.Easing.Quartic.EaseOut ) );
+				target.appendChild( createGraph( 'Quartic.EaseInOut', TWEEN.Easing.Quartic.EaseInOut ) );
 
-			target.appendChild( createGraph( 'Exponential.EaseIn', TWEEN.Easing.Exponential.EaseIn ) );
-			target.appendChild( createGraph( 'Exponential.EaseOut', TWEEN.Easing.Exponential.EaseOut ) );
-			target.appendChild( createGraph( 'Exponential.EaseInOut', TWEEN.Easing.Exponential.EaseInOut ) );
+				target.appendChild( createGraph( 'Quintic.EaseIn', TWEEN.Easing.Quintic.EaseIn ) );
+				target.appendChild( createGraph( 'Quintic.EaseOut', TWEEN.Easing.Quintic.EaseOut ) );
+				target.appendChild( createGraph( 'Quintic.EaseInOut', TWEEN.Easing.Quintic.EaseInOut ) );
 
-			target.appendChild( document.createElement( 'br' ) );
+				target.appendChild( document.createElement( 'br' ) );
 
-			target.appendChild( createGraph( 'Circular.EaseIn', TWEEN.Easing.Circular.EaseIn ) );
-			target.appendChild( createGraph( 'Circular.EaseOut', TWEEN.Easing.Circular.EaseOut ) );
-			target.appendChild( createGraph( 'Circular.EaseInOut', TWEEN.Easing.Circular.EaseInOut ) );
+				target.appendChild( createGraph( 'Sinusoidal.EaseIn', TWEEN.Easing.Sinusoidal.EaseIn ) );
+				target.appendChild( createGraph( 'Sinusoidal.EaseOut', TWEEN.Easing.Sinusoidal.EaseOut ) );
+				target.appendChild( createGraph( 'Sinusoidal.EaseInOut', TWEEN.Easing.Sinusoidal.EaseInOut ) );
 
-			target.appendChild( createGraph( 'Elastic.EaseIn', TWEEN.Easing.Elastic.EaseIn ) );
-			target.appendChild( createGraph( 'Elastic.EaseOut', TWEEN.Easing.Elastic.EaseOut ) );
-			target.appendChild( createGraph( 'Elastic.EaseInOut', TWEEN.Easing.Elastic.EaseInOut ) );
+				target.appendChild( createGraph( 'Exponential.EaseIn', TWEEN.Easing.Exponential.EaseIn ) );
+				target.appendChild( createGraph( 'Exponential.EaseOut', TWEEN.Easing.Exponential.EaseOut ) );
+				target.appendChild( createGraph( 'Exponential.EaseInOut', TWEEN.Easing.Exponential.EaseInOut ) );
 
-			target.appendChild( document.createElement( 'br' ) );
+				target.appendChild( document.createElement( 'br' ) );
 
-			target.appendChild( createGraph( 'Back.EaseIn', TWEEN.Easing.Back.EaseIn ) );
-			target.appendChild( createGraph( 'Back.EaseOut', TWEEN.Easing.Back.EaseOut ) );
-			target.appendChild( createGraph( 'Back.EaseInOut', TWEEN.Easing.Back.EaseInOut ) );
+				target.appendChild( createGraph( 'Circular.EaseIn', TWEEN.Easing.Circular.EaseIn ) );
+				target.appendChild( createGraph( 'Circular.EaseOut', TWEEN.Easing.Circular.EaseOut ) );
+				target.appendChild( createGraph( 'Circular.EaseInOut', TWEEN.Easing.Circular.EaseInOut ) );
 
-			target.appendChild( createGraph( 'Bounce.EaseIn', TWEEN.Easing.Bounce.EaseIn ) );
-			target.appendChild( createGraph( 'Bounce.EaseOut', TWEEN.Easing.Bounce.EaseOut ) );
-			target.appendChild( createGraph( 'Bounce.EaseInOut', TWEEN.Easing.Bounce.EaseInOut ) );
+				target.appendChild( createGraph( 'Elastic.EaseIn', TWEEN.Easing.Elastic.EaseIn ) );
+				target.appendChild( createGraph( 'Elastic.EaseOut', TWEEN.Easing.Elastic.EaseOut ) );
+				target.appendChild( createGraph( 'Elastic.EaseInOut', TWEEN.Easing.Elastic.EaseInOut ) );
 
-			setInterval( loop, 1000 / 120 );
+				target.appendChild( document.createElement( 'br' ) );
 
-			function createGraph( t, f, c ) {
+				target.appendChild( createGraph( 'Back.EaseIn', TWEEN.Easing.Back.EaseIn ) );
+				target.appendChild( createGraph( 'Back.EaseOut', TWEEN.Easing.Back.EaseOut ) );
+				target.appendChild( createGraph( 'Back.EaseInOut', TWEEN.Easing.Back.EaseInOut ) );
 
-				var div = document.createElement( 'div' );
-				div.style.display = 'inline-block';
-				div.style.width = '200px';
-				div.style.height = '120px';
+				target.appendChild( createGraph( 'Bounce.EaseIn', TWEEN.Easing.Bounce.EaseIn ) );
+				target.appendChild( createGraph( 'Bounce.EaseOut', TWEEN.Easing.Bounce.EaseOut ) );
+				target.appendChild( createGraph( 'Bounce.EaseInOut', TWEEN.Easing.Bounce.EaseInOut ) );
 
-				var canvas = document.createElement( 'canvas' );
-				canvas.width = 180;
-				canvas.height = 100;
+				function createGraph( t, f, c ) {
 
-				var context = canvas.getContext( '2d' );
-				context.fillStyle = "rgb(250,250,250)";
-				context.fillRect( 0, 0, 180, 100 );
+					var div = document.createElement( 'div' );
+					div.style.display = 'inline-block';
+					div.style.width = '200px';
+					div.style.height = '120px';
 
-				context.lineWidth = 0.5;
-				context.strokeStyle = "rgb(230,230,230)";
+					var canvas = document.createElement( 'canvas' );
+					canvas.width = 180;
+					canvas.height = 100;
 
-				context.beginPath();
-				context.moveTo( 0, 20 );
-				context.lineTo( 180, 20 );
-				context.moveTo( 0, 80 );
-				context.lineTo( 180, 80 );
-				context.closePath();
-				context.stroke();
+					var context = canvas.getContext( '2d' );
+					context.fillStyle = "rgb(250,250,250)";
+					context.fillRect( 0, 0, 180, 100 );
 
-				context.lineWidth = 2;
-				context.strokeStyle = "rgb(255,127,127)";
-
-				var position = { x: 5, y: 80 };
-				var position_old = { x: 5, y: 80 };
-
-				new TWEEN.Tween( position ).to( { x: 175 }, 2000 ).easing( TWEEN.Easing.Linear.EaseNone ).start();
-				new TWEEN.Tween( position ).to( { y: 20 }, 2000 ).easing( f ).onUpdate( function() {
+					context.lineWidth = 0.5;
+					context.strokeStyle = "rgb(230,230,230)";
 
 					context.beginPath();
-					context.moveTo( position_old.x, position_old.y );
-					context.lineTo( position.x, position.y );
+					context.moveTo( 0, 20 );
+					context.lineTo( 180, 20 );
+					context.moveTo( 0, 80 );
+					context.lineTo( 180, 80 );
 					context.closePath();
 					context.stroke();
 
-					position_old.x = position.x;
-					position_old.y = position.y;
+					context.lineWidth = 2;
+					context.strokeStyle = "rgb(255,127,127)";
 
-				}).start();
+					var position = { x: 5, y: 80 };
+					var position_old = { x: 5, y: 80 };
 
-				div.appendChild( document.createTextNode( t ) );
-				div.appendChild( document.createElement( 'br' ) );
-				div.appendChild( canvas );
+					new TWEEN.Tween( position ).to( { x: 175 }, 2000 ).easing( TWEEN.Easing.Linear.EaseNone ).start();
+					new TWEEN.Tween( position ).to( { y: 20 }, 2000 ).easing( f ).onUpdate( function () {
 
-				return div;
+						context.beginPath();
+						context.moveTo( position_old.x, position_old.y );
+						context.lineTo( position.x, position.y );
+						context.closePath();
+						context.stroke();
+
+						position_old.x = position.x;
+						position_old.y = position.y;
+
+					}).start();
+
+					div.appendChild( document.createTextNode( t ) );
+					div.appendChild( document.createElement( 'br' ) );
+					div.appendChild( canvas );
+
+					return div;
+				}
+
 			}
 
-			function loop() {
+			function animate() {
+
+				requestAnimationFrame( animate );
 
 				TWEEN.update();
+
 			}
 
 		</script>

@@ -1,23 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
-		<title>Tween.js / simplest possible example!</title>
+		<title>Tween.js / video and time</title>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 		<link href="css/style.css" media="screen" rel="stylesheet" type="text/css" />
 	</head>
 	<body>
 		<div id="info">
 			<h1><a href="http://github.com/sole/tween.js">tween.js</a></h1>
-			<h2>04 _ simplest possible example</h2>
-			<p>Creating a tween and doing little else apart from that :)</p>
+			<h2>05 _ video and time</h2>
+			<p>Playing a video, synchronizing a tween to it</p>
 		</div>
-
+		
 		<div id="target" style="position: absolute; left: 50px; top: 300px; font-size: 100px; letter-spacing: -7px; ">
+			<video id="video" src="video/sintel.webm" width="320" height="138" autoplay></video>
 		</div>
 
 		<script src="../src/Tween.js"></script>
 		<script src="js/RequestAnimationFrame.js"></script>
 		<script>
+
+			var video;
 
 			init();
 			animate();
@@ -29,16 +32,21 @@
 				var target = document.getElementById( 'target' );
 				target.appendChild( output );
 
-				var tween = new TWEEN.Tween( { x: 50, y: 0 } )
-					.to( { x: 400 }, 2000 )
-					.easing( TWEEN.Easing.Elastic.EaseInOut )
-					.onUpdate( function () {
+				video = document.getElementById( 'video' );
+				video.addEventListener( 'play', function() {
 
-						output.innerHTML = 'x == ' + Math.round( this.x );
-						target.style.left = this.x + 'px';
+					new TWEEN.Tween( { x: 50, y: 0 } )
+						.to( { x: 400 }, this.duration )
+						.easing( TWEEN.Easing.Bounce.EaseOut )
+						.onUpdate( function () {
 
-					} )
-					.start();
+							output.innerHTML = 'x == ' + Math.round( this.x );
+							target.style.left = ( this.x ) + 'px';
+
+						} )
+						.start( video.currentTime );
+
+				}, false );
 
 			}
 
@@ -46,8 +54,12 @@
 
 				requestAnimationFrame( animate );
 
-				TWEEN.update();
+				if ( video.readyState === video.HAVE_ENOUGH_DATA ) {
 
+					TWEEN.update( video.currentTime );
+
+				}
+				
 			}
 
 		</script>

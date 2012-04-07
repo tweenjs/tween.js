@@ -12,61 +12,13 @@
 
 var TWEEN = TWEEN || ( function () {
 
-	var _interval = null, _fps = 60, _autostart = false, _tweens = [];
+	var _tweens = [];
 
 	return {
-
-		setFPS: function ( fps ) {
-
-			_fps = fps || 60;
-
-		},
-
-		start: function ( fps ) {
-
-			if ( fps ) {
-
-				this.setFPS( fps );
-
-			}
-
-			if ( _interval === null ) {
-
-				_interval = setInterval( this.update, 1000 / _fps );
-
-			}
-
-		},
-
-		stop: function () {
-
-			clearInterval( _interval );
-
-			_interval = null;
-
-		},
-
-		setAutostart: function ( value ) {
-
-			_autostart = value;
-
-			if ( _autostart && _tweens.length ) {
-
-				this.start();
-
-			}
-
-		},
 
 		add: function ( tween ) {
 
 			_tweens.push( tween );
-
-			if ( _autostart ) {
-
-				this.start();
-
-			}
 
 		},
 
@@ -110,12 +62,6 @@ var TWEEN = TWEEN || ( function () {
 					num_tweens--;
 
 				}
-
-			}
-
-			if ( num_tweens === 0 && _autostart ) {
-
-				TWEEN.stop();
 
 			}
 
@@ -171,7 +117,8 @@ TWEEN.Tween = function ( object ) {
 
 		TWEEN.add( this );
 
-		_startTime = time ? time + _delayTime : Date.now() + _delayTime;
+		_startTime = time || Date.now();
+		_startTime += _delayTime;
 
 		for ( var property in _valuesEnd ) {
 
@@ -313,13 +260,6 @@ TWEEN.Tween = function ( object ) {
 
 	};
 
-	/*
-	this.destroy = function () {
-
-		TWEEN.remove( this );
-
-	};
-	*/
 };
 
 TWEEN.Easing = { Linear: {}, Quadratic: {}, Cubic: {}, Quartic: {}, Quintic: {}, Sinusoidal: {}, Exponential: {}, Circular: {}, Elastic: {}, Back: {}, Bounce: {} };

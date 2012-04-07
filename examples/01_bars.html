@@ -14,13 +14,14 @@
 		<div id="target"></div>
 
 		<script src="../src/Tween.js"></script>
+		<script src="js/RequestAnimationFrame.js"></script>
 		<script src="js/Stats.js"></script>
 		<script>
 			var stats;
 			var elems = [];
 
 			init();
-			setInterval(loop, 1000/120);
+			animate();
 
 			function init() {
 				stats = new Stats();
@@ -81,10 +82,15 @@
 
 			}
 
-			function loop() {
-				stats.update();
+			function animate() {
+
+				requestAnimationFrame( animate );
+
 				TWEEN.update();
+				stats.update();
+
 			}
+
 		</script>
 	</body>
 </html>
