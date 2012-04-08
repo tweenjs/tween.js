@@ -77,7 +77,6 @@ TWEEN.Tween = function ( object ) {
 
 	var _object = object,
 	_valuesStart = {},
-	_valuesDelta = {},
 	_valuesEnd = {},
 	_duration = 1000,
 	_delayTime = 0,
@@ -96,20 +95,7 @@ TWEEN.Tween = function ( object ) {
 
 		}
 
-		for ( var property in properties ) {
-
-			// This prevents the engine from interpolating null values
-			if ( _object[ property ] === null ) {
-
-				continue;
-
-			}
-
-			// The current values are read when the tween starts;
-			// here we only store the final desired values
-			_valuesEnd[ property ] = properties[ property ];
-
-		}
+		_valuesEnd = properties;
 
 		return this;
 
@@ -124,29 +110,20 @@ TWEEN.Tween = function ( object ) {
 
 		for ( var property in _valuesEnd ) {
 
-			// Again, prevent dealing with null values
+			// This prevents the engine from interpolating null values
 			if ( _object[ property ] === null ) {
 
 				continue;
 
 			}
 
+			_valuesStart[ property ] = _object[ property ];
+
 			// check if an Array was provided as property value
-			if ( _valuesEnd[ property ] instanceof Array ) {
+			if ( _valuesEnd[ property ] instanceof Array && _valuesEnd[ property ].length > 0 ) {
 
-				if ( _valuesEnd[ property ].length > 0 ) {
-
-					_valuesStart[ property ] = _object[ property ];
-
-					// create a local copy of the Array with the start value at the front
-					_valuesDelta[ property ] = [ _object[ property ] ].concat( _valuesEnd[ property ] );
-
-				}
-
-			} else {
-
-				_valuesStart[ property ] = _object[ property ];
-				_valuesDelta[ property ] = _valuesEnd[ property ] - _object[ property ];
+				// create a local copy of the Array with the start value at the front
+				_valuesEnd[ property ] = [ _object[ property ] ].concat( _valuesEnd[ property ] );
 
 			}
 
@@ -207,7 +184,7 @@ TWEEN.Tween = function ( object ) {
 
 	this.update = function ( time ) {
 
-		var property, elapsed, value;
+		var property, elapsed, value, start, end;
 
 		if ( time < _startTime ) {
 
@@ -220,15 +197,18 @@ TWEEN.Tween = function ( object ) {
 
 		value = _easingFunction( elapsed );
 
-		for ( property in _valuesDelta ) {
+		for ( property in _valuesStart ) {
 
-			if ( _valuesDelta[ property ] instanceof Array ) {
+			start = _valuesStart[ property ];
+			end = _valuesEnd[ property ];
 
-				_object[ property ] = _interpolationFunction( _valuesDelta[ property ], value );
+			if ( end instanceof Array ) {
+
+				_object[ property ] = _interpolationFunction( end, value );
 
 			} else {
 
-				_object[ property ] = _valuesStart[ property ] + _valuesDelta[ property ] * value;
+				_object[ property ] = start + ( end - start ) * value;
 
 			}
 
