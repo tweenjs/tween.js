@@ -117,15 +117,21 @@ TWEEN.Tween = function ( object ) {
 
 			}
 
-			_valuesStart[ property ] = _object[ property ];
-
 			// check if an Array was provided as property value
-			if ( _valuesEnd[ property ] instanceof Array && _valuesEnd[ property ].length > 0 ) {
+			if ( _valuesEnd[ property ] instanceof Array ) {
+
+				if ( _valuesEnd[ property ].length === 0 ) {
+
+					continue;
+
+				}
 
 				// create a local copy of the Array with the start value at the front
 				_valuesEnd[ property ] = [ _object[ property ] ].concat( _valuesEnd[ property ] );
 
 			}
+
+			_valuesStart[ property ] = _object[ property ];
 
 		}
 
