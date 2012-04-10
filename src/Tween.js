@@ -16,6 +16,8 @@ var TWEEN = TWEEN || ( function () {
 
 	return {
 
+		REVISION: '6',
+
 		getAll: function () {
 
 			return _tweens;
@@ -75,17 +77,17 @@ var TWEEN = TWEEN || ( function () {
 
 TWEEN.Tween = function ( object ) {
 
-	var _object = object,
-	_valuesStart = {},
-	_valuesEnd = {},
-	_duration = 1000,
-	_delayTime = 0,
-	_startTime = null,
-	_easingFunction = TWEEN.Easing.Linear.None,
-	_interpolationFunction = TWEEN.Interpolation.Linear,
-	_chainedTween = null,
-	_onUpdateCallback = null,
-	_onCompleteCallback = null;
+	var _object = object;
+	var _valuesStart = {};
+	var _valuesEnd = {};
+	var _duration = 1000;
+	var _delayTime = 0;
+	var _startTime = null;
+	var _easingFunction = TWEEN.Easing.Linear.None;
+	var _interpolationFunction = TWEEN.Interpolation.Linear;
+	var _chainedTween = null;
+	var _onUpdateCallback = null;
+	var _onCompleteCallback = null;
 
 	this.to = function ( properties, duration ) {
 
@@ -190,23 +192,21 @@ TWEEN.Tween = function ( object ) {
 
 	this.update = function ( time ) {
 
-		var property, elapsed, value, start, end;
-
 		if ( time < _startTime ) {
 
 			return true;
 
 		}
 
-		elapsed = ( time - _startTime ) / _duration;
+		var elapsed = ( time - _startTime ) / _duration;
 		elapsed = elapsed > 1 ? 1 : elapsed;
 
-		value = _easingFunction( elapsed );
+		var value = _easingFunction( elapsed );
 
-		for ( property in _valuesStart ) {
+		for ( var property in _valuesStart ) {
 
-			start = _valuesStart[ property ];
-			end = _valuesEnd[ property ];
+			var start = _valuesStart[ property ];
+			var end = _valuesEnd[ property ];
 
 			if ( end instanceof Array ) {
 
