@@ -50,26 +50,35 @@ var TWEEN = TWEEN || ( function () {
 
 		update: function ( time ) {
 
-			var i = 0;
-			var num_tweens = _tweens.length;
-			var time = time !== undefined ? time : Date.now();
+			var l = _tweens.length;
 
-			while ( i < num_tweens ) {
+			if ( l > 0 ) {
 
-				if ( _tweens[ i ].update( time ) ) {
+				var i = 0;
+				var time = time !== undefined ? time : Date.now();
 
-					i ++;
+				while ( i < l ) {
 
-				} else {
+					if ( _tweens[ i ].update( time ) ) {
 
-					_tweens.splice( i, 1 );
-					num_tweens --;
+						i ++;
+
+					} else {
+
+						_tweens.splice( i, 1 );
+						l --;
+
+					}
 
 				}
 
-			}
+				return true;
 
-			return num_tweens > 0;
+			} else {
+
+				return false;
+
+			}
 
 		}
 
