@@ -69,6 +69,8 @@ var TWEEN = TWEEN || ( function () {
 
 			}
 
+			return num_tweens > 0;
+
 		}
 
 	};
