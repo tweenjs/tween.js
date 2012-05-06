@@ -16,7 +16,7 @@ var TWEEN = TWEEN || ( function () {
 
 	return {
 
-		REVISION: '6',
+		REVISION: '7dev',
 
 		getAll: function () {
 
@@ -97,6 +97,7 @@ TWEEN.Tween = function ( object ) {
 	var _easingFunction = TWEEN.Easing.Linear.None;
 	var _interpolationFunction = TWEEN.Interpolation.Linear;
 	var _chainedTween = null;
+	var _onStartCallback = null;
 	var _onUpdateCallback = null;
 	var _onCompleteCallback = null;
 
@@ -117,6 +118,12 @@ TWEEN.Tween = function ( object ) {
 	this.start = function ( time ) {
 
 		TWEEN.add( this );
+		
+		if ( _onStartCallback !== null ) {
+
+			_onStartCallback.call( _object );
+
+		}
 
 		_startTime = time !== undefined ? time : Date.now();
 		_startTime += _delayTime;
@@ -187,16 +194,23 @@ TWEEN.Tween = function ( object ) {
 
 	};
 
-	this.onUpdate = function ( onUpdateCallback ) {
+	this.onStart = function ( callback ) {
 
-		_onUpdateCallback = onUpdateCallback;
+		_onStartCallback = callback;
 		return this;
 
 	};
 
-	this.onComplete = function ( onCompleteCallback ) {
+	this.onUpdate = function ( callback ) {
 
-		_onCompleteCallback = onCompleteCallback;
+		_onUpdateCallback = callback;
+		return this;
+
+	};
+
+	this.onComplete = function ( callback ) {
+
+		_onCompleteCallback = callback;
 		return this;
 
 	};
