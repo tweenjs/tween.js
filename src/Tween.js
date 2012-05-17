@@ -1,6 +1,6 @@
 /**
  * @author sole / http://soledadpenades.com
- * @author mr.doob / http://mrdoob.com
+ * @author mrdoob / http://mrdoob.com
  * @author Robert Eisele / http://www.xarg.org
  * @author Philippe / http://philippe.elsass.me
  * @author Robert Penner / http://www.robertpenner.com/easing_terms_of_use.html
@@ -187,9 +187,9 @@ TWEEN.Tween = function ( object ) {
 
 	};
 
-	this.chain = function ( chainedTween ) {
+	this.chain = function ( tween ) {
 
-		_chainedTween = chainedTween;
+		_chainedTween = tween;
 		return this;
 
 	};
@@ -261,7 +261,19 @@ TWEEN.Tween = function ( object ) {
 
 			if ( _chainedTween !== null ) {
 
-				_chainedTween.start( time );
+				if ( _chainedTween instanceof Array ) {
+
+					for ( var i = 0, l = _chainedTween.length; i < l; i ++ ) {
+
+						_chainedTween[ i ].start( time );
+
+					}
+
+				} else {
+
+					_chainedTween.start( time );
+
+				}
 
 			}
 
