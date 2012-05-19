@@ -43,23 +43,34 @@ The following code creates a Tween which will change the `x` attribute in a posi
 ```html
 <script>
 
-	TWEEN.start();
+	init();
+	animate();
 
-	var output = document.createElement('div');
-	var target = document.getElementById('target');
-	target.appendChild(output);
+	function init() {
 
-	var position = {x: 50, y: 0};
-	var tween = new TWEEN.Tween(position).to({x: 400}, 2000).onUpdate(update).start();
+		var output = document.createElement( 'div' );
+		output.style.cssText = 'position: absolute; left: 50px; top: 300px; font-size: 100px';
+		document.body.appendChild( output );
 
-	function update() {
+		var tween = new TWEEN.Tween( { x: 50, y: 0 } )
+			.to( { x: 400 }, 2000 )
+			.easing( TWEEN.Easing.Elastic.InOut )
+			.onUpdate( function () {
 
-		var newX = position.x;
+				output.innerHTML = 'x == ' + Math.round( this.x );
+				output.style.left = this.x + 'px';
 
-		output.innerHTML = 'x == ' + Math.round(newX);
-		target.style.left = (newX) + 'px';
+			} )
+			.start();
 
-	};
+	}
+
+	function animate() {
+
+		requestAnimationFrame( animate ); // js/RequestAnimationFrame.js needs to be included too.
+		TWEEN.update();
+
+	}
 
 </script>
 ```
