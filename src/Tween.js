@@ -96,7 +96,7 @@ TWEEN.Tween = function ( object ) {
 	var _startTime = null;
 	var _easingFunction = TWEEN.Easing.Linear.None;
 	var _interpolationFunction = TWEEN.Interpolation.Linear;
-	var _chainedTween = null;
+	var _chainedTweens = [];
 	var _onStartCallback = null;
 	var _onUpdateCallback = null;
 	var _onCompleteCallback = null;
@@ -187,9 +187,9 @@ TWEEN.Tween = function ( object ) {
 
 	};
 
-	this.chain = function ( tween ) {
+	this.chain = function () {
 
-		_chainedTween = tween;
+		_chainedTweens = arguments;
 		return this;
 
 	};
@@ -259,21 +259,9 @@ TWEEN.Tween = function ( object ) {
 
 			}
 
-			if ( _chainedTween !== null ) {
+			for ( var i = 0, l = _chainedTweens.length; i < l; i ++ ) {
 
-				if ( _chainedTween instanceof Array ) {
-
-					for ( var i = 0, l = _chainedTween.length; i < l; i ++ ) {
-
-						_chainedTween[ i ].start( time );
-
-					}
-
-				} else {
-
-					_chainedTween.start( time );
-
-				}
+				_chainedTweens[ i ].start( time );
 
 			}
 
