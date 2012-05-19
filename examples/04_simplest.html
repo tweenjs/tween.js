@@ -12,9 +12,6 @@
 			<p>Creating a tween and doing little else apart from that :)</p>
 		</div>
 
-		<div id="target" style="position: absolute; left: 50px; top: 300px; font-size: 100px; letter-spacing: -7px; ">
-		</div>
-
 		<script src="../build/Tween.js"></script>
 		<script src="js/RequestAnimationFrame.js"></script>
 		<script>
@@ -25,9 +22,8 @@
 			function init() {
 
 				var output = document.createElement( 'div' );
-
-				var target = document.getElementById( 'target' );
-				target.appendChild( output );
+				output.style.cssText = 'position: absolute; left: 50px; top: 300px; font-size: 100px';
+				document.body.appendChild( output );
 
 				var tween = new TWEEN.Tween( { x: 50, y: 0 } )
 					.to( { x: 400 }, 2000 )
@@ -35,7 +31,7 @@
 					.onUpdate( function () {
 
 						output.innerHTML = 'x == ' + Math.round( this.x );
-						target.style.left = this.x + 'px';
+						output.style.left = this.x + 'px';
 
 					} )
 					.start();
@@ -45,7 +41,6 @@
 			function animate() {
 
 				requestAnimationFrame( animate );
-
 				TWEEN.update();
 
 			}
