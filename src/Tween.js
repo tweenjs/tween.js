@@ -8,6 +8,7 @@
  * @author lechecacharro
  * @author Josh Faul / http://jocafa.com/
  * @author egraether / http://egraether.com/
+ * @author Mathias Paumgarten / http://mathias-paumgarten.com/
  */
 
 var TWEEN = TWEEN || ( function () {
@@ -88,6 +89,7 @@ TWEEN.Tween = function ( object ) {
 	var _chainedTween = null;
 	var _onUpdateCallback = null;
 	var _onCompleteCallback = null;
+	var _onCompleteParams = null;
 
 	this.to = function ( properties, duration ) {
 
@@ -190,6 +192,11 @@ TWEEN.Tween = function ( object ) {
 
 	};
 
+	this.onCompleteParams = function () {
+		_onCompleteParams = arguments;
+		return this;
+	}
+
 	this.update = function ( time ) {
 
 		if ( time < _startTime ) {
@@ -230,7 +237,7 @@ TWEEN.Tween = function ( object ) {
 
 			if ( _onCompleteCallback !== null ) {
 
-				_onCompleteCallback.call( _object );
+				_onCompleteCallback.apply( _object, _onCompleteParams );
 
 			}
 
