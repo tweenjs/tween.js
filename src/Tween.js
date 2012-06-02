@@ -185,17 +185,13 @@ TWEEN.Tween = function ( object ) {
 
 	};
 
-	this.onComplete = function ( onCompleteCallback ) {
+	this.onComplete = function () {
 
-		_onCompleteCallback = onCompleteCallback;
+		_onCompleteCallback = arguments[0];
+		_onCompleteCallbackParams = arguments.slice(1);
 		return this;
 
 	};
-
-	this.onCompleteParams = function () {
-		_onCompleteParams = arguments;
-		return this;
-	}
 
 	this.update = function ( time ) {
 
