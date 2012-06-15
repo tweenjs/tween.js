@@ -86,6 +86,7 @@ TWEEN.Tween = function ( object ) {
 	var _easingFunction = TWEEN.Easing.Linear.None;
 	var _interpolationFunction = TWEEN.Interpolation.Linear;
 	var _chainedTween = null;
+	var _onStartCallback = null;
 	var _onUpdateCallback = null;
 	var _onCompleteCallback = null;
 
@@ -136,6 +137,10 @@ TWEEN.Tween = function ( object ) {
 			_valuesStart[ property ] = _object[ property ];
 
 		}
+		
+		if( _onStartCallback !== null ) {
+			_onStartCallback.call( _object );
+		}
 
 		return this;
 
@@ -175,6 +180,13 @@ TWEEN.Tween = function ( object ) {
 		return this;
 
 	};
+	
+	this.onStart = function ( onStartCallback ) {
+
+		_onStartCallback = onStartCallback;
+		return this;
+
+	}
 
 	this.onUpdate = function ( onUpdateCallback ) {
 
