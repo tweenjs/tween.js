@@ -1,0 +1,73 @@
+<!DOCTYPE html> 
+<html lang="en">
+	<head>
+		<title>Tween.js / hello world!</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<link href="css/style.css" media="screen" rel="stylesheet" type="text/css" />
+	</head>
+	<body>
+		<div id="info">
+			<h1><a href="http://github.com/sole/tween.js">tween.js</a></h1>
+			<h2>00 _ hello world</h2>
+			<p>Simple example for illustrating the creation and chaining of tweens.</p>
+			<p>Press <strong>P</strong> to pause (and un-pause) animation.</p>
+		</div>
+		<div id="target" style="position:absolute; top: 100px; left: 100px; width: 100px; height: 100px; background: #a0dde9; padding: 1em;">
+			hello world!
+		</div>
+
+		<script src="../src/Tween.js"></script>
+		<script src="js/RequestAnimationFrame.js"></script>
+		<script>
+			var position;
+			var target;
+			var tween, tweenBack;
+
+			init();
+			animate();
+
+			function init() {
+
+				position = {x: 100, y: 100, rotation: 0};
+				target = document.getElementById('target');
+				tween = new TWEEN.Tween(position)
+					.to({x: 700, y: 200, rotation: 359}, 2000)
+					.delay(1000)
+					.easing(TWEEN.Easing.Elastic.InOut)
+					.onUpdate(update);
+
+				tweenBack = new TWEEN.Tween(position)
+					.to({x: 100, y: 100, rotation: 0}, 3000)
+					.easing(TWEEN.Easing.Elastic.InOut)
+					.onUpdate(update);
+
+				tween.chain(tweenBack);
+				tweenBack.chain(tween);
+
+				tween.start();
+
+				window.addEventListener('keypress', function(e) {
+					if (e.keyCode == 112) TWEEN.togglePause();
+				}, false);
+
+			}
+
+			function animate() {
+
+				requestAnimationFrame( animate );
+
+				TWEEN.update();
+
+			}
+
+			function update() {
+
+				target.style.left = position.x + 'px';
+				target.style.top = position.y + 'px';
+				target.style.webkitTransform = 'rotate(' + Math.floor(position.rotation) + 'deg)';
+				target.style.MozTransform = 'rotate(' + Math.floor(position.rotation) + 'deg)';
+
+			}
+		</script>
+	</body>
+</html>
