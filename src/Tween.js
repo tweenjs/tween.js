@@ -12,7 +12,13 @@
 
 var TWEEN = TWEEN || ( function () {
 
-	var _tweens = [];
+	var _tweens 		= [],
+
+			paused 			= false,
+
+			timePaused 	= null,
+
+			timeStarted	= null;
 
 	return {
 
@@ -48,22 +54,50 @@ var TWEEN = TWEEN || ( function () {
 
 		},
 
+		togglePause: function() {
+
+			paused = ( paused === true ) ? false : true;
+
+			if ( timePaused == null ) {
+
+				timePaused = Date.now();
+
+			} else if ( timeStarted  == null ) {
+
+				timeStarted = Date.now();
+				var timeDiff = timeStarted - timePaused;
+
+				for( var i = 0; i < _tweens.length; i++ ) {
+
+					_tweens[i].updateStartTime(timeDiff);
+
+				}
+
+				timePaused = timeStarted = null;
+			}
+
+		},
+
 		update: function ( time ) {
 
 			var i = 0;
 			var num_tweens = _tweens.length;
 			var time = time !== undefined ? time : Date.now();
 
-			while ( i < num_tweens ) {
+			if ( !paused ) {
 
-				if ( _tweens[ i ].update( time ) ) {
+				while ( i < num_tweens ) {
 
-					i ++;
+					if ( _tweens[ i ].update( time ) ) {
 
-				} else {
+						i ++;
 
-					_tweens.splice( i, 1 );
-					num_tweens --;
+					} else {
+
+						_tweens.splice( i, 1 );
+						num_tweens --;
+
+					}
 
 				}
 
@@ -147,6 +181,12 @@ TWEEN.Tween = function ( object ) {
 		return this;
 
 	};
+
+	this.updateStartTime = function ( time ) {
+    
+    return _startTime += time;
+
+  };
 
 	this.delay = function ( amount ) {
 
