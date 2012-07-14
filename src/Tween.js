@@ -236,7 +236,7 @@ TWEEN.Tween = function ( object ) {
 
 			if ( _chainedTween !== null ) {
 
-				_chainedTween.start();
+				_chainedTween.start( time );
 
 			}
 
