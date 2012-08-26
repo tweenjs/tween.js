@@ -50,36 +50,29 @@ var TWEEN = TWEEN || ( function () {
 
 		update: function ( time ) {
 
-			var l = _tweens.length;
+			if ( _tweens.length === 0 ) return false;
 
-			if ( l > 0 ) {
+			var i = 0, l = _tweens.length;
 
-				var i = 0;
-				var time = time !== undefined ? time : Date.now();
+			time = time !== undefined ? time : Date.now();
 
-				while ( i < l ) {
+			while ( i < l ) {
 
-					if ( _tweens[ i ].update( time ) ) {
+				if ( _tweens[ i ].update( time ) ) {
 
-						i ++;
+					i ++;
 
-					} else {
+				} else {
 
-						_tweens.splice( i, 1 );
+					_tweens.splice( i, 1 );
 
-						l --;
-
-					}
+					l --;
 
 				}
 
-				return true;
-
-			} else {
-
-				return false;
-
 			}
+
+			return true;
 
 		}
 
@@ -353,7 +346,7 @@ TWEEN.Easing = {
 
 		Out: function ( k ) {
 
-			return 1 - --k * k * k * k;
+			return 1 - ( --k * k * k * k );
 
 		},
 
@@ -446,7 +439,7 @@ TWEEN.Easing = {
 
 		Out: function ( k ) {
 
-			return Math.sqrt( 1 - --k * k );
+			return Math.sqrt( 1 - ( --k * k ) );
 
 		},
 
@@ -636,7 +629,7 @@ TWEEN.Interpolation = {
 				for ( i = n; i > 1; i-- ) s *= i;
 				return a[ n ] = s;
 
-			}
+			};
 
 		} )(),
 
