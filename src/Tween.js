@@ -122,7 +122,7 @@ TWEEN.Tween = function ( object ) {
 		for ( var property in _valuesEnd ) {
 
 			// This prevents the engine from interpolating null values
-			if ( _object[ property ] === null ) {
+			if ( _valuesEnd.hasOwnProperty( property ) !== true || _object[ property ] === null ) {
 
 				continue;
 
