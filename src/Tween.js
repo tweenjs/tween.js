@@ -16,7 +16,7 @@ var TWEEN = TWEEN || ( function () {
 
 	return {
 
-		REVISION: '7dev',
+		REVISION: '7',
 
 		getAll: function () {
 
@@ -113,7 +113,7 @@ TWEEN.Tween = function ( object ) {
 	this.start = function ( time ) {
 
 		TWEEN.add( this );
-		
+
 		_onStartCallbackFired = false;
 
 		_startTime = time !== undefined ? time : Date.now();

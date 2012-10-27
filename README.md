@@ -35,7 +35,7 @@ Super simple, fast and easy to use tweening engine which incorporates optimised 
 Download the [minified library](http://github.com/sole/tween.js/raw/master/build/Tween.js) and include it in your html.
 
 ```html
-<script src="js/Tween.js"></script>
+<script src="js/tween.min.js"></script>
 ```
 
 The following code creates a Tween which will change the `x` attribute in a position variable, so that it goes from 50 to 400 in 2 seconds. The anonymous function set up with an interval will update the screen so that we can see something happening:
@@ -93,6 +93,14 @@ No, we like to keep it simple and free of dependencies. Feel free to make one yo
 
 
 ### Change log ###
+
+2012 10 27 - **r7** (4,882 KB, gzip: 1,714 KB)
+
+* Fixed start time of chained tweens when using custom timing. ([egraether](http://github.com/egraether))
+* TWEEN.update() now returns a boolean (tweens pending or not). ([mrdoob](http://github.com/mrdoob))
+* Added tween.onStart(). ([mrdoob](http://github.com/mrdoob))
+* tween.chain() now accepts multiple tweens. ([mrdoob](http://github.com/mrdoob))
+
 
 2012 04 10 - **r6** (4,707 KB, gzip: 1,630 KB)
 
