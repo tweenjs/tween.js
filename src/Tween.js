@@ -98,7 +98,7 @@ TWEEN.Tween = function ( object ) {
 
 	this.to = function ( properties, duration ) {
 
-		if ( duration !== null ) {
+		if ( duration !== undefined ) {
 
 			_duration = duration;
 
