@@ -10,13 +10,23 @@
  * @author egraether / http://egraether.com/
  */
 
+if ( Date.now === undefined ) {
+
+	Date.now = function () {
+
+		return new Date().valueOf();
+
+	}
+
+}
+
 var TWEEN = TWEEN || ( function () {
 
 	var _tweens = [];
 
 	return {
 
-		REVISION: '7',
+		REVISION: '8dev',
 
 		getAll: function () {
 
