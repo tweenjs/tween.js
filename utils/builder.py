@@ -1,20 +1,11 @@
-import sys
 import os
 
-output = '../build/Tween.js';
+source = '../src/Tween.js'
+output = '../build/tween.min.js'
 
-os.system("java -jar compiler.jar --js ../src/Tween.js --js_output_file %s" % (output))
+os.system( 'java -jar compiler/compiler.jar --language_in=ECMASCRIPT5_STRICT --js ' + source + ' --js_output_file ' + output )
 
-# HEADER
+# header
 
-with open(os.path.join('..', 'REVISION'), 'r') as handle:
-	revision = handle.read().rstrip()
-
-string = "// tween.js r%s - http://github.com/sole/tween.js\n" % (revision)
-
-src_file = open(output,'r')
-string += src_file.read()
-
-dep_file = open(output,'w')
-dep_file.write(string)
-dep_file.close()
+with open(output,'r') as f: text = f.read()
+with open(output,'w') as f: f.write('// tween.js - http://github.com/sole/tween.js\n' + text)

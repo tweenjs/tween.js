@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>Tween.js / array interpolation</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<style>
+
+			body {
+				margin: 0px;
+			}
+
+			#target {
+				font-size: 13px;
+				padding: 0px 32px;
+			}
+
+		</style>
+		<link href="css/style.css" media="screen" rel="stylesheet" type="text/css" />
+	</head>
+	<body>
+		<div id="info" style="position: relative;">
+			<h1><a href="http://github.com/sole/tween.js">tween.js</a></h1>
+			<h2>06 _ array interpolation</h2>
+			<p>The different interpolations if arrays are used as values.</p>
+		</div>
+
+		<div id="target"></div>
+
+		<script src="../build/tween.min.js"></script>
+		<script src="js/RequestAnimationFrame.js"></script>
+		<script>
+
+			init();
+			animate();
+
+			function init() {
+
+				var target = document.getElementById('target');
+
+				var width = 240, height = 160;
+
+				// random points
+				/*
+				var x0 = Math.random() * ( width - 40 ) + 20,
+					y0 = Math.random() * ( height - 40 ) + 20,
+					xA = [],
+					yA = [];
+
+				for ( var i = 0; i < 10; i++ ) {
+
+					xA.push( Math.random() * ( width - 40 ) + 20 );
+					yA.push( Math.random() * ( height - 40 ) + 20 );
+
+				}
+				*/
+
+				// fixed points
+
+				var min = 1 / 6,
+					max = 5 / 6;
+
+				var x0 = width * min,
+					y0 = height / 2,
+					xA = [ width * max, width / 2 ],
+					yA = [ height * min, height * max ];
+
+
+				target.appendChild( createPath( 'Linear', TWEEN.Interpolation.Linear ) );
+				target.appendChild( createPath( 'Bezier', TWEEN.Interpolation.Bezier ) );
+				target.appendChild( createPath( 'CatmullRom', TWEEN.Interpolation.CatmullRom ) );
+
+				target.appendChild( document.createElement( 'br' ) );
+
+				xA.push( x0 );
+				yA.push( y0 );
+
+				target.appendChild( createPath( 'start === end', TWEEN.Interpolation.Linear ) );
+				target.appendChild( createPath( '', TWEEN.Interpolation.Bezier ) );
+				target.appendChild( createPath( '', TWEEN.Interpolation.CatmullRom ) );
+
+				function createPath( title, interpolation ) {
+
+					var div = document.createElement( 'div' );
+					div.style.display = 'inline-block';
+					div.style.width = width + 20 + 'px';
+					div.style.height = height + 20 + 'px';
+
+					var canvas = document.createElement( 'canvas' );
+					canvas.width = width;
+					canvas.height = height;
+
+					var context = canvas.getContext( '2d' );
+					context.fillStyle = "rgb(250,250,250)";
+					context.fillRect( 0, 0, width, height );
+
+					context.fillStyle = "rgb(200,200,200)";
+					context.fillRect( x0 - 3, y0 - 3, 6, 6 );
+					context.fillRect( xA[ xA.length - 1 ] - 3, yA[ yA.length - 1 ] - 3, 6, 6 );
+
+					for ( var i = 0; i < xA.length; i++ ) {
+
+						context.fillRect( xA[i] - 2, yA[i] - 2, 4, 4 );
+
+					}
+
+					context.lineWidth = 2;
+					context.strokeStyle = "rgba(255,127,127,0.9)";
+
+					var obj = { x: x0, y: y0, old: { x: x0, y: y0 } };
+
+					new TWEEN.Tween( obj ).to( { x: xA, y: yA }, 3000 ).onUpdate( function() {
+
+						context.beginPath();
+						context.moveTo( this.old.x, this.old.y );
+						context.lineTo( this.x, this.y );
+						context.closePath();
+						context.stroke();
+
+						this.old.x = this.x;
+						this.old.y = this.y;
+
+					}).interpolation( interpolation ).easing( TWEEN.Easing.Linear.None ).delay( 250 ).start();
+
+					div.appendChild( document.createTextNode( title ) );
+					div.appendChild( document.createElement( 'br' ) );
+					div.appendChild( canvas );
+
+					return div;
+
+				}
+
+			}
+
+			function animate() {
+
+				requestAnimationFrame( animate );
+
+				TWEEN.update();
+
+			}
+
+		</script>
+	</body>
+</html>

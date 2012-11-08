@@ -4,8 +4,6 @@
 		<title>bars / Tween.js</title>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 		<link href="css/style.css" media="screen" rel="stylesheet" type="text/css" />
-		<script type="text/javascript" src="../src/Tween.js"></script>
-		<script type="text/javascript" src="js/Stats.js"></script>
 	</head>
 	<body>
 		<div id="info">
@@ -14,12 +12,16 @@
 				<p>1000 bars, moving horizontally, looped.</p>
 			</div>
 		<div id="target"></div>
-		<script type="text/javascript">
+
+		<script src="../build/tween.min.js"></script>
+		<script src="js/stats.min.js"></script>
+		<script src="js/RequestAnimationFrame.js"></script>
+		<script>
 			var stats;
 			var elems = [];
 
 			init();
-			setInterval(loop, 1000/120);
+			animate();
 
 			function init() {
 				stats = new Stats();
@@ -61,14 +63,14 @@
 						.to({ margin: endValue }, 4000)
 						.delay(Math.random() * 1000)
 						.onUpdate(updateCallback)
-						.easing(TWEEN.Easing.Back.EaseOut)
+						.easing(TWEEN.Easing.Back.Out)
 						.start();
 
 					var tweenBack = new TWEEN.Tween(elem, false)
 						.to({ margin: startValue}, 4000)
 						.delay(Math.random() * 1000)
 						.onUpdate(updateCallback)
-						.easing(TWEEN.Easing.Elastic.EaseInOut);
+						.easing(TWEEN.Easing.Elastic.InOut);
 
 					tween.chain(tweenBack);
 					tweenBack.chain(tween);
@@ -80,10 +82,15 @@
 
 			}
 
-			function loop() {
-				stats.update();
+			function animate() {
+
+				requestAnimationFrame( animate );
+
 				TWEEN.update();
+				stats.update();
+
 			}
+
 		</script>
 	</body>
 </html>

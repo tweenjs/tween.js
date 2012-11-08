@@ -4,8 +4,6 @@
 		<title>Black and Red / Tween.js</title>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 		<link href="css/style.css" media="screen" rel="stylesheet" type="text/css" />
-		<script type="text/javascript" src="../src/Tween.js"></script>
-		<script type="text/javascript" src="js/Stats.js"></script>
 	</head>
 	<body>
 		<div id="info">
@@ -22,11 +20,15 @@
 			td { width: 5px; height: 5px; }
 			#target { position: absolute; top: 4em; right: 3em; }
 		</style>
-		<script type="text/javascript">
+
+		<script src="../build/tween.min.js"></script>
+		<script src="js/stats.min.js"></script>
+		<script src="js/RequestAnimationFrame.js"></script>
+		<script>
 			var stats;
 
 			init();
-			setInterval(loop, 1000/120);
+			animate();
 
 			function init() {
 				var target = document.getElementById('target');
@@ -46,18 +48,18 @@
 						var tween = new TWEEN.Tween(cell)
 							.to({ value: 1 }, 8000)
 							.delay((0.001 * index + Math.random()) * 500)
-							.easing(TWEEN.Easing.Elastic.EaseInOut)
+							.easing(TWEEN.Easing.Elastic.InOut)
 							.onUpdate(function() {
-								var c = (this.value * 0xff).toFixed(0);
+								var c = Math.floor(this.value * 0xff);
 								this.td.style.background = 'rgb(' + c + ', 0, 0)';
 							});
 
 						var tweenBack = new TWEEN.Tween(cell)
 							.to({ value: 0 }, 4000)
 							.delay((0.001*index + Math.random()) * 500)
-							.easing(TWEEN.Easing.Elastic.EaseInOut)
+							.easing(TWEEN.Easing.Elastic.InOut)
 							.onUpdate(function() {
-								var c = (this.value * 0xff).toFixed(0);
+								var c = Math.floor(this.value * 0xff);
 								this.td.style.background = 'rgb(' + c + ', 0, 0)';
 							});
 
@@ -72,9 +74,12 @@
 				target.appendChild(t);
 			}
 
-			function loop() {
-				stats.update();
+			function animate() {
+
+				requestAnimationFrame( animate );
+
 				TWEEN.update();
+				stats.update();
 			}
 		</script>
 	</body>

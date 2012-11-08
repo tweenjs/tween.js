@@ -3,7 +3,6 @@
 	<head>
 		<title>Tween.js / hello world!</title>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-		<script type="text/javascript" src="../src/Tween.js"></script>
 		<link href="css/style.css" media="screen" rel="stylesheet" type="text/css" />
 	</head>
 	<body>
@@ -16,14 +15,15 @@
 			hello world!
 		</div>
 
-		<script type="text/javascript">
-
+		<script src="../build/tween.min.js"></script>
+		<script src="js/RequestAnimationFrame.js"></script>
+		<script>
 			var position;
 			var target;
 			var tween, tweenBack;
 
 			init();
-			TWEEN.start();
+			animate();
 
 			function init() {
 
@@ -32,30 +32,37 @@
 				tween = new TWEEN.Tween(position)
 					.to({x: 700, y: 200, rotation: 359}, 2000)
 					.delay(1000)
-					.easing(TWEEN.Easing.Elastic.EaseInOut)
+					.easing(TWEEN.Easing.Elastic.InOut)
 					.onUpdate(update);
 
 				tweenBack = new TWEEN.Tween(position)
 					.to({x: 100, y: 100, rotation: 0}, 3000)
-					.easing(TWEEN.Easing.Elastic.EaseInOut)
-					.onUpdate(update);;
+					.easing(TWEEN.Easing.Elastic.InOut)
+					.onUpdate(update);
 
 				tween.chain(tweenBack);
 				tweenBack.chain(tween);
 
 				tween.start();
+
+			}
+
+			function animate() {
+
+				requestAnimationFrame( animate );
+
+				TWEEN.update();
+
 			}
 
 			function update() {
 
 				target.style.left = position.x + 'px';
 				target.style.top = position.y + 'px';
-				var r = 'rotate(' + Math.floor(position.rotation) + 'deg)';
-				target.style.webkitTransform = r;
-				target.style.MozTransform = r;
+				target.style.webkitTransform = 'rotate(' + Math.floor(position.rotation) + 'deg)';
+				target.style.MozTransform = 'rotate(' + Math.floor(position.rotation) + 'deg)';
 
 			}
-
 		</script>
 	</body>
 </html>
