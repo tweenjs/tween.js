@@ -3,6 +3,7 @@
  * @author mrdoob / http://mrdoob.com
  * @author Robert Eisele / http://www.xarg.org
  * @author Philippe / http://philippe.elsass.me
+ * @author lechecacharro <lechecacharro@gmail.com>
  * @author Robert Penner / http://www.robertpenner.com/easing_terms_of_use.html
  * @author Paul Lewis / http://www.aerotwist.com/
  * @author lechecacharro
@@ -91,6 +92,7 @@ TWEEN.Tween = function ( object ) {
 	var _easingFunction = TWEEN.Easing.Linear.None;
 	var _interpolationFunction = TWEEN.Interpolation.Linear;
 	var _chainedTweens = [];
+	var _numChainedTweens = 0;
 	var _onStartCallback = null;
 	var _onStartCallbackFired = false;
 	var _onUpdateCallback = null;
@@ -181,6 +183,7 @@ TWEEN.Tween = function ( object ) {
 	this.chain = function () {
 
 		_chainedTweens = arguments;
+		_numChainedTweens = _chainedTweens.length;
 		return this;
 
 	};
@@ -262,7 +265,7 @@ TWEEN.Tween = function ( object ) {
 
 			}
 
-			for ( var i = 0, l = _chainedTweens.length; i < l; i ++ ) {
+			for ( var i = 0; i < _numChainedTweens; i ++ ) {
 
 				_chainedTweens[ i ].start( time );
 
