@@ -80,9 +80,10 @@ var TWEEN = TWEEN || ( function () {
 
 } )();
 
-TWEEN.Tween = function ( object ) {
+TWEEN.Tween = function ( initial ) {
 
-	var _object = object;
+	var _initial = initial;
+	var _object;
 	var _valuesStart = {};
 	var _valuesEnd = {};
 	var _duration = 1000;
@@ -106,23 +107,10 @@ TWEEN.Tween = function ( object ) {
 
 		_valuesEnd = properties;
 
-		return this;
-
-	};
-
-	this.start = function ( time ) {
-
-		TWEEN.add( this );
-
-		_onStartCallbackFired = false;
-
-		_startTime = time !== undefined ? time : Date.now();
-		_startTime += _delayTime;
-
 		for ( var property in _valuesEnd ) {
 
 			// This prevents the engine from interpolating null values
-			if ( _object[ property ] === null ) {
+			if ( _initial[ property ] === null ) {
 
 				continue;
 
@@ -138,12 +126,31 @@ TWEEN.Tween = function ( object ) {
 				}
 
 				// create a local copy of the Array with the start value at the front
-				_valuesEnd[ property ] = [ _object[ property ] ].concat( _valuesEnd[ property ] );
+				_valuesEnd[ property ] = [ _initial[ property ] ].concat( _valuesEnd[ property ] );
 
 			}
 
-			_valuesStart[ property ] = _object[ property ];
+			_valuesStart[ property ] = _initial[ property ];
 
+		}
+
+		return this;
+
+	};
+
+	this.start = function ( time ) {
+
+		TWEEN.add( this );
+
+		_onStartCallbackFired = false;
+
+		_startTime = time !== undefined ? time : Date.now();
+		_startTime += _delayTime;
+
+		_object = {};
+
+		for ( var property in _initial) {
+			_object[property] = _initial[property];
 		}
 
 		return this;
