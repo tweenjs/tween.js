@@ -131,8 +131,8 @@ TWEEN.Tween = function ( object ) {
 
 		for ( var property in _valuesEnd ) {
 
-			// This prevents the engine from interpolating null values
-			if ( _object[ property ] === null ) {
+			// This prevents the interpolation of null values or of non-existing properties
+			if( _object[ property ] === null || !(property in _object) ) {
 
 				continue;
 

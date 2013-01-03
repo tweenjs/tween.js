@@ -52,7 +52,7 @@ test( "Tween existing property", function() {
 	t.start( 0 );
 	t.update( 1000 );
 
-	equal( obj.x, 2 );
+	deepEqual( obj.x, 2 );
 
 });
 
@@ -65,6 +65,33 @@ test( "Tween non-existing property", function() {
 	t.start( 0 );
 	t.update( 1000 );
 	
-	equal( obj.y, undefined );
+	deepEqual( obj.y, undefined );
+
+});
+
+test( "Tween non-null property", function() {
+
+	var obj = { x: 1 },
+		t = new TWEEN.Tween( obj );
+
+	t.to( { x: 2 }, 1000 );
+	t.start( 0 );
+	t.update( 1000 );
+	
+	deepEqual( obj.x, 2 );
+	ok( obj.x !== null );
+
+});
+
+test( "Tween null property", function() {
+
+	var obj = { },
+		t = new TWEEN.Tween( obj );
+
+	t.to( { x: 2 }, 1000 );
+	t.start( 0 );
+	t.update( 1000 );
+	
+	deepEqual( obj.x, undefined );
 
 });
