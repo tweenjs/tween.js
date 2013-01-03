@@ -235,11 +235,11 @@ test( "Test TWEEN.Tween.onStart", function() {
 	deepEqual( counter, 0 );
 
 	t.start( 0 );
-	t.update( 0 );
+	TWEEN.update( 0 );
 
 	deepEqual( counter, 1 );
 
-	t.update( 500 );
+	TWEEN.update( 500 );
 
 	deepEqual( counter, 1, "onStart callback is not called again" );
 
@@ -260,19 +260,19 @@ test( "Test TWEEN.Tween.onUpdate", function() {
 
 	t.start( 0 );
 
-	t.update( 0 );
+	TWEEN.update( 0 );
 	deepEqual( counter, 1 );
 
-	t.update( 500 );
+	TWEEN.update( 500 );
 	deepEqual( counter, 2 );
 
-	t.update( 600 );
+	TWEEN.update( 600 );
 	deepEqual( counter, 3 );
 
-	t.update( 1000 );
+	TWEEN.update( 1000 );
 	deepEqual( counter, 4 );
 
-	t.update( 1500 );
+	TWEEN.update( 1500 );
 	deepEqual( counter, 4, 'onUpdate callback should not be called after the tween has finished' );
 
 });
@@ -292,19 +292,19 @@ test( "Test TWEEN.Tween.onComplete", function() {
 
 	t.start( 0 );
 
-	t.update( 0 );
+	TWEEN.update( 0 );
 	deepEqual( counter, 0 );
 
-	t.update( 500 );
+	TWEEN.update( 500 );
 	deepEqual( counter, 0 );
 
-	t.update( 600 );
+	TWEEN.update( 600 );
 	deepEqual( counter, 0 );
 
-	t.update( 1000 );
+	TWEEN.update( 1000 );
 	deepEqual( counter, 1 );
 
-	t.update( 1500 );
+	TWEEN.update( 1500 );
 	deepEqual( counter, 1, 'onComplete callback must be called only once' );
 
 });
