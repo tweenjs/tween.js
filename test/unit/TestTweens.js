@@ -170,7 +170,55 @@ test( "Test TWEEN.Tween.easing()", function() {
 
 // TODO test interpolation()
 
-// TODO test chain()
+test( "Test TWEEN.Tween.chain --with one tween", function() {
+
+	var	t = new TWEEN.Tween( {} ),
+		tStarted = false,
+		tCompleted = false,
+		t2 = new TWEEN.Tween( {} ),
+		t2Started = false;
+
+	TWEEN.removeAll();
+
+	t.to( {}, 1000 );
+	t2.to( {}, 1000 );
+
+	t.chain( t2 );
+
+	t.onStart(function() {
+		tStarted = true;
+	});
+
+	t.onComplete(function() {
+		tCompleted = true;
+	});
+
+	t2.onStart(function() {
+		equal( tStarted, true );
+		equal( tCompleted, true );
+		equal( t2Started, false );
+		t2Started = true;
+	});
+
+	equal( tStarted, false );
+	equal( t2Started, false );
+
+	t.start( 0 );
+	TWEEN.update( 0 );
+
+	equal( tStarted, true );
+	equal( t2Started, false );
+
+	TWEEN.update( 1000 );
+
+	equal( tCompleted, true );
+
+	TWEEN.update( 1001 );
+
+	equal( t2Started, true, 't2 is automatically started by t' );
+
+});
+
 
 test( "Test TWEEN.Tween.onStart", function() {
 
@@ -260,4 +308,5 @@ test( "Test TWEEN.Tween.onComplete", function() {
 	deepEqual( counter, 1, 'onComplete callback must be called only once' );
 
 });
+
 
