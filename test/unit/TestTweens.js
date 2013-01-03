@@ -258,6 +258,49 @@ test( "Test TWEEN.Tween.chain --with several tweens in an array", function() {
 
 });
 
+test( "Test TWEEN.Tween.chain allows endless loops", function() {
+
+	var	obj = { x: 0 },
+		t1 = new TWEEN.Tween( obj ).to( { x: 100 }, 1000 ),
+		t2 = new TWEEN.Tween( obj ).to( { x: 0 }, 1000 );
+
+	TWEEN.removeAll();
+
+	t1.chain( t2 );
+	t2.chain( t1 );
+
+	equal( obj.x, 0 );
+
+	// x == 0
+	t1.start( 0 );
+	TWEEN.update( 0 );
+
+	equal( obj.x, 0 );
+
+	TWEEN.update( 500 );
+	equal( obj.x, 50 );
+
+	// there... (x == 100)
+	
+	TWEEN.update( 1000 );
+	equal( obj.x, 100 );
+
+	TWEEN.update( 1500 );
+	equal( obj.x, 50 );
+
+	// ... and back again (x == 0)
+
+	TWEEN.update( 2000 );
+	equal( obj.x, 0);
+
+	TWEEN.update( 2500 );
+	equal( obj.x, 50 );
+
+	TWEEN.update( 3000 );
+	equal( obj.x, 100 ); // and x == 100 again
+
+});
+
 test( "Test TWEEN.Tween.onStart", function() {
 
 	var obj = { },
