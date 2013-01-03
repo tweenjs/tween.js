@@ -219,6 +219,44 @@ test( "Test TWEEN.Tween.chain --with one tween", function() {
 
 });
 
+test( "Test TWEEN.Tween.chain --with several tweens in an array", function() {
+
+	var	t = new TWEEN.Tween( {} ),
+		chainedTweens = [],
+		numChained = 3,
+		numChainedStarted = 0;
+
+	TWEEN.removeAll();
+
+	t.to( {}, 1000 );
+
+	for(var i = 0; i < numChained; i++ ){
+		var chained = new TWEEN.Tween( {} );
+			chained.to( {}, 1000 );
+
+		chainedTweens.push( chained );
+
+		chained.onStart(function() {
+			numChainedStarted++;			
+		});
+	}
+
+	// NOTE: This is not the normal way to chain several tweens simultaneously
+	// The usual way would be to specify them explicitly:
+	// t.chain( tween1, tween2, ... tweenN)
+	// ... not to use apply to send an array of tweens
+	t.chain.apply( t, chainedTweens );
+
+	equal( numChainedStarted, 0 );
+
+	t.start( 0 );
+	TWEEN.update( 0 );
+	TWEEN.update( 1000 );
+	TWEEN.update( 1001 );
+
+	equal( numChainedStarted, numChained, 'All chained tweens have been started' );
+
+});
 
 test( "Test TWEEN.Tween.onStart", function() {
 
