@@ -152,3 +152,112 @@ test( "Test TWEEN.Tween.delay()", function() {
 	equal( obj.x, 2, "Tween finishes when expected" );
 
 });
+
+// TODO: not really sure how to test this. Advice appreciated!
+test( "Test TWEEN.Tween.easing()", function() {
+
+	var obj = { x: 0 },
+		t = new TWEEN.Tween( obj );
+
+	t.to( { x: 1 }, 1000 );
+
+	t.easing( TWEEN.Easing.Quadratic.In );
+	t.start( 0 );
+	t.update( 500 );
+	equal( obj.x, TWEEN.Easing.Quadratic.In( 0.5 ) );
+	
+});
+
+// TODO test interpolation()
+
+// TODO test chain()
+
+test( "Test TWEEN.Tween.onStart", function() {
+
+	var obj = { },
+		t = new TWEEN.Tween( obj ),
+		counter = 0;
+
+	t.to( { x: 2 }, 1000 );
+	t.onStart( function() {
+		ok( true, "onStart callback is called" );
+		counter++;
+	});
+	
+	deepEqual( counter, 0 );
+
+	t.start( 0 );
+	t.update( 0 );
+
+	deepEqual( counter, 1 );
+
+	t.update( 500 );
+
+	deepEqual( counter, 1, "onStart callback is not called again" );
+
+});
+
+test( "Test TWEEN.Tween.onUpdate", function() {
+
+	var obj = { },
+		t = new TWEEN.Tween( obj ),
+		counter = 0;
+
+	t.to( { x: 2 }, 1000 );
+	t.onUpdate( function() {
+		counter++;
+	});
+	
+	deepEqual( counter, 0 );
+
+	t.start( 0 );
+
+	t.update( 0 );
+	deepEqual( counter, 1 );
+
+	t.update( 500 );
+	deepEqual( counter, 2 );
+
+	t.update( 600 );
+	deepEqual( counter, 3 );
+
+	t.update( 1000 );
+	deepEqual( counter, 4 );
+
+	t.update( 1500 );
+	deepEqual( counter, 4, 'onUpdate callback should not be called after the tween has finished' );
+
+});
+
+test( "Test TWEEN.Tween.onComplete", function() {
+
+	var obj = { },
+		t = new TWEEN.Tween( obj ),
+		counter = 0;
+
+	t.to( { x: 2 }, 1000 );
+	t.onComplete( function() {
+		counter++;
+	});
+	
+	deepEqual( counter, 0 );
+
+	t.start( 0 );
+
+	t.update( 0 );
+	deepEqual( counter, 0 );
+
+	t.update( 500 );
+	deepEqual( counter, 0 );
+
+	t.update( 600 );
+	deepEqual( counter, 0 );
+
+	t.update( 1000 );
+	deepEqual( counter, 1 );
+
+	t.update( 1500 );
+	deepEqual( counter, 1, 'onComplete callback must be called only once' );
+
+});
+
