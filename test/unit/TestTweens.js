@@ -129,3 +129,26 @@ test( "Test TWEEN.Tween.stop()", function() {
 	equal( TWEEN.getAll().length, 0 );
 
 });
+
+test( "Test TWEEN.Tween.delay()", function() {
+
+	var obj = { x: 1 },
+		t = new TWEEN.Tween( obj );
+
+	t.to( { x: 2 }, 1000 );
+	t.delay( 500 );
+	t.start( 0 );
+
+	t.update( 100 );
+
+	deepEqual( obj.x, 1, "Tween hasn't started yet" );
+
+	t.update( 1000 );
+	
+	ok( (obj.x !== 1) && (obj.x !== 2), "Tween has started but hasn't finished yet" );
+	
+	t.update( 1500 );
+
+	equal( obj.x, 2, "Tween finishes when expected" );
+
+});
