@@ -95,3 +95,37 @@ test( "Tween null property", function() {
 	deepEqual( obj.x, undefined );
 
 });
+
+test( "Test TWEEN.Tween.start()", function() {
+
+	var obj = { },
+		t = new TWEEN.Tween( obj );
+
+	t.to( { x: 2 }, 1000 );
+
+	TWEEN.removeAll();
+	equal( TWEEN.getAll().length, 0 ); // TODO move to TWEEN test
+
+	t.start( 0 );
+
+	equal( TWEEN.getAll().length, 1 ); // TODO ditto
+	equal( TWEEN.getAll()[0], t );
+
+});
+
+
+test( "Test TWEEN.Tween.stop()", function() {
+
+	var obj = { },
+		t = new TWEEN.Tween( obj );
+
+	t.to( { x: 2 }, 1000 );
+
+	TWEEN.removeAll();
+
+	t.start();
+	t.stop();
+
+	equal( TWEEN.getAll().length, 0 );
+
+});
