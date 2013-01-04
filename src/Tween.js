@@ -26,7 +26,7 @@ var TWEEN = TWEEN || ( function () {
 
 	return {
 
-		REVISION: '8',
+		REVISION: '9dev',
 
 		getAll: function () {
 
@@ -132,7 +132,7 @@ TWEEN.Tween = function ( object ) {
 		for ( var property in _valuesEnd ) {
 
 			// This prevents the interpolation of null values or of non-existing properties
-			if( _object[ property ] === null || !(property in _object) ) {
+			if( ( property in _object ) === false || _object[ property ] === null ) {
 
 				continue;
 
@@ -653,3 +653,4 @@ TWEEN.Interpolation = {
 	}
 
 };
+
