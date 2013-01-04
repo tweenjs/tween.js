@@ -94,6 +94,13 @@ No, we like to keep it simple and free of dependencies. Feel free to make one yo
 
 ### Change log ###
 
+2013 mm dd - **r8** (xxxx KB, gzip xxxx KB)
+
+* New Date.now() shim by [roshamb](http://github.com/roshamb) makes the lib compatible with IE
+* Fix for checking undefined `duration` ([deanm](http://github.com/deanm))
+* Add unit tests ([sole](http://github.com/sole))
+* Fixed non-existing properties sent in `to` and ending up as NaN in the target object ([sole](http://github.com/sole))
+
 2012 10 27 - **r7** (4,882 KB, gzip: 1,714 KB)
 
 * Fixed start time of chained tweens when using custom timing. ([egraether](http://github.com/egraether))
