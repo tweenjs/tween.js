@@ -11,7 +11,7 @@ Super simple, fast and easy to use tweening engine which incorporates optimised 
 
 ### Examples ###
 
-[![Dynamic to](http://sole.github.com/tween.js/assets/examples/03_graphs.png)](http://sole.github.com/tween.js/examples/07_dynamic_to.html)
+[![Dynamic to](http://sole.github.com/tween.js/assets/examples/07_dynamic_to.png)](http://sole.github.com/tween.js/examples/07_dynamic_to.html)
 [![Array interpolation](http://sole.github.com/tween.js/assets/examples/03_graphs.png)](http://sole.github.com/tween.js/examples/06_array_interpolation.html)
 [![Video and time](http://sole.github.com/tween.js/assets/examples/06_video_and_time.png)](http://sole.github.com/tween.js/examples/05_video_and_time.html)
 [![Simplest possible example](http://sole.github.com/tween.js/assets/examples/04_simplest.png)](http://sole.github.com/tween.js/examples/04_simplest.html)
