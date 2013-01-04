@@ -90,3 +90,31 @@ test( "TWEEN.update() returns true when there are active tweens", function() {
 	deepEqual( TWEEN.update(), true );
 
 });
+
+test( "TWEEN.update() removes tweens when they are finished", function() {
+
+	TWEEN.removeAll();
+
+	var t1 = new TWEEN.Tween( {} ).to( {}, 1000 ),
+		t2 = new TWEEN.Tween( {} ).to( {}, 2000 );
+
+	equal( TWEEN.getAll().length, 0 );
+
+	t1.start( 0 );
+	t2.start( 0 );
+
+	equal( TWEEN.getAll().length, 2 );
+
+	TWEEN.update( 0 );
+	equal( TWEEN.getAll().length, 2 );
+
+	TWEEN.update( 999 );
+	equal( TWEEN.getAll().length, 2 );
+
+	TWEEN.update( 1000 );
+	equal( TWEEN.getAll().length, 1 );
+	equal( TWEEN.getAll().indexOf( t1 ), -1 );
+	ok( TWEEN.getAll().indexOf( t2 ) != -1 );
+
+
+});
