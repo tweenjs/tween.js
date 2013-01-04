@@ -62,11 +62,11 @@ var TWEEN = TWEEN || ( function () {
 
 			if ( _tweens.length === 0 ) return false;
 
-			var i = 0, l = _tweens.length;
+			var i = 0, numTweens = _tweens.length;
 
 			time = time !== undefined ? time : Date.now();
 
-			while ( i < l ) {
+			while ( i < numTweens ) {
 
 				if ( _tweens[ i ].update( time ) ) {
 
@@ -76,7 +76,7 @@ var TWEEN = TWEEN || ( function () {
 
 					_tweens.splice( i, 1 );
 
-					l --;
+					numTweens --;
 
 				}
 
@@ -272,7 +272,7 @@ TWEEN.Tween = function ( object ) {
 
 			}
 
-			for ( var i = 0, l = _chainedTweens.length; i < l; i ++ ) {
+			for ( var i = 0, numChainedTweens = _chainedTweens.length; i < numChainedTweens; i ++ ) {
 
 				_chainedTweens[ i ].start( time );
 
