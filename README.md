@@ -103,7 +103,7 @@ Finally, if you tried all of the above and still can't fix the bug, or you're no
 
 ### Change log ###
 
-2013 01 04 - **r8** (4,964 KB, gzip: 1,887 KB)
+2013 01 04 - **r8** (4,961 KB, gzip: 1,750 KB)
 
 * New Date.now() shim by [roshambo](http://github.com/roshambo) makes the lib compatible with IE
 * Fix for checking undefined `duration` ([deanm](http://github.com/deanm))

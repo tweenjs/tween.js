@@ -26,7 +26,7 @@ var TWEEN = TWEEN || ( function () {
 
 	return {
 
-		REVISION: '8dev',
+		REVISION: '8',
 
 		getAll: function () {
 
