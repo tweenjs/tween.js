@@ -92,14 +92,25 @@ Use the `delay()` method: `var t = new TWEEN.Tween({...}).delay(1000);`
 No, we like to keep it simple and free of dependencies. Feel free to make one yourself, though! :-)
 
 
+### Contributing, reporting bugs and requesting features ###
+
+If you find something that you believe to be a bug, please check out the [dev](https://github.com/sole/tween.js/tree/dev) branch and see if the bug still exists there. If it exists, and you find yourself capable of fixing it, do it on the *dev* branch too. In other words, *don't push to master*. We'll take care of that!
+
+Before submitting a pull request, please make sure that both the tests and the examples still work. For running the tests, open `test/unit/unittests_tween.html` on your browser. If everything is green: GREAT! Else... you know what to do. Regarding the examples, you can find them under the `examples` folder. To compare with the `master` version, checkout the master branch or use the hosted version that is linked from the [project home page](http://github.com/sole/tween.js).
+
+Finally, if you tried all of the above and still can't fix the bug, or you're not sure you're doing things right, [go here](https://github.com/sole/tween.js/issues) and let us know.
+
+
 ### Change log ###
 
 2013 mm dd - **r8** (xxxx KB, gzip xxxx KB)
 
-* New Date.now() shim by [roshamb](http://github.com/roshamb) makes the lib compatible with IE
+* New Date.now() shim by [roshambo](http://github.com/roshambo) makes the lib compatible with IE
 * Fix for checking undefined `duration` ([deanm](http://github.com/deanm))
 * Add unit tests ([sole](http://github.com/sole))
 * Fixed non-existing properties sent in `to` and ending up as NaN in the target object ([sole](http://github.com/sole))
+* Add missing example screenshot ([sole](http://github.com/sole))
+* Add CONTRIBUTING section in README ([sole](http://github.com/sole))
 
 2012 10 27 - **r7** (4,882 KB, gzip: 1,714 KB)
 
