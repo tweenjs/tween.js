@@ -95,6 +95,7 @@ TWEEN.Tween = function ( object ) {
 	var _object = object;
 	var _valuesStart = {};
 	var _valuesEnd = {};
+	var _valuesEndFunction = null;
 	var _duration = 1000;
 	var _delayTime = 0;
 	var _startTime = null;
@@ -114,13 +115,19 @@ TWEEN.Tween = function ( object ) {
 
 		}
 
-		_valuesEnd = properties;
+		if ( typeof properties === 'function' ) {
+			_valuesEndFunction = properties;
+		} else {
+			_valuesEnd = properties;
+		}
 
 		return this;
 
 	};
 
 	this.start = function ( time ) {
+		var endFuncParams,
+			property;
 
 		TWEEN.add( this );
 
@@ -129,7 +136,21 @@ TWEEN.Tween = function ( object ) {
 		_startTime = time !== undefined ? time : Date.now();
 		_startTime += _delayTime;
 
-		for ( var property in _valuesEnd ) {
+		if ( _valuesEndFunction !== null ) {
+
+			endFuncParams = { };
+
+			for ( property in _object ) {
+
+				endFuncParams[ property ] = _object[ property ];
+
+			}
+
+			_valuesEnd = _valuesEndFunction( endFuncParams );
+
+		}
+
+		for ( property in _valuesEnd ) {
 
 			// This prevents the interpolation of null values or of non-existing properties
 			if( ( property in _object ) === false || _object[ property ] === null ) {

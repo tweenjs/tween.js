@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>Tween.js / Follow mouse and yield</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<style>
+
+			body {
+				margin: 0px;
+				overflow: hidden;
+			}
+
+			#target {
+				position: absolute;
+				top: 0;
+				left: 0;
+				width: 70px;
+				height: 25px;
+				font-size: 13px;
+				background: #a0dde9;
+				text-align: center;
+			}
+
+		</style>
+		<link href="css/style.css" media="screen" rel="stylesheet" type="text/css" />
+	</head>
+	<body>
+		<div id="info" style="position: relative;">
+			<h1><a href="http://github.com/sole/tween.js">tween.js</a></h1>
+			<h2>08 _ follow mouse and yield</h2>
+			<p>chaining tweens with a dynamic end value.</p>
+		</div>
+
+		<div id="target">
+			&lt;- point -&gt;
+		</div>
+
+		<script src="../build/tween.min.js"></script>
+		<script src="js/RequestAnimationFrame.js"></script>
+		<script>
+
+			var pos = { x: 0, y: 0 },
+				target = document.getElementById('target');
+
+
+			init();
+			animate();
+
+			function init() {
+
+				var mouseTween = new TWEEN.Tween(pos),
+					yieldTween = new TWEEN.Tween(pos).to(function yield40px( position ) {
+						/* Move next to the point clicked. Move left if going over right side of window, right otherwise. */
+						if (position.x + 70 > window.innerWidth) {
+							position.x -= 35;
+						} else {
+							position.x += 35;
+						}
+						return position;
+					}, 200);
+
+				mouseTween.chain(yieldTween);
+
+				document.addEventListener( 'mousedown', function onMouseDown( e ) {
+					var top = e.pageY - 12,
+						left = e.pageX - 35;
+					mouseTween.to( { x: left, y: top }, 1000 ).start();
+				} );
+			}
+
+			function animate() {
+
+				requestAnimationFrame( animate );
+
+				target.style.left = pos.x + 'px';
+				target.style.top = pos.y + 'px';
+
+				TWEEN.update();
+
+			}
+
+			animate();
+
+		</script>
+	</body>
+</html>

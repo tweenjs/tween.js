@@ -390,4 +390,30 @@ test( "Test TWEEN.Tween.onComplete", function() {
 
 });
 
+test( "Test chained TWEEN.Tween.to() with function parameter", function() {
+	var obj = { x: 0 },
+		t1 = new TWEEN.Tween( obj ).to( { x: 100 }, 1000 ),
+		t2 = new TWEEN.Tween( obj ).to( function xAdd20( start ) {
+			start.x += 20;
+			return start;
+		}, 200 );
 
+	t1.chain( t2 );
+	t1.start( 0 );
+	equal( obj.x, 0 );
+
+	TWEEN.update( 1000 );
+	equal( obj.x, 100 );
+
+	TWEEN.update( 1200 );
+	equal( obj.x, 120 );
+
+	t1.to( { x: 200 } );
+	t1.start( 1200 );
+
+	TWEEN.update( 2200 );
+	equal( obj.x, 200 );
+
+	TWEEN.update( 2400 );
+	equal( obj.x, 220 );
+});
