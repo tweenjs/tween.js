@@ -10,16 +10,6 @@
  * @author egraether / http://egraether.com/
  */
 
-if ( Date.now === undefined ) {
-
-	Date.now = function () {
-
-		return new Date().valueOf();
-
-	}
-
-}
-
 var TWEEN = TWEEN || ( function () {
 
 	var _tweens = [];
@@ -64,7 +54,7 @@ var TWEEN = TWEEN || ( function () {
 
 			var i = 0, numTweens = _tweens.length;
 
-			time = time !== undefined ? time : Date.now();
+			time = time !== undefined ? time : TWEEN.now();
 
 			while ( i < numTweens ) {
 
@@ -83,6 +73,25 @@ var TWEEN = TWEEN || ( function () {
 			}
 
 			return true;
+
+		},
+
+		now: function () {
+
+			if ( ( 'undefined' !== typeof performance ) &&
+			     ( 'function' === typeof window.performance.now ) ) {
+
+				return window.performance.now();
+
+			} else if ( 'function' === typeof Date.now ) {
+
+				return Date.now();
+
+			} else {
+
+				return new Date().valueOf();
+
+			}
 
 		}
 
@@ -126,7 +135,7 @@ TWEEN.Tween = function ( object ) {
 
 		_onStartCallbackFired = false;
 
-		_startTime = time !== undefined ? time : Date.now();
+		_startTime = time !== undefined ? time : TWEEN.now();
 		_startTime += _delayTime;
 
 		for ( var property in _valuesEnd ) {
