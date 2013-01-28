@@ -54,7 +54,7 @@ var TWEEN = TWEEN || ( function () {
 
 			var i = 0, numTweens = _tweens.length;
 
-			time = time !== undefined ? time : TWEEN.now();
+			time = time !== undefined ? time : ( window.performance !== undefined && window.performance.now !== undefined ? window.performance.now() : Date.now() );
 
 			while ( i < numTweens ) {
 
@@ -74,26 +74,7 @@ var TWEEN = TWEEN || ( function () {
 
 			return true;
 
-		},
-
-		now: function () {
-
-			if ( window.performance && ('function' === typeof window.performance.now) ) {
-
-				return window.performance.now();
-
-			} else if ( 'function' === typeof Date.now ) {
-
-				return Date.now();
-
-			} else {
-
-				return new Date().valueOf();
-
-			}
-
 		}
-
 	};
 
 } )();
@@ -134,7 +115,7 @@ TWEEN.Tween = function ( object ) {
 
 		_onStartCallbackFired = false;
 
-		_startTime = time !== undefined ? time : TWEEN.now();
+		_startTime = time !== undefined ? time : (window.performance !== undefined && window.performance.now !== undefined ? window.performance.now() : Date.now() );
 		_startTime += _delayTime;
 
 		for ( var property in _valuesEnd ) {
