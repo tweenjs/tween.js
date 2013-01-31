@@ -390,4 +390,80 @@ test( "Test TWEEN.Tween.onComplete", function() {
 
 });
 
+test( "TWEEN.Tween does not repeat by default", function() {
 
+	TWEEN.removeAll();
+
+	var obj = { x: 0 },
+		t = new TWEEN.Tween( obj ).to( { x: 100 }, 100 );
+
+	t.start( 0 );
+
+	TWEEN.update( 0 );
+	equal( obj.x, 0 );
+
+	TWEEN.update( 50 );
+	equal( obj.x, 50 );
+
+	TWEEN.update( 100 );
+	equal( obj.x, 100 );
+
+	TWEEN.update( 150 );
+	equal( obj.x, 100 );
+
+});
+
+test( "Test single repeat happens only once", function() {
+
+	TWEEN.removeAll();
+
+	var obj = { x: 0 },
+		t = new TWEEN.Tween( obj ).to( { x: 100 }, 100 ).repeat( 1 );
+
+	t.start( 0 );
+
+	TWEEN.update( 0 );
+	equal( obj.x, 0 );
+
+	TWEEN.update( 50 );
+	equal( obj.x, 50 );
+
+	TWEEN.update( 100 );
+	equal( obj.x, 100 );
+
+	TWEEN.update( 150 );
+	equal( obj.x, 50 );
+
+	TWEEN.update( 200 );
+	equal( obj.x, 100 );
+
+});
+
+test( "Test Infinity repeat happens forever", function() {
+
+	TWEEN.removeAll();
+
+	var obj = { x: 0 },
+		t = new TWEEN.Tween( obj ).to( { x: 100 }, 100 ).repeat( Infinity );
+
+	t.start( 0 );
+
+	TWEEN.update( 0 );
+	equal( obj.x, 0 );
+
+	TWEEN.update( 50 );
+	equal( obj.x, 50 );
+
+	TWEEN.update( 100 );
+	equal( obj.x, 100 );
+
+	TWEEN.update( 150 );
+	equal( obj.x, 50 );
+
+	TWEEN.update( 200 );
+	equal( obj.x, 100 );
+
+	TWEEN.update( 250 );
+	equal( obj.x, 50 );
+
+});
