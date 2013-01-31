@@ -22,6 +22,9 @@ Super simple, fast and easy to use tweening engine which incorporates optimised 
 
 ### Projects using tween.js ###
 
+[![MOMA Inventing Abstraction 1910-1925](http://sole.github.com/tween.js/assets/projects/09_moma.png)](http://www.moma.org/interactives/exhibitions/2012/inventingabstraction/)
+[![Web Lab](http://sole.github.com/tween.js/assets/projects/08_web_lab.png)](http://www.chromeweblab.com/)
+[![MACCHINA I](http://sole.github.com/tween.js/assets/projects/07_macchina.png)](http://5013.es/toys/macchina)
 [![Minesweeper 3D](http://sole.github.com/tween.js/assets/projects/06_minesweeper3d.png)](http://egraether.com/mine3d/)
 [![ROME](http://sole.github.com/tween.js/assets/projects/05_rome.png)](http://ro.me)
 [![WebGL Globe](http://sole.github.com/tween.js/assets/projects/04_webgl_globe.png)](http://data-arts.appspot.com/globe)
@@ -92,6 +95,13 @@ Use the `delay()` method: `var t = new TWEEN.Tween({...}).delay(1000);`
 No, we like to keep it simple and free of dependencies. Feel free to make one yourself, though! :-)
 
 ### Change log ###
+
+2013 02 04 - **r9**
+
+* Use window.performance.now() if available for even smoother animations ([tdreyno](https://github.com/tdreyno), [mrdoob](https://github.com/mrdoob) and [sole](https://github.com/sole))
+* Added tween.repeat() ([sole](https://github.com/sole))
+* Improve example_01 performance ([mrdoob](https://github.com/mrdoob))
+* Use CONTRIBUTING.md instead of having the section on README.md ([sole](https://github.com/sole))
 
 2013 01 04 - **r8** (4,961 KB, gzip: 1,750 KB)
 
