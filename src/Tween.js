@@ -97,6 +97,13 @@ TWEEN.Tween = function ( object ) {
 	var _onUpdateCallback = null;
 	var _onCompleteCallback = null;
 
+	// Set all starting values present on the target object
+	for ( var field in object ) {
+
+		_valuesStart[ field ] = parseFloat(object[field], 10);
+
+	}
+
 	this.to = function ( properties, duration ) {
 
 		if ( duration !== undefined ) {
@@ -246,9 +253,9 @@ TWEEN.Tween = function ( object ) {
 
 		var value = _easingFunction( elapsed );
 
-		for ( var property in _valuesStart ) {
+		for ( var property in _valuesEnd ) {
 
-			var start = _valuesStart[ property ];
+			var start = _valuesStart[ property ] || 0;
 			var end = _valuesEnd[ property ];
 
 			if ( end instanceof Array ) {
@@ -256,6 +263,10 @@ TWEEN.Tween = function ( object ) {
 				_object[ property ] = _interpolationFunction( end, value );
 
 			} else {
+
+				if ( typeof(end) === "string" ) {
+					end = start + parseFloat(end, 10);
+				}
 
 				_object[ property ] = start + ( end - start ) * value;
 
@@ -276,11 +287,18 @@ TWEEN.Tween = function ( object ) {
 				if( isFinite( _repeat ) ) {
 					_repeat--;
 				}
-				
+
 				// reassign starting values, restart by making startTime = now
 				for( var property in _valuesStartRepeat ) {
+
+					if ( typeof( _valuesEnd[ property ] ) === "string" ) {
+						_valuesStartRepeat[ property ] = _valuesStartRepeat[ property ] + parseFloat(_valuesEnd[ property ], 10)
+					}
+
 					_valuesStart[ property ] = _valuesStartRepeat[ property ];
+
 				}
+
 				_startTime = time + _delayTime;
 
 				return true;

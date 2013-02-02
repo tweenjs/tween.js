@@ -64,8 +64,8 @@ test( "Tween non-existing property", function() {
 	t.to( { y: 0 }, 1000 );
 	t.start( 0 );
 	t.update( 1000 );
-	
-	deepEqual( obj.y, undefined );
+
+	deepEqual( obj.y, 0 );
 
 });
 
@@ -77,7 +77,7 @@ test( "Tween non-null property", function() {
 	t.to( { x: 2 }, 1000 );
 	t.start( 0 );
 	t.update( 1000 );
-	
+
 	deepEqual( obj.x, 2 );
 	ok( obj.x !== null );
 
@@ -91,8 +91,8 @@ test( "Tween null property", function() {
 	t.to( { x: 2 }, 1000 );
 	t.start( 0 );
 	t.update( 1000 );
-	
-	deepEqual( obj.x, undefined );
+
+	deepEqual( obj.x, 2 );
 
 });
 
@@ -144,9 +144,9 @@ test( "Test TWEEN.Tween.delay()", function() {
 	deepEqual( obj.x, 1, "Tween hasn't started yet" );
 
 	t.update( 1000 );
-	
+
 	ok( (obj.x !== 1) && (obj.x !== 2), "Tween has started but hasn't finished yet" );
-	
+
 	t.update( 1500 );
 
 	equal( obj.x, 2, "Tween finishes when expected" );
@@ -165,7 +165,7 @@ test( "Test TWEEN.Tween.easing()", function() {
 	t.start( 0 );
 	t.update( 500 );
 	equal( obj.x, TWEEN.Easing.Quadratic.In( 0.5 ) );
-	
+
 });
 
 // TODO test interpolation()
@@ -237,7 +237,7 @@ test( "Test TWEEN.Tween.chain --with several tweens in an array", function() {
 		chainedTweens.push( chained );
 
 		chained.onStart(function() {
-			numChainedStarted++;			
+			numChainedStarted++;
 		});
 	}
 
@@ -281,7 +281,7 @@ test( "Test TWEEN.Tween.chain allows endless loops", function() {
 	equal( obj.x, 50 );
 
 	// there... (x == 100)
-	
+
 	TWEEN.update( 1000 );
 	equal( obj.x, 100 );
 
@@ -312,7 +312,7 @@ test( "Test TWEEN.Tween.onStart", function() {
 		ok( true, "onStart callback is called" );
 		counter++;
 	});
-	
+
 	deepEqual( counter, 0 );
 
 	t.start( 0 );
@@ -336,7 +336,7 @@ test( "Test TWEEN.Tween.onUpdate", function() {
 	t.onUpdate( function() {
 		counter++;
 	});
-	
+
 	deepEqual( counter, 0 );
 
 	t.start( 0 );
@@ -368,7 +368,7 @@ test( "Test TWEEN.Tween.onComplete", function() {
 	t.onComplete( function() {
 		counter++;
 	});
-	
+
 	deepEqual( counter, 0 );
 
 	t.start( 0 );
