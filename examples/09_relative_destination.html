@@ -27,7 +27,7 @@
 			function init() {
 				var target1 = document.getElementById( 'target1' ),
 					tween1 = new TWEEN.Tween( target1.dataset )
-						.to( { top: "+50" }, 2000 )
+						.to( { top: "+20", left: "-20" }, 2000 )
 						.repeat( 5 )
 						.delay( 500 )
 						.onUpdate( function() {
@@ -48,7 +48,9 @@
 			function updateBox( box, params ) {
 				var field,
 					s = box.style;
-				s.top = params.top + "px";
+				for (field in params) {
+					s[field] = params[field] + "px";
+				}
 			}
 
 		</script>

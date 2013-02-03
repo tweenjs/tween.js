@@ -8,6 +8,7 @@
  * @author lechecacharro
  * @author Josh Faul / http://jocafa.com/
  * @author egraether / http://egraether.com/
+ * @author endel / http://endel.me
  */
 
 var TWEEN = TWEEN || ( function () {
@@ -127,15 +128,7 @@ TWEEN.Tween = function ( object ) {
 		_startTime = time !== undefined ? time : (window.performance !== undefined && window.performance.now !== undefined ? window.performance.now() : Date.now() );
 		_startTime += _delayTime;
 
-
 		for ( var property in _valuesEnd ) {
-
-			// This prevents the interpolation of null values or of non-existing properties
-			if( ( property in _object ) === false || _object[ property ] === null ) {
-
-				continue;
-
-			}
 
 			// check if an Array was provided as property value
 			if ( _valuesEnd[ property ] instanceof Array ) {
@@ -157,7 +150,7 @@ TWEEN.Tween = function ( object ) {
 				_valuesStart[ property ] *= 1.0; // Ensures we're using numbers, not strings
 			}
 
-			_valuesStartRepeat[ property ] = _valuesStart[ property ];
+			_valuesStartRepeat[ property ] = _valuesStart[ property ] || 0;
 
 		}
 

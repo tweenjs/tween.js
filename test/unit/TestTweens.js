@@ -113,7 +113,6 @@ test( "Test TWEEN.Tween.start()", function() {
 
 });
 
-
 test( "Test TWEEN.Tween.stop()", function() {
 
 	var obj = { },
@@ -466,4 +465,34 @@ test( "Test Infinity repeat happens forever", function() {
 	TWEEN.update( 250 );
 	equal( obj.x, 50 );
 
+});
+
+test( "Test tweening relatively with repeat", function() {
+
+	TWEEN.removeAll();
+
+	var obj = { x: 0 },
+		t = new TWEEN.Tween( obj ).to( { x: "+100", y: "-100" }, 100 ).repeat( 1 );
+
+	t.start( 0 );
+
+	TWEEN.update( 0 );
+	equal( obj.x, 0 );
+	equal( obj.y, 0 );
+
+	TWEEN.update( 50 );
+	equal( obj.x, 50 );
+	equal( obj.y, -50 );
+
+	TWEEN.update( 100 );
+	equal( obj.x, 100 );
+	equal( obj.y, -100 );
+
+	TWEEN.update( 150 );
+	equal( obj.x, 150 );
+	equal( obj.y, -150 );
+
+	TWEEN.update( 200 );
+	equal( obj.x, 200 );
+	equal( obj.y, -200 );
 });
