@@ -35,39 +35,34 @@
 				elems = [];
 
 				for(var i = 0; i < 1000; i++) {
-					var elem = {};
+
+					var startValue = 500 + (Math.random() - Math.random()) * 250;
+					var endValue = 500 + (Math.random() - Math.random()) * 250;
+
 					var domElement = document.createElement('div');
 					var bg = (Math.random() * 0xffffff) >> 0;
 					domElement.style.position = 'absolute';
 					domElement.style.top = (Math.random() * window.innerHeight) + 'px';
+					domElement.style.left = startValue + 'px';
 					domElement.style.background = '#' + bg.toString(16);
-
-					var startValue = 500 + (Math.random() - Math.random()) * 250;
-					var endValue = 500 + (Math.random() - Math.random()) * 250;
-					domElement.style.marginLeft = startValue + 'px';
-					domElement.style.fontFamily = 'Helvetica, Arial, sans-serif';
-					domElement.style.fontSize = '6px';
-					domElement.style.lineHeight = 0.5;
 					domElement.style.width = '100px';
 					domElement.style.height = '2px';
 
-					elem.domElement = domElement;
-
-					elem.margin = startValue;
+					var elem = { x: startValue, domElement: domElement };
 
 					var updateCallback = function() {
-						this.domElement.style.marginLeft = this.margin + 'px';
+						this.domElement.style.left = this.x + 'px';
 					}
 
 					var tween = new TWEEN.Tween(elem)
-						.to({ margin: endValue }, 4000)
+						.to({ x: endValue }, 4000)
 						.delay(Math.random() * 1000)
 						.onUpdate(updateCallback)
 						.easing(TWEEN.Easing.Back.Out)
 						.start();
 
 					var tweenBack = new TWEEN.Tween(elem, false)
-						.to({ margin: startValue}, 4000)
+						.to({ x: startValue}, 4000)
 						.delay(Math.random() * 1000)
 						.onUpdate(updateCallback)
 						.easing(TWEEN.Easing.Elastic.InOut);
