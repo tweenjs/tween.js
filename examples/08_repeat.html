@@ -34,7 +34,7 @@
 			function init() {
 				var target1 = document.getElementById( 'target1' ),
 					tween1 = new TWEEN.Tween( target1.dataset )
-						.to( { rotation: 359 }, 2000 )
+						.to( { rotation: 360 }, 2000 )
 						.repeat( 1 )
 						.delay( 1000 )
 						.onUpdate( function() {
@@ -43,7 +43,7 @@
 						.start(),
 					target2 = document.getElementById( 'target2' ),
 					tween2 = new TWEEN.Tween( target2.dataset )
-						.to( { rotation: 359 }, 2000 )
+						.to( { rotation: 360 }, 2000 )
 						.repeat( 5 )
 						.delay( 1000 )
 						.onUpdate( function() {
@@ -52,7 +52,7 @@
 						.start(),
 					target3 = document.getElementById( 'target3' ),
 					tween3 = new TWEEN.Tween( target3.dataset )
-						.to( { rotation: 359 }, 2000 )
+						.to( { rotation: 360 }, 2000 )
 						.repeat( Infinity )
 						.delay( 1000 )
 						.onUpdate( function() {
