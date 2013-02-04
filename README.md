@@ -36,7 +36,7 @@ Super simple, fast and easy to use tweening engine which incorporates optimised 
 
 ### Usage ###
 
-Download the [minified library](http://github.com/sole/tween.js/raw/master/build/Tween.js) and include it in your html.
+Download the [minified library](https://github.com/sole/tween.js/raw/master/build/tween.min.js) and include it in your html.
 
 ```html
 <script src="js/tween.min.js"></script>
