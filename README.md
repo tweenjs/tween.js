@@ -11,6 +11,7 @@ Super simple, fast and easy to use tweening engine which incorporates optimised 
 
 ### Examples ###
 
+[![Repeat](http://sole.github.com/tween.js/assets/examples/08_repeat.png)](http://sole.github.com/tween.js/examples/08_repeat.html)
 [![Dynamic to](http://sole.github.com/tween.js/assets/examples/07_dynamic_to.png)](http://sole.github.com/tween.js/examples/07_dynamic_to.html)
 [![Array interpolation](http://sole.github.com/tween.js/assets/examples/03_graphs.png)](http://sole.github.com/tween.js/examples/06_array_interpolation.html)
 [![Video and time](http://sole.github.com/tween.js/assets/examples/06_video_and_time.png)](http://sole.github.com/tween.js/examples/05_video_and_time.html)
@@ -96,7 +97,7 @@ No, we like to keep it simple and free of dependencies. Feel free to make one yo
 
 ### Change log ###
 
-2013 02 04 - **r9**
+2013 02 04 - **r9** (5,224 KB, gzip: 1,959 KB)
 
 * Use window.performance.now() if available for even smoother animations ([tdreyno](https://github.com/tdreyno), [mrdoob](https://github.com/mrdoob) and [sole](https://github.com/sole))
 * Added tween.repeat() ([sole](https://github.com/sole))
