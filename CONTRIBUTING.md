@@ -22,7 +22,7 @@ Contributing
 1. Get a GitHub account (if you don't have one yet).
 2. Fork the project in GitHub.
 3. Check the [contribution guidelines](https://github.com/sole/tween.js/wiki/Contributing-to-tween.js). 
-4. Make changes to your clone of the repository.
+4. Make changes to your clone of the repository (please *do not* check in the minified version of the library)
 5. Submit a pull request.
 
 _If you tried all of the above and still can't fix the bug, or you're not sure you're doing things right, [let us know](https://github.com/sole/tween.js/issues)._
