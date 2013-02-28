@@ -17,7 +17,7 @@ var TWEEN = TWEEN || ( function () {
 
 	return {
 
-		REVISION: '9',
+		REVISION: '10dev',
 
 		getAll: function () {
 
@@ -146,7 +146,7 @@ TWEEN.Tween = function ( object ) {
 
 			_valuesStart[ property ] = _object[ property ];
 
-			if( ( _valuesStart[ property ] instanceof Array ) == false ) {
+			if( ( _valuesStart[ property ] instanceof Array ) === false ) {
 				_valuesStart[ property ] *= 1.0; // Ensures we're using numbers, not strings
 			}
 
@@ -285,7 +285,7 @@ TWEEN.Tween = function ( object ) {
 				for( var property in _valuesStartRepeat ) {
 
 					if ( typeof( _valuesEnd[ property ] ) === "string" ) {
-						_valuesStartRepeat[ property ] = _valuesStartRepeat[ property ] + parseFloat(_valuesEnd[ property ], 10)
+						_valuesStartRepeat[ property ] = _valuesStartRepeat[ property ] + parseFloat(_valuesEnd[ property ], 10);
 					}
 
 					_valuesStart[ property ] = _valuesStartRepeat[ property ];
