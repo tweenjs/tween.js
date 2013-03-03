@@ -97,7 +97,7 @@ No, we like to keep it simple and free of dependencies. Feel free to make one yo
 
 ### Change log ###
 
-2013 03 03 - **r10**
+2013 03 03 - **r10** (5,342 KB, gzip: 2,010 KB)
 
 * Added the ability to tween using relative values with ```to()``` ([endel](https://github.com/endel))
 
