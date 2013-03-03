@@ -11,6 +11,7 @@ Super simple, fast and easy to use tweening engine which incorporates optimised 
 
 ### Examples ###
 
+[![Relative values](http://sole.github.com/tween.js/assets/examples/09_relative.png)](http://sole.github.com/tween.js/examples/09_relative.html)
 [![Repeat](http://sole.github.com/tween.js/assets/examples/08_repeat.png)](http://sole.github.com/tween.js/examples/08_repeat.html)
 [![Dynamic to](http://sole.github.com/tween.js/assets/examples/07_dynamic_to.png)](http://sole.github.com/tween.js/examples/07_dynamic_to.html)
 [![Array interpolation](http://sole.github.com/tween.js/assets/examples/03_graphs.png)](http://sole.github.com/tween.js/examples/06_array_interpolation.html)
@@ -95,6 +96,10 @@ Use the `delay()` method: `var t = new TWEEN.Tween({...}).delay(1000);`
 No, we like to keep it simple and free of dependencies. Feel free to make one yourself, though! :-)
 
 ### Change log ###
+
+2013 03 04 - **r10**
+
+* Added the ability to tween using relative values with ```to()``` ([endel](https://github.com/endel))
 
 2013 02 04 - **r9** (5,224 KB, gzip: 1,959 KB)
 
