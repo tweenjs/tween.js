@@ -11,13 +11,25 @@
  * @author endel / http://endel.me
  */
 
+// Date.now shim for (ahem) Internet Explo(d|r)er
+if ( Date.now === undefined ) {
+
+	Date.now = function () {
+
+		return new Date().valueOf();
+
+	};
+
+}
+
+
 var TWEEN = TWEEN || ( function () {
 
 	var _tweens = [];
 
 	return {
 
-		REVISION: '10',
+		REVISION: '11dev',
 
 		getAll: function () {
 
