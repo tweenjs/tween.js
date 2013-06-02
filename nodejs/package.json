@@ -1,9 +1,8 @@
 {
   "name": "tween",
   "description": "Super simple, fast and easy to use tweening engine which incorporates optimised Robert Penner's equations.",
-  "version": "0.8.0",
+  "version": "0.10.0",
   "homepage": "https://github.com/sole/tween.js",
-  "main": "tween.js",
   "repository": {
     "type": "git",
     "url": "git://github.com/sole/tween.js.git"
