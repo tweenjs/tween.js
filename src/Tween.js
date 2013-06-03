@@ -22,7 +22,6 @@ if ( Date.now === undefined ) {
 
 }
 
-
 var TWEEN = TWEEN || ( function () {
 
 	var _tweens = [];
@@ -67,7 +66,7 @@ var TWEEN = TWEEN || ( function () {
 
 			var i = 0, numTweens = _tweens.length;
 
-			time = time !== undefined ? time : ( window.performance !== undefined && window.performance.now !== undefined ? window.performance.now() : Date.now() );
+			time = time !== undefined ? time : ( typeof window !== 'undefined' && window.performance !== undefined && window.performance.now !== undefined ? window.performance.now() : Date.now() );
 
 			while ( i < numTweens ) {
 
@@ -137,7 +136,7 @@ TWEEN.Tween = function ( object ) {
 
 		_onStartCallbackFired = false;
 
-		_startTime = time !== undefined ? time : (window.performance !== undefined && window.performance.now !== undefined ? window.performance.now() : Date.now() );
+		_startTime = time !== undefined ? time : ( typeof window !== 'undefined' && window.performance !== undefined && window.performance.now !== undefined ? window.performance.now() : Date.now() );
 		_startTime += _delayTime;
 
 		for ( var property in _valuesEnd ) {
@@ -333,6 +332,7 @@ TWEEN.Tween = function ( object ) {
 	};
 
 };
+
 
 TWEEN.Easing = {
 
@@ -699,4 +699,3 @@ TWEEN.Interpolation = {
 	}
 
 };
-
