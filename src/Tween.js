@@ -9,6 +9,7 @@
  * @author Josh Faul / http://jocafa.com/
  * @author egraether / http://egraether.com/
  * @author endel / http://endel.me
+ * @author Ben Delarre / http://delarre.net
  */
 
 // Date.now shim for (ahem) Internet Explo(d|r)er
@@ -244,6 +245,8 @@ TWEEN.Tween = function ( object ) {
 
 	this.update = function ( time ) {
 
+		var property;
+
 		if ( time < _startTime ) {
 
 			return true;
@@ -267,7 +270,7 @@ TWEEN.Tween = function ( object ) {
 
 		var value = _easingFunction( elapsed );
 
-		for ( var property in _valuesEnd ) {
+		for ( property in _valuesEnd ) {
 
 			var start = _valuesStart[ property ] || 0;
 			var end = _valuesEnd[ property ];
@@ -303,7 +306,7 @@ TWEEN.Tween = function ( object ) {
 				}
 
 				// reassign starting values, restart by making startTime = now
-				for( var property in _valuesStartRepeat ) {
+				for( property in _valuesStartRepeat ) {
 
 					if ( typeof( _valuesEnd[ property ] ) === "string" ) {
 						_valuesStartRepeat[ property ] = _valuesStartRepeat[ property ] + parseFloat(_valuesEnd[ property ], 10);

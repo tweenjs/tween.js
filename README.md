@@ -99,6 +99,7 @@ No, we like to keep it simple and free of dependencies. Feel free to make one yo
 
 2013 06 0x - **r11**
 
+* Add ```yoyo``` functionality: tweens can bounce back to their original value when finished ([benjamind](https://github.com/benjamind))
 * Make tween.js an _official_ npm module ([sole](https://github.com/sole)) (hint: ```npm install tween.js```)
 * Bring node.js compatibility back! ([benjamind](https://github.com/benjamind))
 * Bring IE shim back! ([sole](https://github.com/sole))
