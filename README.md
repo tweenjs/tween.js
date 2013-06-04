@@ -97,6 +97,12 @@ No, we like to keep it simple and free of dependencies. Feel free to make one yo
 
 ### Change log ###
 
+2013 06 0x - **r11**
+
+* Make tween.js an _official_ npm module [sole](https://github.com/sole) (hint: ```npm install tween.js```)
+* Bring node.js compatibility back! [benjamind](https://github.com/benjamind)
+* Bring IE shim back! [sole](https://github.com/sole)
+
 2013 03 03 - **r10** (5,342 KB, gzip: 2,010 KB)
 
 * Added the ability to tween using relative values with ```to()``` ([endel](https://github.com/endel))
