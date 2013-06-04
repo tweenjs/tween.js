@@ -496,3 +496,60 @@ test( "Test tweening relatively with repeat", function() {
 	equal( obj.x, 200 );
 	equal( obj.y, -200 );
 });
+
+test( "Test yoyo with repeat Infinity happens forever", function() {
+
+	TWEEN.removeAll();
+
+	var obj = { x: 0 },
+		t = new TWEEN.Tween( obj ).to( { x: 100 }, 100 ).repeat( Infinity ).yoyo(true);
+
+	t.start( 0 );
+
+	TWEEN.update( 0 );
+	equal( obj.x, 0 );
+
+	TWEEN.update( 25 );
+	equal( obj.x, 25 );
+
+	TWEEN.update( 100 );
+	equal( obj.x, 100 );
+
+	TWEEN.update( 125 );
+	equal( obj.x, 75 );
+
+	TWEEN.update( 200 );
+	equal( obj.x, 0 );
+
+	TWEEN.update( 225 );
+	equal( obj.x, 25 );
+
+});
+
+test( "Test yoyo with repeat 1 happens once", function() {
+
+	TWEEN.removeAll();
+
+	var obj = { x: 0 },
+		t = new TWEEN.Tween( obj ).to( { x: 100 }, 100 ).repeat( 1 ).yoyo(true);
+
+	t.start( 0 );
+
+	TWEEN.update( 0 );
+	equal( obj.x, 0 );
+
+	TWEEN.update( 25 );
+	equal( obj.x, 25 );
+
+	TWEEN.update( 100 );
+	equal( obj.x, 100 );
+
+	TWEEN.update( 125 );
+	equal( obj.x, 75 );
+
+	TWEEN.update( 200 );
+	equal( obj.x, 0 );
+
+	TWEEN.update( 225 );
+	equal( obj.x, 0 );
+});

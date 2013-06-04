@@ -99,6 +99,8 @@ TWEEN.Tween = function ( object ) {
 	var _valuesStartRepeat = {};
 	var _duration = 1000;
 	var _repeat = 0;
+	var _yoyo = false;
+	var _reversed = false;
 	var _delayTime = 0;
 	var _startTime = null;
 	var _easingFunction = TWEEN.Easing.Linear.None;
@@ -189,6 +191,14 @@ TWEEN.Tween = function ( object ) {
 		return this;
 
 	};
+
+	this.yoyo = function( yoyo ) {
+
+		_yoyo = yoyo;
+		return this;
+
+	};
+
 
 	this.easing = function ( easing ) {
 
@@ -299,6 +309,12 @@ TWEEN.Tween = function ( object ) {
 						_valuesStartRepeat[ property ] = _valuesStartRepeat[ property ] + parseFloat(_valuesEnd[ property ], 10);
 					}
 
+					if (_yoyo) {
+						var tmp = _valuesStartRepeat[ property ];
+						_valuesStartRepeat[ property ] = _valuesEnd[ property ];
+						_valuesEnd[ property ] = tmp;
+						_reversed = !_reversed;
+					}
 					_valuesStart[ property ] = _valuesStartRepeat[ property ];
 
 				}
