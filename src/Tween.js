@@ -285,7 +285,10 @@ TWEEN.Tween = function ( object ) {
 					end = start + parseFloat(end, 10);
 				}
 
-				_object[ property ] = start + ( end - start ) * value;
+				// protect against non numeric properties.
+				if ( typeof(end) === "number" ) {
+					_object[ property ] = start + ( end - start ) * value;
+				}
 
 			}
 
