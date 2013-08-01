@@ -83,7 +83,49 @@ test( "Tween non-null property", function() {
 
 });
 
+test( "Tween function property", function() {
+
+	var my_function = function() {};
+
+	var obj = { x: my_function },
+		t = new TWEEN.Tween( obj );
+
+	t.to( { x: my_function } );
+	t.start( 0 );
+	t.update( 1000 );
+
+	ok( obj.x === my_function );
+
+});
+
+test( "Tween boolean property", function() {
+
+	var obj = { x: true },
+		t = new TWEEN.Tween( obj );
+
+	t.to( { x: function() {} } );
+	t.start( 0 );
+	t.update( 1000 );
+
+	ok( typeof obj.x === "boolean" );
+	ok( obj.x );
+
+});
+
 test( "Tween null property", function() {
+
+	var obj = { x: null },
+		t = new TWEEN.Tween( obj );
+
+	t.to( { x: 2 }, 1000 );
+	t.start( 0 );
+	t.update( 1000 );
+
+	deepEqual( obj.x, 2 );
+
+});
+
+test( "Tween undefined property", function() {
 
 	var obj = { },
 		t = new TWEEN.Tween( obj );
