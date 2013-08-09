@@ -255,7 +255,11 @@ TWEEN.Tween = function ( object ) {
 
 		if ( _onStartCallbackFired === false ) {
 
-			_onStartCallback && _onStartCallback.call( _object );
+			if ( _onStartCallback ) {
+				
+				_onStartCallback.call( _object );
+				
+			}
 			
 			_onStartCallbackFired = true;
 
@@ -287,7 +291,11 @@ TWEEN.Tween = function ( object ) {
 
 		}
 
-		_onUpdateCallback && _onUpdateCallback.call( _object, value );
+		if ( _onUpdateCallback ) {
+			
+			_onUpdateCallback.call( _object, value );
+			
+		}
 		
 		if ( elapsed == 1 ) {
 
@@ -320,7 +328,11 @@ TWEEN.Tween = function ( object ) {
 
 			} else {
 				
-				_onCompleteCallback && _onCompleteCallback.call( _object );
+				if ( _onCompleteCallback ) {
+					
+					_onCompleteCallback.call( _object );
+					
+				}
 				
 				for ( var i = 0, numChainedTweens = _chainedTweens.length; i < numChainedTweens; i ++ ) {
 
