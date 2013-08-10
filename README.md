@@ -97,12 +97,13 @@ No, we like to keep it simple and free of dependencies. Feel free to make one yo
 
 ### Change log ###
 
-2013 06 0x - **r11**
+2013 08 10 - **r11**
 
 * Add ```yoyo``` functionality: tweens can bounce back to their original value when finished ([benjamind](https://github.com/benjamind))
 * Make tween.js an _official_ npm module ([sole](https://github.com/sole)) (hint: ```npm install tween.js```)
 * Bring node.js compatibility back! ([benjamind](https://github.com/benjamind))
 * Bring IE shim back! ([sole](https://github.com/sole))
+* Tween only strings, arrays or numbers ([JAStanton](https://github.com/JAStanton))
 
 2013 03 03 - **r10** (5,342 KB, gzip: 2,010 KB)
 
