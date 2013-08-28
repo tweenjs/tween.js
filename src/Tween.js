@@ -65,11 +65,11 @@ var TWEEN = TWEEN || ( function () {
 
 			if ( _tweens.length === 0 ) return false;
 
-			var i = 0, numTweens = _tweens.length;
+			var i = 0;
 
 			time = time !== undefined ? time : ( typeof window !== 'undefined' && window.performance !== undefined && window.performance.now !== undefined ? window.performance.now() : Date.now() );
 
-			while ( i < numTweens ) {
+			while ( i < _tweens.length ) {
 
 				if ( _tweens[ i ].update( time ) ) {
 
@@ -78,8 +78,6 @@ var TWEEN = TWEEN || ( function () {
 				} else {
 
 					_tweens.splice( i, 1 );
-
-					numTweens --;
 
 				}
 
