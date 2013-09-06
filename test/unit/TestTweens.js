@@ -595,3 +595,93 @@ test( "Test yoyo with repeat 1 happens once", function() {
 	TWEEN.update( 225 );
 	equal( obj.x, 0 );
 });
+
+// If repeatDelay isn't specified then delay is used since
+// that's the way it worked before repeatDelay was added.
+
+test( "Test delay adds delay before each repeat", function() {
+
+	TWEEN.removeAll();
+
+	var obj = { x: 0 },
+		t = new TWEEN.Tween( obj ).to( { x: 100 }, 100 ).repeat( 1 ).delay(100);
+
+	t.start( 0 );
+
+	TWEEN.update( 100 );
+	equal( obj.x, 0 );
+
+	TWEEN.update( 150 );
+	equal( obj.x, 50 );
+
+	TWEEN.update( 200 );
+	equal( obj.x, 100 );
+
+	TWEEN.update( 300 );
+	equal( obj.x, 0 );
+
+	TWEEN.update( 350 );
+	equal( obj.x, 50 );
+
+	TWEEN.update( 400 );
+	equal( obj.x, 100 );
+
+});
+
+test( "Test repeatDelay adds delay before each repeat", function() {
+
+	TWEEN.removeAll();
+
+	var obj = { x: 0 },
+		t = new TWEEN.Tween( obj ).to( { x: 100 }, 100 ).repeat( 1 ).repeatDelay(200);
+
+	t.start( 0 );
+
+	TWEEN.update( 0 );
+	equal( obj.x, 0 );
+
+	TWEEN.update( 50 );
+	equal( obj.x, 50 );
+
+	TWEEN.update( 100 );
+	equal( obj.x, 100 );
+
+	TWEEN.update( 300 );
+	equal( obj.x, 0 );
+
+	TWEEN.update( 350 );
+	equal( obj.x, 50 );
+
+	TWEEN.update( 400 );
+	equal( obj.x, 100 );
+
+});
+
+test( "Test repeatDelay and delay can be used together", function() {
+
+	TWEEN.removeAll();
+
+	var obj = { x: 0 },
+		t = new TWEEN.Tween( obj ).to( { x: 100 }, 100 ).delay(100).repeat( 1 ).repeatDelay(200);
+
+	t.start( 0 );
+
+	TWEEN.update( 100 );
+	equal( obj.x, 0 );
+
+	TWEEN.update( 150 );
+	equal( obj.x, 50 );
+
+	TWEEN.update( 200 );
+	equal( obj.x, 100 );
+
+	TWEEN.update( 400 );
+	equal( obj.x, 0 );
+
+	TWEEN.update( 450 );
+	equal( obj.x, 50 );
+
+	TWEEN.update( 500 );
+	equal( obj.x, 100 );
+
+});

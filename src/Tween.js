@@ -100,6 +100,7 @@ TWEEN.Tween = function ( object ) {
 	var _valuesStartRepeat = {};
 	var _duration = 1000;
 	var _repeat = 0;
+	var _repeatDelayTime = undefined;
 	var _yoyo = false;
 	var _reversed = false;
 	var _delayTime = 0;
@@ -189,6 +190,13 @@ TWEEN.Tween = function ( object ) {
 	this.repeat = function ( times ) {
 
 		_repeat = times;
+		return this;
+
+	};
+
+	this.repeatDelay = function ( amount ) {
+
+		_repeatDelayTime = amount;
 		return this;
 
 	};
@@ -326,7 +334,11 @@ TWEEN.Tween = function ( object ) {
 
 				}
 
-				_startTime = time + _delayTime;
+				if (_repeatDelayTime !== undefined) {
+					_startTime = time + _repeatDelayTime;
+				} else {
+					_startTime = time + _delayTime;
+				}
 
 				return true;
 
