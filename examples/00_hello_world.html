@@ -15,7 +15,7 @@
 			hello world!
 		</div>
 
-		<script src="../build/tween.min.js"></script>
+		<script src="../src/tween.js"></script>
 		<script src="js/RequestAnimationFrame.js"></script>
 		<script>
 			var position;
@@ -55,7 +55,7 @@
 
 			}
 
-			function update() {
+			function update(position) {
 
 				target.style.left = position.x + 'px';
 				target.style.top = position.y + 'px';
