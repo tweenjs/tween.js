@@ -73,7 +73,7 @@ var TWEEN = TWEEN || ( function () {
 
 				if ( _tweens[ i ].update( time ) ) {
 
-					i ++;
+					i++;
 
 				} else {
 
