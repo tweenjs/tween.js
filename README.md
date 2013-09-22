@@ -12,7 +12,7 @@ Super simple, fast and easy to use tweening engine which incorporates optimised 
 ### Examples ###
 
 [![Relative values](./assets/examples/09_relative.png)](./examples/09_relative_values.html)
-[![Repeat](./assets/08_repeat.png)](./examples/08_repeat.html)
+[![Repeat](./assets/examples/08_repeat.png)](./examples/08_repeat.html)
 [![Dynamic to](./assets/examples/07_dynamic_to.png)](./examples/07_dynamic_to.html)
 [![Array interpolation](./assets/examples/03_graphs.png)](./examples/06_array_interpolation.html)
 [![Video and time](./assets/examples/06_video_and_time.png)](./examples/05_video_and_time.html)
