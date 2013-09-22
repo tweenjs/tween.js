@@ -100,6 +100,7 @@ No, we like to keep it simple and free of dependencies. Feel free to make one yo
 2013 09 xx - **r12**
 
 * Fix bug with cached ```tweens.length``` value inside ```update()``` loop ([freestlr](https://github.com/freestlr))
+* Move assets and all examples and stuff to use the ```gh-pages``` branch, so things are always properly updated ([sole](https://github.com/sole)).
 
 2013 08 10 - **r11**
 
