@@ -85,6 +85,8 @@ Have a look at that folder to discover more functionalities of the library!
 
 Also, Jerome Etienne has written a [tutorial](http://learningthreejs.com/blog/2011/08/17/tweenjs-for-smooth-animation/) demonstrating how to use tween.js with three.js, and it's also great for understanding how tweens work!
 
+Finally, if you need to use tweens in C/C++ code, you now have an option! Check out [libtween](https://github.com/jsm174/libtween) which is a port of tween.js to C by [jsm174](https://github.com/jsm174)!
+
 ### FAQ ###
 
 **How do you set a tween to start after a while?**
@@ -99,6 +101,7 @@ No, we like to keep it simple and free of dependencies. Feel free to make one yo
 
 2013 09 xx - **r12**
 
+* Use tweens in C/C++ with [libtween](https://github.com/jsm174/libtween) by [jsm174](https://github.com/jsm174)!
 * Fix bug with cached ```tweens.length``` value inside ```update()``` loop ([freestlr](https://github.com/freestlr))
 * Move assets and all examples and stuff to use the ```gh-pages``` branch, so things are always properly updated ([sole](https://github.com/sole)).
 
