@@ -115,7 +115,13 @@ TWEEN.Tween = function ( object ) {
 	// Set all starting values present on the target object
 	for ( var field in object ) {
 
-		_valuesStart[ field ] = parseFloat(object[field], 10);
+		var value = object[ field ];
+		var type = toString.call( value );
+
+		// Only add properties that are numbers or arrays
+		if (type == '[object Number]' || type == '[object Array]') {
+			_valuesStart[ field ] = parseFloat(value, 10);
+		}
 
 	}
 
