@@ -61,7 +61,7 @@ var TWEEN = TWEEN || ( function () {
 
 		},
 
-		update: function ( time ) {
+		update: function ( time, preserve ) {
 
 			if ( _tweens.length === 0 ) return false;
 
@@ -75,7 +75,7 @@ var TWEEN = TWEEN || ( function () {
 
 					i ++;
 
-				} else {
+				} else if (!preserve) {
 
 					_tweens.splice( i, 1 );
 
@@ -281,13 +281,13 @@ TWEEN.Tween = function ( object ) {
 
 			} else {
 
-                // Parses relative end values with start as base (e.g.: +10, -3)
+				// Parses relative end values with start as base (e.g.: +10, -3)
 				if ( typeof(end) === "string" ) {
 					end = start + parseFloat(end, 10);
 				}
 
 				// protect against non numeric properties.
-                if ( typeof(end) === "number" ) {
+				if ( typeof(end) === "number" ) {
 					_object[ property ] = start + ( end - start ) * value;
 				}
 
