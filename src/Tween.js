@@ -10,6 +10,7 @@
  * @author egraether / http://egraether.com/
  * @author endel / http://endel.me
  * @author Ben Delarre / http://delarre.net
+ * @author jonobr1 / http://jonobr1.com/
  */
 
 // Date.now shim for (ahem) Internet Explo(d|r)er
@@ -61,7 +62,7 @@ var TWEEN = TWEEN || ( function () {
 
 		},
 
-		update: function ( time ) {
+		update: function ( time, preserve ) {
 
 			if ( _tweens.length === 0 ) return false;
 
@@ -75,7 +76,7 @@ var TWEEN = TWEEN || ( function () {
 
 					i++;
 
-				} else {
+				} else if ( !preserve ) {
 
 					_tweens.splice( i, 1 );
 
@@ -113,7 +114,13 @@ TWEEN.Tween = function ( object ) {
 	// Set all starting values present on the target object
 	for ( var field in object ) {
 
-		_valuesStart[ field ] = parseFloat(object[field], 10);
+		var value = parseFloat( object[ field ], 10 );
+		var type = toString.call( value );
+
+		// Only add properties that are numbers or arrays
+		if ( type == '[object Number]' || type == '[object Array]' ) {
+			_valuesStart[ field ] = value;
+		}
 
 	}
 
@@ -279,13 +286,13 @@ TWEEN.Tween = function ( object ) {
 
 			} else {
 
-                // Parses relative end values with start as base (e.g.: +10, -3)
+				// Parses relative end values with start as base (e.g.: +10, -3)
 				if ( typeof(end) === "string" ) {
 					end = start + parseFloat(end, 10);
 				}
 
 				// protect against non numeric properties.
-                if ( typeof(end) === "number" ) {
+				if ( typeof(end) === "number" ) {
 					_object[ property ] = start + ( end - start ) * value;
 				}
 
@@ -314,7 +321,7 @@ TWEEN.Tween = function ( object ) {
 						_valuesStartRepeat[ property ] = _valuesStartRepeat[ property ] + parseFloat(_valuesEnd[ property ], 10);
 					}
 
-					if (_yoyo) {
+					if ( _yoyo ) {
 						var tmp = _valuesStartRepeat[ property ];
 						_valuesStartRepeat[ property ] = _valuesEnd[ property ];
 						_valuesEnd[ property ] = tmp;
