@@ -61,7 +61,7 @@ var TWEEN = TWEEN || ( function () {
 
 		},
 
-		update: function ( time ) {
+		update: function ( time, preserve ) {
 
 			if ( _tweens.length === 0 ) return false;
 
@@ -75,7 +75,7 @@ var TWEEN = TWEEN || ( function () {
 
 					i ++;
 
-				} else {
+				} else if ( !preserve ) {
 
 					_tweens.splice( i, 1 );
 
