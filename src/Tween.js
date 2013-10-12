@@ -29,7 +29,7 @@ var TWEEN = TWEEN || ( function () {
 
 	return {
 
-		REVISION: '11dev',
+		REVISION: '12dev',
 
 		getAll: function () {
 
@@ -65,21 +65,19 @@ var TWEEN = TWEEN || ( function () {
 
 			if ( _tweens.length === 0 ) return false;
 
-			var i = 0, numTweens = _tweens.length;
+			var i = 0;
 
 			time = time !== undefined ? time : ( typeof window !== 'undefined' && window.performance !== undefined && window.performance.now !== undefined ? window.performance.now() : Date.now() );
 
-			while ( i < numTweens ) {
+			while ( i < _tweens.length ) {
 
 				if ( _tweens[ i ].update( time ) ) {
 
-					i ++;
+					i++;
 
 				} else {
 
 					_tweens.splice( i, 1 );
-
-					numTweens --;
 
 				}
 
@@ -101,6 +99,7 @@ TWEEN.Tween = function ( object ) {
 	var _duration = 1000;
 	var _repeat = 0;
 	var _yoyo = false;
+	var _isPlaying = false;
 	var _reversed = false;
 	var _delayTime = 0;
 	var _startTime = null;
@@ -136,6 +135,8 @@ TWEEN.Tween = function ( object ) {
 	this.start = function ( time ) {
 
 		TWEEN.add( this );
+
+		_isPlaying = true;
 
 		_onStartCallbackFired = false;
 
@@ -174,10 +175,26 @@ TWEEN.Tween = function ( object ) {
 
 	this.stop = function () {
 
+		if ( !_isPlaying ) {
+			return this;
+		}
+
 		TWEEN.remove( this );
+		_isPlaying = false;
+		this.stopChainedTweens();
 		return this;
 
 	};
+
+	this.stopChainedTweens = function () {
+
+		for ( var i = 0, numChainedTweens = _chainedTweens.length; i < numChainedTweens; i ++ ) {
+
+			_chainedTweens[ i ].stop();
+
+		}
+
+        };
 
 	this.delay = function ( amount ) {
 

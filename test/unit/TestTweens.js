@@ -595,3 +595,46 @@ test( "Test yoyo with repeat 1 happens once", function() {
 	TWEEN.update( 225 );
 	equal( obj.x, 0 );
 });
+
+test( "Test TWEEN.Tween.stopChainedTweens()", function() {
+	var	t = new TWEEN.Tween( {} ),
+		tStarted = false,
+		tCompleted = false,
+		t2 = new TWEEN.Tween( {} ),
+		t2Started = false;
+
+	TWEEN.removeAll();
+
+	t.to( {}, 1000 );
+	t2
+          .delay(500)
+          .to( {}, 1000 );
+
+	t.chain( t2 );
+        t2.chain( t );
+
+	t.onStart(function() {
+		tStarted = true;
+	});
+
+	t.onComplete(function() {
+		tCompleted = true;
+	});
+
+	t2.onStart(function() {
+		equal( tStarted, true );
+		equal( tCompleted, true );
+		equal( t2Started, false );
+		t2Started = true;
+	});
+
+	equal( tStarted, false );
+	equal( t2Started, false );
+
+	t.start( 0 );
+	TWEEN.update( 1001 );
+        t.stop();
+	equal( tStarted, true );
+	equal( t2Started, false );
+	equal( TWEEN.getAll().length, 0 );
+});
