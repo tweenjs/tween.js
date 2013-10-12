@@ -99,6 +99,7 @@ TWEEN.Tween = function ( object ) {
 	var _duration = 1000;
 	var _repeat = 0;
 	var _yoyo = false;
+	var _isPlaying = false;
 	var _reversed = false;
 	var _delayTime = 0;
 	var _startTime = null;
@@ -134,6 +135,8 @@ TWEEN.Tween = function ( object ) {
 	this.start = function ( time ) {
 
 		TWEEN.add( this );
+
+		_isPlaying = true;
 
 		_onStartCallbackFired = false;
 
@@ -172,10 +175,26 @@ TWEEN.Tween = function ( object ) {
 
 	this.stop = function () {
 
+		if ( !_isPlaying ) {
+			return this;
+		}
+
 		TWEEN.remove( this );
+		_isPlaying = false;
+		this.stopChainedTweens();
 		return this;
 
 	};
+
+	this.stopChainedTweens = function () {
+
+		for ( var i = 0, numChainedTweens = _chainedTweens.length; i < numChainedTweens; i ++ ) {
+
+			_chainedTweens[ i ].stop();
+
+		}
+
+        };
 
 	this.delay = function ( amount ) {
 
