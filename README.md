@@ -11,6 +11,8 @@ Super simple, fast and easy to use tweening engine which incorporates optimised 
 
 ### Examples ###
 
+[![Stop all chained tweens](./assets/examples/11_stop_all_chained_tweens.png)](./examples/11_stop_all_chained_tweens.html)
+[![Yoyo](./assets/examples/10_yoyo.png)](./examples/10_yoyo.html)
 [![Relative values](./assets/examples/09_relative.png)](./examples/09_relative_values.html)
 [![Repeat](./assets/examples/08_repeat.png)](./examples/08_repeat.html)
 [![Dynamic to](./assets/examples/07_dynamic_to.png)](./examples/07_dynamic_to.html)
