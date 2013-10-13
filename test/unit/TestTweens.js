@@ -262,7 +262,7 @@ test( "Test TWEEN.Tween.chain --with one tween", function() {
 
 test( "Test TWEEN.Tween.chain --with several tweens in an array", function() {
 
-	var	t = new TWEEN.Tween( {} ),
+	var t = new TWEEN.Tween( {} ),
 		chainedTweens = [],
 		numChained = 3,
 		numChainedStarted = 0;
@@ -271,15 +271,17 @@ test( "Test TWEEN.Tween.chain --with several tweens in an array", function() {
 
 	t.to( {}, 1000 );
 
+	function onChainedStart() {
+		numChainedStarted++;
+	}
+
 	for(var i = 0; i < numChained; i++ ){
 		var chained = new TWEEN.Tween( {} );
 			chained.to( {}, 1000 );
 
 		chainedTweens.push( chained );
 
-		chained.onStart(function() {
-			numChainedStarted++;
-		});
+		chained.onStart(onChainedStart);
 	}
 
 	// NOTE: This is not the normal way to chain several tweens simultaneously
@@ -301,7 +303,7 @@ test( "Test TWEEN.Tween.chain --with several tweens in an array", function() {
 
 test( "Test TWEEN.Tween.chain allows endless loops", function() {
 
-	var	obj = { x: 0 },
+	var obj = { x: 0 },
 		t1 = new TWEEN.Tween( obj ).to( { x: 100 }, 1000 ),
 		t2 = new TWEEN.Tween( obj ).to( { x: 0 }, 1000 );
 

@@ -188,13 +188,13 @@ TWEEN.Tween = function ( object ) {
 
 	this.stopChainedTweens = function () {
 
-		for ( var i = 0, numChainedTweens = _chainedTweens.length; i < numChainedTweens; i ++ ) {
+		for ( var i = 0, numChainedTweens = _chainedTweens.length; i < numChainedTweens; i++ ) {
 
 			_chainedTweens[ i ].stop();
 
 		}
 
-        };
+	};
 
 	this.delay = function ( amount ) {
 
@@ -355,7 +355,7 @@ TWEEN.Tween = function ( object ) {
 
 				}
 
-				for ( var i = 0, numChainedTweens = _chainedTweens.length; i < numChainedTweens; i ++ ) {
+				for ( var i = 0, numChainedTweens = _chainedTweens.length; i < numChainedTweens; i++ ) {
 
 					_chainedTweens[ i ].start( time );
 
