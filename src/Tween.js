@@ -10,6 +10,7 @@
  * @author egraether / http://egraether.com/
  * @author endel / http://endel.me
  * @author Ben Delarre / http://delarre.net
+ * @author jonobr1 / http://jonobr1.com/
  */
 
 // Date.now shim for (ahem) Internet Explo(d|r)er
@@ -29,7 +30,7 @@ var TWEEN = TWEEN || ( function () {
 
 	return {
 
-		REVISION: '11dev',
+		REVISION: '12dev',
 
 		getAll: function () {
 
@@ -61,25 +62,23 @@ var TWEEN = TWEEN || ( function () {
 
 		},
 
-		update: function ( time ) {
+		update: function ( time, preserve ) {
 
 			if ( _tweens.length === 0 ) return false;
 
-			var i = 0, numTweens = _tweens.length;
+			var i = 0;
 
 			time = time !== undefined ? time : ( typeof window !== 'undefined' && window.performance !== undefined && window.performance.now !== undefined ? window.performance.now() : Date.now() );
 
-			while ( i < numTweens ) {
+			while ( i < _tweens.length ) {
 
 				if ( _tweens[ i ].update( time ) ) {
 
-					i ++;
+					i++;
 
-				} else {
+				} else if ( !preserve ) {
 
 					_tweens.splice( i, 1 );
-
-					numTweens --;
 
 				}
 
@@ -287,13 +286,13 @@ TWEEN.Tween = function ( object ) {
 
 			} else {
 
-                // Parses relative end values with start as base (e.g.: +10, -3)
+				// Parses relative end values with start as base (e.g.: +10, -3)
 				if ( typeof(end) === "string" ) {
 					end = start + parseFloat(end, 10);
 				}
 
 				// protect against non numeric properties.
-                if ( typeof(end) === "number" ) {
+				if ( typeof(end) === "number" ) {
 					_object[ property ] = start + ( end - start ) * value;
 				}
 
@@ -322,7 +321,7 @@ TWEEN.Tween = function ( object ) {
 						_valuesStartRepeat[ property ] = _valuesStartRepeat[ property ] + parseFloat(_valuesEnd[ property ], 10);
 					}
 
-					if (_yoyo) {
+					if ( _yoyo ) {
 						var tmp = _valuesStartRepeat[ property ];
 						_valuesStartRepeat[ property ] = _valuesEnd[ property ];
 						_valuesEnd[ property ] = tmp;
