@@ -1,22 +1,23 @@
 {
-  "name": "tween.js",
-  "description": "Super simple, fast and easy to use tweening engine which incorporates optimised Robert Penner's equations.",
-  "version": "0.11.0",
-  "homepage": "https://github.com/sole/tween.js",
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/sole/tween.js.git"
-  },
-  "bugs": {
-    "url": "https://github.com/sole/tween.js/issues"
-  },
-  "licenses": [
-    {
-      "type": "MIT",
-      "url": "https://github.com/sole/tween.js/blob/master/LICENSE"
-    }
-  ],
-  "keywords": [
-    "tween"
-  ]
+	"name": "tween.js",
+	"description": "Super simple, fast and easy to use tweening engine which incorporates optimised Robert Penner's equations.",
+	"version": "0.12.0",
+	"homepage": "https://github.com/sole/tween.js",
+	"repository": {
+		"type": "git",
+		"url": "git://github.com/sole/tween.js.git"
+	},
+	"bugs": {
+		"url": "https://github.com/sole/tween.js/issues"
+	},
+	"licenses": [
+		{
+			"type": "MIT",
+			"url": "https://github.com/sole/tween.js/blob/master/LICENSE"
+		}
+	],
+	"keywords": [
+		"tween",
+		"interpolation"
+	]
 }
