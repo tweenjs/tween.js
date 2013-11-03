@@ -44,10 +44,9 @@ Download the [minified library](https://github.com/sole/tween.js/raw/master/buil
 <script src="js/tween.min.js"></script>
 ```
 
-The following code creates a Tween which will change the `x` attribute in a position variable, so that it goes from 50 to 400 in 2 seconds. The anonymous function set up with an interval will update the screen so that we can see something happening:
+The following code creates a Tween which will change the `x` attribute in a position variable, so that it goes from 50 to 400 in 2 seconds. We'll use `requestAnimationFrame` to call `TWEEN.update` so that "time ticks", the `tween` gets updated and the `onUpdate` method makes things happen on the screen:
 
-```html
-<script>
+```javascript
 
 	init();
 	animate();
@@ -78,7 +77,6 @@ The following code creates a Tween which will change the `x` attribute in a posi
 
 	}
 
-</script>
 ```
 
 Note: this corresponds to the example [04_simplest.html](./examples/04_simplest.html) that you can find in the ```examples``` folder.
@@ -101,12 +99,12 @@ No, we like to keep it simple and free of dependencies. Feel free to make one yo
 
 ### Change log ###
 
-2013 xx yy - **r12**
+2013 11 03 - **r12** (5,697 KB, gzip: 2,131 KB)
 
-* Use tweens in C/C++ with [libtween](https://github.com/jsm174/libtween) by [jsm174](https://github.com/jsm174)!
 * Fix bug with cached ```tweens.length``` value inside ```update()``` loop ([freestlr](https://github.com/freestlr))
 * Move assets and all examples and stuff to use the ```gh-pages``` branch, so things are always properly updated ([sole](https://github.com/sole)).
 * Fix bug where chained tweens were not stopped if the previous tween had been stopped, under certain circumstances, by [cfddream](https://github.com/cfddream)
+* Use tweens in C/C++ with [libtween](https://github.com/jsm174/libtween) by [jsm174](https://github.com/jsm174)!
 
 2013 08 10 - **r11**
 
