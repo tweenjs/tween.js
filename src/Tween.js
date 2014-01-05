@@ -110,7 +110,7 @@ TWEEN.Tween = function ( object ) {
 	var _onStartCallbackFired = false;
 	var _onUpdateCallback = null;
 	var _onCompleteCallback = null;
-  var _onStopCallback = null;
+	var _onStopCallback = null;
 
 	// Set all starting values present on the target object
 	for ( var field in object ) {
@@ -183,9 +183,9 @@ TWEEN.Tween = function ( object ) {
 		TWEEN.remove( this );
 		_isPlaying = false;
 
-    if (_onStopCallback !== null) {
-      _onStopCallback.call( _object );
-    }
+		if ( _onStopCallback !== null ) {
+			_onStopCallback.call( _object );
+		}
 
 		this.stopChainedTweens();
 		return this;
@@ -266,12 +266,12 @@ TWEEN.Tween = function ( object ) {
 
 	};
 
-  this.onStop = function ( callback ) {
+	this.onStop = function ( callback ) {
 
-    _onStopCallback = callback;
-    return this;
+		_onStopCallback = callback;
+		return this;
 
-  };
+	};
 
 	this.update = function ( time ) {
 
