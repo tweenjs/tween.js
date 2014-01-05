@@ -29,7 +29,7 @@ var TWEEN = TWEEN || ( function () {
 
 	return {
 
-		REVISION: '12',
+		REVISION: '13dev',
 
 		getAll: function () {
 

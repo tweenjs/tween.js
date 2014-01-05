@@ -1,5 +1,5 @@
-tween.js
-========
+tween.js (r13)
+==============
 
 #### Javascript Tweening Engine ####
 
@@ -98,6 +98,10 @@ Use the `delay()` method: `var t = new TWEEN.Tween({...}).delay(1000);`
 No, we like to keep it simple and free of dependencies. Feel free to make one yourself, though! :-)
 
 ### Change log ###
+
+2014 mm dd - **r13** (x KB, gzip: y KB)
+
+* Add ```Tween.onStopCallback``` ([colinsullivan](https://github.com/colinsullivan))
 
 2013 11 03 - **r12** (5,697 KB, gzip: 2,131 KB)
 
