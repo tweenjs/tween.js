@@ -25,11 +25,17 @@ if ( Date.now === undefined ) {
 
 var TWEEN = TWEEN || ( function () {
 
-	var _tweens = [];
+	var _tweens = {}, _id = 0;
 
 	return {
 
 		REVISION: '13dev',
+
+		generateId: function() {
+			var id = _id;
+			_id++;
+			return id;
+		},
 
 		getAll: function () {
 
@@ -37,53 +43,55 @@ var TWEEN = TWEEN || ( function () {
 
 		},
 
+		getLength: function () {
+
+			var i = 0;
+
+			for ( var k in _tweens ) {
+				i++;
+			}
+
+			return i;
+
+		},
+
 		removeAll: function () {
 
-			_tweens = [];
+			_tweens = {};
 
 		},
 
 		add: function ( tween ) {
 
-			_tweens.push( tween );
+			_tweens[ tween.id ] = tween;
 
 		},
 
 		remove: function ( tween ) {
 
-			var i = _tweens.indexOf( tween );
-
-			if ( i !== -1 ) {
-
-				_tweens.splice( i, 1 );
-
-			}
+			delete _tweens[ tween.id ];
 
 		},
 
 		update: function ( time ) {
 
-			if ( _tweens.length === 0 ) return false;
-
-			var i = 0;
-
 			time = time !== undefined ? time : ( typeof window !== 'undefined' && window.performance !== undefined && window.performance.now !== undefined ? window.performance.now() : Date.now() );
 
-			while ( i < _tweens.length ) {
+			var k = 0;
 
-				if ( _tweens[ i ].update( time ) ) {
+			for ( var i in _tweens ) {
 
-					i++;
+				if ( !_tweens[ i ].update( time ) ) {
 
-				} else {
-
-					_tweens.splice( i, 1 );
+					delete _tweens[ i ];
 
 				}
 
+				k++;
+
 			}
 
-			return true;
+			return !! k;
 
 		}
 	};
@@ -118,6 +126,8 @@ TWEEN.Tween = function ( object ) {
 		_valuesStart[ field ] = parseFloat(object[field], 10);
 
 	}
+
+	this.id = TWEEN.generateId();
 
 	this.to = function ( properties, duration ) {
 

@@ -149,12 +149,12 @@ test( "Test TWEEN.Tween.start()", function() {
 	t.to( { x: 2 }, 1000 );
 
 	TWEEN.removeAll();
-	equal( TWEEN.getAll().length, 0 ); // TODO move to TWEEN test
+	equal( TWEEN.getLength( TWEEN.getAll() ), 0 ); // TODO move to TWEEN test
 
 	t.start( 0 );
 
-	equal( TWEEN.getAll().length, 1 ); // TODO ditto
-	equal( TWEEN.getAll()[0], t );
+	equal( TWEEN.getLength( TWEEN.getAll() ), 1 ); // TODO ditto
+	equal( TWEEN.getAll()[ t.id ], t );
 
 });
 
@@ -170,7 +170,7 @@ test( "Test TWEEN.Tween.stop()", function() {
 	t.start();
 	t.stop();
 
-	equal( TWEEN.getAll().length, 0 );
+	equal( TWEEN.getLength( TWEEN.getAll() ), 0 );
 
 });
 
@@ -673,5 +673,5 @@ test( "Test TWEEN.Tween.stopChainedTweens()", function() {
         t.stop();
 	equal( tStarted, true );
 	equal( t2Started, false );
-	equal( TWEEN.getAll().length, 0 );
+	equal( TWEEN.getLength( TWEEN.getAll() ), 0 );
 });
