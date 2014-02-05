@@ -98,11 +98,13 @@ TWEEN.Tween = function ( object ) {
 	var _valuesStartRepeat = {};
 	var _duration = 1000;
 	var _repeat = 0;
+	var _repeats = 0;
 	var _yoyo = false;
 	var _isPlaying = false;
 	var _reversed = false;
 	var _delayTime = 0;
 	var _startTime = null;
+	var _originalStartTime = null;
 	var _easingFunction = TWEEN.Easing.Linear.None;
 	var _interpolationFunction = TWEEN.Interpolation.Linear;
 	var _chainedTweens = [];
@@ -142,6 +144,8 @@ TWEEN.Tween = function ( object ) {
 
 		_startTime = time !== undefined ? time : ( typeof window !== 'undefined' && window.performance !== undefined && window.performance.now !== undefined ? window.performance.now() : Date.now() );
 		_startTime += _delayTime;
+
+		_originalStartTime = _startTime;
 
 		for ( var property in _valuesEnd ) {
 
@@ -326,6 +330,8 @@ TWEEN.Tween = function ( object ) {
 					_repeat--;
 				}
 
+				_repeats += 1;
+
 				// reassign starting values, restart by making startTime = now
 				for( property in _valuesStartRepeat ) {
 
@@ -343,7 +349,7 @@ TWEEN.Tween = function ( object ) {
 
 				}
 
-				_startTime = time + _delayTime;
+				_startTime = _originalStartTime + _repeats * (_duration + _delayTime);
 
 				return true;
 
