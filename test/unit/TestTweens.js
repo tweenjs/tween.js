@@ -2,7 +2,7 @@ module( 'Tweens' );
 
 test( "constructor", function() {
 
-	var	t = new TWEEN.Tween( {} );
+	var t = new TWEEN.Tween( {} );
 
 	ok( t instanceof TWEEN.Tween, "Pass" );
 
@@ -216,7 +216,7 @@ test( "Test TWEEN.Tween.easing()", function() {
 
 test( "Test TWEEN.Tween.chain --with one tween", function() {
 
-	var	t = new TWEEN.Tween( {} ),
+	var t = new TWEEN.Tween( {} ),
 		tStarted = false,
 		tCompleted = false,
 		t2 = new TWEEN.Tween( {} ),
@@ -386,19 +386,19 @@ test( "Test TWEEN.Tween.onStop", function() {
 
 	deepEqual( counter, 0 );
 
-    t.stop();
-    TWEEN.update(0);
+	t.stop();
+	TWEEN.update(0);
 
-    deepEqual( counter, 0, "onStop callback not called when the tween hasn't started yet");
+	deepEqual( counter, 0, "onStop callback not called when the tween hasn't started yet");
 
 	t.start( 0 );
 	TWEEN.update( 0 );
-    t.stop();
+	t.stop();
 
 	deepEqual( counter, 1, "onStop callback is called if the tween has been started already and stop is invoked");
 
 	TWEEN.update( 500 );
-    t.stop();
+	t.stop();
 
 	deepEqual( counter, 1, "onStop callback is not called again once the tween is stopped" );
 
@@ -634,7 +634,7 @@ test( "Test yoyo with repeat 1 happens once", function() {
 });
 
 test( "Test TWEEN.Tween.stopChainedTweens()", function() {
-	var	t = new TWEEN.Tween( {} ),
+	var t = new TWEEN.Tween( {} ),
 		tStarted = false,
 		tCompleted = false,
 		t2 = new TWEEN.Tween( {} ),
@@ -643,12 +643,10 @@ test( "Test TWEEN.Tween.stopChainedTweens()", function() {
 	TWEEN.removeAll();
 
 	t.to( {}, 1000 );
-	t2
-          .delay(500)
-          .to( {}, 1000 );
+	t2.delay(500).to( {}, 1000 );
 
 	t.chain( t2 );
-        t2.chain( t );
+	t2.chain( t );
 
 	t.onStart(function() {
 		tStarted = true;
@@ -670,7 +668,7 @@ test( "Test TWEEN.Tween.stopChainedTweens()", function() {
 
 	t.start( 0 );
 	TWEEN.update( 1001 );
-        t.stop();
+	t.stop();
 	equal( tStarted, true );
 	equal( t2Started, false );
 	equal( TWEEN.getAll().length, 0 );

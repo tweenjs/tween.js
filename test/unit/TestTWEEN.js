@@ -2,7 +2,7 @@ module( 'TWEEN' );
 
 test( "TWEEN.getAll()", function() {
 
-	var	all = TWEEN.getAll();
+	var all = TWEEN.getAll();
 
 	ok( all instanceof Array );
 
@@ -11,7 +11,7 @@ test( "TWEEN.getAll()", function() {
 
 test( "TWEEN object stores tweens automatically on start", function() {
 
-	var	numTweensBefore = TWEEN.getAll().length,
+	var numTweensBefore = TWEEN.getAll().length,
 		t = new TWEEN.Tween({});
 
 	t.start();
@@ -24,7 +24,7 @@ test( "TWEEN object stores tweens automatically on start", function() {
 
 test( "TWEEN.removeAll()", function() {
 
-	var	all = TWEEN.getAll(),
+	var all = TWEEN.getAll(),
 		t = new TWEEN.Tween({});
 
 	TWEEN.removeAll();
@@ -43,7 +43,7 @@ test( "TWEEN.removeAll()", function() {
 
 test( "TWEEN.add()", function() {
 
-	var	all = TWEEN.getAll(),
+	var all = TWEEN.getAll(),
 		numTweens = all.length,
 		t = new TWEEN.Tween({});
 
@@ -56,7 +56,7 @@ test( "TWEEN.add()", function() {
 
 test( "TWEEN.remove()", function() {
 
-	var	all = TWEEN.getAll(),
+	var all = TWEEN.getAll(),
 		numTweens = all.length,
 		t = new TWEEN.Tween({});
 
