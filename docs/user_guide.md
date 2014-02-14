@@ -6,6 +6,8 @@ _**NOTE** this is a work in progress, please excuse the gaps._
 
 Tween objects, and only the specified properties.
 
+Don't use tween for simple CSS properties though - use CSS transitions / animations instead.
+
 ## Animating with tween.js
 
 requestAnimationFrame
