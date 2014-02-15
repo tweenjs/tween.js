@@ -87,12 +87,41 @@ var tween = new TWEEN.Tween(position)
 	.start();
 ````
 
-You'll see this a lot in the examples, so it's good to be familiar with it!
+You'll see this a lot in the examples, so it's good to be familiar with it! Check [04-simplest](./examples/04_simplest.html) for a working example.
 
 ## Animating with tween.js
 
-requestAnimationFrame
-TWEEN.update()
+Tween.js doesn't run by itself. You need to tell it when to run, by explicitly calling the `update` method. The recommended method is to do this inside your main animation loop, which should be called with `requestAnimationFrame` for getting the best graphics performance:
+
+We've seen this example before:
+
+````javascript
+animate();
+
+function animate() {
+	requestAnimationFrame(animate);
+	// [...]
+	TWEEN.update();
+	// [...]
+}
+````
+
+If called without parameters, `update` will determine the current time in order to find out how long has it been since the last time it ran.
+
+However you can also pass an explicit time parameter to `update`. Thus,
+
+````javascript
+TWEEN.update(100);
+````
+
+means "update with time = 100 milliseconds". You can use this to make sure that all the time-dependent functions in your code are using the very same time value. For example suppose you've got a player and want to run tweens in sync. Your `animate` code could look like this:
+
+````javascript
+var currentTime = player.currentTime;
+TWEEN.update(currentTime);
+````
+
+We use explicit time values for the unit tests. You can have a look at [TestTweens](../test/unit/TestTweens.js) to see how we call TWEEN.update() with different values in order to simulate time passing.
 
 ## Controlling a tween
 
