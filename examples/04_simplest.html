@@ -31,7 +31,9 @@
 					.onUpdate( function () {
 
 						output.innerHTML = 'x == ' + Math.round( this.x );
-						output.style.left = this.x + 'px';
+						var transform = 'translateX(' + this.x + 'px)';
+						output.style.webkitTransform = transform;
+						output.style.transform = transform;
 
 					} )
 					.start();
