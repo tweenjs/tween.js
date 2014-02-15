@@ -1,6 +1,6 @@
 # tween.js user guide
 
-_**NOTE** this is a work in progress, please excuse the gaps._
+_**NOTE** this is a work in progress, please excuse the gaps. Wherever you see something marked as TODO, it's not done yet._
 
 ## What is a tween? How do they work? Why do you want to use them?
 
@@ -125,13 +125,62 @@ We use explicit time values for the unit tests. You can have a look at [TestTwee
 
 ## Controlling a tween
 
-- start
-- stop
-- update(t)
-- delay
-- yoyo
+### `start` and `stop`
+So far we've learnt about the `Tween.start` method, but there are more methods that control individual tweens. Probably the most important one is the `start` counterpart: `stop`. If you want to cancel a tween, just call this method over an individual tween:
 
-Also: controlling all the tweens
+````
+tween.stop();
+````
+
+Stopping a tween that was never started or that has already been stopped has no effect. No errors are thrown either.
+
+### `update`
+
+Individual tweens also have an `update` method---this is in fact called by `TWEEN.update`. You generally don't need to call this directly, but might be useful if you're doing _crazy hacks_.
+
+### `chain`
+
+Things get more interesting when you sequence different tweens in order, i.e. setup one tween to start once a previous one has finished. We call this _chaining tweens_, and it's done with the `chain` method. Thus, to make `tweenB` start after `tweenA` finishes:
+
+````javascript
+tweenA.chain(tweenB);
+````
+
+Or, for an infinite chain, set `tweenA` to start once `tweenB` finishes:
+
+````javascript
+tweenA.chain(tweenB);
+tweenB.chain(tweenA);
+````
+
+Check [Hello world](../examples/00_hello_world.html) to see an example of these infinite chains.
+### `repeat`
+
+If you wanted a tween to repeat forever you could chain it to itself, but a better way is to use the `repeat` method. It accepts a parameter that describes how many repetitions you want:
+
+````javascript
+tween.repeat(10); // repeats 10 times and stops
+tween.repeat(Infinity); // repeats forever
+````
+
+Check the [Repeat](../examples/08_repeat.html) example.
+
+### `yoyo`
+
+This function only has effect if used along with `repeat`. When active, the behaviour of the tween will be _like a yoyo_, i.e. it will bounce to and from the start and end values, instead of just repeating the same sequence from the beginning.
+
+### `delay`
+
+More complex arrangements might require delaying a tween before it actually starts running. You can do that using the `delay` method:
+
+````javascript
+tween.delay(1000);
+tween.start();
+````
+
+will start executing 1 second after the `start` method has been called.
+
+TODO: Also: controlling all the tweens
 
 - getAll, updateAll, ...
 
