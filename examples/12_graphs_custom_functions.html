@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>Tween.js / graphs for custom easing functions</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<style>
+			body {
+				margin: 0px;
+			}
+
+			#target {
+				font-size: 13px;
+				padding: 0px 32px;
+			}
+
+		</style>
+		<link href="css/style.css" media="screen" rel="stylesheet" type="text/css" />
+	</head>
+	<body>
+		<div id="info" style="position: relative;">
+			<h1><a href="http://github.com/sole/tween.js">tween.js</a></h1>
+			<h2>12 _ graphs for custom easing functions</h2>
+			<p>A version of the <a href="03_graphs.html">graphs</a> example, but using custom easing functions (not included in <a href="https://github.com/sole/tween.js">tween.js</a> by default).</p>
+		</div>
+
+		<div id="target"></div>
+
+		<script src="../build/tween.min.js"></script>
+		<script src="js/RequestAnimationFrame.js"></script>
+		<script src="js/createGraph.js"></script>
+		<script>
+
+			init();
+			animate();
+
+			function init() {
+
+				var target = document.getElementById('target');
+
+				target.appendChild( createGraph( 'Ten Steps Easing', tenStepsEasing ) );
+
+				target.appendChild( document.createElement( 'br' ) );
+				
+				for(var i = 0; i < 4; i++) {
+					var numSteps = (i + 1) * 4;
+					target.appendChild( createGraph(numSteps + ' steps easing', createStepFunction(numSteps)) );
+				}
+
+			}
+
+			function animate() {
+
+				requestAnimationFrame( animate );
+
+				TWEEN.update();
+
+			}
+
+			function tenStepsEasing(k) {
+				return (Math.floor(k * 10) / 10);
+			}
+
+			// This is where we get very meta and write a function for
+			// generating functions! The returned function is similar to 
+			// the tenStepsEasing function above, but the number of steps
+			// is passed as a parameter
+			function createStepFunction(numSteps) {
+				return function(k) {
+					return (Math.floor(k * numSteps) / numSteps);
+				}
+			}
+
+		</script>
+	</body>
+</html>
