@@ -180,11 +180,29 @@ tween.start();
 
 will start executing 1 second after the `start` method has been called.
 
-TODO: Also: controlling all the tweens
+## Controlling _all_ the tweens
 
-- getAll, updateAll, ...
+The following methods are found in the TWEEN global object, and you generally won't need to use most of them, except for `update`.
+
+### `TWEEN.update(time)`
+
+We've already talked about this method. It is used to update all the active tweens.
+
+If `time` is not specified, it will use the current time.
+
+### `TWEEN.getAll` and `TWEEN.removeAll`
+
+Used to get a reference to the active `tweens` array and to remove all of them from the array with just one call, respectively.
+
+### `TWEEN.add(tween)` and `TWEEN.remove(tween)`
+
+Used to add a tween to the list of active tweens, or to remove an specific one from the list, respectively.
+
+These methods are usually used internally only, but are exposed just in case you want to do something _funny_.
 
 ## Changing the tween function (AKA make it bouncy)
+
+Tween.js will perform the interpolation in a linear manner, which is predictable but also quite uninteresting visual wise.
 
 Choose from existing
 Or define own
