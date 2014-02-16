@@ -37,14 +37,24 @@
 
 				var target = document.getElementById('target');
 
-				target.appendChild( createGraph( 'Ten Steps Easing', tenStepsEasing ) );
+				target.appendChild( createGraph( 'Ten Steps', tenStepsEasing ) );
 
 				target.appendChild( document.createElement( 'br' ) );
 				
 				for(var i = 0; i < 4; i++) {
 					var numSteps = (i + 1) * 4;
-					target.appendChild( createGraph(numSteps + ' steps easing', createStepFunction(numSteps)) );
+					target.appendChild( createGraph(numSteps + ' steps', createStepFunction(numSteps)) );
 				}
+
+				target.appendChild( document.createElement( 'br' ) );
+
+				target.appendChild( createGraph('Random', randomEasing) );
+
+				target.appendChild( document.createElement( 'br' ) );
+				
+				target.appendChild( createGraph('Noisy Exponential.InOut', createNoisyEasing(0.1, TWEEN.Easing.Exponential.InOut) ) );
+				target.appendChild( createGraph('Noisy Elastic.InOut', createNoisyEasing(0.1, TWEEN.Easing.Elastic.InOut) ) );
+				target.appendChild( createGraph('Noisy Circular.InOut', createNoisyEasing(0.1, TWEEN.Easing.Circular.InOut) ) );
 
 			}
 
@@ -67,6 +77,20 @@
 			function createStepFunction(numSteps) {
 				return function(k) {
 					return (Math.floor(k * numSteps) / numSteps);
+				}
+			}
+
+			function randomEasing(k) {
+				return Math.random() * k;
+			}
+
+
+			// Again getting meta: why not use existing functions as the 
+			// base for a new easing?
+			function createNoisyEasing(randomProportion, easingFunction) {
+				var normalProportion = 1.0 - randomProportion;
+				return function(k) {
+					return randomProportion * Math.random() + normalProportion * easingFunction(k);
 				}
 			}
 

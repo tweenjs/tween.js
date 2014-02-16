@@ -252,7 +252,7 @@ And you could use it in a tween by simply calling its easing method, as we've se
 tween.easing(tenStepEasing);
 ````
 
-TODO: build example for this
+Check the [graphs for custom easing functions](../examples/12_graphs_custom_functions.html) example to see this in action (and also some metaprogramming for generating step functions).
 
 ## Chaining
 
