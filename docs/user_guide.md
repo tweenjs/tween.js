@@ -134,6 +134,8 @@ tween.stop();
 
 Stopping a tween that was never started or that has already been stopped has no effect. No errors are thrown either.
 
+TODO: explain that start accepts a `time` parameter too.
+
 ### `update`
 
 Individual tweens also have an `update` method---this is in fact called by `TWEEN.update`. You generally don't need to call this directly, but might be useful if you're doing _crazy hacks_.
@@ -200,14 +202,57 @@ Used to add a tween to the list of active tweens, or to remove an specific one f
 
 These methods are usually used internally only, but are exposed just in case you want to do something _funny_.
 
-## Changing the tween function (AKA make it bouncy)
+## Changing the easing function (AKA make it bouncy)
 
-Tween.js will perform the interpolation in a linear manner, which is predictable but also quite uninteresting visual wise.
+Tween.js will perform the interpolation between values (i.e. the easing) in a linear manner, so the change will be directly proportional to the elapsed time. This is predictable but also quite uninteresting visually wise. Worry not--this behaviour can be easily changed using the `easing` method. For example:
 
-Choose from existing
-Or define own
-tween function signature
+````javascript
+tween.easing(TWEEN.Easing.Quadratic.In);
+````
 
+This will result in the tween slowly starting to change towards the final value, accelerating towards the middle, and then quickly reaching its final value. In contrast, `TWEEN.Easing.Quadratic.Out` would start changing quickly towards the value, but then slow down as it approaches the final value.
+
+### Available easing functions: `TWEEN.Easing`
+
+There are a few existing easing functions provided with tween.js. They are grouped by the type of equation they represent: Linear, Quadratic, Cubic, Quartic, Quintic, Sinusoidal, Exponential, Circular, Elastic, Back and Bounce, and then by the easing type: In, Out and InOut.
+
+Probably the names won't be saying anything to you unless you're familiar with these concepts already, so it is probably the time to check the [Graphs](../examples/03_graphs.html) example, which graphs all the curves in one page so you can compare how they look at a glance.
+
+_Credit where credit is due:_ these functions are derived from the original set of equations that Robert Penner graciously made available as free software a few years ago, but have been optimised to play nicely with JavaScript.
+
+### Using a custom easing function
+
+Not only can you use any of the existing functions, but you can also provide your own, as long as it follows a couple of conventions:
+
+- it must accept one parameter:
+	- `k`: the easing progress, or how far along the duration of the tween we are. Allowed values are in the range [0, 1].
+- it must return a value based on the input parameters.
+
+The easing function is only called _once per tween_ on each update, no matter how many properties are to be changed. The result is then used with the initial value and the difference (the _deltas_) between this and the final values, as in this pseudocode:
+
+````
+easedElapsed = easing(k);
+for each property:
+	newPropertyValue = initialPropertyValue + propertyDelta * easedElapsed;
+````
+
+For the performance obsessed people out there: the deltas are calculated only when `start()` is called on a tween.
+
+So let's suppose you wanted to use a custom easing function that eased the values but appplied a Math.floor to the output, so only the integer part would be returned, resulting in a sort of step-ladder output:
+
+````javascript
+function tenStepEasing(k) {
+	return Math.floor(k * 10) / 10;
+}
+````
+
+And you could use it in a tween by simply calling its easing method, as we've seen before:
+
+````javascript
+tween.easing(tenStepEasing);
+````
+
+TODO: build example for this
 
 ## Chaining
 
