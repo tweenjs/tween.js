@@ -81,12 +81,12 @@
 			}
 
 			function randomEasing(k) {
-				return Math.random() * k;
+				return Math.random();
 			}
 
 
-			// Again getting meta: why not use existing functions as the 
-			// base for a new easing?
+			// Getting meta again: why not use existing functions as the 
+			// base for new easing functions?
 			function createNoisyEasing(randomProportion, easingFunction) {
 				var normalProportion = 1.0 - randomProportion;
 				return function(k) {
