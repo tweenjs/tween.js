@@ -252,18 +252,53 @@ And you could use it in a tween by simply calling its easing method, as we've se
 tween.easing(tenStepEasing);
 ````
 
-Check the [graphs for custom easing functions](../examples/12_graphs_custom_functions.html) example to see this in action (and also some metaprogramming for generating step functions).
-
-## Chaining
-
-## Repeating
+Check the [graphs for custom easing functions](../examples/12_graphs_custom_functions.html) example to see this in action (and also some _metaprogramming_ for generating step functions).
 
 ## Callbacks
 
-- start
-- stop
-- update
-- complete
+Another powerful feature is to be able to run your own functions at specific times in each tween's life cycle. This is usually required when changing properties is not enough.
+
+For example, suppose you're trying to animate some object whose properties can't be accessed directly but require you to call a setter instead. You can use an `update` callback to read the new updated values and then manually call the setters:
+
+````javascript
+var trickyObjTween = new TWEEN.Tween({
+	propertyA: trickyObj.getPropertyA(),
+	propertyB: trickyObj.getPropertyB()
+})
+	.to({ propertyA: 100, propertyB: 200 })
+	.onUpdate(function() {
+		this.setA( this.propertyA );
+		this.setB( this.propertyB );
+	});
+````
+
+Or imagine you want to ensure the values of an object are in an specific state each time the tween is started. You'll assign a `start` callback:
+
+````javascript
+var tween = new TWEEN.Tween(obj)
+	.to({ x: 100 })
+	.onStart(function() {
+		this.x = 0;
+	});
+````
+
+The scope for each callback is the tweened object.
+
+### onStart
+
+Executed right before the tween starts-i.e. before the deltas are calculated. This is the place to reset values in order to have the tween always start from the same point, for example.
+
+### onStop
+
+Executed when a tween is explicitly stopped (not when it is completed normally), and before stopping any possible chained tween.
+
+### onUpdate
+
+Executed each time the tween is updated, after the values have been actually updated.
+
+### onComplete
+
+Executed when a tween is finished normally (i.e. not stopped).
 
 ## Advanced tweening
 
