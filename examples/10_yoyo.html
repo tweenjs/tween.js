@@ -52,11 +52,11 @@
 						.start();
 			}
 
-			function animate() {
+			function animate( time ) {
 
 				requestAnimationFrame( animate );
 
-				TWEEN.update();
+				TWEEN.update( time );
 
 			}
 

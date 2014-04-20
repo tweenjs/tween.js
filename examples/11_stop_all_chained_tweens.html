@@ -26,9 +26,9 @@
 		<script src="js/RequestAnimationFrame.js"></script>
 		<script>
 			
-			function animate() {
+			function animate( time ) {
 				requestAnimationFrame( animate );
-				TWEEN.update();
+				TWEEN.update( time );
 			}
 
 			animate();

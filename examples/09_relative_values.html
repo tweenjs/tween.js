@@ -40,11 +40,11 @@
 					updateBox( target1, target1.dataset );
 			}
 
-			function animate() {
+			function animate( time ) {
 
 				requestAnimationFrame( animate );
 
-				TWEEN.update();
+				TWEEN.update( time );
 
 			}
 
