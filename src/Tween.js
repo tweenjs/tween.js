@@ -337,10 +337,13 @@ TWEEN.Tween = function ( object ) {
 						var tmp = _valuesStartRepeat[ property ];
 						_valuesStartRepeat[ property ] = _valuesEnd[ property ];
 						_valuesEnd[ property ] = tmp;
-						_reversed = !_reversed;
 					}
 					_valuesStart[ property ] = _valuesStartRepeat[ property ];
 
+				}
+
+				if (_yoyo) {
+					_reversed = !_reversed;
 				}
 
 				_startTime = time + _delayTime;
