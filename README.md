@@ -107,7 +107,7 @@ No, we like to keep it simple and free of dependencies. Feel free to make one yo
 
 * Fix bug with cached ```tweens.length``` value inside ```update()``` loop ([freestlr](https://github.com/freestlr))
 * Move assets and all examples and stuff to use the ```gh-pages``` branch, so things are always properly updated ([sole](https://github.com/sole)).
-* Fix bug where chained tweens were not stopped if the previous tween had been stopped, under certain circumstances, by [cfddream](https://github.com/cfddream)
+* Fix bug where chained tweens were not stopped if the previous tween had been stopped, under certain circumstances, by [fundon](https://github.com/fundon)
 * Use tweens in C/C++ with [libtween](https://github.com/jsm174/libtween) by [jsm174](https://github.com/jsm174)!
 
 2013 08 10 - **r11**
