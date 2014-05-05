@@ -81,7 +81,7 @@ The following code creates a Tween which will change the `x` attribute in a posi
 
 Note: this corresponds to the example [04_simplest.html](./examples/04_simplest.html) that you can find in the ```examples``` folder.
 
-Have a look at that folder to discover more functionalities of the library!
+Have a look at that folder to discover more functionalities of the library, or read the [user guide](./docs/user_guide.md)!
 
 Also, Jerome Etienne has written a [tutorial](http://learningthreejs.com/blog/2011/08/17/tweenjs-for-smooth-animation/) demonstrating how to use tween.js with three.js, and it's also great for understanding how tweens work!
 
@@ -93,7 +93,7 @@ Finally, if you need to use tweens in C/C++ code, you now have an option! Check 
 
 * Add ```Tween.onStop``` ([colinsullivan](https://github.com/colinsullivan))
 * Fix `_reversed` yoyo flag bug ([deanm](https://github.com/deanm))
-* Initial version of docs/user guide ([sole](https://github.com/sole))
+* Initial version of [docs/user guide](./docs/user_guide.md) ([sole](https://github.com/sole))
 
 2013 11 03 - **r12** (5,697 KB, gzip: 2,131 KB)
 
