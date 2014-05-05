@@ -184,7 +184,9 @@ TWEEN.Tween = function ( object ) {
 		_isPlaying = false;
 
 		if ( _onStopCallback !== null ) {
+
 			_onStopCallback.call( _object );
+
 		}
 
 		this.stopChainedTweens();
@@ -311,13 +313,13 @@ TWEEN.Tween = function ( object ) {
 
 			} else {
 
-                // Parses relative end values with start as base (e.g.: +10, -3)
+				// Parses relative end values with start as base (e.g.: +10, -3)
 				if ( typeof(end) === "string" ) {
 					end = start + parseFloat(end, 10);
 				}
 
 				// protect against non numeric properties.
-                if ( typeof(end) === "number" ) {
+				if ( typeof(end) === "number" ) {
 					_object[ property ] = start + ( end - start ) * value;
 				}
 
@@ -351,6 +353,7 @@ TWEEN.Tween = function ( object ) {
 						_valuesStartRepeat[ property ] = _valuesEnd[ property ];
 						_valuesEnd[ property ] = tmp;
 					}
+
 					_valuesStart[ property ] = _valuesStartRepeat[ property ];
 
 				}
