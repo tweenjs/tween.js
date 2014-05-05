@@ -4,13 +4,13 @@ _**NOTE** this is a work in progress, please excuse the gaps. Wherever you see s
 
 ## What is a tween? How do they work? Why do you want to use them?
 
-A tween (TODO: from _in-between_?) is a concept that allows you to change the values of the properties of an object in a smooth way. You just tell it which properties you want to change, which final values should they have when the tween finishes running, and how long should this take. For example, suppose you have a `position` object with `x` and `y` coordinates:
+A tween (from [_in-between_](http://en.wikipedia.org/wiki/Inbetweening)) is a concept that allows you to change the values of the properties of an object in a smooth way. You just tell it which properties you want to change, which final values should they have when the tween finishes running, and how long should this take, and the tweening engine will take care of finding the intermediate values from the starting to the ending point. For example, suppose you have a `position` object with `x` and `y` coordinates:
 
 ````javascript
 var position = { x: 100, y: 0 }
 ````
 
-If you wanted to change the `x` value from `100` to `200` you'd do this:
+If you wanted to change the `x` value from `100` to `200`, you'd do this:
 
 ````javascript
 // Create a tween for position first
@@ -134,7 +134,7 @@ tween.stop();
 
 Stopping a tween that was never started or that has already been stopped has no effect. No errors are thrown either.
 
-TODO: explain that start accepts a `time` parameter too.
+The `start` method also accepts a `time` parameter. If you use it, the tween won't start until that particular moment in time; otherwise it will start as soon as possible (i.e. on the next call to `TWEEN.update`).
 
 ### `update`
 
@@ -302,10 +302,32 @@ Executed when a tween is finished normally (i.e. not stopped).
 
 ## Advanced tweening
 
-- relative values
+### Relative values
+
+You can also use relative values when using the `to` method. When the tween is started, Tween.js will read the current property values and apply the relative values to find out the new final values. But you need to use quotes or the values will be taken as absolute. Let's see this with an example:
+
+```javascript
+// This will make the `x` property be 100, always
+var absoluteTween = new TWEEN.Tween(absoluteObj).to({ x: 100 });
+
+// This will make the `x` property be 100 units more,
+// relative to the actual value when it starts
+var relativeTween = new TWEEN.Tween(relativeObj).to({ x: "+100" });
+
+// Suppose relativeObj.x is 0 now
+relativeTween.start(); // Makes x go to 0 +100 = 100
+
+// Suppose relativeObj.x is -100 now
+relativeTween.start(); // Makes x go to -100 +100 = 0
+```
+
+Check [09_relative_values](./examples/09_relative_values.html) for an example.
+
 - arrays - and which interpolation function? (linear, bezier, catmull-rom)
 
 ## Getting the best performance
+
+TODO
 
 - CSS properties which shouldn't be used (e.g. marginLeft? use transform instead?)
 	- or use animations/transitions instead
@@ -314,5 +336,7 @@ Executed when a tween is finished normally (i.e. not stopped).
 - Reusing tweens
 
 ## Crazy tweening
+
+TODO
 
 - Using the tweening functions outside of tween.js
