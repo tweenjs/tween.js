@@ -102,6 +102,8 @@ No, we like to keep it simple and free of dependencies. Feel free to make one yo
 2014 mm dd - **r13** (x KB, gzip: y KB)
 
 * Add ```Tween.onStop``` ([colinsullivan](https://github.com/colinsullivan))
+* Fix `_reversed` yoyo flag bug ([deanm](https://github.com/deanm))
+* Initial version of docs/user guide ([sole](https://github.com/sole))
 
 2013 11 03 - **r12** (5,697 KB, gzip: 2,131 KB)
 
