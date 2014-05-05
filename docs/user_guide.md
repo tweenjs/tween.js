@@ -304,11 +304,19 @@ Executed when a tween is finished normally (i.e. not stopped).
 
 ### Relative values
 
-You can also use relative values when using the `to` method. When the tween is started, Tween.js will read the current property values and apply the relative values to find out the new final values. But you need to use quotes or the values will be taken as absolute. Let's see this with an example:
+You can also use relative values when using the `to` method. When the tween is started, Tween.js will read the current property values and apply the relative values to find out the new final values. But **you need to use quotes** or the values will be taken as absolute. Let's see this with an example:
 
 ```javascript
 // This will make the `x` property be 100, always
 var absoluteTween = new TWEEN.Tween(absoluteObj).to({ x: 100 });
+
+// Suppose absoluteObj.x is 0 now
+absoluteTween.start(); // Makes x go to 100
+
+// Suppose absoluteObj.x is -100 now
+absoluteTween.start(); // Makes x go to 100
+
+// In contrast...
 
 // This will make the `x` property be 100 units more,
 // relative to the actual value when it starts
@@ -321,7 +329,9 @@ relativeTween.start(); // Makes x go to 0 +100 = 100
 relativeTween.start(); // Makes x go to -100 +100 = 0
 ```
 
-Check [09_relative_values](./examples/09_relative_values.html) for an example.
+Check [09_relative_values](../examples/09_relative_values.html) for an example.
+
+### Tweening to arrays of values
 
 - arrays - and which interpolation function? (linear, bezier, catmull-rom)
 
