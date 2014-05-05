@@ -1,7 +1,6 @@
-tween.js (r13)
-==============
+# tween.js (r13)
 
-#### Javascript Tweening Engine ####
+**Javascript Tweening Engine**
 
 [![Flattr this](https://api.flattr.com/button/flattr-badge-large.png)](https://flattr.com/thing/45014/tween-js)
 
@@ -9,8 +8,9 @@ Super simple, fast and easy to use tweening engine which incorporates optimised 
 
 [Contributors](http://github.com/sole/tween.js/contributors)
 
-### Examples ###
+## Examples
 
+[![Custom functions](./assets/examples/03_graphs.png)](./examples/12_graphs_custom_functions.html)
 [![Stop all chained tweens](./assets/examples/11_stop_all_chained_tweens.png)](./examples/11_stop_all_chained_tweens.html)
 [![Yoyo](./assets/examples/10_yoyo.png)](./examples/10_yoyo.html)
 [![Relative values](./assets/examples/09_relative.png)](./examples/09_relative_values.html)
@@ -24,7 +24,7 @@ Super simple, fast and easy to use tweening engine which incorporates optimised 
 [![Bars](./assets/examples/01_bars.png)](./examples/01_bars.html)
 [![hello world](./assets/examples/00_hello_world.png)](./examples/00_hello_world.html)
 
-### Projects using tween.js ###
+## Projects using tween.js
 
 [![MOMA Inventing Abstraction 1910-1925](./assets/projects/09_moma.png)](http://www.moma.org/interactives/exhibitions/2012/inventingabstraction/)
 [![Web Lab](./assets/projects/08_web_lab.png)](http://www.chromeweblab.com/)
@@ -36,7 +36,7 @@ Super simple, fast and easy to use tweening engine which incorporates optimised 
 [![The Wilderness Downtown](./assets/projects/01_wilderness.png)](http://thewildernessdowntown.com/)
 [![Linechart](./assets/projects/00_linechart.png)](http://dejavis.org/linechart)
 
-### Usage ###
+## Usage
 
 Download the [minified library](https://github.com/sole/tween.js/raw/master/build/tween.min.js) and include it in your html.
 
@@ -87,19 +87,9 @@ Also, Jerome Etienne has written a [tutorial](http://learningthreejs.com/blog/20
 
 Finally, if you need to use tweens in C/C++ code, you now have an option! Check out [libtween](https://github.com/jsm174/libtween) which is a port of tween.js to C by [jsm174](https://github.com/jsm174)!
 
-### FAQ ###
+## Change log
 
-**How do you set a tween to start after a while?**
-
-Use the `delay()` method: `var t = new TWEEN.Tween({...}).delay(1000);`
-
-**Is there a jQuery plug-in?**
-
-No, we like to keep it simple and free of dependencies. Feel free to make one yourself, though! :-)
-
-### Change log ###
-
-2014 mm dd - **r13** (x KB, gzip: y KB)
+2014 05 05 - **r13** (5,765 KB, gzip: 2,149 KB)
 
 * Add ```Tween.onStop``` ([colinsullivan](https://github.com/colinsullivan))
 * Fix `_reversed` yoyo flag bug ([deanm](https://github.com/deanm))
@@ -185,3 +175,14 @@ No, we like to keep it simple and free of dependencies. Feel free to make one yo
 
 * Started using revision numbers in the build file
 * Consider this kind of an stable revision :-)
+
+## FAQ
+
+**How do you set a tween to start after a while?**
+
+Use the `delay()` method: `var t = new TWEEN.Tween({...}).delay(1000);`
+
+**Is there a jQuery plug-in?**
+
+No, we like to keep it simple and free of dependencies. Feel free to make one yourself, though! :-)
+
