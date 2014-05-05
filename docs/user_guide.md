@@ -369,16 +369,42 @@ Check [06_array_interpolation](../examples/06_array_interpolation.html) for an e
 
 ## Getting the best performance
 
-TODO
+While Tween.js tries to be performant on its own, nothing prevents you from using it in a way that is counterperformant. Here are some of the ways you can avoid slowing down your projects when using Tween.js (or when animating in the web, in general).
 
-- CSS properties which shouldn't be used (e.g. marginLeft? use transform instead?)
-	- or use animations/transitions instead
-	- When to use tween -> for more complex arrangements
-- Be good to the GC
-- Reusing tweens
+### Use performant CSS
+
+When you try to animate the position of an element in the page, the easiest solution is to animate the `top` and `left` style properties, like this:
+
+```javascript
+var element = document.getElementById('myElement');
+var tween = new TWEEN.Tween({ top: 0, left: 0 })
+	.to({ top: 100, left: 100 }, 1000)
+	.onUpdate(function() {
+		element.style.top = this.top + 'px';
+		element.style.left = this.left + 'px';
+	});
+```
+
+but this is really inefficient because altering these properties forces the browser to recalculate the layout on each update, and this is a very costly operation. Instead of using these, you should use `transform`, which doesn't invalidate the layout and will also be hardware accelerated when possible, like this:
+
+```javascript
+var element = document.getElementById('myElement');
+var tween = new TWEEN.Tween({ top: 0, left: 0 })
+	.to({ top: 100, left: 100 }, 1000)
+	.onUpdate(function() {
+		element.style.transform = 'translate(' + this.left + 'px, ' + this.top + 'px);';
+	});
+```
+
+If you want to read more about this, have a look at [this article](http://www.paulirish.com/2012/why-moving-elements-with-translate-is-better-than-posabs-topleft/).
+
+However, if your animation needs are *that* simple, it might be better to just use CSS animations or transitions, where applicable, so that the browser can optimise as much as possible. Tween.js is most useful when your animation needs involve complex arrangements, i.e. you need to sync several tweens together, have some start after one has finished, loop them a number of times, etc.
+
+### Be good to the Garbage collector (alias the GC)
+
+If you use an `onUpdate` callback, you need to be very careful with what you put on it. This function will be called many times per second, so if you're doing costly operations on each update, you might block the main thread and cause horrible *jank*, or---if your operations involve memory allocations, you'll end up getting the garbage collector to run too often, and cause *jank* too. So just don't do either of those things. Keep your `onUpdate` callbacks very lightweight, and be sure to also use a memory profiler while you're developing.
 
 ## Crazy tweening
 
-TODO
+This is something you might not use often, but you can use the tweening equations outside of Tween.js. They're just functions, after all. So you could use them to calculate smooth curves as input data. For example, they're used to generate audio data in [this experiment](http://5013.es/toys/tween.audio/).
 
-- Using the tweening functions outside of tween.js
