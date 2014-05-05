@@ -333,7 +333,39 @@ Check [09_relative_values](../examples/09_relative_values.html) for an example.
 
 ### Tweening to arrays of values
 
-- arrays - and which interpolation function? (linear, bezier, catmull-rom)
+In addition to tweening to an absolute or a relative value, you can also have Tween.js change properties across a series of values. To do this, you just need to specify an array of values instead of a single value for a property. For example:
+
+```javascript
+var tween = new TWEEN.Tween(relativeObj).to({ x: [0, -100, 100] });
+```
+
+will make `x` go from its initial value to 0, -100 and 100.
+
+The way these values are calculated is as follows:
+
+* first the tween progress is calculated as usual
+* the progress (from 0 to 1) is used as input for the interpolation function
+* based on the progress and the array of values, an interpolated value is generated
+
+For example, when the tween has just started (progress is 0), the interpolation function will return the first value in the array. When the tween is halfway, the interpolation function will return a value approximately in the middle of the array, and when the tween is at the end, the interpolation function will return the last value. 
+
+You can change the interpolation function with the `interpolation` method. For example:
+
+```javascript
+tween.interpolation( TWEEN.Interpolation.Bezier );
+```
+
+The following values are available:
+
+* TWEEN.Interpolation.Linear
+* TWEEN.Interpolation.Bezier
+* TWEEN.Interpolation.CatmullRom
+
+The default is `Linear`.
+
+Note that the interpolation function is global to all properties that are tweened with arrays in the same tween. You can't make property A change with an array and a Linear function, and property B with an array too and a Bezier function using the same tween; you should use two tween objects running over the same object but modifying different properties and using different interpolation functions.
+
+Check [06_array_interpolation](../examples/06_array_interpolation.html) for an example.
 
 ## Getting the best performance
 
