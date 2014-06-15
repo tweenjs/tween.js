@@ -25,4 +25,4 @@ shutil.copyfile(readme, nodeReadme)
 shutil.copyfile(srcJSON, dstJSON)
 
 with open(nodeOutput,'r') as f: text = f.read()
-with open(nodeOutput,'w') as f: f.write('// tween.js - http://github.com/sole/tween.js\n' + text + '\nmodule.exports=TWEEN;')
+with open(nodeOutput,'w') as f: f.write('// tween.js - http://github.com/sole/tween.js - Licensed under the MIT License\n' + text + '\nmodule.exports=TWEEN;')
