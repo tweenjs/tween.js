@@ -101,7 +101,9 @@ The following code creates a Tween which will change the `x` attribute in a posi
 			.onUpdate( function () {
 
 				output.innerHTML = 'x == ' + Math.round( this.x );
-				output.style.left = this.x + 'px';
+				var transform = 'translateX(' + this.x + 'px)';
+				output.style.webkitTransform = transform;
+				output.style.transform = transform;
 
 			} )
 			.start();
