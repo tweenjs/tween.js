@@ -1,6 +1,8 @@
-# tween.js (r13)
+# tween.js (r14)
 
-**Javascript Tweening Engine**
+**JavaScript tweening engine for easy animations**
+
+[![Install with NPM](https://nodei.co/npm/tween.js.png?downloads=true&stars=true)](https://nodei.co/npm/tween.js/)
 
 [![Flattr this](https://api.flattr.com/button/flattr-badge-large.png)](https://flattr.com/thing/45014/tween-js)
 
