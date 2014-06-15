@@ -57,7 +57,7 @@ npm install tween.js
 Then use `browserify` or your `npm` tool of choice, or just include the module using the standard `node` require:
 
 ```javascript
-var TWEEN = require('.tween.js');
+var TWEEN = require('tween.js');
 ```
 
 You're an advanced user, so find your way around.
