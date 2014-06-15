@@ -26,4 +26,4 @@ shutil.copyfile(readme, nodeReadme)
 shutil.copyfile(srcJSON, dstJSON)
 
 with open(nodeOutput,'r') as f: text = f.read()
-with open(nodeOutput,'w') as f: f.write(headerComment + text + '\nmodule.exports=TWEEN;')
+with open(nodeOutput,'w') as f: f.write(text + '\nmodule.exports=TWEEN;')
