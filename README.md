@@ -108,10 +108,10 @@ The following code creates a Tween which will change the `x` attribute in a posi
 
 	}
 
-	function animate() {
+	function animate(time) {
 
 		requestAnimationFrame( animate ); // js/RequestAnimationFrame.js needs to be included too.
-		TWEEN.update();
+		TWEEN.update(time);
 
 	}
 
