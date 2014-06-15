@@ -92,6 +92,7 @@ Finally, if you need to use tweens in C/C++ code, you now have an option! Check 
 2014 06 15 - **r14** (x KB, gzip: y KB)
 
 * Include license header on the minified files too ([hyandell](https://github.com/hyandell))
+* Make examples more efficient by using `requestAnimationFrame`'s own timer instead of calling `Date.now` again ([Robert Eisele](https://github.com/hyandell))
 
 2014 05 05 - **r13** (5,765 KB, gzip: 2,149 KB)
 
