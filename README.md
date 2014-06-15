@@ -38,13 +38,49 @@ Super simple, fast and easy to use tweening engine which incorporates optimised 
 [![The Wilderness Downtown](./assets/projects/01_wilderness.png)](http://thewildernessdowntown.com/)
 [![Linechart](./assets/projects/00_linechart.png)](http://dejavis.org/linechart)
 
-## Usage
+## Getting it
 
-Download the [minified library](https://github.com/sole/tween.js/raw/master/build/tween.min.js) and include it in your html.
+Download the [minified library](https://github.com/sole/tween.js/raw/master/build/tween.min.js) and include it in your html. Or use the [unminified version](https://raw.githubusercontent.com/sole/tween.js/master/src/Tween.js) for better debugging.
 
 ```html
 <script src="js/tween.min.js"></script>
 ```
+
+### More advanced users might want to...
+
+#### Use `npm`
+
+```bash
+npm install tween.js
+```
+
+Then use browserify or your `npm` tool of choice. You're an advanced user, so find your way around.
+
+#### Use bower
+
+```bash
+bower install git@github.com:sole/tween.js.git
+```
+
+or install an specific tag (it's just git tags, you can run `git tag` for a list):
+
+```bash
+bower install git@github.com:sole/tween.js.git#r13
+```
+
+And reference either the minified file:
+
+```html
+<script src="bower_components/tween.js/build/tween.min.js"></script>
+```
+
+or the unminified file
+
+```html
+<script src="bower_components/tween.js/src/Tween.js"></script>
+```
+
+## Usage
 
 The following code creates a Tween which will change the `x` attribute in a position variable, so that it goes from 50 to 400 in 2 seconds. We'll use `requestAnimationFrame` to call `TWEEN.update` so that "time ticks", the `tween` gets updated and the `onUpdate` method makes things happen on the screen:
 
