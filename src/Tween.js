@@ -1,4 +1,7 @@
 /**
+ * Tween.js - Licensed under the MIT license
+ * ----------------------------------------------
+ *
  * @author sole / http://soledadpenades.com
  * @author mrdoob / http://mrdoob.com
  * @author Robert Eisele / http://www.xarg.org
