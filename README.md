@@ -54,9 +54,15 @@ Download the [minified library](https://github.com/sole/tween.js/raw/master/buil
 npm install tween.js
 ```
 
-Then use browserify or your `npm` tool of choice. You're an advanced user, so find your way around.
+Then use `browserify` or your `npm` tool of choice, or just include the module using the standard `node` require:
 
-#### Use bower
+```javascript
+var TWEEN = require('.tween.js');
+```
+
+You're an advanced user, so find your way around.
+
+#### Use `bower`
 
 ```bash
 bower install git@github.com:sole/tween.js.git
@@ -129,10 +135,11 @@ Finally, if you need to use tweens in C/C++ code, you now have an option! Check 
 
 ## Change log
 
-2014 06 15 - **r14** (x KB, gzip: y KB)
+2014 06 15 - **r14** (5,798 KB, gzip: 2,168 KB)
 
 * Include license header on the minified files too ([hyandell](https://github.com/hyandell))
 * Make examples more efficient by using `requestAnimationFrame`'s own timer instead of calling `Date.now` again ([Robert Eisele](https://github.com/hyandell))
+* Make it explicit that you can install tween.js with `npm` and `bower` ([sole](https://github.com/sole))
 
 2014 05 05 - **r13** (5,765 KB, gzip: 2,149 KB)
 
