@@ -137,6 +137,10 @@ TWEEN.Tween = function ( object ) {
 		if (!_valuesStart){
 			// If user not assign from-properties, Set all starting values present on the target object
 			this.from(_object);
+		} else {
+			for (var property in _valuesStart) {
+				_object[property] = _valuesStart[property];
+			}
 		}
 
 		TWEEN.add( this );
