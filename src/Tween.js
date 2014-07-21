@@ -88,9 +88,9 @@ var TWEEN = TWEEN || ( function () {
 TWEEN.Tween = function ( object ) {
 
 	var _object = object;
-	var _valuesStart = {};
+	var _valuesStart = null;
 	var _valuesEnd = {};
-	var _valuesStartRepeat = {};
+	var _valuesStartRepeat = null;
 	var _duration = 1000;
 	var _repeat = 0;
 	var _yoyo = false;
@@ -107,12 +107,16 @@ TWEEN.Tween = function ( object ) {
 	var _onCompleteCallback = null;
 	var _onStopCallback = null;
 
-	// Set all starting values present on the target object
-	for ( var field in object ) {
+	this.from = function( properties ){
+		_valuesStart = {};
+		_valuesStartRepeat = {};
 
-		_valuesStart[ field ] = parseFloat(object[field], 10);
-
-	}
+		for ( var field in properties ) {
+			_valuesStart[ field ] = parseFloat(properties[field], 10);
+		}
+		
+		return this;
+	};
 
 	this.to = function ( properties, duration ) {
 
@@ -129,6 +133,11 @@ TWEEN.Tween = function ( object ) {
 	};
 
 	this.start = function ( time ) {
+
+		if (!_valuesStart){
+			// If user not assign from-properties, Set all starting values present on the target object
+			this.from(_object);
+		}
 
 		TWEEN.add( this );
 
