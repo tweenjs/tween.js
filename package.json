@@ -20,5 +20,8 @@
 	"keywords": [
 		"tween",
 		"interpolation"
-	]
+	],
+	"dependencies": {
+		"nodeunit": "^0.9.0"
+	}
 }
