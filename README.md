@@ -29,15 +29,15 @@ Super simple, fast and easy to use tweening engine which incorporates optimised 
 
 ## Projects using tween.js
 
-[![MOMA Inventing Abstraction 1910-1925](http://sole.github.io/tween.js/assets/examples/09_moma.png)](http://www.moma.org/interactives/exhibitions/2012/inventingabstraction/)
-[![Web Lab](http://sole.github.io/tween.js/assets/examples/08_web_lab.png)](http://www.chromeweblab.com/)
-[![MACCHINA I](http://sole.github.io/tween.js/assets/examples/07_macchina.png)](http://5013.es/toys/macchina)
-[![Minesweeper 3D](http://sole.github.io/tween.js/assets/examples/06_minesweeper3d.png)](http://egraether.com/mine3d/)
-[![ROME](http://sole.github.io/tween.js/assets/examples/05_rome.png)](http://ro.me)
-[![WebGL Globe](http://sole.github.io/tween.js/assets/examples/04_webgl_globe.png)](http://data-arts.appspot.com/globe)
-[![Androidify](http://sole.github.io/tween.js/assets/examples/03_androidify.png)](http://www.androidify.com/)
-[![The Wilderness Downtown](http://sole.github.io/tween.js/assets/examples/01_wilderness.png)](http://thewildernessdowntown.com/)
-[![Linechart](http://sole.github.io/tween.js/assets/examples/00_linechart.png)](http://dejavis.org/linechart)
+[![MOMA Inventing Abstraction 1910-1925](http://sole.github.io/tween.js/assets/projects/09_moma.png)](http://www.moma.org/interactives/exhibitions/2012/inventingabstraction/)
+[![Web Lab](http://sole.github.io/tween.js/assets/projects/08_web_lab.png)](http://www.chromeweblab.com/)
+[![MACCHINA I](http://sole.github.io/tween.js/assets/projects/07_macchina.png)](http://5013.es/toys/macchina)
+[![Minesweeper 3D](http://sole.github.io/tween.js/assets/projects/06_minesweeper3d.png)](http://egraether.com/mine3d/)
+[![ROME](http://sole.github.io/tween.js/assets/projects/05_rome.png)](http://ro.me)
+[![WebGL Globe](http://sole.github.io/tween.js/assets/projects/04_webgl_globe.png)](http://data-arts.appspot.com/globe)
+[![Androidify](http://sole.github.io/tween.js/assets/projects/03_androidify.png)](http://www.androidify.com/)
+[![The Wilderness Downtown](http://sole.github.io/tween.js/assets/projects/01_wilderness.png)](http://thewildernessdowntown.com/)
+[![Linechart](http://sole.github.io/tween.js/assets/projects/00_linechart.png)](http://dejavis.org/linechart)
 
 ## Getting it
 
