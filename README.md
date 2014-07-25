@@ -12,19 +12,20 @@ Super simple, fast and easy to use tweening engine which incorporates optimised 
 
 ## Examples
 
-[![Custom functions](./assets/examples/03_graphs.png)](./examples/12_graphs_custom_functions.html)
-[![Stop all chained tweens](./assets/examples/11_stop_all_chained_tweens.png)](./examples/11_stop_all_chained_tweens.html)
-[![Yoyo](./assets/examples/10_yoyo.png)](./examples/10_yoyo.html)
-[![Relative values](./assets/examples/09_relative.png)](./examples/09_relative_values.html)
-[![Repeat](./assets/examples/08_repeat.png)](./examples/08_repeat.html)
-[![Dynamic to](./assets/examples/07_dynamic_to.png)](./examples/07_dynamic_to.html)
-[![Array interpolation](./assets/examples/03_graphs.png)](./examples/06_array_interpolation.html)
-[![Video and time](./assets/examples/06_video_and_time.png)](./examples/05_video_and_time.html)
-[![Simplest possible example](./assets/examples/04_simplest.png)](./examples/04_simplest.html)
-[![Graphs](./assets/examples/03_graphs.png)](./examples/03_graphs.html)
-[![Black and red](./assets/examples/02_black_and_red.png)](./examples/02_black_and_red.html)
-[![Bars](./assets/examples/01_bars.png)](./examples/01_bars.html)
-[![hello world](./assets/examples/00_hello_world.png)](./examples/00_hello_world.html)
+[![Custom functions](./assets/examples/03_graphs.png)](http://sole.github.io/tween.js/examples/12_graphs_custom_functions.html)
+[source](./examples/12_graphs_custom_functions.html)
+[![Stop all chained tweens](./assets/examples/11_stop_all_chained_tweens.png)](http://sole.github.io/tween.js/examples/11_stop_all_chained_tweens.html) [source](./examples/11_stop_all_chained_tweens.html)
+[![Yoyo](./assets/examples/10_yoyo.png)](http://sole.github.io/tween.js/examples/10_yoyo.html) [source](./examples/10_yoyo.html)
+[![Relative values](./assets/examples/09_relative.png)](http://sole.github.io/tween.js/examples/09_relative_values.html) [source](./examples/09_relative_values.html)
+[![Repeat](./assets/examples/08_repeat.png)](http://sole.github.io/tween.js/examples/08_repeat.html) [source](./examples/08_repeat.html)
+[![Dynamic to](./assets/examples/07_dynamic_to.png)](http://sole.github.io/tween.js/examples/07_dynamic_to.html) [source](./examples/07_dynamic_to.html)
+[![Array interpolation](./assets/examples/03_graphs.png)](http://sole.github.io/tween.js/examples/06_array_interpolation.html) [source](./examples/06_array_interpolation.html)
+[![Video and time](./assets/examples/06_video_and_time.png)](http://sole.github.io/tween.js/examples/05_video_and_time.html) [source](./examples/05_video_and_time.html)
+[![Simplest possible example](./assets/examples/04_simplest.png)](http://sole.github.io/tween.js/examples/04_simplest.html) [source](./examples/04_simplest.html)
+[![Graphs](./assets/examples/03_graphs.png)](http://sole.github.io/tween.js/examples/03_graphs.html) [source](./examples/03_graphs.html)
+[![Black and red](./assets/examples/02_black_and_red.png)](http://sole.github.io/tween.js/examples/02_black_and_red.html) [source](./examples/02_black_and_red.html)
+[![Bars](./assets/examples/01_bars.png)](http://sole.github.io/tween.js/examples/01_bars.html) [source](./examples/01_bars.html)
+[![hello world](./assets/examples/00_hello_world.png)](http://sole.github.io/tween.js/examples/00_hello_world.html) [source](./examples/00_hello_world.html)
 
 ## Projects using tween.js
 
