@@ -4,7 +4,7 @@ Before reporting a bug
 If you find something that you believe to be a bug, please 
 
 1. search the [issue tracker](https://github.com/sole/tween.js/issues) for similar issues
-2. check out the [dev](https://github.com/sole/tween.js/tree/dev) branch and see if the bug still exists there.
+2. check out the [master](https://github.com/sole/tween.js/tree/master) branch and see if the bug still exists there.
 
 
 How to report a bug
