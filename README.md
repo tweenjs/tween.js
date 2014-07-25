@@ -40,13 +40,19 @@ Super simple, fast and easy to use tweening engine which incorporates optimised 
 
 ## Getting it
 
-Download the [minified library](https://github.com/sole/tween.js/raw/master/build/tween.min.js) and include it in your html. Or use the [unminified version](https://raw.githubusercontent.com/sole/tween.js/master/src/Tween.js) for better debugging.
+Download the [minified library](https://raw.githubusercontent.com/sole/tween.js/r14/build/tween.min.js) and include it in your html. Or use the [unminified version](https://raw.githubusercontent.com/sole/tween.js/r14/src/Tween.js) for better debugging.
 
 ```html
 <script src="js/tween.min.js"></script>
 ```
 
 ### More advanced users might want to...
+
+#### Use development version
+
+The steps above are for getting the latest stable version (tagged with a release tag in git). If you want to check the latest and greatest, simply check out the repository as it is, or download either
+* [tween.min.js](https://raw.githubusercontent.com/sole/tween.js/master/build/tween.min.js)
+* [tween.js](https://raw.githubusercontent.com/sole/tween.js/master/src/Tween.js)
 
 #### Use `npm`
 
