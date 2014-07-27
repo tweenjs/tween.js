@@ -753,3 +753,7 @@ TWEEN.Interpolation = {
 	}
 
 };
+
+if(typeof module !== 'undefined' && module.exports) {
+	module.exports = TWEEN;
+}
