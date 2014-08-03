@@ -6,6 +6,12 @@
 			'hello': function(test) {
 				test.ok(TWEEN !== null);
 				test.done();
+			},
+
+			// TWEEN tests
+			'TWEEN.getAll': function(test) {
+				test.ok(TWEEN.getAll() instanceof Array);
+				test.done();
 			}
 		};
 
