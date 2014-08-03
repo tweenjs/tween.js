@@ -1,4 +1,4 @@
-# tween.js (r14)
+# tween.js (r14) [![Travis tests](https://travis-ci.org/sole/tween.js.svg?branch=master)](https://travis-ci.org/sole/tween.js)
 
 **JavaScript tweening engine for easy animations**
 
