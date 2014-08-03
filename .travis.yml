@@ -10,4 +10,4 @@ install:
   - ./test/travis_install.sh
 
 script:
-  - node_modules/.bin/nodeunit $(pwd)/test/unit/tests.js
+  - node_modules/.bin/nodeunit $(pwd)/test/unit/nodeunitheadless.js
