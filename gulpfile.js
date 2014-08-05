@@ -5,9 +5,10 @@ var uglify = require('gulp-uglify');
 var rename = require('gulp-rename');
 var htmlreplace = require('gulp-html-replace');
 var concat = require('gulp-concat');
+var insert = require('gulp-insert');
 
 var metadata = require('./package');
-var header = '// ' + metadata.name + ' v.' + metadata.version + ' ' + metadata.homepage;
+var header = '// ' + metadata.name + ' v' + metadata.version + ' ' + metadata.homepage + '\n';
 
 gulp.task('lint', function() {
 	return gulp.src('src/Tween.js')
@@ -20,6 +21,7 @@ gulp.task('min', function() {
 		'src/Tween.js'
 	])
 	.pipe(uglify())
+	.pipe(insert.prepend(header))
 	.pipe(rename('tween.min.js'))
 	.pipe(gulp.dest('build'));
 });
