@@ -106,6 +106,7 @@ TWEEN.Tween = function ( object ) {
 	var _onUpdateCallback = null;
 	var _onCompleteCallback = null;
 	var _onStopCallback = null;
+	var _timeScale = 1;
 
 	// Set all starting values present on the target object
 	for ( var field in object ) {
@@ -127,6 +128,13 @@ TWEEN.Tween = function ( object ) {
 		return this;
 
 	};
+
+	this.timeScale = function ( scale ) {
+	
+		_timeScale = scale;
+	
+		return this;
+	}
 
 	this.start = function ( time ) {
 
@@ -292,7 +300,7 @@ TWEEN.Tween = function ( object ) {
 
 		}
 
-		var elapsed = ( time - _startTime ) / _duration;
+		var elapsed = ( time - _startTime ) / ( _duration / _timeScale );
 		elapsed = elapsed > 1 ? 1 : elapsed;
 
 		var value = _easingFunction( elapsed );
