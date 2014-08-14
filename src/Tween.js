@@ -741,6 +741,14 @@ TWEEN.Easing = {
 
 		}
 
+	},
+	
+	SteppedEase : {
+		config : function (steps) {
+		return function (k) {
+		return 	Math.floor(k * steps) / steps;
+			}	
+		}
 	}
 
 };
@@ -852,3 +860,11 @@ TWEEN.Interpolation = {
 	}
 
 };
+
+if ( typeof(module) !== 'undefined' && module.exports ) {
+	module.exports = TWEEN;
+} else if ( typeof(define) === 'function' && define.amd ) {
+	define(TWEEN)
+} else {
+	window.TWEEN = TWEEN;
+}
