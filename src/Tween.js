@@ -24,7 +24,7 @@ var TWEEN = TWEEN || ( function () {
 
 	return {
 
-		REVISION: '14',
+		REVISION: '15dev',
 
 		getAll: function () {
 
@@ -98,6 +98,7 @@ TWEEN.Tween = function ( object ) {
 	var _reversed = false;
 	var _delayTime = 0;
 	var _startTime = null;
+	var _timeScale = 1.0;
 	var _easingFunction = TWEEN.Easing.Linear.None;
 	var _interpolationFunction = TWEEN.Interpolation.Linear;
 	var _chainedTweens = [];
@@ -235,6 +236,11 @@ TWEEN.Tween = function ( object ) {
 
 	};
 
+	this.timeScale = function( scale ) {
+		_timeScale = scale;
+		return this;
+	};
+
 	this.chain = function () {
 
 		_chainedTweens = arguments;
@@ -292,7 +298,7 @@ TWEEN.Tween = function ( object ) {
 
 		}
 
-		var elapsed = ( time - _startTime ) / _duration;
+		var elapsed = ( time - _startTime ) / (_duration / _timeScale);
 		elapsed = elapsed > 1 ? 1 : elapsed;
 
 		var value = _easingFunction( elapsed );
