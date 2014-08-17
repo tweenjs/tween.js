@@ -1,4 +1,4 @@
-# tween.js (r14) [![Travis tests](https://travis-ci.org/sole/tween.js.svg?branch=master)](https://travis-ci.org/sole/tween.js)
+# tween.js (r15dev) [![Travis tests](https://travis-ci.org/sole/tween.js.svg?branch=master)](https://travis-ci.org/sole/tween.js)
 
 **JavaScript tweening engine for easy animations**
 
@@ -139,6 +139,16 @@ Have a look at that folder to discover more functionalities of the library, or r
 Also, Jerome Etienne has written a [tutorial](http://learningthreejs.com/blog/2011/08/17/tweenjs-for-smooth-animation/) demonstrating how to use tween.js with three.js, and it's also great for understanding how tweens work!
 
 Finally, if you need to use tweens in C/C++ code, you now have an option! Check out [libtween](https://github.com/jsm174/libtween) which is a port of tween.js to C by [jsm174](https://github.com/jsm174)!
+
+## Running the tests
+
+You need to install `npm` first--this comes with node.js, so install that one first. Then, cd to `tween.js`'s directory and run:
+
+```bash
+npm test
+```
+
+If you want to add any feature or change existing features, you *must* run the tests to make sure you didn't break anything else. If you send a PR to add something new and it doesn't have tests, the PR won't be accepted (unless it's seriously good). See [contributing](CONTRIBUTING.md) for more info.
 
 ## Change log
 
