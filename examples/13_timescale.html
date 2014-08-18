@@ -22,51 +22,58 @@
 		<script src="js/RequestAnimationFrame.js"></script>
 		<script>
 
-			init();
-			animate();
+			(function() {
+				var target;
+				var tween;
 
-			function init() {
-				var target = document.getElementById( 'target' );
-				var tween = new TWEEN.Tween( target.dataset )
-					.to( { rotation: 360, x: 500 }, 750 )
-					.repeat( Infinity )
-					.delay( 1000 )
-					.yoyo( true )
-					.easing( TWEEN.Easing.Cubic.InOut )
-					.onUpdate( function() {
-						updateBox( target, this );
-					});
-				var slider = document.querySelector('input[type=range]');
-				
-				slider.addEventListener('change', function(ev) {
+				init();
+				animate();
+
+				function init() {
+					target = document.getElementById( 'target' );
+					tween = new TWEEN.Tween( target.dataset )
+						.to( { rotation: 360, x: 500 }, 750 )
+						.repeat( Infinity )
+						.delay( 1000 )
+						.yoyo( true )
+						.easing( TWEEN.Easing.Cubic.InOut )
+						.onUpdate( function() {
+							updateBox( target, this );
+						});
+					var slider = document.querySelector('input[type=range]');
+					
+					slider.addEventListener('input', onSliderChange);
+
+					tween.timeScale(1.0);
+					slider.value = 1.0;
+					tween.start();
+				}
+
+				function onSliderChange() {
 					var v = this.value * 1.0;
 					target.innerHTML = v + 'x';
 					tween.timeScale(v);
-				});
+				}
 
-				tween.timeScale(1.0);
-				slider.value = 1.0;
-				tween.start();
-			}
+				function animate( time ) {
 
-			function animate( time ) {
+					requestAnimationFrame( animate );
+					TWEEN.update( time );
 
-				requestAnimationFrame( animate );
-				TWEEN.update( time );
+				}
 
-			}
+				function updateBox( box, params ) {
 
-			function updateBox( box, params ) {
+					var s = box.style,
+						transform = 'rotate(' + Math.floor( params.rotation ) + 'deg)';
+					s.webkitTransform = transform;
+					s.mozTransform = transform;
+					s.transform = transform;
 
-				var s = box.style,
-					transform = 'rotate(' + Math.floor( params.rotation ) + 'deg)';
-				s.webkitTransform = transform;
-				s.mozTransform = transform;
-				s.transform = transform;
-
-				box.style.top = params.y + 'px';
-				box.style.left = params.x + 'px';
-			}
+					box.style.top = params.y + 'px';
+					box.style.left = params.x + 'px';
+				}
+			})();
 
 		</script>
 
