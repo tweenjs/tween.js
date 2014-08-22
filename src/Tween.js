@@ -1,7 +1,10 @@
 /**
  * Tween.js - High-performance tweening engine
- *
+ 
+ * Special factored for @sole tween.js repo by @dalisoft
  * Licensed under ulta-permissive MIT-Licensed
+ *
+ * This code editing restricted, if not contributed to @sole tween.js repo!
  *
  */
 
@@ -257,17 +260,8 @@ TWEEN.Tween = function (object) {
 		if (_el.currentStyle) {
 			this.scaleX = this.scaleX || 1;
 			this.scaleY = this.scaleY || 1;
-			if (this.rotate) {
-				//this.rotate *= d2r;
-			}
-			if (this.skewX) {
-				//this.skewX *= d2r;
-			}
-			if (this.skewY) {
-				//this.skewY *= d2r;
-			}
 		}
-		if ( typeof CSSMatrix !== 'function' ) {
+		if ( typeof CSSMatrix === 'undefined' ) {
 		throw new TypeError("WARNING: Tween.js required CSSMatrix to calculate matrix for IE support");
 		}
 		var m = new CSSMatrix().rotate(0, 0, -this.rotate).scale(this.scaleX, this.scaleY, 1).skewX(this.skewX || 0).skewY(this.skewY || 0);
@@ -1019,7 +1013,7 @@ TWEEN.Interpolation = {
 
 	}
 
-};
+}
 	
 if (typeof(module) !== 'undefined' && module.exports) {
 	module.exports = TWEEN;
