@@ -1,10 +1,11 @@
 /**
- * Tween.js - Licensed under the MIT license
- * https://github.com/sole/tween.js
- * ----------------------------------------------
+ * Tween.js - High-performance tweening engine
+ 
+ * Special factored for @sole tween.js repo by @dalisoft
+ * Licensed under ulta-permissive MIT-Licensed
  *
- * See https://github.com/sole/tween.js/graphs/contributors for the full list of contributors.
- * Thank you all, you're awesome!
+ * This code editing restricted, if not contributed to @sole tween.js repo!
+ *
  */
 
 // Date.now shim for (ahem) Internet Explo(d|r)er
@@ -18,13 +19,24 @@ if (Date.now === undefined) {
 
 }
 
+// [a, b, c].indexOf(b) - Array.indexOf shim for (ahem) Internet Explo(d|r)er
+Array.prototype.indexOf = Array.prototype.indexOf || function (arr) {
+	var value = -1;
+	for (var i = 0; i < this.length; i++) {
+		if (this[i] === arr) {
+			value = i;
+		}
+	}
+	return value;
+};
+
 var TWEEN = TWEEN || (function () {
 
 		var _tweens = [];
 
 		return {
 
-			REVISION : '15',
+			REVISION : '15dev',
 
 			getAll : function () {
 
@@ -58,13 +70,14 @@ var TWEEN = TWEEN || (function () {
 
 			update : function (time) {
 
-				if (_tweens.length === 0)
+				if (_tweens.length === 0) {
 					return false;
+				}
 
 				var i = 0;
 
 				time = time !== undefined ? time : (typeof window !== 'undefined' && window.performance !== undefined && window.performance.now !== undefined ? window.performance.now() : Date.now());
-				while (i < _tweens.length) {
+				for (var i = 0; i < _tweens.length; i++) {
 
 					if (_tweens[i].update(time)) {
 
@@ -87,29 +100,32 @@ var TWEEN = TWEEN || (function () {
 
 TWEEN.Tween = function (object) {
 
-	var _object = object;
-	var _valuesStart = {};
-	var _valuesEnd = {};
-	var _valuesStartRepeat = {};
-	var _duration = 1000;
-	var _repeat = 0;
-	var _yoyo = false;
-	var _isPlaying = false;
-	var _reversed = false;
-	var _delayTime = 0;
-	var _startTime = null;
-	var _easingFunction = TWEEN.Easing.Linear.None;
-	var _interpolationFunction = TWEEN.Interpolation.Linear;
-	var _chainedTweens = [];
-	var _onStartCallback = null;
-	var _onStartCallbackFired = false;
-	var _onUpdateCallback = null;
-	var _onCompleteCallback = null;
-	var _onStopCallback = null;
-	var _paused = false;
-	var _pauseStart = null;
-	var _timeScale = 1;
-	var _now = null;
+	var _object = object,
+		_valuesStart = {},
+		_valuesEnd = {},
+		_valuesStartRepeat = {},
+		_duration = 1000,
+		_repeat = 0,
+		_yoyo = false,
+		_isPlaying = false,
+		_reversed = false,
+		_reverse = false,
+		_delayTime = 0,
+		_startTime = null,
+		_easingFunction = TWEEN.Easing.Linear.None,
+		_interpolationFunction = TWEEN.Interpolation.Linear,
+		_chainedTweens = [],
+		_onStartCallback = null,
+		_onStartCallbackFired = false,	
+		_onUpdateCallback = null,
+		_onCompleteCallback = null,
+		_onStopCallback = null,
+		_paused = false,
+		_pauseStart = null,
+		_timeScale = 1,
+		_now = null,
+		_seek = 0,
+		_stagger = 100;
 
 	// Set all starting values present on the target object
 	for (var field in object) {
@@ -135,6 +151,8 @@ TWEEN.Tween = function (object) {
 	this.timeScale = function (scale) {
 
 		_timeScale = scale;
+		
+		// we now developing
 
 		return this;
 
@@ -169,9 +187,8 @@ TWEEN.Tween = function (object) {
 
 	this.seek = function (time) {
 
-		_now = Date.now();
-
-		_startTime += time;
+		_seek = time;
+		// we now developing
 
 		return this;
 	};
@@ -184,13 +201,21 @@ TWEEN.Tween = function (object) {
 
 		_onStartCallbackFired = false;
 
-		_startTime = time !== undefined ? time : (typeof window !== 'undefined' && window.performance !== undefined && window.performance.now !== undefined ? window.performance.now() : Date.now());
+		
+		if ( time === undefined) {
+		if ( typeof window !== 'undefined' && window.performance !== undefined && window.performance.now !== undefined ) {
+		time = window.performance.now();
+		} else {
+		time = Date.now();
+		}
+		}
+		
+		_startTime = time;
 		_startTime += _delayTime;
 
 		for (var property in _valuesEnd) {
-
 			// check if an Array was provided as property value
-			if (_valuesEnd[property] instanceof Array) {
+			if (_valuesEnd[property] instanceof Array && !(_valuesStart[property] instanceof Array)) {
 
 				if (_valuesEnd[property].length === 0) {
 
@@ -203,11 +228,16 @@ TWEEN.Tween = function (object) {
 
 			}
 
-			_valuesStart[property] = _object[property];
-
-			if ((_valuesStart[property] instanceof Array) === false) {
+			if (!(_valuesStart[property] instanceof Array)) {
 				_valuesStart[property] *= 1.0; // Ensures we're using numbers, not strings
+			} else if (_valuesStart[property] instanceof Array) {
+				var _arrNum = _valuesStart[property];
+				for (var i = 0; i < _arrNum.length; i++) {
+					_arrNum[i] *= 1.0; // Ensures we're using numbers, not strings
+				}
 			}
+
+			_valuesStart[property] = _object[property];
 
 			_valuesStartRepeat[property] = _valuesStart[property] || 0;
 
@@ -215,6 +245,125 @@ TWEEN.Tween = function (object) {
 
 		return this;
 
+	};
+	
+	this.animate = function (_el, onUpdate) {
+	return this.onUpdate(function () {
+		onUpdate = onUpdate || function () {};
+		onUpdate.call(this);
+		var d2r = Math.PI / 180, xyUnit = this.xyUnit || 'px';
+		
+		if (this.scale) {
+			this.scaleX = this.scale;
+			this.scaleY = this.scale;
+		}
+		if (_el.currentStyle) {
+			this.scaleX = this.scaleX || 1;
+			this.scaleY = this.scaleY || 1;
+			if (this.rotate) {
+				//this.rotate *= d2r;
+			}
+			if (this.skewX) {
+				//this.skewX *= d2r;
+			}
+			if (this.skewY) {
+				//this.skewY *= d2r;
+			}
+		}
+		if ( typeof CSSMatrix !== 'function' ) {
+		throw new TypeError("WARNING: Tween.js required CSSMatrix to calculate matrix for IE support");
+		}
+		var m = new CSSMatrix().rotate(0, 0, -this.rotate).scale(this.scaleX, this.scaleY, 1).skewX(this.skewX || 0).skewY(this.skewY || 0);
+		//console.log(m.m11, m.m12, m.m21, m.m22);
+		var arr, ieF = 'progid:DXImageTransform.Microsoft.Matrix(M11=' + m.m11 + ', M12=' + m.m12 + ', M21=' + m.m21 + ', M22=' + m.m22 + ', sizingMethod=\'auto expand\')';
+		ieF = this.rotate && this.opacity ? ieF + ', alpha(opacity=' + (this.opacity * 100) + ')' : ieF;
+		for (var k in this) {
+					if (k.toString().match(/backgroundColor|color/g) && this[k] instanceof Array) {
+						arr = this[k];
+						for (var i = 0; i < arr.length; i++) {
+							arr[i] = parseFloat(arr[i].toString().substr(0, (arr.length === 3) ? 3 : 4));
+						}
+						_el.style[k] = (arr.length === 3) ? 'rgb(' + arr.join(",") + ')' : 'rgba(' + arr.join(",") + ')';
+					}
+					if (k.toString().match(/padding|margin|borderRadius|clip/g) && this[k] instanceof Array) {
+						arr = this[k];
+						if (k === 'borderRadius') {
+							k = pre('borderRadius') in _el.style ? pre('borderRadius') : '-pie-border-radius';
+							/*! for older browsers, required prefix, [webkit, moz, ms, o] like */
+						}
+						_el.style[k] = (k === 'clip') ? 'rect(' + arr.join("px ") + 'px)' : arr.join("px ") + 'px';
+					}
+					if (_el.currentStyle) {
+							if (this.x) {
+								_el.style.marginLeft = (this.marginLeft ? this.marginLeft + this.x : this.x) + xyUnit;
+							}
+							if (this.y) {
+								_el.style.marginTop = (this.marginTop ? this.marginTop + this.y : this.y) + xyUnit;
+							}
+							if (this.rotate) {
+								_el.style.filter = ieF;
+							}
+						}
+					if (/scroll/g.test(k.toString())) {
+						_el[k] = this[k];
+					}
+					var fil = '';
+					if (this.brightness) {
+						fil += ' brightness(' + this.brightness + '%)';
+					}
+					if (this.contrast) {
+						fil += ' contrast(' + this.contrast + '%)';
+					}
+					if (this.saturate) {
+						fil += ' saturate(' + this.saturate + '%)';
+					}
+					_el.style[pre('filter')] = fil;
+					
+					var ha = pre('perspective') in _el.style, xy = '';
+						
+					if (this.x || this.y || this.z) {
+						xy = ha ? ' translate3d(' + (this.x || 0) + '' + xyUnit + ', ' + (this.y || 0) + '' + xyUnit + ', ' + (this.z || 0) + 'px)' : ' translate(' + (this.x || 0) + '' + xyUnit + ', ' + (this.y || 0) + '' + xyUnit + ')';
+					}
+					if (this.rotate) {
+							xy += ha ? ' rotateZ(' + this.rotate + 'deg)' : ' rotate(' + this.rotate + 'deg)';
+						}
+						if (this.scale && !this.scaleX && !this.scaleY) {
+							xy += ' scale(' + this.scale + ')';
+						}
+						if (this.scaleX && !this.scale) {
+							xy += ' scaleX(' + this.scaleX + ')';
+						}
+						if (this.scaleY && !this.scale) {
+							xy += ' scaleY(' + this.scaleY + ')';
+						}
+						if (this.rotateX) {
+							xy += ' rotateX(' + this.rotateX + 'deg)';
+						}
+						if (this.rotateY) {
+							xy += ' rotateY(' + this.rotateY + 'deg)';
+						}
+						if (this.skewX) {
+							xy += ' skewX(' + this.skewX + 'deg)';
+						}
+						if (this.skewY) {
+							xy += ' skewX(' + this.skewY + 'deg)';
+						}
+						_el.style[pre('transform')] = xy;
+					if (k !== 'clip') {
+						_el.style[k] = this[k];
+					}
+				}
+		});
+		
+		}
+	
+	this.restart = function () {
+	
+		
+		// we now developing this feature
+		
+		return this;
+		
 	};
 
 	this.stop = function () {
@@ -239,7 +388,7 @@ TWEEN.Tween = function (object) {
 
 	this.stopChainedTweens = function () {
 
-		for (var i = 0, numChainedTweens = _chainedTweens.length; i < numChainedTweens; i++) {
+		for (var i = 0; i < _chainedTweens.length; i++) {
 
 			_chainedTweens[i].stop();
 
@@ -253,6 +402,13 @@ TWEEN.Tween = function (object) {
 		return this;
 
 	};
+	
+	this.stagger = function (amount) {
+	
+		_stagger = amount;
+		return this;
+		
+	}
 
 	this.repeat = function (times) {
 
@@ -264,6 +420,13 @@ TWEEN.Tween = function (object) {
 	this.yoyo = function (yoyo) {
 
 		_yoyo = yoyo;
+		return this;
+
+	};
+
+	this.reverse = function (reverse) {
+
+		_reverse = reverse;
 		return this;
 
 	};
@@ -327,7 +490,7 @@ TWEEN.Tween = function (object) {
 
 		}
 
-		if (_onStartCallbackFired === false) {
+		if (!_onStartCallbackFired) {
 
 			if (_onStartCallback !== null) {
 
@@ -346,12 +509,13 @@ TWEEN.Tween = function (object) {
 
 		for (property in _valuesEnd) {
 
-			var start = _valuesStart[property] || 0;
-			var end = _valuesEnd[property];
+			var start = (_reverse ? _valuesEnd[property] : _valuesStart[property]) || 0;
+			var end = _reverse ? _valuesStart[property] : _valuesEnd[property];
+			var _interpolationEnd = _valuesEnd[property];
 
-			if (end instanceof Array ) {
-
-				_object[property] = _interpolationFunction(end, value);
+			if (!(start instanceof Array) && end instanceof Array) {
+				_interpolationEnd = _reverse ? _interpolationEnd.reverse() : _interpolationEnd;
+				_object[property] = _interpolationFunction(_interpolationEnd, value);
 
 			} else {
 
@@ -370,12 +534,11 @@ TWEEN.Tween = function (object) {
 		}
 
 		if (_onUpdateCallback !== null) {
-
 			_onUpdateCallback.call(_object, value);
 
 		}
 
-		if (elapsed == 1) {
+		if (elapsed === 1) {
 
 			if (_repeat > 0) {
 
@@ -742,12 +905,12 @@ TWEEN.Easing = {
 		}
 
 	},
-	
+
 	SteppedEase : {
 		config : function (steps) {
-		return function (k) {
-		return 	Math.floor(k * steps) / steps;
-			}	
+			return function (k) {
+				return Math.floor(k * steps) / steps;
+			}
 		}
 	}
 
@@ -860,10 +1023,10 @@ TWEEN.Interpolation = {
 	}
 
 };
-
-if ( typeof(module) !== 'undefined' && module.exports ) {
+	
+if (typeof(module) !== 'undefined' && module.exports) {
 	module.exports = TWEEN;
-} else if ( typeof(define) === 'function' && define.amd ) {
+} else if (typeof(define) === 'function' && define.amd) {
 	define(TWEEN)
 } else {
 	window.TWEEN = TWEEN;
