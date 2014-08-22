@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>Tween.js / SteppedEase</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<link href="css/style.css" media="screen" rel="stylesheet" type="text/css" />
+		<style type="text/css">
+			.box {
+				display: block;
+				width: 60px;
+				height: 60px;
+				border-radius: 4rem;
+				position: absolute;
+				border: 1px solid black;
+				font-size: 3rem;
+				padding: 2rem;
+				vertical-align: center;
+			}
+			#target {
+				background: #fcc;
+			}
+			</style>
+	</head>
+	<body>
+		<div id="info">
+			<h1><a href="http://github.com/sole/tween.js">tween.js</a></h1>
+			<h2>15 _ SteppedEase</h2>
+			<p>Demonstrating the SteppedEase() feature.</p>
+			<p><input id="range" type="range" min="2" max="99" step="1" value="5"/></p>
+		</div>
+		<div style="position: absolute; top: 100px; left: 400px; ">
+			<div id="target" data-rotate="0" data-y="0" class="box">
+				5
+		</div>
+		
+		<script src="js/pre.js"></script>
+		<script src="js/CSSMatrix.js"></script>
+		<script src="../src/Tween.js"></script>
+		<script src="js/RequestAnimationFrame.js"></script>
+		<script>
+
+			init();
+			animate();
+
+			function addEvent (el, ev, fn, cap) {
+			if (el.addEventListener) {
+			el.addEventListener(ev, fn, cap);
+			} else if (el.attachEvent) {
+			el.attachEvent('on' + ev, fn);
+			} else {
+			el['on' + ev] = fn;
+			}
+			}
+			
+			function init() {
+				var target = document.getElementById( 'target' ),
+					tween = new TWEEN.Tween( { y: 0} )
+					.to( { rotate: '+360', x: 500 }, 750 )
+					.repeat( Infinity )
+					.delay( 1000 )
+					.yoyo( true )
+					.easing( TWEEN.Easing.Cubic.InOut )
+					.animate(target)
+					.start();
+					
+				var slider = document.getElementById( 'range' );
+				
+				addEvent(slider, 'change', function() {
+					var v = slider.value * 1.0;
+					target.innerHTML = v;
+					tween.easing( TWEEN.Easing.SteppedEase.config(v) );
+				});
+
+				tween.easing( TWEEN.Easing.SteppedEase.config(10) );
+				slider.value = 10;
+				tween.start();
+			}
+
+			function animate( time ) {
+
+				requestAnimationFrame( animate );
+				TWEEN.update( time );
+
+			}
+
+		</script>
+	</body>
+</html>

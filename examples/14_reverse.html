@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en" id="html" class="ie">
+	<head>
+		<title>Tween.js / reverse</title>
+		<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7">
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<link href="css/style.css" media="screen" rel="stylesheet" type="text/css" />
+		<style type="text/css">
+		.ie * {
+		behavior: url(css/PIE.htc);
+		}
+			.box {
+				width: 100px;
+				height: 100px;
+				display: block;
+				-webkit-border-radius: 70px;
+				-moz-border-radius: 70px;
+				border-radius: 70px;
+				-pie-border-radius: 70px;
+				position: absolute;
+				border: 1px solid black;
+				font-size: 10px;
+				padding: 20px;
+			}
+			#target1 {
+				background: #fcc;
+			}
+			
+			
+			#label-reverse {
+			padding: 10px 20px;
+			background-color: #0ff;
+			background-image: linear-gradient(#0ff, #0cf);
+			-pie-background: linear-gradient(#0ff, #0cf);
+			color: #fff;
+			text-shadow: 0 1px 0 #000;
+			filter: Shadow(Color=black, Direction=180, Strength=1);
+			border: solid 1px #0cc;
+			-webkit-border-radius: 5px;
+			-moz-border-radius: 5px;
+			border-radius: 5px;
+			-pie-border-radius: 5px;
+			}
+			
+			#label-reverse.checked {
+			background-color: #0cf;
+			background-image: linear-gradient(#0cf, #0ff);
+			-pie-background: linear-gradient(#0cf, #0ff);
+			text-shadow: 0 -1px 0 #000;
+			}
+			
+			#reverse {
+			opacity: 0;
+			outline: 0;
+			border: 0;
+			filter: alpha(opacity=0);
+			}
+		</style>
+	</head>
+	<body>
+		<div id="info">
+			<h1><a href="http://github.com/sole/tween.js">tween.js</a></h1>
+			<h2>14 _ reverse</h2>
+			<p>Demonstrating the reverse() feature.</p>
+			<input type="checkbox" id="reverse" checked="true"/>
+			<label for="reverse" id="label-reverse" class="checked">Disable Reverse</label>
+		</div>
+		<div style="position: absolute; top: 100px; left: 400px; ">
+			<div id="target1" data-rotate="0" data-y="0" class="box" style="left: 0px; top: 0px">
+				reverse with repeat forever
+			</div>
+		</div>
+
+		<script src="js/pre.js"></script>
+		<script src="js/CSSMatrix.js"></script>
+		<script src="../src/Tween.js"></script>
+		<script src="js/RequestAnimationFrame.js"></script>
+		<script>
+
+			init();
+			animate();
+
+			(function notIE(){
+			var html = document.getElementById('html');
+			if ('classList' in html) {
+			html.className = html.className.replace(/ie/g, 'not-ie');
+			}
+			}());
+			
+			function addEvent (el, ev, fn, cap) {
+			if (el.addEventListener) {
+			el.addEventListener(ev, fn, cap);
+			} else if (el.attachEvent) {
+			el.attachEvent('on' + ev, fn);
+			} else {
+			el['on' + ev] = fn;
+			}
+			}
+			
+			function init() {
+				var target1 = document.getElementById( 'target1' ),
+					checked = document.getElementById( 'reverse' ),
+					labeled = document.getElementById( 'label-reverse' ),
+					tween1 = new TWEEN.Tween( {} )
+						.to( { rotate: 360, y: 300 }, 1500 )
+						.repeat( Infinity )
+						.delay( 300 )
+						.reverse( true )
+						.easing( TWEEN.Easing.Cubic.InOut )
+						.animate(target1)
+						.start();
+						
+						addEvent(checked, 'change', function () {
+						if (checked.checked) {
+						labeled.innerHTML = 'Disable Reverse';
+						labeled.className = labeled.className.replace(/unchecked/g, ' checked');
+						} else {
+						labeled.innerHTML = '&nbsp;Enable Reverse';
+						labeled.className = labeled.className.replace(/checked/g, ' unchecked');
+						}
+						tween1.reverse( checked.checked );
+						});
+			}
+
+			function animate( time ) {
+
+				requestAnimationFrame( animate );
+
+				TWEEN.update( time );
+
+			}
+
+		</script>
+	</body>
+</html>
