@@ -1,10 +1,7 @@
 /**
  * Tween.js - High-performance tweening engine
- 
- * Special factored for @sole tween.js repo by @dalisoft
- * Licensed under ulta-permissive MIT-Licensed
  *
- * This code editing restricted, if not contributed to @sole tween.js repo!
+ * Licensed under ulta-permissive MIT-Licensed
  *
  */
 
