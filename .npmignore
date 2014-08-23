@@ -1,0 +1,11 @@
+assets/
+docs/
+examples/
+test/
+utils/
+
+.gitignore
+.npmignore
+.travis.yml
+CONTRIBUTING.md
+gulpfile.js
