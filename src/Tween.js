@@ -191,7 +191,7 @@ TWEEN.Tween = function ( object ) {
 		_paused = false;
 		_now = Date.now();
 		
-		_startTime += now - _pauseStart;
+		_startTime += _now - _pauseStart;
 		
 		TWEEN.add(this);
 		
