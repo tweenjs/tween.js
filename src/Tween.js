@@ -754,6 +754,17 @@ TWEEN.Interpolation = {
 
 };
 
-if(typeof module !== 'undefined' && module.exports) {
-	module.exports = TWEEN;
-}
+// Node: Export function
+					if (typeof module !== "undefined" && module.exports) {
+						module.exports = TWEEN;
+					}
+					// AMD/requirejs: Define the module
+					else if (typeof define === 'function' && define.amd) {
+						define(function () {
+							return TWEEN;
+						});
+					}
+					// Browser: Expose to window
+					else {
+						window.TWEEN = TWEEN;
+					}
