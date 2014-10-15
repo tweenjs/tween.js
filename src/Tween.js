@@ -106,6 +106,9 @@ TWEEN.Tween = function ( object ) {
 	var _onUpdateCallback = null;
 	var _onCompleteCallback = null;
 	var _onStopCallback = null;
+	var _paused = false;
+	var _pauseStart = null;
+	var _now = Date.now();
 
 	// Set all starting values present on the target object
 	for ( var field in object ) {
@@ -168,6 +171,32 @@ TWEEN.Tween = function ( object ) {
 		return this;
 
 	};
+	
+	this.pause = function () {
+		if (_paused) {
+			return;
+		}
+		_paused = true;
+		_pauseStart = Date.now();
+		
+		TWEEN.remove(this);
+		
+		return this;
+	};
+	
+	this.play = function () {
+		if (!_paused) {
+			return;
+		}
+		_paused = false;
+		_now = Date.now();
+		
+		_startTime += _now - _pauseStart;
+		
+		TWEEN.add(this);
+		
+		return this;
+	}
 
 	this.stop = function () {
 
