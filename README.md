@@ -41,7 +41,7 @@ Super simple, fast and easy to use tweening engine which incorporates optimised 
 
 ## Getting it
 
-Download the [minified library](https://raw.githubusercontent.com/sole/tween.js/r14/build/tween.min.js) and include it in your html. Or use the [unminified version](https://raw.githubusercontent.com/sole/tween.js/r14/src/Tween.js) for better debugging.
+Download the [minified library](https://raw.githubusercontent.com/sole/tween.js/r15/build/tween.min.js) and include it in your html. Or use the [unminified version](https://raw.githubusercontent.com/sole/tween.js/r15/src/Tween.js) for better debugging.
 
 ```html
 <script src="js/tween.min.js"></script>
@@ -152,7 +152,7 @@ If you want to add any feature or change existing features, you *must* run the t
 
 ## Change log
 
-2014 10 16 - **r15** (5,798 KB, gzip: 2,168 KB)
+2014 10 16 - **r15** (5,611 KB, gzip: 1,980 KB)
 
 * Add ```Tween.play``` ([dalisoft](https://github.com/dalisoft))
 * Add ```Tween.pause``` ([dalisoft](https://github.com/dalisoft))
