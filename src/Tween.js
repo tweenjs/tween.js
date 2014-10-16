@@ -119,6 +119,9 @@ TWEEN.Tween = function ( object ) {
 	var _onUpdateCallback = null;
 	var _onCompleteCallback = null;
 	var _onStopCallback = null;
+	var _reverse = false;
+	var _timeScale = 1;
+	var _repeatDelay = 0;
 	var _paused = false;
 	var _pauseStart = null;
 	var _now = Date.now();
@@ -129,6 +132,28 @@ TWEEN.Tween = function ( object ) {
 		_valuesStart[ field ] = parseFloat(object[field], 10);
 
 	}
+ 		 
+	this.reverse = function ( state ) {
+		
+		_reverse = state || true;
+		
+		return this;
+	};
+	
+	this.timeScale = function ( scale ) {
+		
+		_timeScale = scale;
+		
+		return this;
+	};
+ 		 
+	this.repeatDelay = function ( amount ) {
+
+		_repeatDelay = amount;
+		return this;
+
+	};
+ 		 
 
 	this.to = function ( properties, duration ) {
 
@@ -334,15 +359,15 @@ TWEEN.Tween = function ( object ) {
 
 		}
 
-		var elapsed = ( time - _startTime ) / _duration;
+		var elapsed = ( time - _startTime ) / (_duration * _timeScale);
 		elapsed = elapsed > 1 ? 1 : elapsed;
 
 		var value = _easingFunction( elapsed );
 
 		for ( property in _valuesEnd ) {
 
-			var start = _valuesStart[ property ] || 0;
-			var end = _valuesEnd[ property ];
+			var start = (_reverse ? _valuesEnd[property] : _valuesStart[property]) || 0;
+			var end = _reverse ? _valuesStart[property] : _valuesEnd[property];
 
 			if ( end instanceof Array ) {
 
@@ -400,6 +425,7 @@ TWEEN.Tween = function ( object ) {
 				}
 
 				_startTime = time + _delayTime;
+				_startTime += _repeatDelay;
 
 				return true;
 
