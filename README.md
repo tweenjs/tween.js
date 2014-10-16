@@ -1,4 +1,4 @@
-# tween.js (r15dev) [![Travis tests](https://travis-ci.org/sole/tween.js.svg?branch=master)](https://travis-ci.org/sole/tween.js)
+# tween.js (r15) [![Travis tests](https://travis-ci.org/sole/tween.js.svg?branch=master)](https://travis-ci.org/sole/tween.js)
 
 **JavaScript tweening engine for easy animations**
 
@@ -151,6 +151,16 @@ npm test
 If you want to add any feature or change existing features, you *must* run the tests to make sure you didn't break anything else. If you send a PR to add something new and it doesn't have tests, the PR won't be accepted (unless it's seriously good). See [contributing](CONTRIBUTING.md) for more info.
 
 ## Change log
+
+2014 10 16 - **r15** (5,798 KB, gzip: 2,168 KB)
+
+* Add ```Tween.play``` ([dalisoft](https://github.com/dalisoft))
+* Add ```Tween.pause``` ([dalisoft](https://github.com/dalisoft))
+* Add ```Tween.reverse``` ([dalisoft](https://github.com/dalisoft))
+* Add ```Tween.Easing.SteppedEase``` ([dalisoft](https://github.com/dalisoft))
+* Add ```Tween.timeScale``` ([dalisoft](https://github.com/dalisoft))
+* Add ```Tween.repeatDelay``` ([dalisoft](https://github.com/dalisoft))
+* Add module transport ([dalisoft](https://github.com/dalisoft))
 
 2014 06 15 - **r14** (5,798 KB, gzip: 2,168 KB)
 
