@@ -375,10 +375,24 @@ TWEEN.Tween = function ( object ) {
 
 			} else {
 
-				// Parses relative end values with start as base (e.g.: +10, -3)
-				if ( typeof(end) === "string" ) {
-					end = start + parseFloat(end, 10);
-				}
+				// Parses relative end values with start as base (e.g.: +10, -3, *3, /5 also you can use +=5 like relative value)
+								if (typeof(end) === "string") {
+								var ru = end.charAt(0),
+									endV = 0,
+									s = start,
+									e = parseFloat(end.match(/[0-9]+/g), 10);
+									if ( ru === '+' ) {
+									endV = s + e;
+									} else if ( ru === '-' ) {
+									endV = s - e;
+									} else if ( ru === '*' ) {
+									endV = s * e;
+									} else if ( ru === '/' ) {
+									endV = s / e;
+									}
+									
+									end = endV;
+								}
 
 				// protect against non numeric properties.
 				if ( typeof(end) === "number" ) {
