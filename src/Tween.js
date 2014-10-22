@@ -18,13 +18,26 @@ if ( Date.now === undefined ) {
 
 }
 
+// fix when TWEEN.remove(this) on IE7, IE8
+if (Array.prototype.indexOf === undefined) {
+	Array.prototype.indexOf = function (arr) {
+		var value = -1;
+		for (var i = 0; i < this.length; i++) {
+			if (this[i] === arr) {
+				value = i;
+			}
+		}
+		return value;
+	};
+}
+
 var TWEEN = TWEEN || ( function () {
 
 	var _tweens = [];
 
 	return {
 
-		REVISION: '14',
+		REVISION: '15',
 
 		getAll: function () {
 
@@ -106,6 +119,12 @@ TWEEN.Tween = function ( object ) {
 	var _onUpdateCallback = null;
 	var _onCompleteCallback = null;
 	var _onStopCallback = null;
+	var _reverse = false;
+	var _timeScale = 1;
+	var _repeatDelay = 0;
+	var _paused = false;
+	var _pauseStart = null;
+	var _now = Date.now();
 
 	// Set all starting values present on the target object
 	for ( var field in object ) {
@@ -113,6 +132,28 @@ TWEEN.Tween = function ( object ) {
 		_valuesStart[ field ] = parseFloat(object[field], 10);
 
 	}
+ 		 
+	this.reverse = function ( state ) {
+		
+		_reverse = state || true;
+		
+		return this;
+	};
+	
+	this.timeScale = function ( scale ) {
+		
+		_timeScale = scale;
+		
+		return this;
+	};
+ 		 
+	this.repeatDelay = function ( amount ) {
+
+		_repeatDelay = amount;
+		return this;
+
+	};
+ 		 
 
 	this.to = function ( properties, duration ) {
 
@@ -168,6 +209,32 @@ TWEEN.Tween = function ( object ) {
 		return this;
 
 	};
+	
+	this.pause = function () {
+		if (_paused) {
+			return;
+		}
+		_paused = true;
+		_pauseStart = Date.now();
+		
+		TWEEN.remove(this);
+		
+		return this;
+	};
+	
+	this.play = function () {
+		if (!_paused) {
+			return;
+		}
+		_paused = false;
+		_now = Date.now();
+		
+		_startTime += _now - _pauseStart;
+		
+		TWEEN.add(this);
+		
+		return this;
+	}
 
 	this.stop = function () {
 
@@ -292,15 +359,15 @@ TWEEN.Tween = function ( object ) {
 
 		}
 
-		var elapsed = ( time - _startTime ) / _duration;
+		var elapsed = ( time - _startTime ) / (_duration * _timeScale);
 		elapsed = elapsed > 1 ? 1 : elapsed;
 
 		var value = _easingFunction( elapsed );
 
 		for ( property in _valuesEnd ) {
 
-			var start = _valuesStart[ property ] || 0;
-			var end = _valuesEnd[ property ];
+			var start = (_reverse ? _valuesEnd[property] : _valuesStart[property]) || 0;
+			var end = _reverse ? _valuesStart[property] : _valuesEnd[property];
 
 			if ( end instanceof Array ) {
 
@@ -308,10 +375,24 @@ TWEEN.Tween = function ( object ) {
 
 			} else {
 
-				// Parses relative end values with start as base (e.g.: +10, -3)
-				if ( typeof(end) === "string" ) {
-					end = start + parseFloat(end, 10);
-				}
+				// Parses relative end values with start as base (e.g.: +10, -3, *3, /5 also you can use +=5 like relative value)
+								if (typeof(end) === "string") {
+								var ru = end.charAt(0),
+									endV = 0,
+									s = start,
+									e = parseFloat(end.match(/[0-9]+/g), 10);
+									if ( ru === '+' ) {
+									endV = s + e;
+									} else if ( ru === '-' ) {
+									endV = s - e;
+									} else if ( ru === '*' ) {
+									endV = s * e;
+									} else if ( ru === '/' ) {
+									endV = s / e;
+									}
+									
+									end = endV;
+								}
 
 				// protect against non numeric properties.
 				if ( typeof(end) === "number" ) {
@@ -358,6 +439,7 @@ TWEEN.Tween = function ( object ) {
 				}
 
 				_startTime = time + _delayTime;
+				_startTime += _repeatDelay;
 
 				return true;
 
@@ -663,6 +745,14 @@ TWEEN.Easing = {
 
 		}
 
+	},
+
+	SteppedEase : {
+		config : function (steps) {
+			return function (k) {
+				return Math.floor(k * steps) / steps;
+			}
+		}
 	}
 
 };
@@ -754,6 +844,17 @@ TWEEN.Interpolation = {
 
 };
 
-if(typeof module !== 'undefined' && module.exports) {
-	module.exports = TWEEN;
-}
+// Node: Export function
+					if (typeof module !== "undefined" && module.exports) {
+						module.exports = TWEEN;
+					}
+					// AMD/requirejs: Define the module
+					else if (typeof define === 'function' && define.amd) {
+						define(function () {
+							return TWEEN;
+						});
+					}
+					// Browser: Expose to window
+					else {
+						window.TWEEN = TWEEN;
+					}
