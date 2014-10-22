@@ -156,7 +156,7 @@ If you want to add any feature or change existing features, you *must* run the t
 
 * Add ```/3 // or /=3``` relative value ([dalisoft](https://github.com/dalisoft))
 * Add ```*3 // or *=3``` relative value ([dalisoft](https://github.com/dalisoft))
-* Fixed ```( + and - )``` relative value issue ([dalisoft](https://github.com/dalisoft))
+* Fix ```( + and - )``` relative value ([dalisoft](https://github.com/dalisoft))
 * Add ```Tween.play``` ([dalisoft](https://github.com/dalisoft))
 * Add ```Tween.pause``` ([dalisoft](https://github.com/dalisoft))
 * Add ```Tween.reverse``` ([dalisoft](https://github.com/dalisoft))
