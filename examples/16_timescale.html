@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>Tween.js - timeScale</title>
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<link href="css/style.css" media="screen" rel="stylesheet" type="text/css" />
+		<style type="text/css">
+			.box {
+				display: block;
+				width: 60px;
+				height: 60px;
+				border-radius: 4rem;
+				position: absolute;
+				border: 1px solid black;
+				font-size: 3rem;
+				padding: 2rem;
+				vertical-align: center;
+			}
+			#target {
+				background: #fcc;
+			}
+			small {
+				font-size: small;
+				position: relative;
+				top: -40px;
+				text-align: center;
+			}
+			</style>
+	</head>
+	<body>
+		<div id="info">
+			<h1><a href="http://github.com/sole/tween.js">tween.js</a></h1>
+			<h2>16 _ timeScale</h2>
+			<p>Demonstrating the timeScale() feature.</p>
+			<p><input id="range" type="range" min="1" max="10" step="1" value="5"/></p>
+		</div>
+		<div style="position: absolute; top: 100px; left: 400px; ">
+			<div id="target" data-rotate="0" data-y="0" class="box">
+				2x <small>slow</small>
+		</div>
+		<script src="../src/Tween.js"></script>
+		<script src="js/RequestAnimationFrame.js"></script>
+		<script>
+
+			init();
+			animate();
+			
+			function init() {
+				var target = document.getElementById( 'target' ),
+					tween1 = new TWEEN.Tween( {} )
+						.to( { rotate: 360, top: 300, left: 300 }, 500 )
+						.repeat( 5 )
+						.yoyo( true )
+						.delay( 300 )
+						.easing( TWEEN.Easing.Cubic.InOut )
+						.onUpdate( function () {
+						var sty = target.style;
+							sty.top = this.top + 'px'; // top
+							sty.left = this.left + 'px'; // left
+							sty.WebkitTransform = 'rotate(' + this.rotate + 'deg)'; // Webkit, transform, rotate(360deg)
+							sty.MozTransform = 'rotate(' + this.rotate + 'deg)'; // Moz, transform, rotate(360deg)
+							sty.transform = 'rotate(' + this.rotate + 'deg)'; // Modern, transform, rotate(360deg)
+						});
+					
+				var slider = document.getElementById( 'range' );
+				
+				slider.addEventListener('change', function() {
+					var v = slider.value * 1.0;
+					target.innerHTML = target.innerHTML.replace(/([0-9])+/g, v);
+					tween1.timeScale( v );
+				});
+
+				tween1.timeScale(1);
+				slider.value = 1;
+				tween1.start();
+			}
+
+			function animate( time ) {
+
+				requestAnimationFrame( animate );
+				TWEEN.update( time );
+
+			}
+
+		</script>
+	</body>
+</html>
