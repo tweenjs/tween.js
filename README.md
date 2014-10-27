@@ -154,6 +154,7 @@ If you want to add any feature or change existing features, you *must* run the t
 
 2014 10 16 - **r15** (5,611 KB, gzip: 1,980 KB)
 
+* Add ```Tween.resume``` ([dalisoft](https://github.com/dalisoft))
 * Add colors tween with HEX, RGB/RGBA, HSV/AHSV, HSL/HSLA and color names ([dalisoft](https://github.com/dalisoft))
 * Add string tween ([dalisoft](https://github.com/dalisoft))
 * Add ```/3 // or /=3``` relative value ([dalisoft](https://github.com/dalisoft))
