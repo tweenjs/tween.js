@@ -180,7 +180,7 @@ TWEEN.Tween = function ( object ) {
 
 		if ( _onStopCallback !== null ) {
 
-			_onStopCallback.call( _object );
+			_onStopCallback.call( _object, _object );
 
 		}
 
@@ -284,7 +284,7 @@ TWEEN.Tween = function ( object ) {
 
 			if ( _onStartCallback !== null ) {
 
-				_onStartCallback.call( _object );
+				_onStartCallback.call( _object, _object );
 
 			}
 
@@ -365,7 +365,7 @@ TWEEN.Tween = function ( object ) {
 
 				if ( _onCompleteCallback !== null ) {
 
-					_onCompleteCallback.call( _object );
+					_onCompleteCallback.call( _object, _object );
 
 				}
 
