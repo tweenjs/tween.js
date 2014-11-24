@@ -65,23 +65,15 @@ var TWEEN = TWEEN || ( function () {
 			if ( time !== undefined ) {
 
 				// fix for iOS8
-				if ( typeof window !== 'undefined' && window.performance === undefined ) {
+				time = typeof window !== 'undefined' && window.performance === undefined ? Date.now() : time;
 
-					time = Date.now();
+			} else if ( typeof window !== 'undefined' && window.performance !== undefined && window.performance.now !== undefined ) {
 
-				}
+				time = window.performance.now();
 
 			} else {
 
-				if ( typeof window !== 'undefined' && window.performance !== undefined && window.performance.now !== undefined ) {
-
-					time = window.performance.now();
-
-				} else {
-
-					time = Date.now();
-
-				}
+				time = Date.now();
 
 			}
 
