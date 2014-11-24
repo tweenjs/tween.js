@@ -62,7 +62,20 @@ var TWEEN = TWEEN || ( function () {
 
 			var i = 0;
 
-			time = time !== undefined ? time : ( typeof window !== 'undefined' && window.performance !== undefined && window.performance.now !== undefined ? window.performance.now() : Date.now() );
+			if ( time !== undefined ) {
+
+				// fix for iOS8
+				time = typeof window !== 'undefined' && window.performance === undefined ? Date.now() : time;
+
+			} else if ( typeof window !== 'undefined' && window.performance !== undefined && window.performance.now !== undefined ) {
+
+				time = window.performance.now();
+
+			} else {
+
+				time = Date.now();
+
+			}
 
 			while ( i < _tweens.length ) {
 
