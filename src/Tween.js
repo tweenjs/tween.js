@@ -339,13 +339,17 @@ TWEEN.Tween = function ( object ) {
 				// reassign starting values, restart by making startTime = now
 				for( property in _valuesStartRepeat ) {
 
-					if ( typeof( _valuesEnd[ property ] ) === "string" ) {
+					if (!_yoyo && typeof( _valuesEnd[ property ] ) === "string" ) {
 						_valuesStartRepeat[ property ] = _valuesStartRepeat[ property ] + parseFloat(_valuesEnd[ property ], 10);
 					}
 
 					if (_yoyo) {
 						var tmp = _valuesStartRepeat[ property ];
-						_valuesStartRepeat[ property ] = _valuesEnd[ property ];
+						if (typeof( _valuesEnd[ property ] ) === "string" ) {
+							_valuesStartRepeat[ property ] = _valuesStartRepeat[ property ] + parseFloat(_valuesEnd[ property ], 10);
+						} else {
+							_valuesStartRepeat[ property ] = _valuesEnd[ property ];
+						}
 						_valuesEnd[ property ] = tmp;
 					}
 
