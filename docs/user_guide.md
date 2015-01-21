@@ -87,7 +87,7 @@ var tween = new TWEEN.Tween(position)
 	.start();
 ````
 
-You'll see this a lot in the examples, so it's good to be familiar with it! Check [04-simplest](./examples/04_simplest.html) for a working example.
+You'll see this a lot in the examples, so it's good to be familiar with it! Check [04-simplest](../examples/04_simplest.html) for a working example.
 
 ## Animating with tween.js
 
