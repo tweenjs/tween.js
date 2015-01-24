@@ -196,6 +196,10 @@ If `time` is not specified, it will use the current time.
 
 Used to get a reference to the active `tweens` array and to remove all of them from the array with just one call, respectively.
 
+### `TWEEEN.speed(speed)`
+
+Used to control the overall speed of all tweens, currently running and future. Value of 1 is default, value of 2 is twice as fast, etc. Will change speed of running tweens smoothly.
+
 ### `TWEEN.add(tween)` and `TWEEN.remove(tween)`
 
 Used to add a tween to the list of active tweens, or to remove an specific one from the list, respectively.
