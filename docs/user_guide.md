@@ -87,7 +87,7 @@ var tween = new TWEEN.Tween(position)
 	.start();
 ````
 
-You'll see this a lot in the examples, so it's good to be familiar with it! Check [04-simplest](./examples/04_simplest.html) for a working example.
+You'll see this a lot in the examples, so it's good to be familiar with it! Check [04-simplest](../examples/04_simplest.html) for a working example.
 
 ## Animating with tween.js
 
@@ -195,6 +195,10 @@ If `time` is not specified, it will use the current time.
 ### `TWEEN.getAll` and `TWEEN.removeAll`
 
 Used to get a reference to the active `tweens` array and to remove all of them from the array with just one call, respectively.
+
+### `TWEEEN.speed(speed)`
+
+Used to control the overall speed of all tweens, currently running and future. Value of 1 is default, value of 2 is twice as fast, etc. Will change speed of running tweens smoothly.
 
 ### `TWEEN.add(tween)` and `TWEEN.remove(tween)`
 

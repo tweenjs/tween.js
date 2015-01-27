@@ -63,6 +63,7 @@ var TWEEN = TWEEN || ( function () {
 			var i = 0;
 
 			time = time !== undefined ? time : ( typeof window !== 'undefined' && window.performance !== undefined && window.performance.now !== undefined ? window.performance.now() : Date.now() );
+			time = ( time - this._speedChangeStartAbsolute ) * this._speed + this._speedChangeStartRelative;
 
 			while ( i < _tweens.length ) {
 
@@ -79,6 +80,23 @@ var TWEEN = TWEEN || ( function () {
 			}
 
 			return true;
+
+		},
+
+		_speed: 1,
+
+		_speedChangeStartAbsolute: 0,
+
+		_speedChangeStartRelative: 0,
+
+		speed: function (speed) {
+
+			var time = typeof window !== 'undefined' && window.performance !== undefined && window.performance.now !== undefined ? window.performance.now() : Date.now();
+
+			this._speedChangeStartRelative += (time - this._speedChangeStartAbsolute) * this._speed;
+			this._speedChangeStartAbsolute = time;
+
+			this._speed = speed;
 
 		}
 	};
@@ -136,7 +154,18 @@ TWEEN.Tween = function ( object ) {
 
 		_onStartCallbackFired = false;
 
-		_startTime = time !== undefined ? time : ( typeof window !== 'undefined' && window.performance !== undefined && window.performance.now !== undefined ? window.performance.now() : Date.now() );
+		if (time == undefined) {
+
+			time = ( typeof window !== 'undefined' && window.performance !== undefined && window.performance.now !== undefined ? window.performance.now() : Date.now() );
+
+			_startTime = ( time - TWEEN._speedChangeStartAbsolute ) * TWEEN._speed + TWEEN._speedChangeStartRelative;
+
+		} else {
+
+			_startTime = time;
+
+		}
+
 		_startTime += _delayTime;
 
 		for ( var property in _valuesEnd ) {
@@ -271,7 +300,6 @@ TWEEN.Tween = function ( object ) {
 	};
 
 	this.update = function ( time ) {
-
 		var property;
 
 		if ( time < _startTime ) {
@@ -293,6 +321,7 @@ TWEEN.Tween = function ( object ) {
 		}
 
 		var elapsed = ( time - _startTime ) / _duration;
+
 		elapsed = elapsed > 1 ? 1 : elapsed;
 
 		var value = _easingFunction( elapsed );
@@ -357,12 +386,14 @@ TWEEN.Tween = function ( object ) {
 					_reversed = !_reversed;
 				}
 
-				_startTime = time + _delayTime;
+				_startTime = time;
+				_startTime += _delayTime;
 
 				return true;
 
 			} else {
 
+				// if ( _onCompleteCallback ) {
 				if ( _onCompleteCallback !== null ) {
 
 					_onCompleteCallback.call( _object );
@@ -754,6 +785,9 @@ TWEEN.Interpolation = {
 
 };
 
+
 if(typeof module !== 'undefined' && module.exports) {
+
 	module.exports = TWEEN;
+
 }
