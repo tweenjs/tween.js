@@ -754,6 +754,26 @@ TWEEN.Interpolation = {
 
 };
 
-if(typeof module !== 'undefined' && module.exports) {
-	module.exports = TWEEN;
-}
+// UMD (Universal Module Definition)
+( function ( root ) {
+
+	if ( typeof define === 'function' && define.amd ) {
+
+		// AMD
+		define( [], function () {
+			return TWEEN;
+		} );
+
+	} else if ( typeof exports === 'object' ) {
+
+		// Node.js
+		module.exports = TWEEN;
+
+	} else {
+
+		// Global variable
+		root.TWEEN = TWEEN;
+
+	}
+
+} )( this );
