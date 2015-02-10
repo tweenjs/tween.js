@@ -498,6 +498,28 @@
 
 			},
 
+			'Test TWEEN.Tween.chain progressess into chained tweens': function(test) {
+
+				var obj = {t:1000}
+
+				// 1000 of nothing
+				var blank = new TWEEN.Tween({}).to({}, 1000);
+
+				// tween obj.t from 1000 -> 2000 (in time with update time)
+				var next  = new TWEEN.Tween(obj).to({t:2000}, 1000);
+
+				blank.chain(next).start(0);
+
+				TWEEN.update(1500);
+				test.equal( obj.t, 1500 );
+
+				TWEEN.update(2000);
+				test.equal( obj.t, 2000 );
+
+				test.done();
+
+			},
+
 			'Test TWEEN.Tween.onStart': function(test) {
 
 				var obj = { },
