@@ -18,6 +18,16 @@ if ( Date.now === undefined ) {
 
 }
 
+/*! Check, that Tween.js working in browser mode. If browser window mode, adding polyfill */
+if ( typeof window !== 'undefined' && window.document !== undefined && window.performance === undefined && window.performance.now === undefined ) {
+	var lastTime = Date.now();
+	window.performance = {
+		now: function () {
+			return Date.now() - lastTime;
+		}
+	};
+}
+
 var TWEEN = TWEEN || ( function () {
 
 	var _tweens = [];
@@ -62,7 +72,7 @@ var TWEEN = TWEEN || ( function () {
 
 			var i = 0;
 
-			time = time !== undefined ? time : ( typeof window !== 'undefined' && window.performance !== undefined && window.performance.now !== undefined ? window.performance.now() : Date.now() );
+			time = time !== undefined ? time : typeof window !== 'undefined' ? window.performance.now() : Date.now();
 
 			while ( i < _tweens.length ) {
 
@@ -135,8 +145,7 @@ TWEEN.Tween = function ( object ) {
 		_isPlaying = true;
 
 		_onStartCallbackFired = false;
-
-		_startTime = time !== undefined ? time : ( typeof window !== 'undefined' && window.performance !== undefined && window.performance.now !== undefined ? window.performance.now() : Date.now() );
+		_startTime = time !== undefined ? time : typeof window !== 'undefined' ? window.performance.now() : Date.now();
 		_startTime += _delayTime;
 
 		for ( var property in _valuesEnd ) {
