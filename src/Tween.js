@@ -118,6 +118,7 @@ TWEEN.Tween = function ( object ) {
 	var _onUpdateCallback = null;
 	var _onCompleteCallback = null;
 	var _onStopCallback = null;
+	var _reverse = false;
 
 	// Set all starting values present on the target object
 	for ( var field in object ) {
@@ -201,6 +202,13 @@ TWEEN.Tween = function ( object ) {
 
 	};
 
+	this.reverse = function ( state ) {
+		
+		_reverse = state || true;
+		
+		return this;
+	}
+	
 	this.stopChainedTweens = function () {
 
 		for ( var i = 0, numChainedTweens = _chainedTweens.length; i < numChainedTweens; i++ ) {
@@ -311,8 +319,8 @@ TWEEN.Tween = function ( object ) {
 
 		for ( property in _valuesEnd ) {
 
-			var start = _valuesStart[ property ] || 0;
-			var end = _valuesEnd[ property ];
+			var start = (_reverse ? _valuesEnd[property] : _valuesStart[property]) || 0;
+			var end = _reverse ? _valuesStart[property] : _valuesEnd[property];
 
 			if ( end instanceof Array ) {
 
