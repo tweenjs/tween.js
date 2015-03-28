@@ -30,6 +30,19 @@
 
 } )( this );
 
+// fix when TWEEN.remove(this) on IE7, IE8
+if (Array.prototype.indexOf === undefined) {
+	Array.prototype.indexOf = function (arr) {
+		var value = -1;
+		for (var i = 0; i < this.length; i++) {
+			if (this[i] === arr) {
+				value = i;
+			}
+		}
+		return value;
+	};
+}
+
 var TWEEN = TWEEN || ( function () {
 
 	var _tweens = [];
