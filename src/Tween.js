@@ -118,6 +118,7 @@ TWEEN.Tween = function ( object ) {
 	var _onUpdateCallback = null;
 	var _onCompleteCallback = null;
 	var _onStopCallback = null;
+	var _repeatDelay = 0;
 
 	// Set all starting values present on the target object
 	for ( var field in object ) {
@@ -214,6 +215,13 @@ TWEEN.Tween = function ( object ) {
 	this.delay = function ( amount ) {
 
 		_delayTime = amount;
+		return this;
+
+	};
+
+	this.repeatDelay = function ( amount ) {
+
+		_repeatDelay = amount;
 		return this;
 
 	};
@@ -370,6 +378,7 @@ TWEEN.Tween = function ( object ) {
 				}
 
 				_startTime = time + _delayTime;
+				_startTime += _repeatDelay;
 
 				return true;
 
