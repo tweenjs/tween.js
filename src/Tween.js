@@ -32,11 +32,36 @@
 
 var TWEEN = TWEEN || ( function () {
 
-	var _tweens = [];
+	var _tweens = [],
+	_tick,
+	_stoppedTick = false;
 
 	return {
 
 		REVISION: '14',
+
+			process : function (time) {
+
+				_tick = requestAnimationFrame(TWEEN.process);
+				console.log(time);
+				TWEEN.update(time);
+
+			},
+
+			unprocess : function () {
+				if ( _tick !== undefined ) {
+				cancelAnimationFrame(_tick);
+				_stoppedTick = true;
+				}
+			},
+
+			reTick : function () {
+				if (_stoppedTick) {
+					_tick = requestAnimationFrame(TWEEN.process);
+					TWEEN.process(0);
+					_stoppedTick = false;
+				}
+			},
 
 		getAll: function () {
 
@@ -118,6 +143,7 @@ TWEEN.Tween = function ( object ) {
 	var _onUpdateCallback = null;
 	var _onCompleteCallback = null;
 	var _onStopCallback = null;
+	var _EcoModeCallback = null;
 
 	// Set all starting values present on the target object
 	for ( var field in object ) {
@@ -142,6 +168,7 @@ TWEEN.Tween = function ( object ) {
 
 	this.start = function ( time ) {
 
+		TWEEN.reTick();
 		TWEEN.add( this );
 
 		_isPlaying = true;
@@ -177,7 +204,25 @@ TWEEN.Tween = function ( object ) {
 
 		}
 
+		this.end();
 		return this;
+
+	};
+
+
+	this.end = function () {
+
+					_EcoModeCallback = function () {
+						var tweens = TWEEN.getAll(),
+							indexOf = tweens.indexOf(this),
+						length = tweens.length - 1;
+
+						if (indexOf === length) {
+							TWEEN.unprocess();
+						}
+					}
+
+					return TWEEN;
 
 	};
 
@@ -380,6 +425,12 @@ TWEEN.Tween = function ( object ) {
 					_onCompleteCallback.call( _object );
 
 				}
+
+					if (_EcoModeCallback !== null) {
+
+						_EcoModeCallback.call(this);
+
+					}
 
 				for ( var i = 0, numChainedTweens = _chainedTweens.length; i < numChainedTweens; i++ ) {
 
