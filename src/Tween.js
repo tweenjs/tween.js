@@ -43,7 +43,6 @@ var TWEEN = TWEEN || ( function () {
 			process : function (time) {
 
 				_tick = requestAnimationFrame(TWEEN.process);
-				console.log(time);
 				TWEEN.update(time);
 
 			},
