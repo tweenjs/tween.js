@@ -33,5 +33,6 @@
   },
   "scripts": {
     "test": "node_modules/.bin/nodeunit $(pwd)/test/unit/nodeunitheadless.js"
-  }
+  },
+  "author": "tween.js contributors (https://github.com/tweenjs/tween.js/graphs/contributors)"
 }
