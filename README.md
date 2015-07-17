@@ -67,18 +67,23 @@ Then use `browserify` or your `npm` tool of choice, or just include the module u
 var TWEEN = require('tween.js');
 ```
 
-You're an advanced user, so find your way around.
+Then you can use Tween.js as in all other examples--for example:
+
+```javascript
+var t = new TWEEN.Tween( /* etc */ );
+t.start();
+```
 
 #### Use `bower`
 
 ```bash
-bower install git@github.com:tweenjs/tween.js.git
+bower install tweenjs
 ```
 
 or install an specific tag (it's just git tags, you can run `git tag` for a list):
 
 ```bash
-bower install git@github.com:tweenjs/tween.js.git#r14```
+bower install tweenjs#r14```
 
 And reference either the minified file:
 
@@ -150,6 +155,12 @@ npm test
 If you want to add any feature or change existing features, you *must* run the tests to make sure you didn't break anything else. If you send a PR to add something new and it doesn't have tests, the PR won't be accepted (unless it's seriously good). See [contributing](CONTRIBUTING.md) for more info.
 
 ## Change log
+
+2015 07 17 - **r15**
+
+* Better bower.json support ([azachar](https://github.com/azachar))
+* Better module support and add performance.now polyfill ([superlukas](https://github.com/superlukas))
+* Cleaning up various things that are pointing to wrong places, etc ([sole](https://github.com/sole))
 
 2014 06 15 - **r14** (5,798 KB, gzip: 2,168 KB)
 
