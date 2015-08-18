@@ -55,7 +55,7 @@ This function will be called each time the tween is updated; how often this happ
 So far we've only used tweens to print values to the console, but you could use it for things such as animating positions of three.js objects:
 
 ````javascript
-var tween = new TWEEN.Tween(cube.position);
+var tween = new TWEEN.Tween(cube.position)
 		.to({ x: 100, y: 100, z: 100 }, 10000)
 		.start();
 
