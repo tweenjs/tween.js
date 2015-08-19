@@ -296,7 +296,7 @@ TWEEN.Tween = function ( object ) {
 
 			if ( _onStartCallback !== null ) {
 
-				_onStartCallback.call( _object );
+				_onStartCallback.call( this );
 
 			}
 
@@ -333,10 +333,14 @@ TWEEN.Tween = function ( object ) {
 			}
 
 		}
-
+        var _newObject = {};
+        for (var key in _object) {
+            _newObject[ key ] = _object[ key ];
+        }
+        
 		if ( _onUpdateCallback !== null ) {
 
-			_onUpdateCallback.call( _object, value );
+			_onUpdateCallback.call( this, _newObject );
 
 		}
 
@@ -377,7 +381,7 @@ TWEEN.Tween = function ( object ) {
 
 				if ( _onCompleteCallback !== null ) {
 
-					_onCompleteCallback.call( _object );
+					_onCompleteCallback.call( this );
 
 				}
 
