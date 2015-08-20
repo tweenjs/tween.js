@@ -383,7 +383,7 @@ TWEEN.Tween = function ( object ) {
 
 				for ( var i = 0, numChainedTweens = _chainedTweens.length; i < numChainedTweens; i++ ) {
 
-					_chainedTweens[ i ].start( time );
+					_chainedTweens[ i ].start( _startTime + _duration );
 
 				}
 
