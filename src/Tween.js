@@ -30,76 +30,89 @@
 
 } )( this );
 
-var TWEEN = TWEEN || ( function () {
+var _TWEEN_TweenGroup = function () {
 
 	var _tweens = [];
 
-	return {
+   // TODO
+   //REVISION: '14',
 
-		REVISION: '14',
+   this.getAll = function () {
 
-		getAll: function () {
+      return _tweens;
 
-			return _tweens;
+   };
 
-		},
+   this.removeAll = function () {
 
-		removeAll: function () {
+      _tweens = [];
 
-			_tweens = [];
+   };
 
-		},
+   this.add = function ( tween ) {
 
-		add: function ( tween ) {
+      _tweens.push( tween );
 
-			_tweens.push( tween );
+   };
 
-		},
+   this.remove = function ( tween ) {
 
-		remove: function ( tween ) {
+      var i = _tweens.indexOf( tween );
 
-			var i = _tweens.indexOf( tween );
+      if ( i !== -1 ) {
 
-			if ( i !== -1 ) {
+         _tweens.splice( i, 1 );
 
-				_tweens.splice( i, 1 );
+      }
 
-			}
+   };
 
-		},
+   this.update = function ( time ) {
 
-		update: function ( time ) {
+      if ( _tweens.length === 0 ) return false;
 
-			if ( _tweens.length === 0 ) return false;
+      var i = 0;
 
-			var i = 0;
+      time = time !== undefined ? time : window.performance.now();
 
-			time = time !== undefined ? time : window.performance.now();
+      while ( i < _tweens.length ) {
 
-			while ( i < _tweens.length ) {
+         if ( _tweens[ i ].update( time ) ) {
 
-				if ( _tweens[ i ].update( time ) ) {
+            i++;
 
-					i++;
+         } else {
 
-				} else {
+            _tweens.splice( i, 1 );
 
-					_tweens.splice( i, 1 );
+         }
 
-				}
+      }
 
-			}
+      return true;
 
-			return true;
+   };
+   
+   this.createTween = function ( object ) {
+      
+      return new TWEEN.Tween( object, this );
+   
+   };
 
-		}
-	};
+};
 
-} )();
+// For backwards compatibility, the TWEEN object is the global instance of TweenGroup
+var TWEEN = new _TWEEN_TweenGroup();
 
-TWEEN.Tween = function ( object ) {
+// We don't want to expose the TweenGroup class directly, but rather expose it on the TWEEN object
+TWEEN.TweenGroup = _TWEEN_TweenGroup;
+delete _TWEEN_TweenGroup;
+
+TWEEN.Tween = function ( object, group ) {
 
 	var _object = object;
+   var _group = group === undefined ? TWEEN : group; // If no TweenGroup is specified, use the global one
+   
 	var _valuesStart = {};
 	var _valuesEnd = {};
 	var _valuesStartRepeat = {};
@@ -142,7 +155,7 @@ TWEEN.Tween = function ( object ) {
 
 	this.start = function ( time ) {
 
-		TWEEN.add( this );
+		_group.add( this );
 
 		_isPlaying = true;
 
@@ -187,7 +200,7 @@ TWEEN.Tween = function ( object ) {
 			return this;
 		}
 
-		TWEEN.remove( this );
+		_group.remove( this );
 		_isPlaying = false;
 
 		if ( _onStopCallback !== null ) {
