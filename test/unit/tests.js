@@ -3,6 +3,7 @@
 	function getTests(TWEEN) {
 		
 		var tests = {
+
 			'hello': function(test) {
 				test.ok(TWEEN !== null);
 				test.done();
@@ -22,7 +23,7 @@
 				t.start();
 
 				var numTweensAfter = TWEEN.getAll().length;
-
+            
 				test.equal( numTweensBefore + 1, numTweensAfter );
 				test.done();
 
@@ -57,7 +58,7 @@
 				TWEEN.add( t );
 
 				test.equal( numTweens + 1, TWEEN.getAll().length );
-				test.equal( all, TWEEN.getAll() );
+				test.equal( all, TWEEN.getAll() ); // TODO: why should we have to guarantee this?
 				test.done();
 
 			},
@@ -839,7 +840,141 @@
 				test.equal( TWEEN.getAll().length, 0 );
 				test.done();
 
-			}
+			},
+         
+         'Test createTween': function ( test ) {
+         
+            var tween1 = TWEEN.createTween();
+            test.ok( tween1 instanceof TWEEN.Tween );
+            
+            var tween2 = new TWEEN.TweenGroup().createTween();
+            test.ok( tween2 instanceof TWEEN.Tween );
+            
+            test.done();
+            
+         },
+         
+         'TWEEN.TweenGroup test that groups update separately': function ( test ) {
+         
+            var group1 = new TWEEN.TweenGroup(), group2 = new TWEEN.TweenGroup();
+            
+            var global_tween1_object = {value: 0};
+            var global_tween1 = TWEEN.createTween( global_tween1_object ).to( {value: 1}, 100 ).start( 0 );
+            var global_tween2_object = {value: 0};
+            var global_tween2 = new TWEEN.Tween( global_tween2_object, TWEEN ).to( {value: 1}, 100 ).start( 0 );
+            var global_tween3_object = {value: 0};
+            var global_tween3 = new TWEEN.Tween( global_tween3_object ).to( {value: 1}, 100 ).start( 0 );
+            
+            var group1_tween1_object = {value: 0};
+            var group1_tween1 = group1.createTween( group1_tween1_object ).to( {value: 1}, 100 ).start( 0 );
+            var group1_tween2_object = {value: 0};
+            var group1_tween2 = new TWEEN.Tween( group1_tween2_object, group1 ).to( {value: 1}, 100 ).start( 0 );
+            
+            var group2_tween1_object = {value: 0};
+            var group2_tween1 = group2.createTween( group2_tween1_object ).to( {value: 1}, 100 ).start( 0 );
+            var group2_tween2_object = {value: 0};
+            var group2_tween2 = new TWEEN.Tween( group2_tween2_object, group2 ).to( {value: 1}, 100 ).start( 0 );
+            
+            // Update the global group
+            test.equal( global_tween1_object.value, 0 );
+            test.equal( global_tween2_object.value, 0 );
+            test.equal( global_tween3_object.value, 0 );
+            
+            test.ok(TWEEN.update( 100 ));
+            
+            test.equal( global_tween1_object.value, 1 );
+            test.equal( global_tween2_object.value, 1 );
+            test.equal( global_tween3_object.value, 1 );
+            
+            // Update group 1
+            test.equal( group1_tween1_object.value, 0 );
+            test.equal( group1_tween2_object.value, 0 );
+            
+            test.ok(group1.update(100));
+            
+            test.equal( group1_tween1_object.value, 1 );
+            test.equal( group1_tween2_object.value, 1 );
+            
+            // Update group 2
+            test.equal( group2_tween1_object.value, 0 );
+            test.equal( group2_tween2_object.value, 0 );
+            
+            test.ok(group2.update( 100 ));
+            
+            test.equal( group2_tween1_object.value, 1 );
+            test.equal( group2_tween2_object.value, 1 );
+            
+            test.done();
+            
+         },
+         
+         'TWEEN.TweenGroup test that removeAll affects only one group': function ( test ) {
+         
+            var i;
+            
+            var globalTweens = 2;
+            var group1Tweens = 3;
+            var group2Tweens = 4;
+            
+            // Just in case there are some tweens in the global group from other tests
+            TWEEN.removeAll();
+            
+            var group1 = new TWEEN.TweenGroup();
+            var group2 = new TWEEN.TweenGroup();
+            
+            // Make sure all the groups are empty now
+            
+            test.equal( TWEEN.getAll().length, 0 );
+            test.equal( group1.getAll().length, 0 );
+            test.equal( group2.getAll().length, 0 );
+            
+            // Add tweens to the groups
+            
+            for (i = 0; i < globalTweens; ++i) {
+            
+               TWEEN.createTween().start();
+               
+            }
+            
+            for (i = 0; i < group1Tweens; ++i) {
+            
+               group1.createTween().start();
+               
+            }
+            
+            for (i = 0; i < group2Tweens; ++i) {
+
+               group2.createTween().start();
+               
+            }
+         
+            test.equal( TWEEN.getAll().length, globalTweens );
+            test.equal( group1.getAll().length, group1Tweens );
+            test.equal( group2.getAll().length, group2Tweens );
+            
+            // Now start removing tweens
+            
+            group1.removeAll();
+            
+            test.equal( TWEEN.getAll().length, globalTweens );
+            test.equal( group1.getAll().length, 0 );
+            test.equal( group2.getAll().length, group2Tweens );
+            
+            TWEEN.removeAll();
+            
+            test.equal( TWEEN.getAll().length, 0 );
+            test.equal( group1.getAll().length, 0 );
+            test.equal( group2.getAll().length, group2Tweens );
+            
+            group2.removeAll();
+            
+            test.equal( TWEEN.getAll().length, 0 );
+            test.equal( group1.getAll().length, 0 );
+            test.equal( group2.getAll().length, 0 );
+         
+            test.done();
+         
+         }
 
 		};
 
