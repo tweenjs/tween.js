@@ -30,83 +30,89 @@
 
 } )( this );
 
-var _TWEEN_TweenGroup = function () {
+var TWEEN;
 
-	var _tweens = [];
+// Hide inside a local scope in order to avoid polluting the namespace
+(function () {
 
-   // TODO
-   //REVISION: '14',
+   var _TWEEN_TweenGroup = function () {
 
-   this.getAll = function () {
+      var _tweens = [];
 
-      return _tweens;
+      this.getAll = function () {
 
-   };
+         return _tweens;
 
-   this.removeAll = function () {
+      };
 
-      _tweens = [];
+      this.removeAll = function () {
 
-   };
+         _tweens = [];
 
-   this.add = function ( tween ) {
+      };
 
-      _tweens.push( tween );
+      this.add = function ( tween ) {
 
-   };
+         _tweens.push( tween );
 
-   this.remove = function ( tween ) {
+      };
 
-      var i = _tweens.indexOf( tween );
+      this.remove = function ( tween ) {
 
-      if ( i !== -1 ) {
+         var i = _tweens.indexOf( tween );
 
-         _tweens.splice( i, 1 );
-
-      }
-
-   };
-
-   this.update = function ( time ) {
-
-      if ( _tweens.length === 0 ) return false;
-
-      var i = 0;
-
-      time = time !== undefined ? time : window.performance.now();
-
-      while ( i < _tweens.length ) {
-
-         if ( _tweens[ i ].update( time ) ) {
-
-            i++;
-
-         } else {
+         if ( i !== -1 ) {
 
             _tweens.splice( i, 1 );
 
          }
 
-      }
+      };
 
-      return true;
+      this.update = function ( time ) {
 
-   };
-   
-   this.createTween = function ( object ) {
+         if ( _tweens.length === 0 ) return false;
+
+         var i = 0;
+
+         time = time !== undefined ? time : window.performance.now();
+
+         while ( i < _tweens.length ) {
+
+            if ( _tweens[ i ].update( time ) ) {
+
+               i++;
+
+            } else {
+
+               _tweens.splice( i, 1 );
+
+            }
+
+         }
+
+         return true;
+
+      };
       
-      return new TWEEN.Tween( object, this );
-   
+      this.createTween = function ( object ) {
+         
+         return new TWEEN.Tween( object, this );
+      
+      };
+
    };
+   
+   // For backwards compatibility, the TWEEN object is the global instance of TweenGroup.
+   // It is advisable to create your own instances of TweenGroup, in order to avoid using mutable global objects.
+   TWEEN = new _TWEEN_TweenGroup();
+   
+   // Don't expose the TweenGroup class directly, but rather expose it on the TWEEN object
+   TWEEN.TweenGroup = _TWEEN_TweenGroup;
+   
+})();
 
-};
-
-// For backwards compatibility, the TWEEN object is the global instance of TweenGroup
-var TWEEN = new _TWEEN_TweenGroup();
-
-// We don't want to expose the TweenGroup class directly, but rather expose it on the TWEEN object
-TWEEN.TweenGroup = _TWEEN_TweenGroup;
-delete _TWEEN_TweenGroup;
+TWEEN.REVISION = '14';
 
 TWEEN.Tween = function ( object, group ) {
 
