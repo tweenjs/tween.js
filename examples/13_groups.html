@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>Tween.js / stop chained</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<link href="css/style.css" media="screen" rel="stylesheet" type="text/css" />
+	</head>
+	<body>
+		<div id="info">
+			<h1><a href="http://github.com/sole/tween.js">tween.js</a></h1>
+			<h2>13 _ separate tweening groups.</h2>
+			<p>Click a widget to pause or resume.</p>
+		</div>
+		<div style="position: absolute; top: 250px; left: 50px; ">
+			<button id="add">Add Widget</button>
+			<button id="remove">Remove Widget</button>
+         <br/>
+         <br/>
+         <div id="widgetContainer"/>
+		</div>
+
+		<script src="../build/tween.min.js"></script>
+		<script src="js/RequestAnimationFrame.js"></script>
+		<script>
+         // The Box class represents the boxes that will move around in the widgets.
+         function Box() {
+            this.domElement = document.createElement("div");
+            this.domElement.className = "Box";
+            
+            this.x = 0;
+            this.y = 0;
+            
+            this.position = (function() {
+               this.domElement.style.left = this.x + "px";
+               this.domElement.style.top = this.y + "px";
+            }).bind(this);
+         }
+         
+         // A Widget is just a little box with boxes moving around in it. Nothing too fancy.
+         function Widget() {
+            var _tweenGroup = new TWEEN.TweenGroup();
+            
+            this.domElement = document.createElement("div");
+            this.domElement.className = "Widget";
+            
+            var _box1 = new Box();
+            _box1.x = 25;
+            _box1.y = 25;
+            _box1.position();
+            this.domElement.appendChild(_box1.domElement);
+            var _box1_right = _tweenGroup.createTween(_box1)
+               .to({x:125, y:25})
+               .onUpdate(_box1.position);
+            var _box1_down = _tweenGroup.createTween(_box1)
+               .to({x:125, y:125})
+               .onUpdate(_box1.position);
+            var _box1_left = _tweenGroup.createTween(_box1)
+               .to({x:25, y:125})
+               .onUpdate(_box1.position);
+            var _box1_up = _tweenGroup.createTween(_box1)
+               .to({x:25, y:25})
+               .onUpdate(_box1.position);
+            _box1_right.chain(_box1_down);
+            _box1_down.chain(_box1_left);
+            _box1_left.chain(_box1_up);
+            _box1_up.chain(_box1_right);
+            _box1_right.start();
+            
+            var _box2 = new Box();
+            _box2.x = 125;
+            _box2.y = 125;
+            _box2.position();
+            this.domElement.appendChild(_box2.domElement);
+            var _box2_right = _tweenGroup.createTween(_box2)
+               .to({x:125, y:25})
+               .onUpdate(_box2.position);
+            var _box2_down = _tweenGroup.createTween(_box2)
+               .to({x:125, y:125})
+               .onUpdate(_box2.position);
+            var _box2_left = _tweenGroup.createTween(_box2)
+               .to({x:25, y:125})
+               .onUpdate(_box2.position);
+            var _box2_up = _tweenGroup.createTween(_box2)
+               .to({x:25, y:25})
+               .onUpdate(_box2.position);
+            _box2_right.chain(_box2_down);
+            _box2_down.chain(_box2_left);
+            _box2_left.chain(_box2_up);
+            _box2_up.chain(_box2_right);
+            _box2_left.start();
+            
+            // TODO: pick up where the animation left off instead of jumping
+            var _paused = false;
+            var _shouldPause = false;
+            var _lastAnimationRequestID = undefined;
+            var _pauseStartTime;
+            var _totalPausedTime = 0;
+            
+            this.animate = (function(time) {
+               _tweenGroup.update(time - _totalPausedTime);
+               _lastAnimationTime = time;
+               _lastAnimationRequestID = requestAnimationFrame(this.animate);
+            }).bind(this);
+            
+            this.togglePaused = (function() {
+               if (_paused) {
+                  _lastAnimationRequestID = requestAnimationFrame(this.animate);
+                  _paused = false;
+                  _totalPausedTime += performance.now() - _pauseStartTime;
+               } else {
+                  if (_lastAnimationRequestID) {
+                     cancelAnimationFrame(_lastAnimationRequestID);
+                     _lastAnimationRequestID = undefined;
+                  }
+                  _paused = true;
+                  _pauseStartTime = performance.now();
+               }
+            }).bind(this);
+            
+            this.domElement.onclick = this.togglePaused;
+            
+            // Allow this widget to be garbage collected.
+            this.destroy = function() {
+               // Force the animation loop to stop.
+               this.animate = function() {};
+            };
+         }
+         
+         var add = document.getElementById("add");
+         var remove = document.getElementById("remove");
+         
+         var widgetContainer = document.getElementById("widgetContainer");
+         
+         var widgets = [];
+         
+         add.onclick = function() {
+            var widget = new Widget();
+            widgets.push(widget);
+            widgetContainer.appendChild(widget.domElement);
+            widget.animate()
+         };
+         
+         remove.onclick = function() {
+            var removedWidget = widgets.pop();
+            if (removedWidget) {
+               widgetContainer.removeChild(removedWidget.domElement);
+               removedWidget.destroy();
+            }
+         };
+		</script>
+
+		<style type="text/css">
+			.Box {
+				width: 50px;
+				height: 50px;
+            display: block;
+				-webkit-border-radius: 10px;
+				-moz-border-radius: 10px;
+				border-radius: 10px;
+				position: absolute;
+            background-color: #222;
+			}
+         
+         .Widget {
+            width: 200px;
+            height: 200px;
+            margin: -1px -1px 0px 0px;
+            float: left;
+            position: relative;
+				border: 1px solid black;
+            background-color: #CCC;
+         }
+		</style>
+	</body>
+</html>
