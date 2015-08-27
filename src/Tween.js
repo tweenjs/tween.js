@@ -8,10 +8,10 @@
  */
 
 // performance.now polyfill
-( function ( root ) {
+( function () {
 
-	if ( 'performance' in root === false ) {
-		root.performance = {};
+	if ( 'performance' in window === false ) {
+		window.performance = {};
 	}
 
 	// IE 8
@@ -19,16 +19,16 @@
 		return new Date().getTime();
 	} );
 
-	if ( 'now' in root.performance === false ) {
-		var offset = root.performance.timing && root.performance.timing.navigationStart ? performance.timing.navigationStart
-		                                                                                : Date.now();
+	if ( 'now' in window.performance === false ) {
+		var offset = window.performance.timing && window.performance.timing.navigationStart ? window.performance.timing.navigationStart
+		                                                                                    : Date.now();
 
-		root.performance.now = function () {
+		window.performance.now = function () {
 			return Date.now() - offset;
 		};
 	}
 
-} )( this );
+} )();
 
 var TWEEN = TWEEN || ( function () {
 
