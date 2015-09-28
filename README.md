@@ -263,5 +263,5 @@ Use the `delay()` method: `var t = new TWEEN.Tween({...}).delay(1000);`
 
 **Is there a jQuery plug-in?**
 
-No, we like to keep it simple and free of dependencies. Feel free to make one yourself, though! :-)
+Yes, now available via <a href="https://github.com/thednp/jQueryTween">jQueryTween</a>.
 
