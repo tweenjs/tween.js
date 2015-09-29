@@ -36,8 +36,6 @@ var TWEEN = TWEEN || ( function () {
 
 	return {
 
-		REVISION: '14',
-
 		getAll: function () {
 
 			return _tweens;
