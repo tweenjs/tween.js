@@ -2,7 +2,7 @@
 
 **JavaScript tweening engine for easy animations**
 
-[![Install with NPM](https://nodei.co/npm/tween.js.png?downloads=true&stars=true)](https://nodei.co/npm/tween.js/)
+**Install with NPM**: npm install tween.js
 
 [![Flattr this](https://api.flattr.com/button/flattr-badge-large.png)](https://flattr.com/thing/45014/tween-js)
 
@@ -41,19 +41,13 @@ Super simple, fast and easy to use tweening engine which incorporates optimised 
 
 ## Getting it
 
-Download the [minified library](https://raw.githubusercontent.com/tweenjs/tween.js/r14/build/tween.min.js) and include it in your html. Or use the [unminified version](https://raw.githubusercontent.com/tweenjs/tween.js/r14/src/Tween.js) for better debugging.
+Download the [library](https://raw.githubusercontent.com/tweenjs/tween.js/master/src/Tween.js) and include it in your code:
 
 ```html
-<script src="js/tween.min.js"></script>
+<script src="js/Tween.js"></script>
 ```
 
 ### More advanced users might want to...
-
-#### Use development version
-
-The steps above are for getting the latest stable version (tagged with a release tag in git). If you want to check the latest and greatest, simply check out the repository as it is, or download either
-* [tween.min.js](https://raw.githubusercontent.com/tweenjs/tween.js/master/build/tween.min.js)
-* [tween.js](https://raw.githubusercontent.com/tweenjs/tween.js/master/src/Tween.js)
 
 #### Use `npm`
 
@@ -61,18 +55,20 @@ The steps above are for getting the latest stable version (tagged with a release
 npm install tween.js
 ```
 
-Then use `browserify` or your `npm` tool of choice, or just include the module using the standard `node` require:
+Then include the Tween.js module with the standard node.js `require`:
 
 ```javascript
 var TWEEN = require('tween.js');
 ```
 
-Then you can use Tween.js as in all other examples--for example:
+And you can use Tween.js as in all other examples--for example:
 
 ```javascript
 var t = new TWEEN.Tween( /* etc */ );
 t.start();
 ```
+
+You will need to use a tool such as `browserify` to convert code using this style into something that can be run in the browser (browsers don't know about `require`).
 
 #### Use `bower`
 
@@ -80,18 +76,13 @@ t.start();
 bower install tweenjs
 ```
 
-or install an specific tag (it's just git tags, you can run `git tag` for a list):
+or install an specific tag. They are git tags, and you can run `git tag` for a list:
 
 ```bash
-bower install tweenjs#r14```
-
-And reference either the minified file:
-
-```html
-<script src="bower_components/tween.js/build/tween.min.js"></script>
+bower install tweenjs#r14
 ```
 
-or the unminified file
+Then reference the library source: 
 
 ```html
 <script src="bower_components/tween.js/src/Tween.js"></script>
@@ -155,6 +146,10 @@ npm test
 If you want to add any feature or change existing features, you *must* run the tests to make sure you didn't break anything else. If you send a PR to add something new and it doesn't have tests, the PR won't be accepted (unless it's seriously good). See [contributing](CONTRIBUTING.md) for more info.
 
 ## Change log
+
+2015 09 29 - **r16**
+
+* Remove the minified version and the `build` folder. From now on we just publish and refer to the code in `src/Tween.js` ([sole](https://github.com/sole)).
 
 2015 07 17 - **r15**
 
