@@ -58,19 +58,19 @@ You will need to use a tool such as `browserify` to convert code using this styl
 #### Use `bower`
 
 ```bash
-bower install tweenjs
+bower install tweenjs --save
 ```
 
-or install an specific tag. They are git tags, and you can run `git tag` for a list:
+or install an specific tag. They are git tags, and you can run `git tag` in the command line for a list if you have cloned the repository locally, or you can also check out the list in the [tween.js tags page](https://github.com/tweenjs/tween.js/tags). For example, to install `v16.3.0`:
 
 ```bash
-bower install tweenjs#r14
+bower install tweenjs#v16.3.0
 ```
 
 Then reference the library source: 
 
 ```html
-<script src="bower_components/tween.js/src/Tween.js"></script>
+<script src="bower_components/tweenjs/src/Tween.js"></script>
 ```
 
 ## Features

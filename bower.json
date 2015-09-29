@@ -21,7 +21,6 @@
     "assets",
     "docs",
     "examples",
-    "utils",
     ".*"
   ]
 }
