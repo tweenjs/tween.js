@@ -17,12 +17,15 @@
   ],
   "dependencies": {},
   "scripts": {
-    "test": "nodeunit $(pwd)/test/unit/nodeunitheadless.js && npm run jshint",
-    "jshint": "jshint --config $(pwd)/test/jshintrc $(pwd)/src/Tween.js",
+    "test": "npm run test-unit && npm run test-correctness && npm run test-style",
+	"test-unit": "nodeunit $(pwd)/test/unit/nodeunitheadless.js",
+    "test-correctness": "jshint --config $(pwd)/test/jshintrc $(pwd)/src/Tween.js",
+	"test-style": "jscs --config $(pwd)/test/jscs.json $(pwd)/src/Tween.js",
     "semantic-release": "semantic-release pre && npm publish && semantic-release post"
   },
   "author": "tween.js contributors (https://github.com/tweenjs/tween.js/graphs/contributors)",
   "devDependencies": {
+    "jscs": "^2.2.0",
     "jshint": "^2.8.0",
     "nodeunit": "^0.9.1",
     "semantic-release": "^4.3.5"
