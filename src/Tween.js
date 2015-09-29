@@ -361,7 +361,9 @@ TWEEN.Tween = function (object) {
 				}
 
 				for (var i = 0, numChainedTweens = _chainedTweens.length; i < numChainedTweens; i++) {
-					_chainedTweens[i].start(time);
+					// Make the chained tweens start exactly at the time they should,
+					// even if the `update()` method was called way past the duration of the tween
+					_chainedTweens[i].start(_startTime + _duration);
 				}
 
 				return false;
