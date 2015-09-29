@@ -3,5 +3,5 @@ bower.json
 docs/
 examples/
 LICENSE
-*.md
+CONTRIBUTING.md
 test/
