@@ -1,0 +1,7 @@
+assets/
+bower.json
+docs/
+examples/
+LICENSE
+*.md
+test/
