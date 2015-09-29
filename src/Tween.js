@@ -298,6 +298,13 @@ TWEEN.Tween = function ( object ) {
 
 				_onStartCallback.call( _object );
 
+				// Reset all starting values, in case they were changed by the callback
+				for ( var field in _object ) {
+
+					_valuesStart[ field ] = parseFloat(_object[field], 10);
+
+				}
+
 			}
 
 			_onStartCallbackFired = true;
