@@ -68,7 +68,9 @@ var TWEEN = TWEEN || ( function () {
 
 		update: function ( time ) {
 
-			if ( _tweens.length === 0 ) return false;
+			if ( _tweens.length === 0 ) {
+				return false;
+			}
 
 			var i = 0;
 
@@ -338,7 +340,7 @@ TWEEN.Tween = function ( object ) {
 
 		}
 
-		if ( elapsed == 1 ) {
+		if ( elapsed === 1 ) {
 
 			if ( _repeat > 0 ) {
 
@@ -426,7 +428,9 @@ TWEEN.Easing = {
 
 		InOut: function ( k ) {
 
-			if ( ( k *= 2 ) < 1 ) return 0.5 * k * k;
+			if ( ( k *= 2 ) < 1 ) {
+				return 0.5 * k * k;
+			}
 			return - 0.5 * ( --k * ( k - 2 ) - 1 );
 
 		}
@@ -449,7 +453,9 @@ TWEEN.Easing = {
 
 		InOut: function ( k ) {
 
-			if ( ( k *= 2 ) < 1 ) return 0.5 * k * k * k;
+			if ( ( k *= 2 ) < 1 ) {
+				return 0.5 * k * k * k;
+			}
 			return 0.5 * ( ( k -= 2 ) * k * k + 2 );
 
 		}
@@ -472,7 +478,9 @@ TWEEN.Easing = {
 
 		InOut: function ( k ) {
 
-			if ( ( k *= 2 ) < 1) return 0.5 * k * k * k * k;
+			if ( ( k *= 2 ) < 1) {
+				return 0.5 * k * k * k * k;
+			}
 			return - 0.5 * ( ( k -= 2 ) * k * k * k - 2 );
 
 		}
@@ -495,7 +503,9 @@ TWEEN.Easing = {
 
 		InOut: function ( k ) {
 
-			if ( ( k *= 2 ) < 1 ) return 0.5 * k * k * k * k * k;
+			if ( ( k *= 2 ) < 1 ) {
+				return 0.5 * k * k * k * k * k;
+			}
 			return 0.5 * ( ( k -= 2 ) * k * k * k * k + 2 );
 
 		}
@@ -540,9 +550,18 @@ TWEEN.Easing = {
 
 		InOut: function ( k ) {
 
-			if ( k === 0 ) return 0;
-			if ( k === 1 ) return 1;
-			if ( ( k *= 2 ) < 1 ) return 0.5 * Math.pow( 1024, k - 1 );
+			if ( k === 0 ) {
+				return 0;
+			}
+
+			if ( k === 1 ) {
+				return 1;
+			}
+
+			if ( ( k *= 2 ) < 1 ) {
+				return 0.5 * Math.pow( 1024, k - 1 );
+			}
+			
 			return 0.5 * ( - Math.pow( 2, - 10 * ( k - 1 ) ) + 2 );
 
 		}
@@ -565,7 +584,9 @@ TWEEN.Easing = {
 
 		InOut: function ( k ) {
 
-			if ( ( k *= 2 ) < 1) return - 0.5 * ( Math.sqrt( 1 - k * k) - 1);
+			if ( ( k *= 2 ) < 1) {
+				return - 0.5 * ( Math.sqrt( 1 - k * k) - 1);
+			}
 			return 0.5 * ( Math.sqrt( 1 - ( k -= 2) * k) + 1);
 
 		}
@@ -577,10 +598,17 @@ TWEEN.Easing = {
 		In: function ( k ) {
 
 			var s, a = 0.1, p = 0.4;
-			if ( k === 0 ) return 0;
-			if ( k === 1 ) return 1;
-			if ( !a || a < 1 ) { a = 1; s = p / 4; }
-			else s = p * Math.asin( 1 / a ) / ( 2 * Math.PI );
+			if ( k === 0 ) {
+				return 0;
+			}
+			if ( k === 1 ) {
+				return 1;
+			}
+			if ( !a || a < 1 ) {
+				a = 1; s = p / 4;
+			} else {
+				s = p * Math.asin( 1 / a ) / ( 2 * Math.PI );
+			}
 			return - ( a * Math.pow( 2, 10 * ( k -= 1 ) ) * Math.sin( ( k - s ) * ( 2 * Math.PI ) / p ) );
 
 		},
@@ -588,10 +616,19 @@ TWEEN.Easing = {
 		Out: function ( k ) {
 
 			var s, a = 0.1, p = 0.4;
-			if ( k === 0 ) return 0;
-			if ( k === 1 ) return 1;
-			if ( !a || a < 1 ) { a = 1; s = p / 4; }
-			else s = p * Math.asin( 1 / a ) / ( 2 * Math.PI );
+			if ( k === 0 ) {
+				return 0;
+			}
+
+			if ( k === 1 ) {
+				return 1;
+			}
+
+			if ( !a || a < 1 ) {
+				a = 1; s = p / 4;
+			} else {
+				s = p * Math.asin( 1 / a ) / ( 2 * Math.PI );
+			}
 			return ( a * Math.pow( 2, - 10 * k) * Math.sin( ( k - s ) * ( 2 * Math.PI ) / p ) + 1 );
 
 		},
@@ -599,11 +636,24 @@ TWEEN.Easing = {
 		InOut: function ( k ) {
 
 			var s, a = 0.1, p = 0.4;
-			if ( k === 0 ) return 0;
-			if ( k === 1 ) return 1;
-			if ( !a || a < 1 ) { a = 1; s = p / 4; }
-			else s = p * Math.asin( 1 / a ) / ( 2 * Math.PI );
-			if ( ( k *= 2 ) < 1 ) return - 0.5 * ( a * Math.pow( 2, 10 * ( k -= 1 ) ) * Math.sin( ( k - s ) * ( 2 * Math.PI ) / p ) );
+			if ( k === 0 ) {
+				return 0;
+			}
+
+			if ( k === 1 ) {
+				return 1;
+			}
+
+			if ( !a || a < 1 ) {
+				a = 1; s = p / 4;
+			} else {
+				s = p * Math.asin( 1 / a ) / ( 2 * Math.PI );
+			}
+
+			if ( ( k *= 2 ) < 1 ) {
+				return - 0.5 * ( a * Math.pow( 2, 10 * ( k -= 1 ) ) * Math.sin( ( k - s ) * ( 2 * Math.PI ) / p ) );
+			}
+
 			return a * Math.pow( 2, -10 * ( k -= 1 ) ) * Math.sin( ( k - s ) * ( 2 * Math.PI ) / p ) * 0.5 + 1;
 
 		}
@@ -629,7 +679,9 @@ TWEEN.Easing = {
 		InOut: function ( k ) {
 
 			var s = 1.70158 * 1.525;
-			if ( ( k *= 2 ) < 1 ) return 0.5 * ( k * k * ( ( s + 1 ) * k - s ) );
+			if ( ( k *= 2 ) < 1 ) {
+				return 0.5 * ( k * k * ( ( s + 1 ) * k - s ) );
+			}
 			return 0.5 * ( ( k -= 2 ) * k * ( ( s + 1 ) * k + s ) + 2 );
 
 		}
@@ -668,7 +720,9 @@ TWEEN.Easing = {
 
 		InOut: function ( k ) {
 
-			if ( k < 0.5 ) return TWEEN.Easing.Bounce.In( k * 2 ) * 0.5;
+			if ( k < 0.5 ) {
+				return TWEEN.Easing.Bounce.In( k * 2 ) * 0.5;
+			}
 			return TWEEN.Easing.Bounce.Out( k * 2 - 1 ) * 0.5 + 0.5;
 
 		}
@@ -683,8 +737,13 @@ TWEEN.Interpolation = {
 
 		var m = v.length - 1, f = m * k, i = Math.floor( f ), fn = TWEEN.Interpolation.Utils.Linear;
 
-		if ( k < 0 ) return fn( v[ 0 ], v[ 1 ], f );
-		if ( k > 1 ) return fn( v[ m ], v[ m - 1 ], m - f );
+		if ( k < 0 ) {
+			return fn( v[ 0 ], v[ 1 ], f );
+		}
+
+		if ( k > 1 ) {
+			return fn( v[ m ], v[ m - 1 ], m - f );
+		}
 
 		return fn( v[ i ], v[ i + 1 > m ? m : i + 1 ], f - i );
 
@@ -708,14 +767,21 @@ TWEEN.Interpolation = {
 
 		if ( v[ 0 ] === v[ m ] ) {
 
-			if ( k < 0 ) i = Math.floor( f = m * ( 1 + k ) );
+			if ( k < 0 ) {
+				i = Math.floor( f = m * ( 1 + k ) );
+			}
 
 			return fn( v[ ( i - 1 + m ) % m ], v[ i ], v[ ( i + 1 ) % m ], v[ ( i + 2 ) % m ], f - i );
 
 		} else {
 
-			if ( k < 0 ) return v[ 0 ] - ( fn( v[ 0 ], v[ 0 ], v[ 1 ], v[ 1 ], -f ) - v[ 0 ] );
-			if ( k > 1 ) return v[ m ] - ( fn( v[ m ], v[ m ], v[ m - 1 ], v[ m - 1 ], f - m ) - v[ m ] );
+			if ( k < 0 ) {
+				return v[ 0 ] - ( fn( v[ 0 ], v[ 0 ], v[ 1 ], v[ 1 ], -f ) - v[ 0 ] );
+			}
+
+			if ( k > 1 ) {
+				return v[ m ] - ( fn( v[ m ], v[ m ], v[ m - 1 ], v[ m - 1 ], f - m ) - v[ m ] );
+			}
 
 			return fn( v[ i ? i - 1 : 0 ], v[ i ], v[ m < i + 1 ? m : i + 1 ], v[ m < i + 2 ? m : i + 2 ], f - i );
 
@@ -745,9 +811,16 @@ TWEEN.Interpolation = {
 			return function ( n ) {
 
 				var s = 1, i;
-				if ( a[ n ] ) return a[ n ];
-				for ( i = n; i > 1; i-- ) s *= i;
-				return a[ n ] = s;
+				if ( a[ n ] ) {
+					return a[ n ];
+				}
+
+				for ( i = n; i > 1; i-- ) {
+					s *= i;
+				}
+				
+				a[n] = s;
+				return s;
 
 			};
 
