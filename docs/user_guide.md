@@ -272,25 +272,27 @@ var trickyObjTween = new TWEEN.Tween({
 	});
 ````
 
-Or imagine you want to ensure the values of an object are in an specific state each time the tween is started. You'll assign a `start` callback:
+Or imagine you want to play a sound when a tween is started. You can use an `start` callback:
 
 ````javascript
 var tween = new TWEEN.Tween(obj)
 	.to({ x: 100 })
 	.onStart(function() {
-		this.x = 0;
+		sound.play();
 	});
 ````
 
-The scope for each callback is the tweened object.
+The scope for each callback is the tweened object--in this case, `obj`.
 
 ### onStart
 
-Executed right before the tween starts-i.e. before the deltas are calculated. This is the place to reset values in order to have the tween always start from the same point, for example.
+Executed right before the tween starts--i.e. before the deltas are calculated. This will be executed only once per tween, i.e. it will *not* be run when the tween is repeated via `repeat()`.
+
+It is great for synchronising to other events or triggering actions you want to happen when a tween starts.
 
 ### onStop
 
-Executed when a tween is explicitly stopped (not when it is completed normally), and before stopping any possible chained tween.
+Executed when a tween is explicitly stopped via `stop()`, but not when it is completed normally, and before stopping any possible chained tween.
 
 ### onUpdate
 
