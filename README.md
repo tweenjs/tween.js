@@ -109,8 +109,16 @@ Then reference the library source:
 You need to install `npm` first--this comes with node.js, so install that one first. Then, cd to `tween.js`'s directory and run:
 
 ```bash
+npm install
+```
+
+if running the tests for the first time, to install additional dependencies for running tests, and then run
+
+```bash
 npm test
 ```
+
+every time you want to run the tests.
 
 If you want to add any feature or change existing features, you *must* run the tests to make sure you didn't break anything else. If you send a PR to add something new and it doesn't have tests, or the tests don't pass, the PR won't be accepted. See [contributing](CONTRIBUTING.md) for more information.
 
