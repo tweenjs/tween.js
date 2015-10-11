@@ -33,7 +33,7 @@
 var TWEEN = TWEEN || (function () {
 
 	var _tweens = {};
-   tweens[undefined] = [];
+   _tweens[undefined] = [];
 
 	return {
 
