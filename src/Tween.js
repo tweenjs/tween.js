@@ -32,59 +32,73 @@
 
 var TWEEN = TWEEN || (function () {
 
-	var _tweens = [];
+	var _tweens = {};
 
 	return {
 
 		getAll: function () {
 
-			return _tweens;
+			return _tweens[undefined];
 
 		},
 
 		removeAll: function () {
 
-			_tweens = [];
+			_tweens = {};
 
 		},
 
-		add: function (tween) {
-
-			_tweens.push(tween);
-
-		},
-
-		remove: function (tween) {
-
-			var i = _tweens.indexOf(tween);
-
-			if (i !== -1) {
-				_tweens.splice(i, 1);
-			}
+		add: function (tween, group) {
+      
+         if (_tweens[group] === undefined) {
+            _tweens[group] = [];
+         }
+         
+			_tweens[group].push(tween);
 
 		},
 
-		update: function (time) {
+		remove: function (tween, group) {
 
-			if (_tweens.length === 0) {
-				return false;
-			}
+         if (_tweens[group]) {
+            var i = _tweens[group].indexOf(tween);
 
-			var i = 0;
+            if (i !== -1) {
+               _tweens[group].splice(i, 1);
+            }
+            
+            if (_tweens[group].length === 0) {
+               delete _tweens[group];
+            }
+         }
 
-			time = time !== undefined ? time : window.performance.now();
+		},
 
-			while (i < _tweens.length) {
+		update: function (time, group) {
+         
+         if (_tweens[group] !== undefined) {
+            if (_tweens[group].length === 0) {
+               return false;
+            }
 
-				if (_tweens[i].update(time)) {
-					i++;
-				} else {
-					_tweens.splice(i, 1);
-				}
+            var i = 0;
 
-			}
+            time = time !== undefined ? time : window.performance.now();
 
-			return true;
+            while (i < _tweens[group].length) {
+
+               if (_tweens[group][i].update(time)) {
+                  i++;
+               } else {
+                  _tweens[group].splice(i, 1);
+               }
+
+            }
+
+            return true;
+         } else {
+            return false;
+         }
 
 		}
 	};
