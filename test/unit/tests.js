@@ -863,6 +863,82 @@
 
 			},
 
+         'Test that groups animate separately': function(test) {
+         
+            var obj1 = { x: 0 };
+            var obj2 = { x: 0 };
+            var obj3 = { x: 0 };
+            
+            var tween1 = new TWEEN.Tween(obj1, 'group1').to({x: 10}, 10).start(0);
+            var tween2 = new TWEEN.Tween(obj2, 'group1').to({x: 20}, 10).start(0);
+            
+            var tween3 = new TWEEN.Tween(obj3, 'group2').to({x: 10}, 10).start(0);
+            
+            test.equal(obj1.x, 0);
+            test.equal(obj2.x, 0);
+            test.equal(obj3.x, 0);
+            
+            TWEEN.update(5, 'group1');
+            
+            test.equal(obj1.x, 5);
+            test.equal(obj2.x, 10);
+            test.equal(obj3.x, 0);
+            
+            TWEEN.update(10, 'group2');
+            
+            test.equal(obj1.x, 5);
+            test.equal(obj2.x, 10);
+            test.equal(obj3.x, 10);
+            
+            TWEEN.update(10, 'group1');
+            
+            test.equal(obj1.x, 10);
+            test.equal(obj2.x, 20);
+            test.equal(obj3.x, 10);
+         
+            test.done();
+         
+         },
+         
+         'Test that tweens can be removed from groups': function(test) {
+            var obj1 = { x: 0 };
+            var obj2 = { x: 0 };
+            var obj3 = { x: 0 };
+            
+            var tween1 = new TWEEN.Tween(obj1, 'group1').to({x: 10}, 10).start(0);
+            var tween2 = new TWEEN.Tween(obj2, 'group1').to({x: 20}, 10).start(0);
+            
+            var tween3 = new TWEEN.Tween(obj3, 'group2').to({x: 10}, 10).start(0);
+            
+            test.equal(obj1.x, 0);
+            test.equal(obj2.x, 0);
+            test.equal(obj3.x, 0);
+            
+            TWEEN.update(5, 'group1');
+            
+            test.equal(obj1.x, 5);
+            test.equal(obj2.x, 10);
+            test.equal(obj3.x, 0);
+            
+            TWEEN.remove(tween2, 'group1');
+            
+            TWEEN.update(10, 'group2');
+            
+            test.equal(obj1.x, 5);
+            test.equal(obj2.x, 10);
+            test.equal(obj3.x, 10);
+            
+            TWEEN.update(10, 'group1');
+            
+            test.equal(obj1.x, 10);
+            test.equal(obj2.x, 10);
+            test.equal(obj3.x, 10);
+            
+            test.done();
+            
+         },
+         
+         
 		};
 
 		return tests;
