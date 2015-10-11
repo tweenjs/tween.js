@@ -105,7 +105,7 @@ var TWEEN = TWEEN || (function () {
 
 })();
 
-TWEEN.Tween = function (object) {
+TWEEN.Tween = function (object, group) {
 
 	var _object = object;
 	var _valuesStart = {};
@@ -146,7 +146,7 @@ TWEEN.Tween = function (object) {
 
 	this.start = function (time) {
 
-		TWEEN.add(this);
+		TWEEN.add(this, group);
 
 		_isPlaying = true;
 
@@ -189,7 +189,7 @@ TWEEN.Tween = function (object) {
 			return this;
 		}
 
-		TWEEN.remove(this);
+		TWEEN.remove(this, group);
 		_isPlaying = false;
 
 		if (_onStopCallback !== null) {
