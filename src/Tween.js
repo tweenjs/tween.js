@@ -46,6 +46,7 @@ var TWEEN = TWEEN || (function () {
 		removeAll: function () {
 
 			_tweens = {};
+         _tweens[undefined] = [];
 
 		},
 
