@@ -33,6 +33,7 @@
 var TWEEN = TWEEN || (function () {
 
 	var _tweens = {};
+   tweens[undefined] = [];
 
 	return {
 
@@ -67,7 +68,7 @@ var TWEEN = TWEEN || (function () {
                _tweens[group].splice(i, 1);
             }
             
-            if (_tweens[group].length === 0) {
+            if (_tweens[group].length === 0 && group !== undefined) {
                delete _tweens[group];
             }
          }
