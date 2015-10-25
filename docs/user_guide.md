@@ -156,6 +156,13 @@ tweenB.chain(tweenA);
 ````
 
 Check [Hello world](../examples/00_hello_world.html) to see an example of these infinite chains.
+
+In other cases, you may want to chain multiple tweens to another tween in a way that they (the chained tweens) all start animating at the same time:
+
+````javascript
+tweenA.chain(tweenB,tweenC);
+````
+
 ### `repeat`
 
 If you wanted a tween to repeat forever you could chain it to itself, but a better way is to use the `repeat` method. It accepts a parameter that describes how many repetitions you want:
