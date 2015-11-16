@@ -864,7 +864,7 @@ TWEEN.Interpolation = {
 		// Node.js
 		module.exports = TWEEN;
 
-	} else if(root !== undefined) {
+	} else if (root !== undefined) {
 
 		// Global variable
 		root.TWEEN = TWEEN;
