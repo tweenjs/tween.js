@@ -7,6 +7,10 @@
  * Thank you all, you're awesome!
  */
 
+if (typeof window === 'undefined') {
+	return;
+}
+
 // Include a performance.now polyfill
 (function () {
 
