@@ -8,7 +8,7 @@
  */
 
 // Include a performance.now polyfill
-(function () {
+(function (window) {
 
 	if ('performance' in window === false) {
 		window.performance = {};
@@ -28,7 +28,7 @@
 		};
 	}
 
-})();
+})(this);
 
 var TWEEN = TWEEN || (function () {
 
