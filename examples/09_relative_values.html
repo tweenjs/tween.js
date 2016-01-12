@@ -28,11 +28,13 @@
 			function init() {
 				var target1 = document.getElementById( 'target1' ),
 					tween1 = new TWEEN.Tween( target1.dataset )
-						.to( { top: "+20", left: "-20" }, 1000 )
+						.to( { top: "+20", left: "-20" }, 500 )
 						.repeat( 5 )
 						.delay( 500 )
 						.easing( TWEEN.Easing.Exponential.In )
 						.onUpdate( function() {
+							this.top = Math.round(this.top);
+							this.left = Math.round(this.left);
 							updateBox( target1, this );
 						})
 						.start();
@@ -43,17 +45,14 @@
 			function animate( time ) {
 
 				requestAnimationFrame( animate );
-
 				TWEEN.update( time );
 
 			}
 
 			function updateBox( box, params ) {
-				var field,
-					s = box.style;
-				for (field in params) {
-					s[field] = params[field] + "px";
-				}
+				var s = box.style;
+				var transform = 'translate(' + params.left + 'px, ' + params.top + 'px)';
+				s.transform = transform;
 			}
 
 		</script>
@@ -65,7 +64,7 @@
 			<p>Tweening to relative values, with repeat.</p>
 		</div>
 		<div style="position: absolute; left: 400px; ">
-			<div id="target1" style="position: absolute;" data-top="150" class="box">
+			<div id="target1" style="position: absolute;" data-top="150" data-left="150" class="box">
 			</div>
 		</div>
 	</body>

@@ -286,6 +286,48 @@
 
 			},
 
+			'Tween relative positive value, with sign': function(test) {
+
+				var obj = { x: 0 },
+					t = new TWEEN.Tween( obj );
+
+				t.to( { x: "+100" }, 1000 );
+				t.start( 0 );
+				t.update( 1000 );
+
+				test.equal( obj.x, 100 );
+				test.done();
+
+			},
+
+			'Tween relative negative value': function(test) {
+
+				var obj = { x: 0 },
+					t = new TWEEN.Tween( obj );
+
+				t.to( { x: "-100" }, 1000 );
+				t.start( 0 );
+				t.update( 1000 );
+
+				test.equal( obj.x, -100 );
+				test.done();
+
+			},
+
+			'String values without a + or - sign should not be interpreted as relative': function(test) {
+
+				var obj = { x: 100 },
+					t = new TWEEN.Tween( obj );
+
+				t.to( { x: "100" }, 1000 );
+				t.start( 0 );
+				t.update( 1000 );
+
+				test.equal( obj.x, 100 );
+				test.done();
+
+			},
+
 			'Test TWEEN.Tween.start()': function(test) {
 
 				var obj = { },
