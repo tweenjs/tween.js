@@ -155,6 +155,12 @@ TWEEN.Tween = function (object) {
 
 			}
 
+			// If `to()` specifies a property that doesn't exist in the source object,
+			// we should not set that property in the object
+			if (_valuesStart[property] === undefined) {
+				continue;
+			}
+
 			_valuesStart[property] = _object[property];
 
 			if ((_valuesStart[property] instanceof Array) === false) {
@@ -292,6 +298,11 @@ TWEEN.Tween = function (object) {
 		value = _easingFunction(elapsed);
 
 		for (property in _valuesEnd) {
+
+			// Don't update properties that do not exist in the source object
+			if (_valuesStart[property] === undefined) {
+				continue;
+			}
 
 			var start = _valuesStart[property] || 0;
 			var end = _valuesEnd[property];

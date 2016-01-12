@@ -206,7 +206,8 @@
 				t.start( 0 );
 				t.update( 1000 );
 
-				test.deepEqual( obj.y, 0 );
+				test.deepEqual( obj.x, 1 );
+				test.equal( obj.y, undefined );
 				test.done();
 
 			},
@@ -280,7 +281,7 @@
 				t.start( 0 );
 				t.update( 1000 );
 
-				test.deepEqual( obj.x, 2 );
+				test.equal( obj.x, undefined );
 				test.done();
 
 			},
@@ -290,7 +291,7 @@
 				var obj = { },
 					t = new TWEEN.Tween( obj );
 
-				t.to( { x: 2 }, 1000 );
+				t.to( { }, 1000 );
 
 				TWEEN.removeAll();
 				test.equal( TWEEN.getAll().length, 0 ); // TODO move to TWEEN test
@@ -709,7 +710,7 @@
 
 				TWEEN.removeAll();
 
-				var obj = { x: 0 },
+				var obj = { x: 0, y: 0 },
 					t = new TWEEN.Tween( obj ).to( { x: "+100", y: "-100" }, 100 ).repeat( 1 );
 
 				t.start( 0 );
