@@ -227,6 +227,13 @@ Probably the names won't be saying anything to you unless you're familiar with t
 
 _Credit where credit is due:_ these functions are derived from the original set of equations that Robert Penner graciously made available as free software a few years ago, but have been optimised to play nicely with JavaScript.
 
+#### Setting Elastic easing parameters
+
+By default Elastic easing has the values 0.1 and 0.4 for amplitude and period respectively. To change these values you can use the `custom` function. For example:
+```js
+tween.easing(TWEEN.Easing.Elastic.custom(0.1, 0.8).In);
+```
+
 ### Using a custom easing function
 
 Not only can you use any of the existing functions, but you can also provide your own, as long as it follows a couple of conventions:

@@ -595,85 +595,85 @@ TWEEN.Easing = {
 
 	Elastic: {
 
-		In: function (k) {
+		custom: function (a, p) {
+			return {
+				In: function (k) {
 
-			var s;
-			var a = 0.1;
-			var p = 0.4;
+					var s;
+					var _a = a;
 
-			if (k === 0) {
-				return 0;
-			}
+					if (k === 0) {
+						return 0;
+					}
 
-			if (k === 1) {
-				return 1;
-			}
+					if (k === 1) {
+						return 1;
+					}
 
-			if (!a || a < 1) {
-				a = 1;
-				s = p / 4;
-			} else {
-				s = p * Math.asin(1 / a) / (2 * Math.PI);
-			}
+					if (!_a || _a < 1) {
+						_a = 1;
+						s = p / 4;
+					} else {
+						s = p * Math.asin(1 / _a) / (2 * Math.PI);
+					}
 
-			return - (a * Math.pow(2, 10 * (k -= 1)) * Math.sin((k - s) * (2 * Math.PI) / p));
+					return - (_a * Math.pow(2, 10 * (k -= 1)) * Math.sin((k - s) * (2 * Math.PI) / p));
 
-		},
+				},
 
-		Out: function (k) {
+				Out: function (k) {
 
-			var s;
-			var a = 0.1;
-			var p = 0.4;
+					var s;
+					var _a = a;
 
-			if (k === 0) {
-				return 0;
-			}
+					if (k === 0) {
+						return 0;
+					}
 
-			if (k === 1) {
-				return 1;
-			}
+					if (k === 1) {
+						return 1;
+					}
 
-			if (!a || a < 1) {
-				a = 1;
-				s = p / 4;
-			} else {
-				s = p * Math.asin(1 / a) / (2 * Math.PI);
-			}
+					if (!a || a < 1) {
+						_a = 1;
+						s = p / 4;
+					} else {
+						s = p * Math.asin(1 / _a) / (2 * Math.PI);
+					}
 
-			return (a * Math.pow(2, - 10 * k) * Math.sin((k - s) * (2 * Math.PI) / p) + 1);
+					return (_a * Math.pow(2, - 10 * k) * Math.sin((k - s) * (2 * Math.PI) / p) + 1);
 
-		},
+				},
 
-		InOut: function (k) {
+				InOut: function (k) {
 
-			var s;
-			var a = 0.1;
-			var p = 0.4;
+					var s;
+					var _a = a;
 
-			if (k === 0) {
-				return 0;
-			}
+					if (k === 0) {
+						return 0;
+					}
 
-			if (k === 1) {
-				return 1;
-			}
+					if (k === 1) {
+						return 1;
+					}
 
-			if (!a || a < 1) {
-				a = 1;
-				s = p / 4;
-			} else {
-				s = p * Math.asin(1 / a) / (2 * Math.PI);
-			}
+					if (!a || a < 1) {
+						_a = 1;
+						s = p / 4;
+					} else {
+						s = p * Math.asin(1 / _a) / (2 * Math.PI);
+					}
 
-			if ((k *= 2) < 1) {
-				return - 0.5 * (a * Math.pow(2, 10 * (k -= 1)) * Math.sin((k - s) * (2 * Math.PI) / p));
-			}
+					if ((k *= 2) < 1) {
+						return - 0.5 * (_a * Math.pow(2, 10 * (k -= 1)) * Math.sin((k - s) * (2 * Math.PI) / p));
+					}
 
-			return a * Math.pow(2, -10 * (k -= 1)) * Math.sin((k - s) * (2 * Math.PI) / p) * 0.5 + 1;
+					return _a * Math.pow(2, -10 * (k -= 1)) * Math.sin((k - s) * (2 * Math.PI) / p) * 0.5 + 1;
 
+				}
+			};
 		}
-
 	},
 
 	Back: {
@@ -743,6 +743,14 @@ TWEEN.Easing = {
 	}
 
 };
+
+var defaultElastic = TWEEN.Easing.Elastic.custom(0.1, 0.4);
+
+TWEEN.Easing.Elastic.In = defaultElastic.In;
+
+TWEEN.Easing.Elastic.Out = defaultElastic.Out;
+
+TWEEN.Easing.Elastic.InOut = defaultElastic.InOut;
 
 TWEEN.Interpolation = {
 
