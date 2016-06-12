@@ -83,11 +83,11 @@ var TWEEN = TWEEN || (function () {
 			while (tweenIds.length > 0) {
 				_tweensAddedDuringUpdate = {};
 				
-				tweenIds.forEach(function(tweenId) {
-					if (_tweens[tweenId].update(time) === false) {
-						delete _tweens[tweenId];
+				for (var i = 0; i < tweenIds.length; i++) {
+					if (_tweens[tweenIds[i]].update(time) === false) {
+						delete _tweens[tweenIds[i]];
 					}
-				});
+				}
 				
 				tweenIds = Object.keys(_tweensAddedDuringUpdate);
 			}
