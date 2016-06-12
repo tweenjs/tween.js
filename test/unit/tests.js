@@ -57,7 +57,7 @@
 				TWEEN.add( t );
 
 				test.equal( numTweens + 1, TWEEN.getAll().length );
-				test.equal( all, TWEEN.getAll() );
+
 				test.done();
 
 			},
