@@ -70,13 +70,12 @@
 
 				TWEEN.add( t );
 
-				test.ok( all.indexOf( t ) != -1 );
+				test.ok( TWEEN.getAll().indexOf( t ) != -1 );
 
 				TWEEN.remove( t );
 
 				test.equal( numTweens, TWEEN.getAll().length );
-				test.equal( all, TWEEN.getAll() );
-				test.equal( all.indexOf( t ), -1 );
+				test.equal( TWEEN.getAll().indexOf( t ), -1 );
 				test.done();
 
 			},
