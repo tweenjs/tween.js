@@ -40,7 +40,7 @@ var TWEEN = TWEEN || (function () {
 
 		getAll: function () {
 
-			return Object.keys(_tweens).map(function(tweenId) {
+			return Object.keys(_tweens).map(function (tweenId) {
 				return _tweens[tweenId];
 			});
 
@@ -69,7 +69,7 @@ var TWEEN = TWEEN || (function () {
 		update: function (time) {
 
 			var tweenIds = Object.keys(_tweens);
-		
+
 			if (tweenIds.length === 0) {
 				return false;
 			}
@@ -82,21 +82,21 @@ var TWEEN = TWEEN || (function () {
 			// if the removed tween was added during the current batch, then it will not be updated.
 			while (tweenIds.length > 0) {
 				_tweensAddedDuringUpdate = {};
-				
+
 				for (var i = 0; i < tweenIds.length; i++) {
 					if (_tweens[tweenIds[i]].update(time) === false) {
 						delete _tweens[tweenIds[i]];
 					}
 				}
-				
+
 				tweenIds = Object.keys(_tweensAddedDuringUpdate);
 			}
 
 			return true;
 
 		},
-		
-		nextId: function() {
+
+		nextId: function () {
 			return _nextId++;
 		}
 	};
@@ -130,8 +130,8 @@ TWEEN.Tween = function (object) {
 	for (var field in object) {
 		_valuesStart[field] = parseFloat(object[field], 10);
 	}
-	
-	this.getId = function() {
+
+	this.getId = function () {
 		return _id;
 	};
 
