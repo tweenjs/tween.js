@@ -34,7 +34,6 @@ var TWEEN = TWEEN || (function () {
 
 	var _tweens = {};
 	var _tweensAddedDuringUpdate = {};
-	var _tweensRemovedDuringUpdate = {};
 	var _nextId = 0;
 
 	return {
