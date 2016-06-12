@@ -33,6 +33,8 @@
 var TWEEN = TWEEN || (function () {
 
 	var _tweens = {};
+	var _tweensAddedDuringUpdate = {};
+	var _tweensRemovedDuringUpdate = {};
 	var _nextId = 0;
 
 	return {
@@ -54,12 +56,14 @@ var TWEEN = TWEEN || (function () {
 		add: function (tween) {
 
 			_tweens[tween.getId()] = tween;
+			_tweensAddedDuringUpdate[tween.getId()] = tween;
 
 		},
 
 		remove: function (tween) {
 
 			delete _tweens[tween.getId()];
+			delete _tweensAddedDuringUpdate[tween.getId()];
 
 		},
 
@@ -71,15 +75,23 @@ var TWEEN = TWEEN || (function () {
 				return false;
 			}
 
-			var i = 0;
-
 			time = time !== undefined ? time : window.performance.now();
 
-			tweenIds.forEach(function(tweenId) {
-				if (_tweens[tweenId].update(time) === false) {
-					delete _tweens[tweenId];
-				}
-			});
+			// Tweens are updated in "batches". If you add a new tween during an update, then the
+			// new tween will be updated in the next batch.
+			// If you remove a tween during an update, it will normally still be updated. However,
+			// if the removed tween was added during the current batch, then it will not be updated.
+			while (tweenIds.length > 0) {
+				_tweensAddedDuringUpdate = {};
+				
+				tweenIds.forEach(function(tweenId) {
+					if (_tweens[tweenId].update(time) === false) {
+						delete _tweens[tweenId];
+					}
+				});
+				
+				tweenIds = Object.keys(_tweensAddedDuringUpdate);
+			}
 
 			return true;
 
