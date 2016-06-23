@@ -32,60 +32,72 @@
 
 var TWEEN = TWEEN || (function () {
 
-	var _tweens = [];
+	var _tweens = {};
+	var _tweensAddedDuringUpdate = {};
+	var _nextId = 0;
 
 	return {
 
 		getAll: function () {
 
-			return _tweens;
+			return Object.keys(_tweens).map(function (tweenId) {
+				return _tweens[tweenId];
+			});
 
 		},
 
 		removeAll: function () {
 
-			_tweens = [];
+			_tweens = {};
 
 		},
 
 		add: function (tween) {
 
-			_tweens.push(tween);
+			_tweens[tween.getId()] = tween;
+			_tweensAddedDuringUpdate[tween.getId()] = tween;
 
 		},
 
 		remove: function (tween) {
 
-			var i = _tweens.indexOf(tween);
-
-			if (i !== -1) {
-				_tweens.splice(i, 1);
-			}
+			delete _tweens[tween.getId()];
+			delete _tweensAddedDuringUpdate[tween.getId()];
 
 		},
 
 		update: function (time) {
 
-			if (_tweens.length === 0) {
+			var tweenIds = Object.keys(_tweens);
+
+			if (tweenIds.length === 0) {
 				return false;
 			}
 
-			var i = 0;
-
 			time = time !== undefined ? time : window.performance.now();
 
-			while (i < _tweens.length) {
+			// Tweens are updated in "batches". If you add a new tween during an update, then the
+			// new tween will be updated in the next batch.
+			// If you remove a tween during an update, it will normally still be updated. However,
+			// if the removed tween was added during the current batch, then it will not be updated.
+			while (tweenIds.length > 0) {
+				_tweensAddedDuringUpdate = {};
 
-				if (_tweens[i].update(time)) {
-					i++;
-				} else {
-					_tweens.splice(i, 1);
+				for (var i = 0; i < tweenIds.length; i++) {
+					if (_tweens[tweenIds[i]].update(time) === false) {
+						delete _tweens[tweenIds[i]];
+					}
 				}
 
+				tweenIds = Object.keys(_tweensAddedDuringUpdate);
 			}
 
 			return true;
 
+		},
+
+		nextId: function () {
+			return _nextId++;
 		}
 	};
 
@@ -112,11 +124,16 @@ TWEEN.Tween = function (object) {
 	var _onUpdateCallback = null;
 	var _onCompleteCallback = null;
 	var _onStopCallback = null;
+	var _id = TWEEN.nextId();
 
 	// Set all starting values present on the target object
 	for (var field in object) {
 		_valuesStart[field] = parseFloat(object[field], 10);
 	}
+
+	this.getId = function () {
+		return _id;
+	};
 
 	this.to = function (properties, duration) {
 
