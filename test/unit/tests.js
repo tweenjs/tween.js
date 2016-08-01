@@ -129,6 +129,35 @@
 				test.done();
 
 			},
+			'TWEEN.update() does not remove tweens when they are finished with preserve flag': function(test) {
+
+				TWEEN.removeAll();
+
+				var t1 = new TWEEN.Tween( {} ).to( {}, 1000 ),
+					t2 = new TWEEN.Tween( {} ).to( {}, 2000 );
+
+				test.equal( TWEEN.getAll().length, 0 );
+
+				t1.start( 0 );
+				t2.start( 0 );
+
+				test.equal( TWEEN.getAll().length, 2 );
+
+				TWEEN.update(0, true);
+				test.equal( TWEEN.getAll().length, 2 );
+
+				TWEEN.update(999, true);
+				test.equal( TWEEN.getAll().length, 2 );
+
+				TWEEN.update(1000, true);
+				test.equal( TWEEN.getAll().length, 2 );
+
+				TWEEN.update(1001, true);
+				test.equal( TWEEN.getAll().length, 2 );
+				test.ok( TWEEN.getAll().indexOf( t1 ) != -1 );
+				test.ok( TWEEN.getAll().indexOf( t2 ) != -1 );
+				test.done();
+			},
 
 
 			// TWEEN.Tween tests
