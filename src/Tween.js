@@ -329,7 +329,7 @@ TWEEN.Tween = function (object) {
 				// Parses relative end values with start as base (e.g.: +10, -3)
 				if (typeof (end) === 'string') {
 
-					if (end.startsWith('+') || end.startsWith('-')) {
+					if (end.charAt(0) === '+' || end.charAt(0) === '-') {
 						end = start + parseFloat(end, 10);
 					} else {
 						end = parseFloat(end, 10);
