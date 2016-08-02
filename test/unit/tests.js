@@ -158,30 +158,6 @@
 				test.ok( TWEEN.getAll().indexOf( t2 ) != -1 );
 				test.done();
 			},
-			
-			'Unremoved tweens which have been updated past their finish time may be reused': function(test) {
-
-				TWEEN.removeAll();
-
-				var target1 = {a:0};
-				var target2 = {b:0};
-				
-				var t1 = new TWEEN.Tween( target1 ).to( {a:1}, 1000 ),
-					t2 = new TWEEN.Tween( target2 ).to( {b:1}, 2000 );
-
-				t1.start( 0 );
-				t2.start( 0 );
-				
-				TWEEN.update(200, true);
-				TWEEN.update(2500, true);
-				TWEEN.update(500, true);
-				
-				test.equal(TWEEN.getAll().length, 2);
-				test.equal(target1.a, 0.5);
-				test.equal(target2.b, 0.25);
-
-				test.done();
-			},
 
 
 			// TWEEN.Tween tests
