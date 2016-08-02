@@ -1,4 +1,4 @@
-# tween.js  
+# tween.js
 
 JavaScript tweening engine for easy animations, incorporating optimised Robert Penner's equations.
 
@@ -67,7 +67,7 @@ or install an specific tag. They are git tags, and you can run `git tag` in the 
 bower install tweenjs#v16.3.0
 ```
 
-Then reference the library source: 
+Then reference the library source:
 
 ```html
 <script src="bower_components/tweenjs/src/Tween.js"></script>
@@ -130,6 +130,7 @@ Maintainer: [sole](https://github.com/sole).
 
 ## Projects using tween.js
 
+[![A-Frame VR](http://tweenjs.github.io/tween.js/assets/projects/10_aframe.png)](https://aframe.io)
 [![MOMA Inventing Abstraction 1910-1925](http://tweenjs.github.io/tween.js/assets/projects/09_moma.png)](http://www.moma.org/interactives/exhibitions/2012/inventingabstraction/)
 [![Web Lab](http://tweenjs.github.io/tween.js/assets/projects/08_web_lab.png)](http://www.chromeweblab.com/)
 [![MACCHINA I](http://tweenjs.github.io/tween.js/assets/projects/07_macchina.png)](http://5013.es/toys/macchina)
