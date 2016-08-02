@@ -55,7 +55,7 @@ This function will be called each time the tween is updated; how often this happ
 So far we've only used tweens to print values to the console, but you could use it for things such as animating positions of three.js objects:
 
 ````javascript
-var tween = new TWEEN.Tween(cube.position);
+var tween = new TWEEN.Tween(cube.position)
 		.to({ x: 100, y: 100, z: 100 }, 10000)
 		.start();
 
@@ -87,7 +87,7 @@ var tween = new TWEEN.Tween(position)
 	.start();
 ````
 
-You'll see this a lot in the examples, so it's good to be familiar with it! Check [04-simplest](./examples/04_simplest.html) for a working example.
+You'll see this a lot in the examples, so it's good to be familiar with it! Check [04-simplest](../examples/04_simplest.html) for a working example.
 
 ## Animating with tween.js
 
@@ -156,6 +156,13 @@ tweenB.chain(tweenA);
 ````
 
 Check [Hello world](../examples/00_hello_world.html) to see an example of these infinite chains.
+
+In other cases, you may want to chain multiple tweens to another tween in a way that they (the chained tweens) all start animating at the same time:
+
+````javascript
+tweenA.chain(tweenB,tweenC);
+````
+
 ### `repeat`
 
 If you wanted a tween to repeat forever you could chain it to itself, but a better way is to use the `repeat` method. It accepts a parameter that describes how many repetitions you want:
@@ -272,25 +279,27 @@ var trickyObjTween = new TWEEN.Tween({
 	});
 ````
 
-Or imagine you want to ensure the values of an object are in an specific state each time the tween is started. You'll assign a `start` callback:
+Or imagine you want to play a sound when a tween is started. You can use an `start` callback:
 
 ````javascript
 var tween = new TWEEN.Tween(obj)
 	.to({ x: 100 })
 	.onStart(function() {
-		this.x = 0;
+		sound.play();
 	});
 ````
 
-The scope for each callback is the tweened object.
+The scope for each callback is the tweened object--in this case, `obj`.
 
 ### onStart
 
-Executed right before the tween starts-i.e. before the deltas are calculated. This is the place to reset values in order to have the tween always start from the same point, for example.
+Executed right before the tween starts--i.e. before the deltas are calculated. This will be executed only once per tween, i.e. it will *not* be run when the tween is repeated via `repeat()`.
+
+It is great for synchronising to other events or triggering actions you want to happen when a tween starts.
 
 ### onStop
 
-Executed when a tween is explicitly stopped (not when it is completed normally), and before stopping any possible chained tween.
+Executed when a tween is explicitly stopped via `stop()`, but not when it is completed normally, and before stopping any possible chained tween.
 
 ### onUpdate
 
