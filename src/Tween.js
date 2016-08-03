@@ -74,10 +74,10 @@ var TWEEN = TWEEN || (function () {
 (function () {
 	// In node.js, use process.hrtime.
 	if (this.window === undefined && this.process !== undefined) {
-		TWEEN.now = function() {
+		TWEEN.now = function () {
 			var time = process.hrtime();
 
-			// convert [seconds, microseconds] to milliseconds.
+			// Convert [seconds, microseconds] to milliseconds.
 			return time[0] * 1000 + time[1] / 1000;
 		};
 	}
@@ -86,9 +86,8 @@ var TWEEN = TWEEN || (function () {
 	         window.performance !== undefined &&
 		 window.performance.now !== undefined) {
 
-		// This must be wrapped in a function,
-		// because directly assigning this function leads to an
-		// invocation exception later on in Chrome.
+		// This must be bound, because directly assigning this function
+		// leads to an invocation exception in Chrome.
 		TWEEN.now = window.performance.now.bind(window.performance);
 	}
 	// Use Date.now if it is available.
@@ -97,7 +96,7 @@ var TWEEN = TWEEN || (function () {
 	}
 	// Otherwise, use 'new Date().getTime()'.
 	else {
-		TWEEN.now = function() {
+		TWEEN.now = function () {
 			return new Date().getTime();
 		};
 	}
