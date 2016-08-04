@@ -203,6 +203,13 @@ TWEEN.Tween = function (object) {
 		return this;
 
 	};
+	
+	this.end = function () {
+	  
+		this.update(_duration);
+		return this;
+		
+	};
 
 	this.stopChainedTweens = function () {
 
