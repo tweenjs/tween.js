@@ -99,7 +99,7 @@ var TWEEN = TWEEN || (function () {
 			return new Date().getTime();
 		};
 	}
-})();
+}).bind(this)();
 
 
 TWEEN.Tween = function (object) {
