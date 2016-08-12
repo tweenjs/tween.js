@@ -1005,6 +1005,111 @@
 
 			},
 
+			'Test delay adds delay before each repeat': function(test) {
+
+				// If repeatDelay isn't specified then delay is used since
+				// that's the way it worked before repeatDelay was added.
+			
+				TWEEN.removeAll();
+
+				var obj = { x: 0 },
+					t = new TWEEN.Tween( obj ).to( { x: 100 }, 100 ).repeat( 1 ).delay(100);
+
+				t.start( 0 );
+
+				TWEEN.update( 100 );
+				test.equal( obj.x, 0 );
+
+				TWEEN.update( 150 );
+				test.equal( obj.x, 50 );
+
+				TWEEN.update( 200 );
+				test.equal( obj.x, 100 );
+
+				TWEEN.update( 250 );
+				test.equal( obj.x, 100 );
+
+				TWEEN.update( 300 );
+				test.equal( obj.x, 0 );
+
+				TWEEN.update( 350 );
+				test.equal( obj.x, 50 );
+
+				TWEEN.update( 400 );
+				test.equal( obj.x, 100 );
+
+				test.done();
+
+			},
+
+			'Test repeatDelay adds delay before each repeat': function(test) {
+
+				TWEEN.removeAll();
+
+				var obj = { x: 0 },
+					t = new TWEEN.Tween( obj ).to( { x: 100 }, 100 ).repeat( 1 ).repeatDelay(200);
+
+				t.start( 0 );
+
+				TWEEN.update( 0 );
+				test.equal( obj.x, 0 );
+
+				TWEEN.update( 50 );
+				test.equal( obj.x, 50 );
+
+				TWEEN.update( 100 );
+				test.equal( obj.x, 100 );
+				
+				TWEEN.update( 200 );
+				test.equal( obj.x, 100 );
+
+				TWEEN.update( 300 );
+				test.equal( obj.x, 0 );
+
+				TWEEN.update( 350 );
+				test.equal( obj.x, 50 );
+
+				TWEEN.update( 400 );
+				test.equal( obj.x, 100 );
+
+				test.done();
+
+			},
+
+			'Test repeatDelay and delay can be used together': function(test) {
+
+				TWEEN.removeAll();
+
+				var obj = { x: 0 },
+					t = new TWEEN.Tween( obj ).to( { x: 100 }, 100 ).delay(100).repeat( 1 ).repeatDelay(200);
+
+				t.start( 0 );
+
+				TWEEN.update( 100 );
+				test.equal( obj.x, 0 );
+
+				TWEEN.update( 150 );
+				test.equal( obj.x, 50 );
+
+				TWEEN.update( 200 );
+				test.equal( obj.x, 100 );
+
+				TWEEN.update( 300 );
+				test.equal( obj.x, 100 );
+
+				TWEEN.update( 400 );
+				test.equal( obj.x, 0 );
+
+				TWEEN.update( 450 );
+				test.equal( obj.x, 50 );
+
+				TWEEN.update( 500 );
+				test.equal( obj.x, 100 );
+
+				test.done();
+
+			}
+
 		};
 
 		return tests;

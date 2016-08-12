@@ -110,6 +110,7 @@ TWEEN.Tween = function (object) {
 	var _valuesStartRepeat = {};
 	var _duration = 1000;
 	var _repeat = 0;
+	var _repeatDelayTime = undefined;
 	var _yoyo = false;
 	var _isPlaying = false;
 	var _reversed = false;
@@ -233,7 +234,14 @@ TWEEN.Tween = function (object) {
 
 	};
 
-	this.yoyo = function (yoyo) {
+	this.repeatDelay = function ( amount ) {
+
+		_repeatDelayTime = amount;
+		return this;
+
+	};
+
+	this.yoyo = function( yoyo ) {
 
 		_yoyo = yoyo;
 		return this;
@@ -384,7 +392,11 @@ TWEEN.Tween = function (object) {
 					_reversed = !_reversed;
 				}
 
-				_startTime = time + _delayTime;
+				if (_repeatDelayTime !== undefined) {
+					_startTime = time + _repeatDelayTime;
+				} else {
+					_startTime = time + _delayTime;
+				}
 
 				return true;
 
