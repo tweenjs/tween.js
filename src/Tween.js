@@ -234,14 +234,14 @@ TWEEN.Tween = function (object) {
 
 	};
 
-	this.repeatDelay = function ( amount ) {
+	this.repeatDelay = function (amount) {
 
 		_repeatDelayTime = amount;
 		return this;
 
 	};
 
-	this.yoyo = function( yoyo ) {
+	this.yoyo = function (yoyo) {
 
 		_yoyo = yoyo;
 		return this;
