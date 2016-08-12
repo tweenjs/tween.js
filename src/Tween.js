@@ -110,7 +110,7 @@ TWEEN.Tween = function (object) {
 	var _valuesStartRepeat = {};
 	var _duration = 1000;
 	var _repeat = 0;
-	var _repeatDelayTime = undefined;
+	var _repeatDelayTime;
 	var _yoyo = false;
 	var _isPlaying = false;
 	var _reversed = false;
