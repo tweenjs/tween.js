@@ -164,7 +164,6 @@ TWEEN.Tween = function (object) {
 
 				// Create a local copy of the Array with the start value at the front
 				_valuesEnd[property] = [_object[property]].concat(_valuesEnd[property]);
-
 			}
 
 			// If `to()` specifies a property that doesn't exist in the source object,
@@ -179,7 +178,11 @@ TWEEN.Tween = function (object) {
 				_valuesStart[property] *= 1.0; // Ensures we're using numbers, not strings
 			}
 
-			_valuesStartRepeat[property] = _valuesStart[property] || 0;
+			if (_valuesEnd[property] instanceof Array) {
+				_valuesStartRepeat[property] = _valuesEnd[property].slice().reverse();
+			} else {
+				_valuesStartRepeat[property] = _valuesStart[property] || 0;
+			}
 
 		}
 
