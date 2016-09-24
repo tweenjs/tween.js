@@ -169,7 +169,7 @@ TWEEN.Tween = function (object) {
 
 			// If `to()` specifies a property that doesn't exist in the source object,
 			// we should not set that property in the object
-			if (_valuesStart[property] === undefined) {
+			if (_object[property] === undefined) {
 				continue;
 			}
 
