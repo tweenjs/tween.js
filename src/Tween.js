@@ -76,8 +76,8 @@ var TWEEN = TWEEN || (function () {
 		TWEEN.now = function () {
 			var time = process.hrtime();
 
-			// Convert [seconds, microseconds] to milliseconds.
-			return time[0] * 1000 + time[1] / 1000;
+			// Convert [seconds, nanoseconds] to milliseconds.
+			return time[0] * 1000 + time[1] / 1000000;
 		};
 	}
 	// In a browser, use window.performance.now if it is available.
