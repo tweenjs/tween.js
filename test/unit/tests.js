@@ -1123,12 +1123,22 @@
 					}
 				});
 
+                test.equal( obj.x, 0 );
+
 				var t = new TWEEN.Tween( obj ).to( { x: 100 }, 100 );
 
 				t.start( 0 );
 
+                test.equal( obj.x, 0 );
+
+                TWEEN.update( 37 );
+                test.equal( obj.x, 37 );
+
 				TWEEN.update( 100 );
 				test.equal( obj.x, 100 );
+
+                TWEEN.update( 115 );
+                test.equal( obj.x, 100 );
 
 				test.done();
 
