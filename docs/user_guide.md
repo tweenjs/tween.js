@@ -297,17 +297,25 @@ Executed right before the tween starts--i.e. before the deltas are calculated. T
 
 It is great for synchronising to other events or triggering actions you want to happen when a tween starts.
 
+The tweened object is passed in as the first parameter. It may also be accessed using the `this` value.
+
 ### onStop
 
 Executed when a tween is explicitly stopped via `stop()`, but not when it is completed normally, and before stopping any possible chained tween.
+
+The tweened object is passed in as the first parameter. It may also be accessed using the `this` value.
 
 ### onUpdate
 
 Executed each time the tween is updated, after the values have been actually updated.
 
+The tweened object may be accessed using the `this` value. The first parameter passed to the callback is the tween's progress, represented as a value from 0 to 1. However, this may change in future releases. You are advised not to rely on this value.
+
 ### onComplete
 
 Executed when a tween is finished normally (i.e. not stopped).
+
+The tweened object is passed in as the first parameter. It may also be accessed using the `this` value.
 
 ## Advanced tweening
 
