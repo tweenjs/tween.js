@@ -1,7 +1,7 @@
 (function() {
 
 	function getTests(TWEEN) {
-		
+
 		var tests = {
 			'hello': function(test) {
 				test.ok(TWEEN !== null);
@@ -158,25 +158,25 @@
 				test.ok( TWEEN.getAll().indexOf( t2 ) != -1 );
 				test.done();
 			},
-			
-			
+
+
 			'Unremoved tweens which have been updated past their finish time may be reused': function(test) {
 
 				TWEEN.removeAll();
 
 				var target1 = {a:0};
 				var target2 = {b:0};
-				
+
 				var t1 = new TWEEN.Tween( target1 ).to( {a:1}, 1000 ),
 					t2 = new TWEEN.Tween( target2 ).to( {b:1}, 2000 );
 
 				t1.start( 0 );
 				t2.start( 0 );
-				
+
 				TWEEN.update(200, true);
 				TWEEN.update(2500, true);
 				TWEEN.update(500, true);
-				
+
 				test.equal(TWEEN.getAll().length, 2);
 				test.equal(target1.a, 0.5);
 				test.equal(target2.b, 0.25);
@@ -226,7 +226,7 @@
 
 				test.ok( t.onStop() instanceof TWEEN.Tween );
 				test.equal( t.onStop(), t );
-				
+
 				test.ok( t.onUpdate() instanceof TWEEN.Tween );
 				test.equal( t.onUpdate(), t );
 
@@ -930,7 +930,7 @@
 				t.start( 0 );
 				TWEEN.update( 1001 );
 				t.stop();
-				
+
 				test.equal( tStarted, true );
 				test.equal( t2Started, false );
 				test.equal( TWEEN.getAll().length, 0 );
@@ -959,7 +959,7 @@
 				test.done();
 
 			},
-			
+
 			'Test that TWEEN.Tween.end sets the final values.': function(test) {
 
 				var object1 = {x: 0, y: -50, z: 1000};
@@ -1009,7 +1009,7 @@
 
 				// If repeatDelay isn't specified then delay is used since
 				// that's the way it worked before repeatDelay was added.
-			
+
 				TWEEN.removeAll();
 
 				var obj = { x: 0 },
@@ -1059,7 +1059,7 @@
 
 				TWEEN.update( 100 );
 				test.equal( obj.x, 100 );
-				
+
 				TWEEN.update( 200 );
 				test.equal( obj.x, 100 );
 
@@ -1108,6 +1108,30 @@
 
 				test.done();
 
+			},
+
+			'Tween.js compatible with Object.defineProperty getter / setters': function(test) {
+
+				var obj = { _x: 0 };
+
+				Object.defineProperty( obj, 'x', {
+					get: function() {
+						return this._x;
+					},
+					set: function( x ) {
+						this._x = x;
+					}
+				});
+
+				var t = new TWEEN.Tween( obj ).to( { x: 100 }, 100 );
+
+				t.start( 0 );
+
+				TWEEN.update( 100 );
+				test.equal( obj.x, 100 );
+
+				test.done();
+
 			}
 
 		};
@@ -1121,5 +1145,5 @@
 	} else {
 		this.getTests = getTests;
 	}
-	
+
 }).call(this);
