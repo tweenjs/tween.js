@@ -133,13 +133,13 @@ TWEEN.Tween = function (object) {
 
 		_valuesEnd = properties;
 
-        // Set all starting values present on the target object
-        for (var field in _valuesEnd) {
-        	// only add to updateables if tweenable object has the field
-            if ( typeof _object[ field ] !== "undefined" ) {
-                _valuesStart[ field ] = parseFloat( _object[ field ], 10 );
-            }
-        }
+		// Set all starting values present on the target object
+		for (var field in _valuesEnd) {
+			// Only add to updateables if tweenable object has the field
+			if (typeof _object[field] !== 'undefined') {
+				_valuesStart[field] = parseFloat(_object[field], 10);
+			}
+		}
 
 		return this;
 
