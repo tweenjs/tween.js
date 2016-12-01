@@ -72,7 +72,7 @@ var TWEEN = TWEEN || (function () {
 // Include a performance.now polyfill
 (function () {
 	// In node.js, use process.hrtime.
-	if (this.window === undefined && this.process !== undefined) {
+	if (window === undefined && this.process !== undefined) {
 		TWEEN.now = function () {
 			var time = process.hrtime();
 
@@ -81,7 +81,7 @@ var TWEEN = TWEEN || (function () {
 		};
 	}
 	// In a browser, use window.performance.now if it is available.
-	else if (this.window !== undefined &&
+	else if (window !== undefined &&
 	         window.performance !== undefined &&
 		 window.performance.now !== undefined) {
 
