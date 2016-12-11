@@ -127,7 +127,7 @@ TWEEN.Tween = function (object) {
 
 	// Set all starting values present on the target object
 	for (var field in object) {
-		_valuesStart[field] = parseFloat(object[field], 10);
+		_valuesStart[field] = parseFloat(object[field]);
 	}
 
 	this.to = function (properties, duration) {
@@ -342,9 +342,9 @@ TWEEN.Tween = function (object) {
 				if (typeof (end) === 'string') {
 
 					if (end.charAt(0) === '+' || end.charAt(0) === '-') {
-						end = start + parseFloat(end, 10);
+						end = start + parseFloat(end);
 					} else {
-						end = parseFloat(end, 10);
+						end = parseFloat(end);
 					}
 				}
 
@@ -373,7 +373,7 @@ TWEEN.Tween = function (object) {
 				for (property in _valuesStartRepeat) {
 
 					if (typeof (_valuesEnd[property]) === 'string') {
-						_valuesStartRepeat[property] = _valuesStartRepeat[property] + parseFloat(_valuesEnd[property], 10);
+						_valuesStartRepeat[property] = _valuesStartRepeat[property] + parseFloat(_valuesEnd[property]);
 					}
 
 					if (_yoyo) {
