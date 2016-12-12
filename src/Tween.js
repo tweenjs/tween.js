@@ -122,11 +122,6 @@ TWEEN.Tween = function (object) {
 	var _onCompleteCallback = null;
 	var _onStopCallback = null;
 
-	// Set all starting values present on the target object
-	for (var field in object) {
-		_valuesStart[field] = parseFloat(object[field]);
-	}
-
 	this.to = function (properties, duration) {
 
 		if (duration !== undefined) {
