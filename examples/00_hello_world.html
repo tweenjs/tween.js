@@ -47,22 +47,25 @@
 
 			}
 
+			//If we register the callback animate, but the TWEEN.update(time) returns false, 
+			//cancel/unregister the handler
 			function animate( time ) {
+				var id = requestAnimationFrame(animate);
+				
+				var result = TWEEN.update(time);
 
-				requestAnimationFrame( animate );
-
-				TWEEN.update( time );
-
+				if(!result) cancelAnimationFrame(id);
 			}
 
+			//the this key word refers to the current execution context of the function, in other
+			//words tween.js magically sets this object for you with the correct values.
 			function update() {
-
-				target.style.left = position.x + 'px';
-				target.style.top = position.y + 'px';
-				target.style.webkitTransform = 'rotate(' + Math.floor(position.rotation) + 'deg)';
-				target.style.MozTransform = 'rotate(' + Math.floor(position.rotation) + 'deg)';
-
+				target.style.left = this.x + 'px';
+				target.style.top = this.y + 'px';
+				target.style.webkitTransform = 'rotate(' + Math.floor(this.rotation) + 'deg)';
+				target.style.MozTransform = 'rotate(' + Math.floor(this.rotation) + 'deg)';
 			}
+			
 		</script>
 	</body>
 </html>
