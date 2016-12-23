@@ -124,18 +124,10 @@ TWEEN.Tween = function (object) {
 
 	this.to = function (properties, duration) {
 
-		if (duration !== undefined) {
-			_duration = duration;
-		}
-
 		_valuesEnd = properties;
 
-		// Set all starting values present on the target object
-		for (var field in _valuesEnd) {
-			// Only add to updateables if tweenable object has the field
-			if (typeof _object[field] !== 'undefined') {
-				_valuesStart[field] = parseFloat(_object[field], 10);
-			}
+		if (duration !== undefined) {
+			_duration = duration;
 		}
 
 		return this;
@@ -173,6 +165,7 @@ TWEEN.Tween = function (object) {
 				continue;
 			}
 
+			// Save the starting value.
 			_valuesStart[property] = _object[property];
 
 			if ((_valuesStart[property] instanceof Array) === false) {
