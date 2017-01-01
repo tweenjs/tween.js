@@ -144,7 +144,6 @@ if (this.TWEEN && TWEEN.Group === undefined) {
 
 			_listOfTweens.push(param);
 			_startProps.push("inserted");
-			_startValues.push("inserted");
 
 			return this;
 
