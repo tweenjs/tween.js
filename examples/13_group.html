@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+      <title>Tween.Group.js - Test #1</title>
+	  <style>
+	  html, body {
+	  font-family: Segoe UI, Arial;
+	  }
+
+	  #container {
+		width: 400px;
+		height: 300px;
+		margin: 5px auto;
+		padding: 20px;
+		background: #ccc;
+	  }
+	  
+	  code {
+		background: #eee;
+		padding: 10px;
+	  }
+	  </style>
+   </head>
+   <body>
+
+	<h1>TWEEN.Group Demo</h1>
+	<div id="container">
+	
+	</div>
+	 <script src="../test-case/Tween.s.js"></script>
+      <script src="Tween.Group.js"></script>
+      <script>
+
+			var id = document.getElementById('container');
+			var j = {
+				j: 0
+			};
+			var t1 = new TWEEN.Tween(j).to({
+					j: 100
+				}, 1000);
+			var tween = new TWEEN.Group({
+					a: {
+						x: 0
+					},
+					b: {
+						y: 0
+					}
+				}).to({
+					a: {
+						x: 50
+					},
+					b: {
+						y: 30
+					}
+				}, {
+					a: 500,
+					b: 800
+				}).insert(t1).onUpdate(function (val) {
+					id.innerHTML = "This j is added by group insert method and it's value is: <pre><code>{j:" + j.j + "}</code></pre><br/>" +  "A and B objects are added and they has different duration and B has 1000ms delay and it's values are: <pre><code>{a:{x:" + this.a.x + "},b:{y:" + this.b.y + "}}</code></pre>" +  "<br/>" +  "Total elapsed time: <pre><code>" + val + "</code></pre>";
+				}).delay({
+					b: 1000
+				}).start();
+
+			requestAnimationFrame(function anim(time) {
+				requestAnimationFrame(anim);
+				TWEEN.update(time);
+			});
+      </script>
+   </body>
+</html>
