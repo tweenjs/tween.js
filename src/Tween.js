@@ -81,7 +81,7 @@ if (typeof (window) === 'undefined' && typeof (process) !== 'undefined') {
 }
 // In a browser, use window.performance.now if it is available.
 else if (typeof (window) !== 'undefined' &&
-         window.performance !== undefined &&
+				 window.performance !== undefined &&
 		 window.performance.now !== undefined) {
 	// This must be bound, because directly assigning this function
 	// leads to an invocation exception in Chrome.
@@ -161,12 +161,12 @@ TWEEN.Tween = function (object) {
 
 			// If `to()` specifies a property that doesn't exist in the source object,
 			// we should not set that property in the object
-			if (_object[property] === undefined) {
+			if (_object[property] === undefined  && propertyByPath(property, _object) === undefined) {
 				continue;
 			}
 
 			// Save the starting value.
-			_valuesStart[property] = _object[property];
+			_valuesStart[property] = _object[property] || propertyByPath(property, _object);
 
 			if ((_valuesStart[property] instanceof Array) === false) {
 				_valuesStart[property] *= 1.0; // Ensures we're using numbers, not strings
@@ -291,6 +291,34 @@ TWEEN.Tween = function (object) {
 
 	};
 
+	var id = function (id) {
+		return id;
+	};
+
+	var isNestedProperty = function (string) {
+		var split = string.split('.');
+
+		return split.every(id) && split.length > 1;
+	};
+
+	var propertyByPath = function (path, obj) {
+		path = path.split('.');
+		return path.reduce(function (prop, key) {
+			return prop ? prop[key] : prop;
+		}, obj);
+	};
+
+	var applyValToObjectWithPath = function (path, obj, val) {
+		path = path.split('.');
+		path.reduce(function (obj, key, i) {
+			if (i=== path.length - 1) {
+				obj[key] = val;
+			}
+
+			return obj[key];
+		}, obj);
+	};
+
 	this.update = function (time) {
 
 		var property;
@@ -318,7 +346,7 @@ TWEEN.Tween = function (object) {
 		for (property in _valuesEnd) {
 
 			// Don't update properties that do not exist in the source object
-			if (_valuesStart[property] === undefined) {
+			if (_valuesStart[property] === undefined && propertyByPath(property, _object) === undefined) {
 				continue;
 			}
 
@@ -343,7 +371,15 @@ TWEEN.Tween = function (object) {
 
 				// Protect against non numeric properties.
 				if (typeof (end) === 'number') {
-					_object[property] = start + (end - start) * value;
+					var val = start + (end - start) * value;
+
+					if (isNestedProperty(property)) {
+						var path = property;
+
+						applyValToObjectWithPath(path, _object, val);
+					} else {
+						_object[property] = val;
+					}
 				}
 
 			}

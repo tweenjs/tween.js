@@ -1123,26 +1123,107 @@
 					}
 				});
 
-                test.equal( obj.x, 0 );
+				test.equal( obj.x, 0 );
 
 				var t = new TWEEN.Tween( obj ).to( { x: 100 }, 100 );
 
 				t.start( 0 );
 
-                test.equal( obj.x, 0 );
+				test.equal( obj.x, 0 );
 
-                TWEEN.update( 37 );
-                test.equal( obj.x, 37 );
+				TWEEN.update( 37 );
+				test.equal( obj.x, 37 );
 
 				TWEEN.update( 100 );
 				test.equal( obj.x, 100 );
 
-                TWEEN.update( 115 );
-                test.equal( obj.x, 100 );
+				TWEEN.update( 115 );
+				test.equal( obj.x, 100 );
 
 				test.done();
 
-			}
+			},
+
+			'Tween.js animate nested object': function(test) {
+
+				var obj = { scale: { x: 0 } };
+
+				var t = new TWEEN.Tween( obj ).to( { 'scale.x': 100 }, 100 );
+				t.start( 0 );
+
+				test.equal( obj.scale.x, 0 );
+
+				TWEEN.update( 37 );
+				test.equal( obj.scale.x, 37 );
+
+				TWEEN.update( 100 );
+				test.equal( obj.scale.x, 100 );
+
+				TWEEN.update( 115 );
+				test.equal( obj.scale.x, 100 );
+
+				test.done();
+
+			},
+
+
+			'Tween.js animate complex nested object': function(test) {
+
+				var obj = { world: { hero: { scale: { x: 0 }, x: 100 } }, time: 0 };
+
+				var t = new TWEEN
+					.Tween( obj )
+					.to( {
+						'world.hero.scale.x': 100,
+						'world.hero.x': '+100',
+						'time': 100,
+					}, 100 );
+				t.start( 0 );
+
+				test.equal( obj.world.hero.scale.x, 0 );
+
+				TWEEN.update( 37 );
+				test.equal( obj.world.hero.scale.x, 37 );
+				test.equal( obj.world.hero.x, 137 );
+				test.equal( obj.time, 37 );
+
+				TWEEN.update( 100 );
+				test.equal( obj.world.hero.scale.x, 100 );
+				test.equal( obj.world.hero.x, 200 );
+				test.equal( obj.time, 100 );
+
+				TWEEN.update( 115 );
+				test.equal( obj.world.hero.scale.x, 100 );
+				test.equal( obj.world.hero.x, 200 );
+				test.equal( obj.time, 100 );
+
+				test.done();
+
+			},
+
+			'Tween.js protect worg path in nested object': function(test) {
+
+				var obj = { world: { hero: { scale: { x: 0 } } } };
+
+				var t = new TWEEN.Tween( obj ).to( { 'world.x': 100 }, 100 );
+				t.start( 0 );
+
+				test.equal( obj.world.hero.scale.x, 0 );
+
+				TWEEN.update( 37 );
+				test.equal( obj.world.hero.scale.x, 0 );
+
+				TWEEN.update( 100 );
+				test.equal( obj.world.hero.scale.x, 0 );
+
+				TWEEN.update( 115 );
+				test.equal( obj.world.hero.scale.x, 0 );
+
+				test.equal( obj.world.x, undefined );
+
+				test.done();
+
+			},
 
 		};
 
