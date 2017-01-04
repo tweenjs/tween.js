@@ -147,16 +147,22 @@ TWEEN.Tween = function (object) {
 
 		for (var property in _valuesEnd) {
 
-			// Check if an Array was provided as property value
-			if (_valuesEnd[property] instanceof Array) {
+			var end = _valuesEnd[property];
 
-				if (_valuesEnd[property].length === 0) {
+			// Check if an Array was provided as property value
+			if (end instanceof Array) {
+
+				if (end.length === 0) {
 					continue;
 				}
 
-				// Create a local copy of the Array with the start value at the front
-				_valuesEnd[property] = [_object[property]].concat(_valuesEnd[property]);
+				var start = propertyByPath(property, _object);
 
+				// Parse relative value
+				end = end.map(parseRelativeValue(start));
+
+				// Create a local copy of the Array with the start value at the front
+				_valuesEnd[property] = [start].concat(end);
 			}
 
 			// If `to()` specifies a property that doesn't exist in the source object,
@@ -291,16 +297,6 @@ TWEEN.Tween = function (object) {
 
 	};
 
-	var id = function (id) {
-		return id;
-	};
-
-	var isNestedProperty = function (string) {
-		var split = string.split('.');
-
-		return split.every(id) && split.length > 1;
-	};
-
 	var propertyByPath = function (path, obj) {
 		path = path.split('.');
 		return path.reduce(function (prop, key) {
@@ -317,6 +313,20 @@ TWEEN.Tween = function (object) {
 
 			return obj[key];
 		}, obj);
+	};
+
+	var parseRelativeValue = function (start) {
+		return function (end) {
+			if (typeof end !== 'string') {
+				return end;
+			}
+
+			if (end.charAt(0) === '+' || end.charAt(0) === '-') {
+				return start + parseFloat(end);
+			} else {
+				return parseFloat(end);
+			}
+		};
 	};
 
 	this.update = function (time) {
@@ -352,38 +362,33 @@ TWEEN.Tween = function (object) {
 
 			var start = _valuesStart[property] || 0;
 			var end = _valuesEnd[property];
+			var path = property;
+			var computeValue;
 
 			if (end instanceof Array) {
 
-				_object[property] = _interpolationFunction(end, value);
+				computeValue = _interpolationFunction(end, value);
 
-			} else {
-
-				// Parses relative end values with start as base (e.g.: +10, -3)
-				if (typeof (end) === 'string') {
-
-					if (end.charAt(0) === '+' || end.charAt(0) === '-') {
-						end = start + parseFloat(end);
-					} else {
-						end = parseFloat(end);
-					}
-				}
-
-				// Protect against non numeric properties.
-				if (typeof (end) === 'number') {
-					var val = start + (end - start) * value;
-
-					if (isNestedProperty(property)) {
-						var path = property;
-
-						applyValToObjectWithPath(path, _object, val);
-					} else {
-						_object[property] = val;
-					}
-				}
+				applyValToObjectWithPath(path, _object, computeValue);
 
 			}
 
+			// Parses relative end values with start as base (e.g.: +10, -3)
+			if (typeof (end) === 'string') {
+
+				if (end.charAt(0) === '+' || end.charAt(0) === '-') {
+					end = start + parseFloat(end);
+				} else {
+					end = parseFloat(end);
+				}
+			}
+
+			// Protect against non numeric properties.
+			if (typeof (end) === 'number') {
+				computeValue = start + (end - start) * value;
+
+				applyValToObjectWithPath(path, _object, computeValue);
+			}
 		}
 
 		if (_onUpdateCallback !== null) {
