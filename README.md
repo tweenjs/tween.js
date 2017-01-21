@@ -6,6 +6,7 @@ JavaScript tweening engine for easy animations, incorporating optimised Robert P
 [![NPM Downloads][downloads-image]][downloads-url]
 [![Travis tests][travis-image]][travis-url]
 [![Flattr this][flattr-image]][flattr-url]
+[![CDNJS][cdnjs-image]][cdnjs-url]
 
 ```javascript
 var coords = { x: 0, y: 0 };
@@ -158,3 +159,5 @@ Maintainer: [sole](https://github.com/sole).
 [travis-url]: https://travis-ci.org/tweenjs/tween.js
 [flattr-image]: https://api.flattr.com/button/flattr-badge-large.png
 [flattr-url]: https://flattr.com/thing/45014/tween-js
+[cdnjs-image]: https://img.shields.io/cdnjs/v/tween.js.svg
+[cdnjs-url]: https://cdnjs.com/libraries/tween.js
