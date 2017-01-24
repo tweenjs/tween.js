@@ -29,6 +29,6 @@
     "jscs": "^2.2.0",
     "jshint": "^2.8.0",
     "nodeunit": "^0.9.1",
-    "semantic-release": "^4.3.5"
+    "semantic-release": "^6.3.2"
   }
 }
