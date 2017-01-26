@@ -134,7 +134,7 @@ If you want to add any feature or change existing features, you *must* run the t
 
 ## People
 
-Maintainer: [sole](https://github.com/sole).
+Maintainers: [mikebolt](https://github.com/mikebolt), [sole](https://github.com/sole).
 
 [All contributors](http://github.com/tweenjs/tween.js/contributors).
 
