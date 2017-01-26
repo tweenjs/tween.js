@@ -33,14 +33,13 @@ Download the [library](https://raw.githubusercontent.com/tweenjs/tween.js/master
 <script src="js/Tween.js"></script>
 ```
 
-Or you can even use minified Tween.js without downloading the file, 
-for example:
+You can also reference a CDN-hosted version in your code, thanks to cdnjs. For example:
 
 ```html
 <script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/16.3.5/Tween.min.js"></script>
 ```
 
-See Tween.js on [CDNJS](https://github.com/cdnjs/cdnjs): https://cdnjs.com/libraries/tween.js/
+See [tween.js](https://cdnjs.com/libraries/tween.js/) for more versions.
 
 ### More advanced users might want to...
 
