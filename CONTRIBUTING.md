@@ -3,8 +3,8 @@ Before reporting a bug
 
 If you find something that you believe to be a bug, please 
 
-1. search the [issue tracker](https://github.com/tween.js/tween.js/issues) for similar issues
-2. check out the [master](https://github.com/tween.js/tween.js/tree/master) branch and see if the bug still exists there.
+1. search the [issue tracker](https://github.com/tweenjs/tween.js/issues) for similar issues
+2. check out the [master](https://github.com/tweenjs/tween.js/tree/master) branch and see if the bug still exists there.
 
 
 How to report a bug
