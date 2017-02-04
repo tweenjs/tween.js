@@ -1,10 +1,8 @@
 {
   "name": "tween.js",
-  "version": "0.15.0",
   "homepage": "https://github.com/tweenjs/tween.js",
   "authors": [
-    "Sole",
-    "Andrej Zachar"
+    "tween.js contributors"
   ],
   "description": "Super simple, fast and easy to use tweening engine which incorporates optimised Robert Penner's equations.",
   "main": "src/Tween.js",
@@ -23,7 +21,6 @@
     "assets",
     "docs",
     "examples",
-    "utils",
     ".*"
   ]
 }

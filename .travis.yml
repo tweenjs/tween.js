@@ -1,13 +1,17 @@
+sudo: false
 language: node_js
-
-node_js:
-  - "0.10"
-
+cache:
+  directories:
+    - node_modules
 notifications:
   email: false
-
-install:
-  - ./test/travis_install.sh
-
+node_js:
+  - "6"
+before_install:
+  - npm i -g npm@^2.0.0
+before_script:
+  - npm prune
 script:
-  - node_modules/.bin/nodeunit $(pwd)/test/unit/nodeunitheadless.js
+  - npm run test
+after_success:
+  - npm run semantic-release

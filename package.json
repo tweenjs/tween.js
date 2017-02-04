@@ -1,37 +1,34 @@
 {
   "name": "tween.js",
-  "version": "0.15.0",
   "description": "Super simple, fast and easy to use tweening engine which incorporates optimised Robert Penner's equations.",
+  "version": "0.0.0-development",
   "main": "src/Tween.js",
-  "homepage": "https://github.com/sole/tween.js",
+  "homepage": "https://github.com/tweenjs/tween.js",
   "repository": {
     "type": "git",
-    "url": "git://github.com/sole/tween.js.git"
+    "url": "https://github.com/tweenjs/tween.js.git"
   },
   "bugs": {
-    "url": "https://github.com/sole/tween.js/issues"
+    "url": "https://github.com/tweenjs/tween.js/issues"
   },
-  "licenses": [
-    {
-      "type": "MIT",
-      "url": "https://github.com/sole/tween.js/blob/master/LICENSE"
-    }
-  ],
+  "license": "MIT",
   "keywords": [
     "tween",
     "interpolation"
   ],
-  "dependencies": {
-    "gulp": "^3.8.7",
-    "gulp-concat": "^2.3.4",
-    "gulp-html-replace": "^1.1.0",
-    "gulp-insert": "^0.4.0",
-    "gulp-jshint": "^1.8.3",
-    "gulp-rename": "^1.2.0",
-    "gulp-uglify": "^0.3.1",
-    "nodeunit": "^0.9.0"
-  },
+  "dependencies": {},
   "scripts": {
-    "test": "node_modules/.bin/nodeunit $(pwd)/test/unit/nodeunitheadless.js"
+    "test": "npm run test-unit && npm run test-correctness && npm run test-style",
+    "test-unit": "nodeunit test/unit/nodeunitheadless.js",
+    "test-correctness": "jshint --config test/jshintrc src/Tween.js",
+    "test-style": "jscs --config test/jscs.json src/Tween.js",
+    "semantic-release": "semantic-release pre && npm publish && semantic-release post"
+  },
+  "author": "tween.js contributors (https://github.com/tweenjs/tween.js/graphs/contributors)",
+  "devDependencies": {
+    "jscs": "^2.2.0",
+    "jshint": "^2.8.0",
+    "nodeunit": "^0.9.1",
+    "semantic-release": "^6.3.2"
   }
 }
