@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>Tween.js / simplest possible example!</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<link href="css/style.css" media="screen" rel="stylesheet" type="text/css" />
+	</head>
+	<body>
+		<div id="info">
+			<h1><a href="http://github.com/tweenjs/tween.js">tween.js</a></h1>
+			<h2>issue309 test</h2>
+			<div>
+				Here I commented out in my tween.js repair code, enable the previous code, you can now see the problem, tween2 this tween object can not install the expected completion animation, that in tween1 the complete implementation of the TWEEN . Twove (tween1), TWEEN.update do not know tween1 has been deleted, TWEEN.update the _tweens.splice (i, 1) put tween2 this innocent object to remove the ...
+			</div>
+		</div>
+
+		<script src="./Tween_old_for_issue309.js"></script>
+		<script src="js/RequestAnimationFrame.js"></script>
+		<script>
+
+			init();
+			animate();
+
+			function init() {
+
+				var output = document.createElement( 'div' );
+				output.style.cssText = 'position: absolute; left: 50px; top: 250px; font-size: 100px';
+				document.body.appendChild( output );
+
+				var tween = new TWEEN.Tween( { x: 50, y: 0 } )
+					.to( { x: 400 }, 1000 )
+					.easing( TWEEN.Easing.Elastic.InOut )
+					.onUpdate( function () {
+						output.innerHTML = 'tween1:x == ' + Math.round( this.x );
+						var transform = 'translateX(' + this.x + 'px)';
+						output.style.webkitTransform = transform;
+						output.style.transform = transform;
+					} )
+					.onComplete( function(){
+						TWEEN.remove( tween );
+					} )
+					.start();
+
+
+
+                
+				var output_2 = document.createElement( 'div' );
+				output_2.style.cssText = 'position: absolute; left: 50px; top: 350px; font-size: 100px';
+				document.body.appendChild( output_2 );
+
+				var tween_2 = new TWEEN.Tween( { x: 50, y: 0 } )
+					.to( { x: 400 }, 2000 )
+					.easing( TWEEN.Easing.Elastic.InOut )
+					.onUpdate( function () {
+
+						output_2.innerHTML = 'tween2:x == ' + Math.round( this.x );
+						var transform = 'translateX(' + this.x + 'px)';
+						output_2.style.webkitTransform = transform;
+						output_2.style.transform = transform;
+
+					} )
+					.start();
+
+			
+
+			};
+
+			function animate( time ) {
+
+				requestAnimationFrame( animate );
+				TWEEN.update( time );
+
+			}
+
+		</script>
+	</body>
+</html>
