@@ -120,6 +120,7 @@ TWEEN.Tween = function (object) {
 	var _onStartCallbackFired = false;
 	var _onUpdateCallback = null;
 	var _onCompleteCallback = null;
+	var _onBeforeRepeatCallback = null;
 	var _onStopCallback = null;
 
 	this.to = function (properties, duration) {
@@ -284,6 +285,13 @@ TWEEN.Tween = function (object) {
 
 	};
 
+	this.onBeforeRepeat = function (callback) {
+
+		_onBeforeRepeatCallback = callback;
+		return this;
+
+	};
+
 	this.onStop = function (callback) {
 
 		_onStopCallback = callback;
@@ -388,6 +396,10 @@ TWEEN.Tween = function (object) {
 					_startTime = time + _repeatDelayTime;
 				} else {
 					_startTime = time + _delayTime;
+				}
+
+				if (_onBeforeRepeatCallback !== null) {
+					_onBeforeRepeatCallback.call(_object, value);
 				}
 
 				return true;

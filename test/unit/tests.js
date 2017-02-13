@@ -721,6 +721,40 @@
 
 			},
 
+			'Test TWEEN.Tween.onBeforeRepeat': function(test) {
+
+				var obj = { },
+					t = new TWEEN.Tween( obj ),
+					counter = 0;
+
+				t.to( { x: 2 }, 1000 ).repeat(1);
+				t.onBeforeRepeat( function() {
+					counter++;
+				});
+
+				test.deepEqual( counter, 0 );
+
+				t.start( 0 );
+
+				TWEEN.update( 0 );
+				test.deepEqual( counter, 0 );
+
+				TWEEN.update( 500 );
+				test.deepEqual( counter, 0 );
+
+				TWEEN.update( 600 );
+				test.deepEqual( counter, 0 );
+
+				TWEEN.update( 1000 );
+				test.deepEqual( counter, 1 );
+
+				TWEEN.update( 1500 );
+				test.deepEqual( counter, 1, 'onBeforeRepeat callback must be called only once' );
+				test.done();
+
+			},
+
+
 			'TWEEN.Tween does not repeat by default': function(test) {
 
 				TWEEN.removeAll();
