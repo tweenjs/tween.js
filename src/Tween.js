@@ -111,6 +111,18 @@ function _(instance) {
 	return privateObject;
 }
 
+function assign(target, source) {
+	var keys = Object.keys(source);
+	var length = keys.length;
+
+	for (var i = 0; i < length; i += 1) {
+		target[keys[i]] = source[keys[i]];
+	}
+
+	return target;
+}
+
+
 TWEEN.Tween = function (object) {
 
 	_(this).object = object;
@@ -136,7 +148,7 @@ TWEEN.Tween = function (object) {
 
 };
 
-TWEEN.Tween.prototype = Object.assign(Object.create(Object.prototype), {
+TWEEN.Tween.prototype = assign(Object.create(Object.prototype), {
 	to: function to(properties, duration) {
 
 		_(this).valuesEnd = properties;
