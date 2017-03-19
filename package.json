@@ -30,6 +30,7 @@
   "devDependencies": {
     "babel-cli": "^6.24.0",
     "babel-plugin-transform-es2015-modules-umd": "^6.24.0",
+    "babel-preset-env": "^1.2.2",
     "jscs": "^2.2.0",
     "jshint": "^2.8.0",
     "nodeunit": "^0.9.1",
