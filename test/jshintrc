@@ -1,4 +1,5 @@
 {
+  "esversion": 6,
   "node": true,
   "browser": true,
   "curly": true,
