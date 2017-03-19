@@ -99,6 +99,18 @@ else {
 }
 
 
+function assign(target, source) {
+	var keys = Object.keys(source);
+	var length = keys.length;
+
+	for (var i = 0; i < length; i += 1) {
+		target[keys[i]] = source[keys[i]];
+	}
+
+	return target;
+}
+
+
 TWEEN.Tween = function (object) {
 
 	this._object = object;
@@ -124,7 +136,7 @@ TWEEN.Tween = function (object) {
 
 };
 
-TWEEN.Tween.prototype = Object.assign(Object.create(Object.prototype), {
+TWEEN.Tween.prototype = assign(Object.create(Object.prototype), {
 	to: function to(properties, duration) {
 
 		this._valuesEnd = properties;
