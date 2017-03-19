@@ -98,236 +98,250 @@ else {
 	};
 }
 
+var privates = new WeakMap();
+
+function _(instance) {
+	var privateObject = privates.get(instance);
+
+	if (!privateObject) {
+		privateObject = {};
+		privates.set(instance, privateObject);
+	}
+
+	return privateObject;
+}
 
 TWEEN.Tween = function (object) {
 
-	var _object = object;
-	var _valuesStart = {};
-	var _valuesEnd = {};
-	var _valuesStartRepeat = {};
-	var _duration = 1000;
-	var _repeat = 0;
-	var _repeatDelayTime;
-	var _yoyo = false;
-	var _isPlaying = false;
-	var _reversed = false;
-	var _delayTime = 0;
-	var _startTime = null;
-	var _easingFunction = TWEEN.Easing.Linear.None;
-	var _interpolationFunction = TWEEN.Interpolation.Linear;
-	var _chainedTweens = [];
-	var _onStartCallback = null;
-	var _onStartCallbackFired = false;
-	var _onUpdateCallback = null;
-	var _onCompleteCallback = null;
-	var _onStopCallback = null;
+	_(this).object = object;
+	_(this).valuesStart = {};
+	_(this).valuesEnd = {};
+	_(this).valuesStartRepeat = {};
+	_(this).duration = 1000;
+	_(this).repeat = 0;
+	_(this).repeatDelayTime = undefined;
+	_(this).yoyo = false;
+	_(this).isPlaying = false;
+	_(this).reversed = false;
+	_(this).delayTime = 0;
+	_(this).startTime = null;
+	_(this).easingFunction = TWEEN.Easing.Linear.None;
+	_(this).interpolationFunction = TWEEN.Interpolation.Linear;
+	_(this).chainedTweens = [];
+	_(this).onStartCallback = null;
+	_(this).onStartCallbackFired = false;
+	_(this).onUpdateCallback = null;
+	_(this).onCompleteCallback = null;
+	_(this).onStopCallback = null;
 
-	this.to = function (properties, duration) {
+};
 
-		_valuesEnd = properties;
+TWEEN.Tween.prototype = Object.assign(Object.create(Object.prototype), {
+	to: function to(properties, duration) {
+
+		_(this).valuesEnd = properties;
 
 		if (duration !== undefined) {
-			_duration = duration;
+			_(this).duration = duration;
 		}
 
 		return this;
 
-	};
+	},
 
-	this.start = function (time) {
+	start: function start(time) {
 
 		TWEEN.add(this);
 
-		_isPlaying = true;
+		_(this).isPlaying = true;
 
-		_onStartCallbackFired = false;
+		_(this).onStartCallbackFired = false;
 
-		_startTime = time !== undefined ? time : TWEEN.now();
-		_startTime += _delayTime;
+		_(this).startTime = time !== undefined ? time : TWEEN.now();
+		_(this).startTime += _(this).delayTime;
 
-		for (var property in _valuesEnd) {
+		for (var property in _(this).valuesEnd) {
 
 			// Check if an Array was provided as property value
-			if (_valuesEnd[property] instanceof Array) {
+			if (_(this).valuesEnd[property] instanceof Array) {
 
-				if (_valuesEnd[property].length === 0) {
+				if (_(this).valuesEnd[property].length === 0) {
 					continue;
 				}
 
 				// Create a local copy of the Array with the start value at the front
-				_valuesEnd[property] = [_object[property]].concat(_valuesEnd[property]);
+				_(this).valuesEnd[property] = [_(this).object[property]].concat(_(this).valuesEnd[property]);
 
 			}
 
 			// If `to()` specifies a property that doesn't exist in the source object,
 			// we should not set that property in the object
-			if (_object[property] === undefined) {
+			if (_(this).object[property] === undefined) {
 				continue;
 			}
 
 			// Save the starting value.
-			_valuesStart[property] = _object[property];
+			_(this).valuesStart[property] = _(this).object[property];
 
-			if ((_valuesStart[property] instanceof Array) === false) {
-				_valuesStart[property] *= 1.0; // Ensures we're using numbers, not strings
+			if ((_(this).valuesStart[property] instanceof Array) === false) {
+				_(this).valuesStart[property] *= 1.0; // Ensures we're using numbers, not strings
 			}
 
-			_valuesStartRepeat[property] = _valuesStart[property] || 0;
+			_(this).valuesStartRepeat[property] = _(this).valuesStart[property] || 0;
 
 		}
 
 		return this;
 
-	};
+	},
 
-	this.stop = function () {
+	stop: function stop() {
 
-		if (!_isPlaying) {
+		if (!_(this).isPlaying) {
 			return this;
 		}
 
 		TWEEN.remove(this);
-		_isPlaying = false;
+		_(this).isPlaying = false;
 
-		if (_onStopCallback !== null) {
-			_onStopCallback.call(_object, _object);
+		if (_(this).onStopCallback !== null) {
+			_(this).onStopCallback.call(_(this).object, _(this).object);
 		}
 
 		this.stopChainedTweens();
 		return this;
 
-	};
+	},
 
-	this.end = function () {
+	end: function end() {
 
-		this.update(_startTime + _duration);
+		this.update(_(this).startTime + _(this).duration);
 		return this;
 
-	};
+	},
 
-	this.stopChainedTweens = function () {
+	stopChainedTweens: function stopChainedTweens() {
 
-		for (var i = 0, numChainedTweens = _chainedTweens.length; i < numChainedTweens; i++) {
-			_chainedTweens[i].stop();
+		for (var i = 0, numChainedTweens = _(this).chainedTweens.length; i < numChainedTweens; i++) {
+			_(this).chainedTweens[i].stop();
 		}
 
-	};
+	},
 
-	this.delay = function (amount) {
+	delay: function delay(amount) {
 
-		_delayTime = amount;
+		_(this).delayTime = amount;
 		return this;
 
-	};
+	},
 
-	this.repeat = function (times) {
+	repeat: function repeat(times) {
 
-		_repeat = times;
+		_(this).repeat = times;
 		return this;
 
-	};
+	},
 
-	this.repeatDelay = function (amount) {
+	repeatDelay: function repeatDelay(amount) {
 
-		_repeatDelayTime = amount;
+		_(this).repeatDelayTime = amount;
 		return this;
 
-	};
+	},
 
-	this.yoyo = function (yoyo) {
+	yoyo: function yoyo(yoyo) {
 
-		_yoyo = yoyo;
+		_(this).yoyo = yoyo;
 		return this;
 
-	};
+	},
 
+	easing: function easing(easing) {
 
-	this.easing = function (easing) {
-
-		_easingFunction = easing;
+		_(this).easingFunction = easing;
 		return this;
 
-	};
+	},
 
-	this.interpolation = function (interpolation) {
+	interpolation: function interpolation(interpolation) {
 
-		_interpolationFunction = interpolation;
+		_(this).interpolationFunction = interpolation;
 		return this;
 
-	};
+	},
 
-	this.chain = function () {
+	chain: function chain() {
 
-		_chainedTweens = arguments;
+		_(this).chainedTweens = arguments;
 		return this;
 
-	};
+	},
 
-	this.onStart = function (callback) {
+	onStart: function onStart(callback) {
 
-		_onStartCallback = callback;
+		_(this).onStartCallback = callback;
 		return this;
 
-	};
+	},
 
-	this.onUpdate = function (callback) {
+	onUpdate: function onUpdate(callback) {
 
-		_onUpdateCallback = callback;
+		_(this).onUpdateCallback = callback;
 		return this;
 
-	};
+	},
 
-	this.onComplete = function (callback) {
+	onComplete: function onComplete(callback) {
 
-		_onCompleteCallback = callback;
+		_(this).onCompleteCallback = callback;
 		return this;
 
-	};
+	},
 
-	this.onStop = function (callback) {
+	onStop: function onStop(callback) {
 
-		_onStopCallback = callback;
+		_(this).onStopCallback = callback;
 		return this;
 
-	};
+	},
 
-	this.update = function (time) {
+	update: function update(time) {
 
 		var property;
 		var elapsed;
 		var value;
 
-		if (time < _startTime) {
+		if (time < _(this).startTime) {
 			return true;
 		}
 
-		if (_onStartCallbackFired === false) {
+		if (_(this).onStartCallbackFired === false) {
 
-			if (_onStartCallback !== null) {
-				_onStartCallback.call(_object, _object);
+			if (_(this).onStartCallback !== null) {
+				_(this).onStartCallback.call(_(this).object, _(this).object);
 			}
 
-			_onStartCallbackFired = true;
+			_(this).onStartCallbackFired = true;
 		}
 
-		elapsed = (time - _startTime) / _duration;
+		elapsed = (time - _(this).startTime) / _(this).duration;
 		elapsed = elapsed > 1 ? 1 : elapsed;
 
-		value = _easingFunction(elapsed);
+		value = _(this).easingFunction(elapsed);
 
-		for (property in _valuesEnd) {
+		for (property in _(this).valuesEnd) {
 
 			// Don't update properties that do not exist in the source object
-			if (_valuesStart[property] === undefined) {
+			if (_(this).valuesStart[property] === undefined) {
 				continue;
 			}
 
-			var start = _valuesStart[property] || 0;
-			var end = _valuesEnd[property];
+			var start = _(this).valuesStart[property] || 0;
+			var end = _(this).valuesEnd[property];
 
 			if (end instanceof Array) {
 
-				_object[property] = _interpolationFunction(end, value);
+				_(this).object[property] = _(this).interpolationFunction(end, value);
 
 			} else {
 
@@ -343,66 +357,66 @@ TWEEN.Tween = function (object) {
 
 				// Protect against non numeric properties.
 				if (typeof (end) === 'number') {
-					_object[property] = start + (end - start) * value;
+					_(this).object[property] = start + (end - start) * value;
 				}
 
 			}
 
 		}
 
-		if (_onUpdateCallback !== null) {
-			_onUpdateCallback.call(_object, value);
+		if (_(this).onUpdateCallback !== null) {
+			_(this).onUpdateCallback.call(_(this).object, value);
 		}
 
 		if (elapsed === 1) {
 
-			if (_repeat > 0) {
+			if (_(this).repeat > 0) {
 
-				if (isFinite(_repeat)) {
-					_repeat--;
+				if (isFinite(_(this).repeat)) {
+					_(this).repeat--;
 				}
 
 				// Reassign starting values, restart by making startTime = now
-				for (property in _valuesStartRepeat) {
+				for (property in _(this).valuesStartRepeat) {
 
-					if (typeof (_valuesEnd[property]) === 'string') {
-						_valuesStartRepeat[property] = _valuesStartRepeat[property] + parseFloat(_valuesEnd[property]);
+					if (typeof (_(this).valuesEnd[property]) === 'string') {
+						_(this).valuesStartRepeat[property] = _(this).valuesStartRepeat[property] + parseFloat(_(this).valuesEnd[property]);
 					}
 
-					if (_yoyo) {
-						var tmp = _valuesStartRepeat[property];
+					if (_(this).yoyo) {
+						var tmp = _(this).valuesStartRepeat[property];
 
-						_valuesStartRepeat[property] = _valuesEnd[property];
-						_valuesEnd[property] = tmp;
+						_(this).valuesStartRepeat[property] = _(this).valuesEnd[property];
+						_(this).valuesEnd[property] = tmp;
 					}
 
-					_valuesStart[property] = _valuesStartRepeat[property];
+					_(this).valuesStart[property] = _(this).valuesStartRepeat[property];
 
 				}
 
-				if (_yoyo) {
-					_reversed = !_reversed;
+				if (_(this).yoyo) {
+					_(this).reversed = !_(this).reversed;
 				}
 
-				if (_repeatDelayTime !== undefined) {
-					_startTime = time + _repeatDelayTime;
+				if (_(this).repeatDelayTime !== undefined) {
+					_(this).startTime = time + _(this).repeatDelayTime;
 				} else {
-					_startTime = time + _delayTime;
+					_(this).startTime = time + _(this).delayTime;
 				}
 
 				return true;
 
 			} else {
 
-				if (_onCompleteCallback !== null) {
+				if (_(this).onCompleteCallback !== null) {
 
-					_onCompleteCallback.call(_object, _object);
+					_(this).onCompleteCallback.call(_(this).object, _(this).object);
 				}
 
-				for (var i = 0, numChainedTweens = _chainedTweens.length; i < numChainedTweens; i++) {
+				for (var i = 0, numChainedTweens = _(this).chainedTweens.length; i < numChainedTweens; i++) {
 					// Make the chained tweens start exactly at the time they should,
 					// even if the `update()` method was called way past the duration of the tween
-					_chainedTweens[i].start(_startTime + _duration);
+					_(this).chainedTweens[i].start(_(this).startTime + _(this).duration);
 				}
 
 				return false;
@@ -413,9 +427,8 @@ TWEEN.Tween = function (object) {
 
 		return true;
 
-	};
-
-};
+	}
+});
 
 
 TWEEN.Easing = {
