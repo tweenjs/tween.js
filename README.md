@@ -98,20 +98,139 @@ Then reference the library source:
 
 ## Examples
 
-[![Custom functions](http://tweenjs.github.io/tween.js/assets/examples/03_graphs.png)](http://tweenjs.github.io/tween.js/examples/12_graphs_custom_functions.html)
-[source](./examples/12_graphs_custom_functions.html)
-[![Stop all chained tweens](http://tweenjs.github.io/tween.js/assets/examples/11_stop_all_chained_tweens.png)](http://tweenjs.github.io/tween.js/examples/11_stop_all_chained_tweens.html) [source](./examples/11_stop_all_chained_tweens.html)
-[![Yoyo](http://tweenjs.github.io/tween.js/assets/examples/10_yoyo.png)](http://tweenjs.github.io/tween.js/examples/10_yoyo.html) [source](./examples/10_yoyo.html)
-[![Relative values](http://tweenjs.github.io/tween.js/assets/examples/09_relative.png)](http://tweenjs.github.io/tween.js/examples/09_relative_values.html) [source](./examples/09_relative_values.html)
-[![Repeat](http://tweenjs.github.io/tween.js/assets/examples/08_repeat.png)](http://tweenjs.github.io/tween.js/examples/08_repeat.html) [source](./examples/08_repeat.html)
-[![Dynamic to](http://tweenjs.github.io/tween.js/assets/examples/07_dynamic_to.png)](http://tweenjs.github.io/tween.js/examples/07_dynamic_to.html) [source](./examples/07_dynamic_to.html)
-[![Array interpolation](http://tweenjs.github.io/tween.js/assets/examples/03_graphs.png)](http://tweenjs.github.io/tween.js/examples/06_array_interpolation.html) [source](./examples/06_array_interpolation.html)
-[![Video and time](http://tweenjs.github.io/tween.js/assets/examples/06_video_and_time.png)](http://tweenjs.github.io/tween.js/examples/05_video_and_time.html) [source](./examples/05_video_and_time.html)
-[![Simplest possible example](http://tweenjs.github.io/tween.js/assets/examples/04_simplest.png)](http://tweenjs.github.io/tween.js/examples/04_simplest.html) [source](./examples/04_simplest.html)
-[![Graphs](http://tweenjs.github.io/tween.js/assets/examples/03_graphs.png)](http://tweenjs.github.io/tween.js/examples/03_graphs.html) [source](./examples/03_graphs.html)
-[![Black and red](http://tweenjs.github.io/tween.js/assets/examples/02_black_and_red.png)](http://tweenjs.github.io/tween.js/examples/02_black_and_red.html) [source](./examples/02_black_and_red.html)
-[![Bars](http://tweenjs.github.io/tween.js/assets/examples/01_bars.png)](http://tweenjs.github.io/tween.js/examples/01_bars.html) [source](./examples/01_bars.html)
-[![hello world](http://tweenjs.github.io/tween.js/assets/examples/00_hello_world.png)](http://tweenjs.github.io/tween.js/examples/00_hello_world.html) [source](./examples/00_hello_world.html)
+<table>
+	<tr>
+		<td>
+			<a href="http://tweenjs.github.io/tween.js/examples/12_graphs_custom_functions.html">
+				<img src="./assets/examples/03_graphs.png" alt="Custom functions" />
+			</a>
+		</td>
+		<td>
+			Custom functions<br />
+			(<a href="examples/12_graphs_custom_functions.html">source</a>)
+		</td>
+		<td>
+			<a href="http://tweenjs.github.io/tween.js/examples/11_stop_all_chained_tweens.html">
+				<img src="./assets/examples/11_stop_all_chained_tweens.png" alt="Stop all chained tweens" />
+			</a>
+		</td>
+		<td>
+			Stop all chained tweens<br />
+			(<a href="examples/11_stop_all_chained_tweens.html">source</a>)
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<a href="http://tweenjs.github.io/tween.js/examples/10_yoyo.html">
+				<img src="./assets/examples/10_yoyo.png" alt="Yoyo" />
+			</a>
+		</td>
+		<td>
+			Yoyo<br />
+			(<a href="examples/10_yoyo.html">source</a>)
+		</td>
+		<td>
+			<a href="http://tweenjs.github.io/tween.js/examples/09_relative_values.html">
+				<img src="./assets/examples/09_relative.png" alt="Relative values" />
+			</a>
+		</td>
+		<td>
+			Relative values<br />
+			(<a href="examples/09_relative_values.html">source</a>)
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<a href="http://tweenjs.github.io/tween.js/examples/08_repeat.html">
+				<img src="./assets/examples/08_repeat.png" alt="Repeat" />
+			</a>
+		</td>
+		<td>
+			Repeat<br />
+			(<a href="examples/08_repeat.html">source</a>)
+		</td>
+		<td>
+			<a href="http://tweenjs.github.io/tween.js/examples/07_dynamic_to.html">
+				<img src="./assets/examples/07_dynamic_to.png" alt="Dynamic to" />
+			</a>
+		</td>
+		<td>
+			Dynamic to<br />
+			(<a href="examples/07_dynamic_to.html">source</a>)
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<a href="http://tweenjs.github.io/tween.js/examples/06_array_interpolation.html">
+				<img src="./assets/examples/03_graphs.png" alt="Array interpolation" />
+			</a>
+		</td>
+		<td>
+			Array interpolation<br />
+			(<a href="examples/06_array_interpolation.html">source</a>)
+		</td>
+		<td>
+			<a href="http://tweenjs.github.io/tween.js/examples/05_video_and_time.html">
+				<img src="./assets/examples/06_video_and_time.png" alt="Video and time" />
+			</a>
+		</td>
+		<td>
+			Video and time<br />
+			(<a href="examples/05_video_and_time.html">source</a>)
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<a href="http://tweenjs.github.io/tween.js/examples/04_simplest.html">
+				<img src="./assets/examples/04_simplest.png" alt="Simplest possible example" />
+			</a>
+		</td>
+		<td>
+			Simplest possible example<br />
+			(<a href="examples/04_simplest.html">source</a>)
+		</td>
+		<td>
+			<a href="http://tweenjs.github.io/tween.js/examples/03_graphs.html">
+				<img src="./assets/examples/03_graphs.png" alt="Graphs" />
+			</a>
+		</td>
+		<td>
+			Graphs<br />
+			(<a href="examples/03_graphs.html">source</a>)
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<a href="http://tweenjs.github.io/tween.js/examples/02_black_and_red.html">
+				<img src="./assets/examples/02_black_and_red.png" alt="Black and red" />
+			</a>
+		</td>
+		<td>
+			Black and red<br />
+			(<a href="examples/02_black_and_red.html">source</a>)
+		</td>
+		<td>
+			<a href="http://tweenjs.github.io/tween.js/examples/01_bars.html">
+				<img src="./assets/examples/01_bars.png" alt="Bars" />
+			</a>
+		</td>
+		<td>
+			Bars<br />
+			(<a href="examples/01_bars.html">source</a>)
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<a href="http://tweenjs.github.io/tween.js/examples/00_hello_world.html">
+				<img src="./assets/examples/00_hello_world.png" alt="hello world" />
+			</a>
+		</td>
+		<td>
+			hello world<br />
+			(<a href="examples/00_hello_world.html">source</a>)
+		</td>
+	</tr>
+</table>
 
 ## Tests
 
