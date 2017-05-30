@@ -247,4 +247,6 @@ Scroll down until you see *Environment Variables*.
 
 Add tokens for `GH_TOKEN` and `NPM_TOKEN`. Make sure both variables are hidden: `Display value in build log` should be `Off`.
 
+You can get tokens from [npm](https://www.npmjs.com/settings/tokens) and from [GitHub](https://github.com/settings/tokens). These allow services such as Travis to act on your behalf, which is why you need to ensure they are not displayed in the build log.
+
 Hopefully, now each time you commit and push to GitHub `semantic-release` will run (if using the `master` branch as described above) and maybe a new version will be published.
