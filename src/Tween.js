@@ -76,7 +76,7 @@ if (typeof (window) === 'undefined' && typeof (process) !== 'undefined') {
 		var time = process.hrtime();
 
 		// Convert [seconds, nanoseconds] to milliseconds.
-		return time[0] * 1000 + time[1] / 1000000;
+		 return time[0] * 1e9 + time[1] / 1000000;
 	};
 }
 // In a browser, use window.performance.now if it is available.
