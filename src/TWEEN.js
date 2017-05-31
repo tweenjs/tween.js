@@ -7,9 +7,9 @@
  * Thank you all, you're awesome!
  */
 
-var TWEEN = TWEEN || (function () {
+const TWEEN = (function () {
 
-	var _tweens = [];
+	let _tweens = [];
 
 	return {
 
@@ -33,7 +33,7 @@ var TWEEN = TWEEN || (function () {
 
 		remove: function (tween) {
 
-			var i = _tweens.indexOf(tween);
+			const i = _tweens.indexOf(tween);
 
 			if (i !== -1) {
 				_tweens.splice(i, 1);
@@ -47,7 +47,7 @@ var TWEEN = TWEEN || (function () {
 				return false;
 			}
 
-			var i = 0;
+			let i = 0;
 
 			time = time !== undefined ? time : TWEEN.now();
 
@@ -73,7 +73,7 @@ var TWEEN = TWEEN || (function () {
 // In node.js, use process.hrtime.
 if (typeof (window) === 'undefined' && typeof (process) !== 'undefined') {
 	TWEEN.now = function () {
-		var time = process.hrtime();
+		const time = process.hrtime();
 
 		// Convert [seconds, nanoseconds] to milliseconds.
 		return time[0] * 1000 + time[1] / 1000000;
@@ -857,26 +857,4 @@ TWEEN.Interpolation = {
 
 };
 
-// UMD (Universal Module Definition)
-(function (root) {
-
-	if (typeof define === 'function' && define.amd) {
-
-		// AMD
-		define([], function () {
-			return TWEEN;
-		});
-
-	} else if (typeof module !== 'undefined' && typeof exports === 'object') {
-
-		// Node.js
-		module.exports = TWEEN;
-
-	} else if (root !== undefined) {
-
-		// Global variable
-		root.TWEEN = TWEEN;
-
-	}
-
-})(this);
+module.exports = TWEEN;

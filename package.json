@@ -2,7 +2,7 @@
   "name": "tween.js",
   "description": "Super simple, fast and easy to use tweening engine which incorporates optimised Robert Penner's equations.",
   "version": "0.0.0-development",
-  "main": "src/Tween.js",
+  "main": "dist/TWEEN.js",
   "homepage": "https://github.com/tweenjs/tween.js",
   "repository": {
     "type": "git",
@@ -18,14 +18,19 @@
   ],
   "dependencies": {},
   "scripts": {
-    "test": "npm run test-unit && npm run test-correctness && npm run test-style",
+    "test": "npm run build && npm run test-unit && npm run test-correctness && npm run test-style",
     "test-unit": "nodeunit test/unit/nodeunitheadless.js",
-    "test-correctness": "jshint --config test/jshintrc src/Tween.js",
-    "test-style": "jscs --config test/jscs.json src/Tween.js",
+    "test-correctness": "jshint --config test/jshintrc src/TWEEN.js",
+    "test-style": "jscs --config test/jscs.json src/TWEEN.js",
+    "build": "babel src --out-dir dist",
+    "prepublish": "npm run test",
     "semantic-release": "semantic-release pre && npm publish && semantic-release post"
   },
   "author": "tween.js contributors (https://github.com/tweenjs/tween.js/graphs/contributors)",
   "devDependencies": {
+    "babel-cli": "^6.24.0",
+    "babel-plugin-transform-es2015-modules-umd": "^6.24.0",
+    "babel-preset-env": "^1.2.2",
     "jscs": "^2.2.0",
     "jshint": "^2.8.0",
     "nodeunit": "^0.9.1",
