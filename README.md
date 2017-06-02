@@ -93,6 +93,7 @@ Then reference the library source:
 ## Documentation
 
 * [User guide](./docs/user_guide.md)
+* [Contributor guide](./docs/contributor_guide.md)
 * [Tutorial](http://learningthreejs.com/blog/2011/08/17/tweenjs-for-smooth-animation/)  using tween.js with three.js
 * Also: [libtween](https://github.com/jsm174/libtween), a port of tween.js to C by [jsm174](https://github.com/jsm174)
 
