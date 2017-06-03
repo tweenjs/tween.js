@@ -732,6 +732,14 @@ TWEEN.Easing = {
 
 		}
 
+	},
+
+	SteppedEase : {
+		config : function (steps) {
+			return function (k) {
+				return Math.floor(k * steps) / steps;
+			}
+		}
 	}
 
 };
