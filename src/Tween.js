@@ -121,6 +121,9 @@ TWEEN.Tween = function (object) {
 	var _onUpdateCallback = null;
 	var _onCompleteCallback = null;
 	var _onStopCallback = null;
+	var _paused = false;
+	var _pauseStart = null;
+	var _now = Date.now();
 
 	this.to = function (properties, duration) {
 
@@ -179,6 +182,32 @@ TWEEN.Tween = function (object) {
 		return this;
 
 	};
+	
+	this.pause = function () {
+		if (_paused) {
+			return;
+		}
+		_paused = true;
+		_pauseStart = Date.now();
+		
+		TWEEN.remove(this);
+		
+		return this;
+	};
+	
+	this.play = function () {
+		if (!_paused) {
+			return;
+		}
+		_paused = false;
+		_now = Date.now();
+		
+		_startTime += _now - _pauseStart;
+		
+		TWEEN.add(this);
+		
+		return this;
+	}
 
 	this.stop = function () {
 
