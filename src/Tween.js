@@ -256,9 +256,8 @@ TWEEN.Tween = function (object) {
 
 	};
 
-	this.chain = function () {
-
-		_chainedTweens = arguments;
+	this.chain = function(a) {
+		_chainedTweens.push(a);
 		return this;
 
 	};
