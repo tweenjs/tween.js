@@ -46,13 +46,13 @@ See [tween.js](https://cdnjs.com/libraries/tween.js/) for more versions.
 #### Use `npm`
 
 ```bash
-npm install tween.js
+npm install @tweenjs/tween.js
 ```
 
 Then include the Tween.js module with the standard node.js `require`:
 
 ```javascript
-var TWEEN = require('tween.js');
+var TWEEN = require('@tweenjs/tween.js');
 ```
 
 And you can use Tween.js as in all other examples--for example:
@@ -67,19 +67,19 @@ You will need to use a tool such as `browserify` to convert code using this styl
 #### Use `bower`
 
 ```bash
-bower install tweenjs --save
+bower install @tweenjs/tweenjs --save
 ```
 
 or install an specific tag. They are git tags, and you can run `git tag` in the command line for a list if you have cloned the repository locally, or you can also check out the list in the [tween.js tags page](https://github.com/tweenjs/tween.js/tags). For example, to install `v16.3.0`:
 
 ```bash
-bower install tweenjs#v16.3.0
+bower install @tweenjs/tweenjs#v16.3.0
 ```
 
 Then reference the library source:
 
 ```html
-<script src="bower_components/tweenjs/src/Tween.js"></script>
+<script src="bower_components/@tweenjs/tweenjs/src/Tween.js"></script>
 ```
 
 ## Features
@@ -249,7 +249,7 @@ npm test
 
 every time you want to run the tests.
 
-If you want to add any feature or change existing features, you *must* run the tests to make sure you didn't break anything else. If you send a PR to add something new and it doesn't have tests, or the tests don't pass, the PR won't be accepted. See [contributing](CONTRIBUTING.md) for more information.
+If you want to add any feature or change existing features, you *must* run the tests to make sure you didn't break anything else. If you send a pull request (PR) to add something new and it doesn't have tests, or the tests don't pass, the PR won't be accepted. See [contributing](CONTRIBUTING.md) for more information.
 
 ## People
 
@@ -271,9 +271,9 @@ Maintainers: [mikebolt](https://github.com/mikebolt), [sole](https://github.com/
 [![Linechart](http://tweenjs.github.io/tween.js/assets/projects/00_linechart.png)](http://dejavis.org/linechart)
 
 [npm-image]: https://img.shields.io/npm/v/tween.js.svg
-[npm-url]: https://npmjs.org/package/tween.js
-[downloads-image]: https://img.shields.io/npm/dm/tween.js.svg
-[downloads-url]: https://npmjs.org/package/tween.js
+[npm-url]: https://npmjs.org/package/@tweenjs/tween.js
+[downloads-image]: https://img.shields.io/npm/dm/@tweenjs/tween.js.svg
+[downloads-url]: https://npmjs.org/package/@tweenjs/tween.js
 [travis-image]: https://travis-ci.org/tweenjs/tween.js.svg?branch=master
 [travis-url]: https://travis-ci.org/tweenjs/tween.js
 [flattr-image]: https://api.flattr.com/button/flattr-badge-large.png

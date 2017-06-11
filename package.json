@@ -1,5 +1,5 @@
 {
-  "name": "tween.js",
+  "name": "@tweenjs/tween.js",
   "description": "Super simple, fast and easy to use tweening engine which incorporates optimised Robert Penner's equations.",
   "version": "0.0.0-development",
   "main": "src/Tween.js",
