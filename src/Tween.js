@@ -81,7 +81,7 @@ if (typeof (window) === 'undefined' && typeof (process) !== 'undefined') {
 }
 // In a browser, use window.performance.now if it is available.
 else if (typeof (window) !== 'undefined' &&
-         window.performance !== undefined &&
+				 window.performance !== undefined &&
 		 window.performance.now !== undefined) {
 	// This must be bound, because directly assigning this function
 	// leads to an invocation exception in Chrome.
@@ -147,26 +147,32 @@ TWEEN.Tween = function (object) {
 
 		for (var property in _valuesEnd) {
 
-			// Check if an Array was provided as property value
-			if (_valuesEnd[property] instanceof Array) {
+			var end = _valuesEnd[property];
 
-				if (_valuesEnd[property].length === 0) {
+			// Check if an Array was provided as property value
+			if (end instanceof Array) {
+
+				if (end.length === 0) {
 					continue;
 				}
 
-				// Create a local copy of the Array with the start value at the front
-				_valuesEnd[property] = [_object[property]].concat(_valuesEnd[property]);
+				var start = propertyByPath(property, _object);
 
+				// Parse relative value
+				end = end.map(parseRelativeValue(start));
+
+				// Create a local copy of the Array with the start value at the front
+				_valuesEnd[property] = [start].concat(end);
 			}
 
 			// If `to()` specifies a property that doesn't exist in the source object,
 			// we should not set that property in the object
-			if (_object[property] === undefined) {
+			if (_object[property] === undefined  && propertyByPath(property, _object) === undefined) {
 				continue;
 			}
 
 			// Save the starting value.
-			_valuesStart[property] = _object[property];
+			_valuesStart[property] = _object[property] || propertyByPath(property, _object);
 
 			if ((_valuesStart[property] instanceof Array) === false) {
 				_valuesStart[property] *= 1.0; // Ensures we're using numbers, not strings
@@ -291,6 +297,38 @@ TWEEN.Tween = function (object) {
 
 	};
 
+	var propertyByPath = function (path, obj) {
+		path = path.split('.');
+		return path.reduce(function (prop, key) {
+			return prop ? prop[key] : prop;
+		}, obj);
+	};
+
+	var applyValToObjectWithPath = function (path, obj, val) {
+		path = path.split('.');
+		path.reduce(function (obj, key, i) {
+			if (i=== path.length - 1) {
+				obj[key] = val;
+			}
+
+			return obj[key];
+		}, obj);
+	};
+
+	var parseRelativeValue = function (start) {
+		return function (end) {
+			if (typeof end !== 'string') {
+				return end;
+			}
+
+			if (end.charAt(0) === '+' || end.charAt(0) === '-') {
+				return start + parseFloat(end);
+			} else {
+				return parseFloat(end);
+			}
+		};
+	};
+
 	this.update = function (time) {
 
 		var property;
@@ -318,36 +356,39 @@ TWEEN.Tween = function (object) {
 		for (property in _valuesEnd) {
 
 			// Don't update properties that do not exist in the source object
-			if (_valuesStart[property] === undefined) {
+			if (_valuesStart[property] === undefined && propertyByPath(property, _object) === undefined) {
 				continue;
 			}
 
 			var start = _valuesStart[property] || 0;
 			var end = _valuesEnd[property];
+			var path = property;
+			var computeValue;
 
 			if (end instanceof Array) {
 
-				_object[property] = _interpolationFunction(end, value);
+				computeValue = _interpolationFunction(end, value);
 
-			} else {
-
-				// Parses relative end values with start as base (e.g.: +10, -3)
-				if (typeof (end) === 'string') {
-
-					if (end.charAt(0) === '+' || end.charAt(0) === '-') {
-						end = start + parseFloat(end);
-					} else {
-						end = parseFloat(end);
-					}
-				}
-
-				// Protect against non numeric properties.
-				if (typeof (end) === 'number') {
-					_object[property] = start + (end - start) * value;
-				}
+				applyValToObjectWithPath(path, _object, computeValue);
 
 			}
 
+			// Parses relative end values with start as base (e.g.: +10, -3)
+			if (typeof (end) === 'string') {
+
+				if (end.charAt(0) === '+' || end.charAt(0) === '-') {
+					end = start + parseFloat(end);
+				} else {
+					end = parseFloat(end);
+				}
+			}
+
+			// Protect against non numeric properties.
+			if (typeof (end) === 'number') {
+				computeValue = start + (end - start) * value;
+
+				applyValToObjectWithPath(path, _object, computeValue);
+			}
 		}
 
 		if (_onUpdateCallback !== null) {
