@@ -163,6 +163,8 @@ In other cases, you may want to chain multiple tweens to another tween in a way 
 tweenA.chain(tweenB,tweenC);
 ````
 
+> WARNING: Calling `tweenA.chain(tweenB)` actually modifies tweenA so that tweenB is always started when tweenA finishes. The return value of `chain` is just tweenA, not a new tween.
+
 ### `repeat`
 
 If you wanted a tween to repeat forever you could chain it to itself, but a better way is to use the `repeat` method. It accepts a parameter that describes how many repetitions you want:
