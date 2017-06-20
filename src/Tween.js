@@ -51,12 +51,33 @@ var TWEEN = TWEEN || (function () {
 
 			time = time !== undefined ? time : TWEEN.now();
 
-			while (i < _tweens.length) {
 
+			while ( i < _tweens.length ) {
+
+        /* old 
 				if (_tweens[i].update(time) || preserve) {
 					i++;
 				} else {
 					_tweens.splice(i, 1);
+				}
+				*/
+
+                //new code
+                //in real world, tween.update has chance to remove itself, so we have to handle this situation.
+                //in certain cases, onUpdateCallback will remove instances in _tweens, which make _tweens.splice(i, 1) fail
+                //@litao.lt@alibaba-inc.com
+				var _t = _tweens[i];
+                var _updateRes = _t.update(time);
+
+				if( !_tweens[i] ){
+				    break;
+				};
+                if ( _t === _tweens[i] ) {
+					if ( _updateRes || preserve ) {
+						i++;
+					} else {
+						_tweens.splice(i, 1);
+					}
 				}
 
 			}
