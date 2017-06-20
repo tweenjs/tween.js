@@ -47,16 +47,18 @@ var TWEEN = TWEEN || (function () {
 				return false;
 			}
 
-			var i = 0;
+			var i = _tweens.length;
 
 			time = time !== undefined ? time : TWEEN.now();
 
-			while (i < _tweens.length) {
+			while (i--) {
 
-				if (_tweens[i].update(time) || preserve) {
-					i++;
-				} else {
-					_tweens.splice(i, 1);
+				var tween = _tweens[i];
+
+				if (!tween.update(time) && !preserve) {
+					if (_tweens.indexOf(tween) !== -1) {
+						_tweens.splice(i, 1);
+					}
 				}
 
 			}
@@ -67,7 +69,6 @@ var TWEEN = TWEEN || (function () {
 	};
 
 })();
-
 
 // Include a performance.now polyfill.
 // In node.js, use process.hrtime.

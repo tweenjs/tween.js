@@ -938,7 +938,7 @@
 
 			},
 
-			'Test TWEEN.Tween.chain progressess into chained tweens': function(test) {
+			'Test TWEEN.Tween.chain progresses into chained tweens': function(test) {
 
 				var obj = { t: 1000 };
 
@@ -949,6 +949,9 @@
 				var next  = new TWEEN.Tween(obj).to({ t: 2000 }, 1000);
 
 				blank.chain(next).start(0);
+
+				TWEEN.update(1000);
+				test.equal(obj.t, 1000);
 
 				TWEEN.update(1500);
 				test.equal(obj.t, 1500);
@@ -1142,8 +1145,31 @@
 
 				test.done();
 
-			}
+			},
 
+			'Test Tween.js handles removing tweens during update': function(test) {
+
+				var t1 = new TWEEN.Tween({ })
+					.to({ x: 10 }, 1000)
+					.onComplete(function() {
+						TWEEN.remove(t1);
+					})
+					.start(0);
+
+				var obj2 = { y: 0 };
+				var t2 = new TWEEN.Tween(obj2)
+					.to({ y: 10 }, 1000)
+					.start(500);
+
+				TWEEN.update(1000);
+
+				test.equal(obj2.y, 5);
+
+				test.equal(TWEEN.getAll().indexOf( t1 ), -1);
+				test.notEqual(TWEEN.getAll().indexOf( t2 ), -1);
+
+				test.done();
+			},
 		};
 
 		return tests;
