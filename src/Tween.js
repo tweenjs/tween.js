@@ -61,7 +61,7 @@ var TWEEN = TWEEN || (function () {
 				_tweensAddedDuringUpdate = {};
 
 				for (var i = 0; i < tweenIds.length; i++) {
-					if (_tweens[tweenIds[i]].update(time) === false) {
+					if (_tweens[tweenIds[i]].update(time) === false && !preserve) {
 						delete _tweens[tweenIds[i]];
 					}
 				}
@@ -145,15 +145,15 @@ TWEEN.Tween = function (object) {
 	this._onUpdateCallback = null;
 	this._onCompleteCallback = null;
 	this._onStopCallback = null;
-    this._id = TWEEN.nextId();
+	this._id = TWEEN.nextId();
 
 };
 
 TWEEN.Tween.prototype = assign(Object.create(Object.prototype), {
-    getId: function getId() {
-        return this._id;
-    },
-    
+	getId: function getId() {
+		return this._id;
+	},
+
 	to: function to(properties, duration) {
 
 		this._valuesEnd = properties;
