@@ -7,78 +7,81 @@
  * Thank you all, you're awesome!
  */
 
-var TWEEN = TWEEN || (function () {
+var TWEEN = TWEEN || {};
 
-	var _tweens = {};
-	var _tweensAddedDuringUpdate = {};
-	var _nextId = 0;
+TWEEN.Collection = function () {
+	this._tweens = {};
+	this._tweensAddedDuringUpdate = {};
+	this._nextId = 0;
+};
 
-	return {
+TWEEN.Collection.prototype = assign(Object.create(Object.prototype), {
+	getAll: function () {
 
-		getAll: function () {
+		return Object.keys(this._tweens).map(function (tweenId) {
+			return this._tweens[tweenId];
+		}.bind(this));
 
-			return Object.keys(_tweens).map(function (tweenId) {
-				return _tweens[tweenId];
-			});
+	},
 
-		},
+	removeAll: function () {
 
-		removeAll: function () {
+		this._tweens = {};
 
-			_tweens = {};
+	},
 
-		},
+	add: function (tween) {
 
-		add: function (tween) {
+		this._tweens[tween.getId()] = tween;
+		this._tweensAddedDuringUpdate[tween.getId()] = tween;
 
-			_tweens[tween.getId()] = tween;
-			_tweensAddedDuringUpdate[tween.getId()] = tween;
+	},
 
-		},
+	remove: function (tween) {
 
-		remove: function (tween) {
+		delete this._tweens[tween.getId()];
+		delete this._tweensAddedDuringUpdate[tween.getId()];
 
-			delete _tweens[tween.getId()];
-			delete _tweensAddedDuringUpdate[tween.getId()];
+	},
 
-		},
+	update: function (time, preserve) {
 
-		update: function (time, preserve) {
+		var tweenIds = Object.keys(this._tweens);
 
-			var tweenIds = Object.keys(_tweens);
-
-			if (tweenIds.length === 0) {
-				return false;
-			}
-
-			time = time !== undefined ? time : TWEEN.now();
-
-			// Tweens are updated in "batches". If you add a new tween during an update, then the
-			// new tween will be updated in the next batch.
-			// If you remove a tween during an update, it will normally still be updated. However,
-			// if the removed tween was added during the current batch, then it will not be updated.
-			while (tweenIds.length > 0) {
-				_tweensAddedDuringUpdate = {};
-
-				for (var i = 0; i < tweenIds.length; i++) {
-					if (_tweens[tweenIds[i]].update(time) === false && !preserve) {
-						delete _tweens[tweenIds[i]];
-					}
-				}
-
-				tweenIds = Object.keys(_tweensAddedDuringUpdate);
-			}
-
-			return true;
-
-		},
-
-		nextId: function () {
-			return _nextId++;
+		if (tweenIds.length === 0) {
+			return false;
 		}
-	};
 
-})();
+		time = time !== undefined ? time : TWEEN.now();
+
+		// Tweens are updated in "batches". If you add a new tween during an update, then the
+		// new tween will be updated in the next batch.
+		// If you remove a tween during an update, it will normally still be updated. However,
+		// if the removed tween was added during the current batch, then it will not be updated.
+		while (tweenIds.length > 0) {
+			this._tweensAddedDuringUpdate = {};
+
+			for (var i = 0; i < tweenIds.length; i++) {
+				if (this._tweens[tweenIds[i]].update(time) === false && !preserve) {
+					delete this._tweens[tweenIds[i]];
+				}
+			}
+
+			tweenIds = Object.keys(this._tweensAddedDuringUpdate);
+		}
+
+		return true;
+
+	},
+
+	nextId: function () {
+		return this._nextId++;
+	}
+});
+
+
+// Create global collection
+assignDeep(TWEEN, new TWEEN.Collection());
 
 
 // Include a performance.now polyfill.
@@ -122,9 +125,24 @@ function assign(target, source) {
 	return target;
 }
 
+function assignDeep(target, source) {
 
-TWEEN.Tween = function (object) {
+	// Assign own properties
+	assign(target, source);
 
+	// Assign prototype properties
+	var targetProto = Object.getPrototypeOf(target);
+	var sourceProto = Object.getPrototypeOf(source);
+
+	for (var prop in sourceProto) {
+		targetProto[prop] = sourceProto[prop];
+	}
+
+	return target;
+}
+
+
+TWEEN.Tween = function (object, collection) {
 	this._object = object;
 	this._valuesStart = {};
 	this._valuesEnd = {};
@@ -145,7 +163,8 @@ TWEEN.Tween = function (object) {
 	this._onUpdateCallback = null;
 	this._onCompleteCallback = null;
 	this._onStopCallback = null;
-	this._id = TWEEN.nextId();
+	this._collection = collection || TWEEN;
+	this._id = this._collection.nextId();
 
 };
 
@@ -168,7 +187,7 @@ TWEEN.Tween.prototype = assign(Object.create(Object.prototype), {
 
 	start: function start(time) {
 
-		TWEEN.add(this);
+		this._collection.add(this);
 
 		this._isPlaying = true;
 
@@ -218,7 +237,7 @@ TWEEN.Tween.prototype = assign(Object.create(Object.prototype), {
 			return this;
 		}
 
-		TWEEN.remove(this);
+		this._collection.remove(this);
 		this._isPlaying = false;
 
 		if (this._onStopCallback !== null) {
