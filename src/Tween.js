@@ -9,13 +9,13 @@
 
 var TWEEN = TWEEN || {};
 
-TWEEN.Collection = function () {
+TWEEN.Group = function () {
 	this._tweens = {};
 	this._tweensAddedDuringUpdate = {};
 	this._nextId = 0;
 };
 
-TWEEN.Collection.prototype = assign(Object.create(Object.prototype), {
+TWEEN.Group.prototype = assign(Object.create(Object.prototype), {
 	getAll: function () {
 
 		return Object.keys(this._tweens).map(function (tweenId) {
@@ -80,8 +80,8 @@ TWEEN.Collection.prototype = assign(Object.create(Object.prototype), {
 });
 
 
-// Create global collection
-assignDeep(TWEEN, new TWEEN.Collection());
+// Create global group
+assignDeep(TWEEN, new TWEEN.Group());
 
 
 // Include a performance.now polyfill.
@@ -142,7 +142,7 @@ function assignDeep(target, source) {
 }
 
 
-TWEEN.Tween = function (object, collection) {
+TWEEN.Tween = function (object, group) {
 	this._object = object;
 	this._valuesStart = {};
 	this._valuesEnd = {};
@@ -163,8 +163,8 @@ TWEEN.Tween = function (object, collection) {
 	this._onUpdateCallback = null;
 	this._onCompleteCallback = null;
 	this._onStopCallback = null;
-	this._collection = collection || TWEEN;
-	this._id = this._collection.nextId();
+	this._group = group || TWEEN;
+	this._id = this._group.nextId();
 
 };
 
@@ -187,7 +187,7 @@ TWEEN.Tween.prototype = assign(Object.create(Object.prototype), {
 
 	start: function start(time) {
 
-		this._collection.add(this);
+		this._group.add(this);
 
 		this._isPlaying = true;
 
@@ -237,7 +237,7 @@ TWEEN.Tween.prototype = assign(Object.create(Object.prototype), {
 			return this;
 		}
 
-		this._collection.remove(this);
+		this._group.remove(this);
 		this._isPlaying = false;
 
 		if (this._onStopCallback !== null) {
