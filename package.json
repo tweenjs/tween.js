@@ -26,9 +26,9 @@
   },
   "author": "tween.js contributors (https://github.com/tweenjs/tween.js/graphs/contributors)",
   "devDependencies": {
-    "jscs": "^2.2.0",
-    "jshint": "^2.8.0",
-    "nodeunit": "^0.9.1",
+    "jscs": "^2.11.0",
+    "jshint": "^2.9.4",
+    "nodeunit": "^0.9.5",
     "semantic-release": "^6.3.2"
   }
 }
