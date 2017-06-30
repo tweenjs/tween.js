@@ -270,7 +270,7 @@ Maintainers: [mikebolt](https://github.com/mikebolt), [sole](https://github.com/
 [![The Wilderness Downtown](http://tweenjs.github.io/tween.js/assets/projects/01_wilderness.png)](http://thewildernessdowntown.com/)
 [![Linechart](http://tweenjs.github.io/tween.js/assets/projects/00_linechart.png)](http://dejavis.org/linechart)
 
-[npm-image]: https://img.shields.io/npm/v/tween.js.svg
+[npm-image]: https://img.shields.io/npm/v/@tweenjs/tween.js.svg
 [npm-url]: https://npmjs.org/package/@tweenjs/tween.js
 [downloads-image]: https://img.shields.io/npm/dm/@tweenjs/tween.js.svg
 [downloads-url]: https://npmjs.org/package/@tweenjs/tween.js
