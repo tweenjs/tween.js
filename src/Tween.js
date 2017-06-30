@@ -9,10 +9,16 @@
 
 var TWEEN = TWEEN || {};
 
+
+TWEEN._nextId = 0;
+TWEEN.nextId = function () {
+	return TWEEN._nextId++;
+};
+
+
 TWEEN.Group = function () {
 	this._tweens = {};
 	this._tweensAddedDuringUpdate = {};
-	this._nextId = 0;
 };
 
 TWEEN.Group.prototype = assign(Object.create(Object.prototype), {
@@ -72,10 +78,6 @@ TWEEN.Group.prototype = assign(Object.create(Object.prototype), {
 
 		return true;
 
-	},
-
-	nextId: function () {
-		return this._nextId++;
 	}
 });
 
@@ -164,7 +166,7 @@ TWEEN.Tween = function (object, group) {
 	this._onCompleteCallback = null;
 	this._onStopCallback = null;
 	this._group = group || TWEEN;
-	this._id = this._group.nextId();
+	this._id = TWEEN.nextId();
 
 };
 
