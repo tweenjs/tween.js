@@ -211,6 +211,46 @@ Used to add a tween to the list of active tweens, or to remove an specific one f
 
 These methods are usually used internally only, but are exposed just in case you want to do something _funny_.
 
+## Controlling groups of tweens
+
+Using the `TWEEN` singleton to manage your tweens can cause issues in large apps with many components. In these cases, you may want to create your own smaller groups of tweens. 
+
+#### Example: cross-component conflict
+
+A conflict can occur if you have multiple components using `TWEEN`, and each component wants to manage its own set of tweens. If one component calls `TWEEN.update()` or `TWEEN.removeAll()` the tweens of other components will also be updated or removed.
+
+#### Creating your own tween groups
+
+To solve this, each component can make their own instance of `TWEEN.Group` (which is what the global `TWEEN` object uses internally). These groups can be passed in as a second optional parameter when instantiating a new tween:
+
+```javascript
+var groupA = new TWEEN.Group();
+var groupB = new TWEEN.Group();
+
+var tweenA = new TWEEN.Tween({ x: 1 }, groupA)
+	.to({ x: 10 }, 100)
+	.start();
+
+var tweenB = new TWEEN.Tween({ x: 1 }, groupB)
+	.to({ x: 10 }, 100)
+	.start();
+
+var tweenC = new TWEEN.Tween({ x: 1 })
+	.to({ x: 10 }, 100)
+	.start();
+
+groupA.update(); // only updates tweenA
+groupB.update(); // only updates tweenB
+TWEEN.update(); // only updates tweenC
+
+groupA.removeAll(); // only removes tweenA
+groupB.removeAll(); // only removes tweenB
+TWEEN.removeAll(); // only removes tweenC
+
+```
+
+In this way, each component can handle creating, updating, and destroying its own set of tweens.
+
 ## Changing the easing function (AKA make it bouncy)
 
 Tween.js will perform the interpolation between values (i.e. the easing) in a linear manner, so the change will be directly proportional to the elapsed time. This is predictable but also quite uninteresting visually wise. Worry not--this behaviour can be easily changed using the `easing` method. For example:
