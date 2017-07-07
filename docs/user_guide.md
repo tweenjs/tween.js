@@ -167,13 +167,13 @@ tweenA.chain(tweenB,tweenC);
 
 ### `repeat`
 
-If you wanted a tween to repeat forever you could chain it to itself, but a better way is to use the `repeat` method. It accepts a parameter that describes how many repetitions you want:
+If you wanted a tween to repeat forever you could chain it to itself, but a better way is to use the `repeat` method. It accepts a parameter that describes how many repetitions you want after the first tween is completed:
 
 ````javascript
-tween.repeat(10); // repeats 10 times and stops
+tween.repeat(10); // repeats 10 times after the first tween and stops
 tween.repeat(Infinity); // repeats forever
 ````
-
+The total number of tweens will be the repeat parameter plus one for the initial tween.
 Check the [Repeat](../examples/08_repeat.html) example.
 
 ### `yoyo`
