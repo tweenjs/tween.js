@@ -1099,6 +1099,8 @@
 			},
             
             'tween.isPlaying() is false before the tween starts': function(test) {
+                TWEEN.removeAll();
+                
                 var t = new TWEEN.Tween({x:0}).to({x:1}, 100);
                 test.equal(t.isPlaying(), false);
                 
@@ -1106,6 +1108,8 @@
             },
             
             'tween.isPlaying() is true when a tween is started and before it ends': function(test) {
+                TWEEN.removeAll();
+                
                 var t = new TWEEN.Tween({x:0}).to({x:1}, 100);
                 t.start(0);
                 test.equal(t.isPlaying(), true);
@@ -1114,6 +1118,8 @@
             },
             
             'tween.isPlaying() is false after a tween ends': function(test) {
+                TWEEN.removeAll();
+                
                 var t = new TWEEN.Tween({x:0}).to({x:1}, 100);
                 t.start(0);
                 TWEEN.update(150);
