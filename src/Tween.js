@@ -68,7 +68,7 @@ TWEEN.Group.prototype = assign(Object.create(Object.prototype), {
 			this._tweensAddedDuringUpdate = {};
 
 			for (var i = 0; i < tweenIds.length; i++) {
-                
+
 				if (this._tweens[tweenIds[i]].update(time) === false) {
 					this._tweens[tweenIds[i]]._isPlaying = false;
 
