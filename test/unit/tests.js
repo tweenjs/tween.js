@@ -1126,7 +1126,7 @@
                 test.equal(t.isPlaying(), false);
                 
                 test.done();
-            }
+            },
 
 			// Custom TWEEN.Group tests
 
