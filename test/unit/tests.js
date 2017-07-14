@@ -1152,7 +1152,7 @@
             
             'tween.isPlaying() is true when a tween is started and before it ends': function(test) {
                 var t = new TWEEN.Tween({x:0}).to({x:1}, 100);
-                t.start();
+                t.start(0);
                 test.equal(t.isPlaying(), true);
                 
                 test.done();
@@ -1160,7 +1160,7 @@
             
             'tween.isPlaying() is false after a tween ends': function(test) {
                 var t = new TWEEN.Tween({x:0}).to({x:1}, 100);
-                t.start();
+                t.start(0);
                 TWEEN.update(150);
                 test.equal(t.isPlaying(), false);
                 
