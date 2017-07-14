@@ -153,6 +153,10 @@ TWEEN.Tween.prototype = assign(Object.create(Object.prototype), {
 	getId: function getId() {
 		return this._id;
 	},
+	
+	isPlaying: function isPlaying() {
+		return this._isPlaying;
+	},
 
 	to: function to(properties, duration) {
 
