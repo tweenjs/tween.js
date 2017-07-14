@@ -61,8 +61,13 @@ var TWEEN = TWEEN || (function () {
 				_tweensAddedDuringUpdate = {};
 
 				for (var i = 0; i < tweenIds.length; i++) {
-					if (_tweens[tweenIds[i]].update(time) === false && !preserve) {
-						delete _tweens[tweenIds[i]];
+
+					if (_tweens[tweenIds[i]].update(time) === false) {
+						_tweens[tweenIds[i]]._isPlaying = false;
+
+						if (!preserve) {
+							delete _tweens[tweenIds[i]];
+						}
 					}
 				}
 
