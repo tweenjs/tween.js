@@ -1128,6 +1128,177 @@
                 test.done();
             }
 
+			// Custom TWEEN.Group tests
+
+			'Custom group.getAll()': function(test) {
+				var group = new TWEEN.Group();
+				test.ok( group.getAll() instanceof Array );
+				test.done();
+			},
+
+			'Custom group stores tweens instead of global TWEEN group': function(test) {
+
+				var group = new TWEEN.Group();
+
+				var numGlobalTweensBefore = TWEEN.getAll().length;
+				var numGroupTweensBefore = group.getAll().length;
+
+				var globalTween = new TWEEN.Tween( {} );
+				var groupTweenA = new TWEEN.Tween( {}, group );
+				var groupTweenB = new TWEEN.Tween( {}, group );
+
+				globalTween.start();
+				groupTweenA.start();
+				groupTweenB.start();
+
+				test.equal( TWEEN.getAll().length, numGlobalTweensBefore + 1 );
+				test.equal( group.getAll().length, numGroupTweensBefore + 2 );
+				test.done();
+
+			},
+
+			'Custom group.removeAll() doesn\'t conflict with global TWEEN group': function(test) {
+
+				var group = new TWEEN.Group();
+
+				TWEEN.removeAll();
+				group.removeAll();
+
+				test.equal( TWEEN.getAll().length, 0, "No global tweens left" );
+				test.equal( group.getAll().length, 0, "No group tweens left" );
+
+				var globalTween = new TWEEN.Tween( {} );
+				var groupTweenA = new TWEEN.Tween( {}, group );
+				var groupTweenB = new TWEEN.Tween( {}, group );
+
+				globalTween.start();
+				groupTweenA.start();
+				groupTweenB.start();
+
+				test.equal( TWEEN.getAll().length, 1, "One global tween has been added" );
+				test.equal( group.getAll().length, 2, "Two group tweens have been added" );
+
+				group.removeAll();
+
+				test.equal( TWEEN.getAll().length, 1, "One global tween left" );
+				test.equal( group.getAll().length, 0, "No group tweens left" );
+
+				TWEEN.removeAll();
+
+				test.equal( TWEEN.getAll().length, 0, "No global tweens left" );
+
+				test.done();
+
+			},
+
+			'Global TWEEN.removeAll() doesn\'t conflict with custom group': function(test) {
+
+				var group = new TWEEN.Group();
+
+				TWEEN.removeAll();
+				group.removeAll();
+
+				test.equal( TWEEN.getAll().length, 0, "No global tweens left" );
+				test.equal( group.getAll().length, 0, "No group tweens left" );
+
+				var globalTween = new TWEEN.Tween( {} );
+				var groupTweenA = new TWEEN.Tween( {}, group );
+				var groupTweenB = new TWEEN.Tween( {}, group );
+
+				globalTween.start();
+				groupTweenA.start();
+				groupTweenB.start();
+
+				test.equal( TWEEN.getAll().length, 1, "One global tween has been added" );
+				test.equal( group.getAll().length, 2, "Two group tweens have been added" );
+
+				TWEEN.removeAll();
+
+				test.equal( TWEEN.getAll().length, 0, "No global tweens left" );
+				test.equal( group.getAll().length, 2, "Two group tweens left" );
+
+				group.removeAll();
+
+				test.equal( group.getAll().length, 0, "No group tweens left" );
+
+				test.done();
+
+			},
+
+			'Custom group.add() doesn\'t conflict with global TWEEN group, or vice versa': function(test) {
+
+				var group = new TWEEN.Group();
+
+				var globalTween = new TWEEN.Tween( {} );
+				var groupTweenA = new TWEEN.Tween( {}, group );
+				var groupTweenB = new TWEEN.Tween( {}, group );
+
+				var numGlobalTweens = TWEEN.getAll().length;
+				var numGroupTweens = group.getAll().length;
+
+				TWEEN.add( globalTween );
+				group.add( groupTweenA );
+				group.add( groupTweenB );
+
+				test.equal( numGlobalTweens + 1, TWEEN.getAll().length );
+				test.equal( numGroupTweens + 2, group.getAll().length );
+
+				test.done();
+
+			},
+
+			'Custom group.update() doesn\'t conflict with global TWEEN group': function(test) {
+
+				var group = new TWEEN.Group();
+
+				var startObj = { x: 1 };
+				var endObj = { x: 2 };
+				var duration = 1000;
+
+				var globalObj = Object.assign( startObj );
+				var globalTween = new TWEEN.Tween( globalObj )
+					.to( endObj, duration )
+					.start( 0 );
+
+				var groupObj = Object.assign( startObj );
+				var groupTween = new TWEEN.Tween( groupObj, group )
+					.to( endObj, duration )
+					.start( 0 );
+
+				group.update( duration );
+
+				test.deepEqual( globalObj, startObj );
+				test.deepEqual( groupObj, endObj );
+				test.done();
+
+			},
+
+			'Global TWEEN.update() doesn\'t conflict with custom group': function(test) {
+
+				var group = new TWEEN.Group();
+
+				var startObj = { x: 1 };
+				var endObj = { x: 2 };
+				var duration = 1000;
+
+				var globalObj = Object.assign( startObj );
+				var globalTween = new TWEEN.Tween( globalObj )
+					.to( endObj, duration )
+					.start( 0 );
+
+				var groupObj = Object.assign( startObj );
+				var groupTween = new TWEEN.Tween( groupObj, group )
+					.to( endObj, duration )
+					.start( 0 );
+
+				TWEEN.update( duration );
+
+				test.deepEqual( globalObj, endObj );
+				test.deepEqual( groupObj, startObj );
+				test.done();
+
+			},
+
 		};
 
 		return tests;
