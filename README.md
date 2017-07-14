@@ -280,3 +280,4 @@ Maintainers: [mikebolt](https://github.com/mikebolt), [sole](https://github.com/
 [flattr-url]: https://flattr.com/thing/45014/tween-js
 [cdnjs-image]: https://img.shields.io/cdnjs/v/tween.js.svg
 [cdnjs-url]: https://cdnjs.com/libraries/tween.js
+
