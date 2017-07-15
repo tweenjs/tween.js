@@ -106,6 +106,7 @@ Then reference the library source:
 * [Contributor guide](./docs/contributor_guide.md)
 * [Tutorial](http://learningthreejs.com/blog/2011/08/17/tweenjs-for-smooth-animation/)  using tween.js with three.js
 * Also: [libtween](https://github.com/jsm174/libtween), a port of tween.js to C by [jsm174](https://github.com/jsm174)
+* Also: [es6-tween](https://github.com/tweenjs/es6-tween), a port of tween.js to ES6/Harmony by [dalisoft](https://github.com/dalisoft)
 
 ## Examples
 
@@ -280,7 +281,7 @@ Maintainers: [mikebolt](https://github.com/mikebolt), [sole](https://github.com/
 [![The Wilderness Downtown](http://tweenjs.github.io/tween.js/assets/projects/01_wilderness.png)](http://thewildernessdowntown.com/)
 [![Linechart](http://tweenjs.github.io/tween.js/assets/projects/00_linechart.png)](http://dejavis.org/linechart)
 
-[npm-image]: https://img.shields.io/npm/v/tween.js.svg
+[npm-image]: https://img.shields.io/npm/v/@tweenjs/tween.js.svg
 [npm-url]: https://npmjs.org/package/@tweenjs/tween.js
 [downloads-image]: https://img.shields.io/npm/dm/@tweenjs/tween.js.svg
 [downloads-url]: https://npmjs.org/package/@tweenjs/tween.js
@@ -290,3 +291,4 @@ Maintainers: [mikebolt](https://github.com/mikebolt), [sole](https://github.com/
 [flattr-url]: https://flattr.com/thing/45014/tween-js
 [cdnjs-image]: https://img.shields.io/cdnjs/v/tween.js.svg
 [cdnjs-url]: https://cdnjs.com/libraries/tween.js
+
