@@ -6,23 +6,34 @@ JavaScript tweening engine for easy animations, incorporating optimised Robert P
 [![NPM Downloads][downloads-image]][downloads-url]
 [![Travis tests][travis-image]][travis-url]
 [![Flattr this][flattr-image]][flattr-url]
+[![CDNJS][cdnjs-image]][cdnjs-url]
 
 ```javascript
-var coords = { x: 0, y: 0 };
-var tween = new TWEEN.Tween(coords)
-	.to({ x: 100, y: 100 }, 1000)
-	.onUpdate(function() {
-		console.log(this.x, this.y);
-	})
-	.start();
+var box = document.createElement('div');
+box.style.setProperty('background-color', '#008800');
+box.style.setProperty('width', '100px');
+box.style.setProperty('height', '100px');
+document.body.appendChild(box);
 
+// Setup the animation loop.
+function animate(time) {
+    requestAnimationFrame(animate);
+    TWEEN.update(time);
+}
 requestAnimationFrame(animate);
 
-function animate(time) {
-	requestAnimationFrame(animate);
-	TWEEN.update(time);
-}
+var coords = { x: 0, y: 0 }; // Start at (0, 0)
+var tween = new TWEEN.Tween(coords) // Create a new tween that modifies 'coords'.
+        .to({ x: 300, y: 200 }, 1000) // Move to (300, 200) in 1 second.
+        .easing(TWEEN.Easing.Quadratic.Out) // Use an easing function to make the animation smooth.
+        .onUpdate(function() { // Called after tween.js updates 'coords'.
+            // Move 'box' to the position described by 'coords' with a CSS translation.
+            box.style.setProperty('transform', 'translate(' + coords.x + 'px, ' + coords.y + 'px)');
+        })
+        .start(); // Start the tween immediately.
 ```
+
+[Test it with CodePen](https://codepen.io/mikebolt/pen/zzzvZg)
 
 ## Installation
 
@@ -32,18 +43,26 @@ Download the [library](https://raw.githubusercontent.com/tweenjs/tween.js/master
 <script src="js/Tween.js"></script>
 ```
 
+You can also reference a CDN-hosted version in your code, thanks to cdnjs. For example:
+
+```html
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/16.3.5/Tween.min.js"></script>
+```
+
+See [tween.js](https://cdnjs.com/libraries/tween.js/) for more versions.
+
 ### More advanced users might want to...
 
 #### Use `npm`
 
 ```bash
-npm install tween.js
+npm install @tweenjs/tween.js
 ```
 
 Then include the Tween.js module with the standard node.js `require`:
 
 ```javascript
-var TWEEN = require('tween.js');
+var TWEEN = require('@tweenjs/tween.js');
 ```
 
 And you can use Tween.js as in all other examples--for example:
@@ -58,19 +77,19 @@ You will need to use a tool such as `browserify` to convert code using this styl
 #### Use `bower`
 
 ```bash
-bower install tweenjs --save
+bower install @tweenjs/tweenjs --save
 ```
 
 or install an specific tag. They are git tags, and you can run `git tag` in the command line for a list if you have cloned the repository locally, or you can also check out the list in the [tween.js tags page](https://github.com/tweenjs/tween.js/tags). For example, to install `v16.3.0`:
 
 ```bash
-bower install tweenjs#v16.3.0
+bower install @tweenjs/tweenjs#v16.3.0
 ```
 
 Then reference the library source:
 
 ```html
-<script src="bower_components/tweenjs/src/Tween.js"></script>
+<script src="bower_components/@tweenjs/tweenjs/src/Tween.js"></script>
 ```
 
 ## Features
@@ -84,25 +103,146 @@ Then reference the library source:
 ## Documentation
 
 * [User guide](./docs/user_guide.md)
+* [Contributor guide](./docs/contributor_guide.md)
 * [Tutorial](http://learningthreejs.com/blog/2011/08/17/tweenjs-for-smooth-animation/)  using tween.js with three.js
 * Also: [libtween](https://github.com/jsm174/libtween), a port of tween.js to C by [jsm174](https://github.com/jsm174)
+* Also: [es6-tween](https://github.com/tweenjs/es6-tween), a port of tween.js to ES6/Harmony by [dalisoft](https://github.com/dalisoft)
 
 ## Examples
 
-[![Custom functions](http://tweenjs.github.io/tween.js/assets/examples/03_graphs.png)](http://tweenjs.github.io/tween.js/examples/12_graphs_custom_functions.html)
-[source](./examples/12_graphs_custom_functions.html)
-[![Stop all chained tweens](http://tweenjs.github.io/tween.js/assets/examples/11_stop_all_chained_tweens.png)](http://tweenjs.github.io/tween.js/examples/11_stop_all_chained_tweens.html) [source](./examples/11_stop_all_chained_tweens.html)
-[![Yoyo](http://tweenjs.github.io/tween.js/assets/examples/10_yoyo.png)](http://tweenjs.github.io/tween.js/examples/10_yoyo.html) [source](./examples/10_yoyo.html)
-[![Relative values](http://tweenjs.github.io/tween.js/assets/examples/09_relative.png)](http://tweenjs.github.io/tween.js/examples/09_relative_values.html) [source](./examples/09_relative_values.html)
-[![Repeat](http://tweenjs.github.io/tween.js/assets/examples/08_repeat.png)](http://tweenjs.github.io/tween.js/examples/08_repeat.html) [source](./examples/08_repeat.html)
-[![Dynamic to](http://tweenjs.github.io/tween.js/assets/examples/07_dynamic_to.png)](http://tweenjs.github.io/tween.js/examples/07_dynamic_to.html) [source](./examples/07_dynamic_to.html)
-[![Array interpolation](http://tweenjs.github.io/tween.js/assets/examples/03_graphs.png)](http://tweenjs.github.io/tween.js/examples/06_array_interpolation.html) [source](./examples/06_array_interpolation.html)
-[![Video and time](http://tweenjs.github.io/tween.js/assets/examples/06_video_and_time.png)](http://tweenjs.github.io/tween.js/examples/05_video_and_time.html) [source](./examples/05_video_and_time.html)
-[![Simplest possible example](http://tweenjs.github.io/tween.js/assets/examples/04_simplest.png)](http://tweenjs.github.io/tween.js/examples/04_simplest.html) [source](./examples/04_simplest.html)
-[![Graphs](http://tweenjs.github.io/tween.js/assets/examples/03_graphs.png)](http://tweenjs.github.io/tween.js/examples/03_graphs.html) [source](./examples/03_graphs.html)
-[![Black and red](http://tweenjs.github.io/tween.js/assets/examples/02_black_and_red.png)](http://tweenjs.github.io/tween.js/examples/02_black_and_red.html) [source](./examples/02_black_and_red.html)
-[![Bars](http://tweenjs.github.io/tween.js/assets/examples/01_bars.png)](http://tweenjs.github.io/tween.js/examples/01_bars.html) [source](./examples/01_bars.html)
-[![hello world](http://tweenjs.github.io/tween.js/assets/examples/00_hello_world.png)](http://tweenjs.github.io/tween.js/examples/00_hello_world.html) [source](./examples/00_hello_world.html)
+<table>
+	<tr>
+		<td>
+			<a href="http://tweenjs.github.io/tween.js/examples/12_graphs_custom_functions.html">
+				<img src="./assets/examples/03_graphs.png" alt="Custom functions" />
+			</a>
+		</td>
+		<td>
+			Custom functions<br />
+			(<a href="examples/12_graphs_custom_functions.html">source</a>)
+		</td>
+		<td>
+			<a href="http://tweenjs.github.io/tween.js/examples/11_stop_all_chained_tweens.html">
+				<img src="./assets/examples/11_stop_all_chained_tweens.png" alt="Stop all chained tweens" />
+			</a>
+		</td>
+		<td>
+			Stop all chained tweens<br />
+			(<a href="examples/11_stop_all_chained_tweens.html">source</a>)
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<a href="http://tweenjs.github.io/tween.js/examples/10_yoyo.html">
+				<img src="./assets/examples/10_yoyo.png" alt="Yoyo" />
+			</a>
+		</td>
+		<td>
+			Yoyo<br />
+			(<a href="examples/10_yoyo.html">source</a>)
+		</td>
+		<td>
+			<a href="http://tweenjs.github.io/tween.js/examples/09_relative_values.html">
+				<img src="./assets/examples/09_relative.png" alt="Relative values" />
+			</a>
+		</td>
+		<td>
+			Relative values<br />
+			(<a href="examples/09_relative_values.html">source</a>)
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<a href="http://tweenjs.github.io/tween.js/examples/08_repeat.html">
+				<img src="./assets/examples/08_repeat.png" alt="Repeat" />
+			</a>
+		</td>
+		<td>
+			Repeat<br />
+			(<a href="examples/08_repeat.html">source</a>)
+		</td>
+		<td>
+			<a href="http://tweenjs.github.io/tween.js/examples/07_dynamic_to.html">
+				<img src="./assets/examples/07_dynamic_to.png" alt="Dynamic to" />
+			</a>
+		</td>
+		<td>
+			Dynamic to<br />
+			(<a href="examples/07_dynamic_to.html">source</a>)
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<a href="http://tweenjs.github.io/tween.js/examples/06_array_interpolation.html">
+				<img src="./assets/examples/03_graphs.png" alt="Array interpolation" />
+			</a>
+		</td>
+		<td>
+			Array interpolation<br />
+			(<a href="examples/06_array_interpolation.html">source</a>)
+		</td>
+		<td>
+			<a href="http://tweenjs.github.io/tween.js/examples/05_video_and_time.html">
+				<img src="./assets/examples/06_video_and_time.png" alt="Video and time" />
+			</a>
+		</td>
+		<td>
+			Video and time<br />
+			(<a href="examples/05_video_and_time.html">source</a>)
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<a href="http://tweenjs.github.io/tween.js/examples/04_simplest.html">
+				<img src="./assets/examples/04_simplest.png" alt="Simplest possible example" />
+			</a>
+		</td>
+		<td>
+			Simplest possible example<br />
+			(<a href="examples/04_simplest.html">source</a>)
+		</td>
+		<td>
+			<a href="http://tweenjs.github.io/tween.js/examples/03_graphs.html">
+				<img src="./assets/examples/03_graphs.png" alt="Graphs" />
+			</a>
+		</td>
+		<td>
+			Graphs<br />
+			(<a href="examples/03_graphs.html">source</a>)
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<a href="http://tweenjs.github.io/tween.js/examples/02_black_and_red.html">
+				<img src="./assets/examples/02_black_and_red.png" alt="Black and red" />
+			</a>
+		</td>
+		<td>
+			Black and red<br />
+			(<a href="examples/02_black_and_red.html">source</a>)
+		</td>
+		<td>
+			<a href="http://tweenjs.github.io/tween.js/examples/01_bars.html">
+				<img src="./assets/examples/01_bars.png" alt="Bars" />
+			</a>
+		</td>
+		<td>
+			Bars<br />
+			(<a href="examples/01_bars.html">source</a>)
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<a href="http://tweenjs.github.io/tween.js/examples/00_hello_world.html">
+				<img src="./assets/examples/00_hello_world.png" alt="hello world" />
+			</a>
+		</td>
+		<td>
+			hello world<br />
+			(<a href="examples/00_hello_world.html">source</a>)
+		</td>
+	</tr>
+</table>
 
 ## Tests
 
@@ -120,11 +260,11 @@ npm test
 
 every time you want to run the tests.
 
-If you want to add any feature or change existing features, you *must* run the tests to make sure you didn't break anything else. If you send a PR to add something new and it doesn't have tests, or the tests don't pass, the PR won't be accepted. See [contributing](CONTRIBUTING.md) for more information.
+If you want to add any feature or change existing features, you *must* run the tests to make sure you didn't break anything else. If you send a pull request (PR) to add something new and it doesn't have tests, or the tests don't pass, the PR won't be accepted. See [contributing](CONTRIBUTING.md) for more information.
 
 ## People
 
-Maintainer: [sole](https://github.com/sole).
+Maintainers: [mikebolt](https://github.com/mikebolt), [sole](https://github.com/sole).
 
 [All contributors](http://github.com/tweenjs/tween.js/contributors).
 
@@ -141,11 +281,14 @@ Maintainer: [sole](https://github.com/sole).
 [![The Wilderness Downtown](http://tweenjs.github.io/tween.js/assets/projects/01_wilderness.png)](http://thewildernessdowntown.com/)
 [![Linechart](http://tweenjs.github.io/tween.js/assets/projects/00_linechart.png)](http://dejavis.org/linechart)
 
-[npm-image]: https://img.shields.io/npm/v/tween.js.svg
-[npm-url]: https://npmjs.org/package/tween.js
-[downloads-image]: https://img.shields.io/npm/dm/tween.js.svg
-[downloads-url]: https://npmjs.org/package/tween.js
+[npm-image]: https://img.shields.io/npm/v/@tweenjs/tween.js.svg
+[npm-url]: https://npmjs.org/package/@tweenjs/tween.js
+[downloads-image]: https://img.shields.io/npm/dm/@tweenjs/tween.js.svg
+[downloads-url]: https://npmjs.org/package/@tweenjs/tween.js
 [travis-image]: https://travis-ci.org/tweenjs/tween.js.svg?branch=master
 [travis-url]: https://travis-ci.org/tweenjs/tween.js
 [flattr-image]: https://api.flattr.com/button/flattr-badge-large.png
 [flattr-url]: https://flattr.com/thing/45014/tween-js
+[cdnjs-image]: https://img.shields.io/cdnjs/v/tween.js.svg
+[cdnjs-url]: https://cdnjs.com/libraries/tween.js
+
