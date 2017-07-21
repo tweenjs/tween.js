@@ -7,21 +7,13 @@
  * Thank you all, you're awesome!
  */
 
-var TWEEN = TWEEN || {};
 
-
-TWEEN._nextId = 0;
-TWEEN.nextId = function () {
-	return TWEEN._nextId++;
-};
-
-
-TWEEN.Group = function () {
+var _Group = function () {
 	this._tweens = {};
 	this._tweensAddedDuringUpdate = {};
 };
 
-TWEEN.Group.prototype = assign(Object.create(Object.prototype), {
+_Group.prototype = {
 	getAll: function () {
 
 		return Object.keys(this._tweens).map(function (tweenId) {
@@ -84,11 +76,15 @@ TWEEN.Group.prototype = assign(Object.create(Object.prototype), {
 		return true;
 
 	}
-});
+};
 
+TWEEN = new _Group();
+TWEEN.Group = _Group;
 
-// Create global group
-assignDeep(TWEEN, new TWEEN.Group());
+TWEEN._nextId = 0;
+TWEEN.nextId = function () {
+	return TWEEN._nextId++;
+};
 
 
 // Include a performance.now polyfill.
@@ -121,34 +117,6 @@ else {
 }
 
 
-function assign(target, source) {
-	var keys = Object.keys(source);
-	var length = keys.length;
-
-	for (var i = 0; i < length; i += 1) {
-		target[keys[i]] = source[keys[i]];
-	}
-
-	return target;
-}
-
-function assignDeep(target, source) {
-
-	// Assign own properties
-	assign(target, source);
-
-	// Assign prototype properties
-	var targetProto = Object.getPrototypeOf(target);
-	var sourceProto = Object.getPrototypeOf(source);
-
-	for (var prop in sourceProto) {
-		targetProto[prop] = sourceProto[prop];
-	}
-
-	return target;
-}
-
-
 TWEEN.Tween = function (object, group) {
 	this._object = object;
 	this._valuesStart = {};
@@ -175,7 +143,7 @@ TWEEN.Tween = function (object, group) {
 
 };
 
-TWEEN.Tween.prototype = assign(Object.create(Object.prototype), {
+TWEEN.Tween.prototype = {
 	getId: function getId() {
 		return this._id;
 	},
@@ -475,7 +443,7 @@ TWEEN.Tween.prototype = assign(Object.create(Object.prototype), {
 		return true;
 
 	}
-});
+};
 
 
 TWEEN.Easing = {
