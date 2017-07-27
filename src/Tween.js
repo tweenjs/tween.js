@@ -78,7 +78,7 @@ _Group.prototype = {
 	}
 };
 
-TWEEN = new _Group();
+var TWEEN = new _Group();
 TWEEN.Group = _Group;
 
 TWEEN._nextId = 0;
