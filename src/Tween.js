@@ -380,7 +380,7 @@ TWEEN.Tween.prototype = {
 		}
 
 		if (this._onUpdateCallback !== null) {
-			this._onUpdateCallback.call(this._object, value);
+			this._onUpdateCallback.call(this._object, value, this._object);
 		}
 
 		if (elapsed === 1) {
