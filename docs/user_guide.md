@@ -45,8 +45,8 @@ This will take care of updating all active tweens; after 1 second (i.e. 1000 mil
 But unless you print the value of `x` to the console, you can't see its value changing. You might want to use the `onUpdate` callback:
 
 ````javascript
-tween.onUpdate(function() {
-	console.log(this.x);
+tween.onUpdate(function(object) {
+	console.log(object.x);
 });
 ````
 
@@ -307,7 +307,7 @@ Check the [graphs for custom easing functions](../examples/12_graphs_custom_func
 
 Another powerful feature is to be able to run your own functions at specific times in each tween's life cycle. This is usually required when changing properties is not enough.
 
-For example, suppose you're trying to animate some object whose properties can't be accessed directly but require you to call a setter instead. You can use an `update` callback to read the new updated values and then manually call the setters:
+For example, suppose you're trying to animate some object whose properties can't be accessed directly but require you to call a setter instead. You can use an `update` callback to read the new updated values and then manually call the setters. All callbacks are passed the tweened object as the only parameter.
 
 ````javascript
 var trickyObjTween = new TWEEN.Tween({
@@ -315,9 +315,9 @@ var trickyObjTween = new TWEEN.Tween({
 	propertyB: trickyObj.getPropertyB()
 })
 	.to({ propertyA: 100, propertyB: 200 })
-	.onUpdate(function() {
-		this.setA( this.propertyA );
-		this.setB( this.propertyB );
+	.onUpdate(function(object) {
+		object.setA( object.propertyA );
+		object.setB( object.propertyB );
 	});
 ````
 
@@ -339,25 +339,25 @@ Executed right before the tween starts--i.e. before the deltas are calculated. T
 
 It is great for synchronising to other events or triggering actions you want to happen when a tween starts.
 
-The tweened object is passed in as the first parameter. It may also be accessed using the `this` value.
+The tweened object is passed in as the first parameter.
 
 ### onStop
 
 Executed when a tween is explicitly stopped via `stop()`, but not when it is completed normally, and before stopping any possible chained tween.
 
-The tweened object is passed in as the first parameter. It may also be accessed using the `this` value.
+The tweened object is passed in as the first parameter.
 
 ### onUpdate
 
 Executed each time the tween is updated, after the values have been actually updated.
 
-The tweened object may be accessed using the `this` value. The first parameter passed to the callback is the tween's progress, represented as a value from 0 to 1. However, this may change in future releases. You are advised not to rely on this value.
+The tweened object is passed in as the first parameter.
 
 ### onComplete
 
 Executed when a tween is finished normally (i.e. not stopped).
 
-The tweened object is passed in as the first parameter. It may also be accessed using the `this` value.
+The tweened object is passed in as the first parameter.
 
 ## Advanced tweening
 
@@ -438,9 +438,9 @@ When you try to animate the position of an element in the page, the easiest solu
 var element = document.getElementById('myElement');
 var tween = new TWEEN.Tween({ top: 0, left: 0 })
 	.to({ top: 100, left: 100 }, 1000)
-	.onUpdate(function() {
-		element.style.top = this.top + 'px';
-		element.style.left = this.left + 'px';
+	.onUpdate(function(object) {
+		element.style.top = object.top + 'px';
+		element.style.left = object.left + 'px';
 	});
 ```
 
@@ -450,8 +450,8 @@ but this is really inefficient because altering these properties forces the brow
 var element = document.getElementById('myElement');
 var tween = new TWEEN.Tween({ top: 0, left: 0 })
 	.to({ top: 100, left: 100 }, 1000)
-	.onUpdate(function() {
-		element.style.transform = 'translate(' + this.left + 'px, ' + this.top + 'px);';
+	.onUpdate(function(object) {
+		element.style.transform = 'translate(' + object.left + 'px, ' + object.top + 'px);';
 	});
 ```
 
