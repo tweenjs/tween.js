@@ -172,7 +172,7 @@ TWEEN.Tween.prototype = {
 
 		this._onStartCallbackFired = false;
 
-		this._startTime = time !== undefined ? time : TWEEN.now();
+		this._startTime = time !== undefined ? typeof time === 'string' ? TWEEN.now() + parseFloat(time) : time : TWEEN.now();
 		this._startTime += this._delayTime;
 
 		for (var property in this._valuesEnd) {
