@@ -213,7 +213,7 @@ These methods are usually used internally only, but are exposed just in case you
 
 ## Controlling groups of tweens
 
-Using the `TWEEN` singleton to manage your tweens can cause issues in large apps with many components. In these cases, you may want to create your own smaller groups of tweens. 
+Using the `TWEEN` singleton to manage your tweens can cause issues in large apps with many components. In these cases, you may want to create your own smaller groups of tweens.
 
 #### Example: cross-component conflict
 
@@ -390,6 +390,16 @@ relativeTween.start(); // Makes x go to -100 +100 = 0
 
 Check [09_relative_values](../examples/09_relative_values.html) for an example.
 
+### Tweening nested object
+
+Tween.js can also change properties across nested object. For example:
+
+```javascript
+var nestedObject = { scale: { x:0, y:0 }, alpha:0 }
+
+var tween = new TWEEN.Tween(nestedObject).to({ scale:{x: 100, y: 100 }, alpha:1 });
+```
+
 ### Tweening to arrays of values
 
 In addition to tweening to an absolute or a relative value, you can also have Tween.js change properties across a series of values. To do this, you just need to specify an array of values instead of a single value for a property. For example:
@@ -406,7 +416,7 @@ The way these values are calculated is as follows:
 * the progress (from 0 to 1) is used as input for the interpolation function
 * based on the progress and the array of values, an interpolated value is generated
 
-For example, when the tween has just started (progress is 0), the interpolation function will return the first value in the array. When the tween is halfway, the interpolation function will return a value approximately in the middle of the array, and when the tween is at the end, the interpolation function will return the last value. 
+For example, when the tween has just started (progress is 0), the interpolation function will return the first value in the array. When the tween is halfway, the interpolation function will return a value approximately in the middle of the array, and when the tween is at the end, the interpolation function will return the last value.
 
 You can change the interpolation function with the `interpolation` method. For example:
 
@@ -466,4 +476,3 @@ If you use an `onUpdate` callback, you need to be very careful with what you put
 ## Crazy tweening
 
 This is something you might not use often, but you can use the tweening equations outside of Tween.js. They're just functions, after all. So you could use them to calculate smooth curves as input data. For example, they're used to generate audio data in [this experiment](http://5013.es/toys/tween.audio/).
-
