@@ -1299,6 +1299,36 @@
 
 			},
 
+			'Stopping a tween within an update callback will not cause an error.': function(test) {
+				TWEEN.removeAll();
+
+				var tweenA = new TWEEN.Tween({x: 1, y: 2})
+					.to({x: 3, y: 4}, 1000)
+					.onUpdate(function(values) {
+						tweenB.stop();
+					})
+					.start(0);
+				var tweenB = new TWEEN.Tween({x: 5, y: 6})
+					.to({x: 7, y: 8})
+					.onUpdate(function(values) {
+						tweenA.stop();
+					})
+					.start(0);
+
+				let success = true;
+
+				try {
+					TWEEN.update(500);
+				}
+				catch (exception) {
+					success = false;
+				}
+				finally {
+					test.ok(success);
+					test.done();
+				}
+			}
+
 		};
 
 		return tests;
