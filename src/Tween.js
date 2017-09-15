@@ -56,13 +56,13 @@ _Group.prototype = {
 		// new tween will be updated in the next batch.
 		// If you remove a tween during an update, it may or may not be updated. However,
 		// if the removed tween was added during the current batch, then it will not be updated.
-		var tween;
 		while (tweenIds.length > 0) {
 			this._tweensAddedDuringUpdate = {};
 
 			for (var i = 0; i < tweenIds.length; i++) {
 
-				tween = this._tweens[tweenIds[i]];
+				var tween = this._tweens[tweenIds[i]];
+
 				if (tween && tween.update(time) === false) {
 					tween._isPlaying = false;
 
