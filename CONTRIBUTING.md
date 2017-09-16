@@ -1,10 +1,16 @@
+# Contributing
+
+## Code of conduct
+
+Please note that this project is released with a [Contributor Code of Conduct](./CODE_OF_CONDUCT.md). **By participating in this project you agree to abide by its terms**.
+
 Before reporting a bug
 ---
 
-If you find something that you believe to be a bug, please 
+If you find something that you believe to be a bug, please
 
-1. search the [issue tracker](https://github.com/sole/tween.js/issues) for similar issues
-2. check out the [master](https://github.com/sole/tween.js/tree/master) branch and see if the bug still exists there.
+1. search the [issue tracker](https://github.com/tweenjs/tween.js/issues) for similar issues
+2. check out the [master](https://github.com/tweenjs/tween.js/tree/master) branch and see if the bug still exists there.
 
 
 How to report a bug
@@ -21,7 +27,7 @@ Contributing
 
 1. Get a GitHub account (if you don't have one yet).
 2. Fork the project in GitHub.
-3. Check the [contribution guidelines](https://github.com/tweenjs/tween.js/wiki/Contributing-to-tween.js). 
+3. Check the [contribution guidelines](https://github.com/tweenjs/tween.js/wiki/Contributing-to-tween.js).
 4. Make changes to your clone of the repository
 5. Submit a pull request.
 
