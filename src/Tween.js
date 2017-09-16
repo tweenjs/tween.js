@@ -8,12 +8,12 @@
  */
 
 
-var _Group = function () {
+var _TweenGroup = function () {
 	this._tweens = {};
 	this._tweensAddedDuringUpdate = {};
 };
 
-_Group.prototype = {
+_TweenGroup.prototype = {
 	getAll: function () {
 
 		return Object.keys(this._tweens).map(function (tweenId) {
@@ -80,9 +80,9 @@ _Group.prototype = {
 	}
 };
 
-var TWEEN = new _Group();
+var TWEEN = new _TweenGroup();
 
-TWEEN.Group = _Group;
+TWEEN.Group = _TweenGroup;
 TWEEN._nextId = 0;
 TWEEN.nextId = function () {
 	return TWEEN._nextId++;
