@@ -11,12 +11,12 @@ var TWEEN;
 
 (function () {
 
-	var _Group = function () {
+	var Group = function () {
 		this._tweens = {};
 		this._tweensAddedDuringUpdate = {};
 	};
 
-	_Group.prototype = {
+	Group.prototype = {
 		getAll: function () {
 
 			return Object.keys(this._tweens).map(function (tweenId) {
@@ -83,9 +83,9 @@ var TWEEN;
 		}
 	};
 
-	TWEEN = new _Group();
+	TWEEN = new Group();
 
-	TWEEN.Group = _Group;
+	TWEEN.Group = Group;
 	TWEEN._nextId = 0;
 	TWEEN.nextId = function () {
 		return TWEEN._nextId++;
