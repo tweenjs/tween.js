@@ -9,7 +9,7 @@
 
 var TWEEN;
 
-(function(){
+(function () {
 
 	var _Group = function () {
 		this._tweens = {};
