@@ -48,8 +48,8 @@
 
 					var elem = { x: startValue, domElement: domElement };
 
-					var updateCallback = function() {
-						this.domElement.style.left = this.x + 'px';
+					var updateCallback = function(object) {
+						object.domElement.style.left = this.x + 'px';
 					}
 
 					var tween = new TWEEN.Tween(elem)

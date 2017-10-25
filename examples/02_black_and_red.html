@@ -49,18 +49,18 @@
 							.to({ value: 1 }, 8000)
 							.delay((0.001 * index + Math.random()) * 500)
 							.easing(TWEEN.Easing.Elastic.InOut)
-							.onUpdate(function() {
-								var c = Math.floor(this.value * 0xff);
-								this.td.style.background = 'rgb(' + c + ', 0, 0)';
+							.onUpdate(function(object) {
+								var c = Math.floor(object.value * 0xff);
+								object.td.style.background = 'rgb(' + c + ', 0, 0)';
 							});
 
 						var tweenBack = new TWEEN.Tween(cell)
 							.to({ value: 0 }, 4000)
 							.delay((0.001*index + Math.random()) * 500)
 							.easing(TWEEN.Easing.Elastic.InOut)
-							.onUpdate(function() {
-								var c = Math.floor(this.value * 0xff);
-								this.td.style.background = 'rgb(' + c + ', 0, 0)';
+							.onUpdate(function(object) {
+								var c = Math.floor(object.value * 0xff);
+								object.td.style.background = 'rgb(' + c + ', 0, 0)';
 							});
 
 						tween.chain(tweenBack);
