@@ -245,7 +245,7 @@ TWEEN.Tween.prototype = {
 
 	},
     
-    group: function(group) {
+    group: function group(group) {
         this._group = group;
         return this;
     },
