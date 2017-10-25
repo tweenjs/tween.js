@@ -165,6 +165,11 @@ TWEEN.Tween.prototype = {
 		return this;
 
 	},
+    
+    duration: function duration(d) {
+        this._duration = d;
+        return this;
+    },
 
 	start: function start(time) {
 
