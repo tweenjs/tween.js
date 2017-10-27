@@ -244,11 +244,11 @@ TWEEN.Tween.prototype = {
 		}
 
 	},
-    
-    group: function group(group) {
-        this._group = group;
-        return this;
-    },
+
+	group: function group(group) {
+		this._group = group;
+		return this;
+	},
 
 	delay: function delay(amount) {
 
