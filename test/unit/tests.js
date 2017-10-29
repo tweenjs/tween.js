@@ -1128,6 +1128,20 @@
                 test.done();
             },
 
+            'A zero-duration tween finishes at its starting time without an error.': function(test) {
+                TWEEN.removeAll();
+
+		let object = {x: 0};
+                var t = new TWEEN.Tween(object).to({x:1}, 0);
+                t.start(0);
+                TWEEN.update(0);
+
+                test.equal(t.isPlaying(), false);
+		test.equal(object.x, 1);
+
+                test.done();
+            },
+
 			// Custom TWEEN.Group tests
 
 			'Custom group.getAll()': function(test) {
