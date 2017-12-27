@@ -36,7 +36,7 @@
 						.yoyo( true )
 						.easing( TWEEN.Easing.Cubic.InOut )
 						.onUpdate( function() {
-							updateBox( target1, this );
+							updateBox( target1, target1.dataset );
 						})
 						.start(),
 					target2 = document.getElementById( 'target2' ),
@@ -47,7 +47,7 @@
 						.yoyo( true )
 						.easing( TWEEN.Easing.Cubic.InOut )
 						.onUpdate( function() {
-							updateBox( target2, this );
+							updateBox( target2, target2.dataset );
 						})
 						.start();
 			}

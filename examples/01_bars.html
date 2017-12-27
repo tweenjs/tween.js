@@ -48,21 +48,21 @@
 
 					var elem = { x: startValue, domElement: domElement };
 
-					var updateCallback = function() {
-						this.domElement.style.left = this.x + 'px';
+					var updateCallback = function(elem) {
+						elem.domElement.style.left = elem.x + 'px';
 					}
 
 					var tween = new TWEEN.Tween(elem)
 						.to({ x: endValue }, 4000)
 						.delay(Math.random() * 1000)
-						.onUpdate(updateCallback)
+						.onUpdate(updateCallback.bind(null, elem))
 						.easing(TWEEN.Easing.Back.Out)
 						.start();
 
 					var tweenBack = new TWEEN.Tween(elem, false)
 						.to({ x: startValue}, 4000)
 						.delay(Math.random() * 1000)
-						.onUpdate(updateCallback)
+						.onUpdate(updateCallback.bind(null, elem))
 						.easing(TWEEN.Easing.Elastic.InOut);
 
 					tween.chain(tweenBack);

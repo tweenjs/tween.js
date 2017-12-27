@@ -111,13 +111,13 @@
 					new TWEEN.Tween( obj ).to( { x: xA, y: yA }, 3000 ).onUpdate( function() {
 
 						context.beginPath();
-						context.moveTo( this.old.x, this.old.y );
-						context.lineTo( this.x, this.y );
+						context.moveTo( obj.old.x, obj.old.y );
+						context.lineTo( obj.x, obj.y );
 						context.closePath();
 						context.stroke();
 
-						this.old.x = this.x;
-						this.old.y = this.y;
+						obj.old.x = obj.x;
+						obj.old.y = obj.y;
 
 					}).interpolation( interpolation ).easing( TWEEN.Easing.Linear.None ).delay( 250 ).start();
 

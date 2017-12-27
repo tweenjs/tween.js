@@ -33,9 +33,9 @@
 						.delay( 500 )
 						.easing( TWEEN.Easing.Exponential.In )
 						.onUpdate( function() {
-							this.top = Math.round(this.top);
-							this.left = Math.round(this.left);
-							updateBox( target1, this );
+							target1.dataset.top = Math.round(target1.dataset.top);
+							target1.dataset.left = Math.round(target1.dataset.left);
+							updateBox( target1, target1.dataset );
 						})
 						.start();
 					
