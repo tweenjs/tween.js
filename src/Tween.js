@@ -271,23 +271,23 @@ TWEEN.Tween.prototype = {
 
 	},
 
-	yoyo: function yoyo(yoyo) {
+	yoyo: function yoyo(yy) {
 
-		this._yoyo = yoyo;
+		this._yoyo = yy;
 		return this;
 
 	},
 
-	easing: function easing(easing) {
+	easing: function easing(eas) {
 
-		this._easingFunction = easing;
+		this._easingFunction = eas;
 		return this;
 
 	},
 
-	interpolation: function interpolation(interpolation) {
+	interpolation: function interpolation(inter) {
 
-		this._interpolationFunction = interpolation;
+		this._interpolationFunction = inter;
 		return this;
 
 	},
