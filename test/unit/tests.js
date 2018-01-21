@@ -232,6 +232,9 @@
 				test.ok( t.onComplete() instanceof TWEEN.Tween );
 				test.equal( t.onComplete(), t );
 
+				test.ok( t.group() instanceof TWEEN.Tween );
+				test.equal( t.group(), t );
+
 				test.done();
 
 			},
@@ -1342,7 +1345,22 @@
 					test.ok(success);
 					test.done();
 				}
-			}
+			},
+
+
+			'Tween.group sets the tween\'s group.': function(test) {
+
+				var group = new TWEEN.Group();
+
+				var groupTweenA = new TWEEN.Tween( {} )
+					.group( group );
+
+				groupTweenA.start();
+
+				test.equal( group.getAll().length, 1 );
+				test.done();
+
+			},
 
 		};
 
