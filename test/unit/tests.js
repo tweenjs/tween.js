@@ -1080,56 +1080,71 @@
 					}
 				});
 
-                test.equal( obj.x, 0 );
+				test.equal( obj.x, 0 );
 
 				var t = new TWEEN.Tween( obj ).to( { x: 100 }, 100 );
 
 				t.start( 0 );
 
-                test.equal( obj.x, 0 );
+				test.equal( obj.x, 0 );
 
-                TWEEN.update( 37 );
-                test.equal( obj.x, 37 );
+				TWEEN.update( 37 );
+				test.equal( obj.x, 37 );
 
 				TWEEN.update( 100 );
 				test.equal( obj.x, 100 );
 
-                TWEEN.update( 115 );
-                test.equal( obj.x, 100 );
+				TWEEN.update( 115 );
+				test.equal( obj.x, 100 );
 
 				test.done();
 
 			},
-            
-            'tween.isPlaying() is false before the tween starts': function(test) {
-                TWEEN.removeAll();
-                
-                var t = new TWEEN.Tween({x:0}).to({x:1}, 100);
-                test.equal(t.isPlaying(), false);
-                
-                test.done();
-            },
-            
-            'tween.isPlaying() is true when a tween is started and before it ends': function(test) {
-                TWEEN.removeAll();
-                
-                var t = new TWEEN.Tween({x:0}).to({x:1}, 100);
-                t.start(0);
-                test.equal(t.isPlaying(), true);
-                
-                test.done();
-            },
-            
-            'tween.isPlaying() is false after a tween ends': function(test) {
-                TWEEN.removeAll();
-                
-                var t = new TWEEN.Tween({x:0}).to({x:1}, 100);
-                t.start(0);
-                TWEEN.update(150);
-                test.equal(t.isPlaying(), false);
-                
-                test.done();
-            },
+
+			'tween.isPlaying() is false before the tween starts': function(test) {
+				TWEEN.removeAll();
+
+				var t = new TWEEN.Tween({x:0}).to({x:1}, 100);
+
+				test.equal(t.isPlaying(), false);
+
+				test.done();
+			},
+			
+			'tween.isPlaying() is true when a tween is started and before it ends': function(test) {
+				TWEEN.removeAll();
+				
+				var t = new TWEEN.Tween({x:0}).to({x:1}, 100);
+				t.start(0);
+				test.equal(t.isPlaying(), true);
+				
+				test.done();
+			},
+			
+			'tween.isPlaying() is false after a tween ends': function(test) {
+				TWEEN.removeAll();
+				
+				var t = new TWEEN.Tween({x:0}).to({x:1}, 100);
+				t.start(0);
+				TWEEN.update(150);
+				test.equal(t.isPlaying(), false);
+				
+				test.done();
+			},
+
+			'A zero-duration tween finishes at its starting time without an error.': function(test) {
+				TWEEN.removeAll();
+
+				let object = {x: 0};
+				var t = new TWEEN.Tween(object).to({x:1}, 0);
+				t.start(0);
+				TWEEN.update(0);
+
+				test.equal(t.isPlaying(), false);
+				test.equal(object.x, 1);
+
+				test.done();
+			},
 
 			// Custom TWEEN.Group tests
 
