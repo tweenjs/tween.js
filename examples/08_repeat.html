@@ -36,8 +36,8 @@
 						.to( { rotation: 360 }, 2000 )
 						.repeat( 1 )
 						.delay( 1000 )
-						.onUpdate( function() {
-							updateBox( target1, this );
+						.onUpdate( function(object) {
+							updateBox( target1, object );
 						})
 						.start(),
 					target2 = document.getElementById( 'target2' ),
@@ -45,8 +45,8 @@
 						.to( { rotation: 360 }, 2000 )
 						.repeat( 5 )
 						.delay( 1000 )
-						.onUpdate( function() {
-							updateBox( target2, this );
+						.onUpdate( function(object) {
+							updateBox( target2, object );
 						})
 						.start(),
 					target3 = document.getElementById( 'target3' ),
@@ -54,8 +54,8 @@
 						.to( { rotation: 360 }, 2000 )
 						.repeat( Infinity )
 						.delay( 1000 )
-						.onUpdate( function() {
-							updateBox( target3, this );
+						.onUpdate( function(object) {
+							updateBox( target3, object );
 						})
 						.start();
 			}

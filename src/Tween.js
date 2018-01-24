@@ -347,7 +347,7 @@ TWEEN.Tween.prototype = {
 		}
 
 		elapsed = (time - this._startTime) / this._duration;
-		elapsed = elapsed > 1 ? 1 : elapsed;
+		elapsed = (this._duration === 0 || elapsed > 1) ? 1 : elapsed;
 
 		value = this._easingFunction(elapsed);
 
