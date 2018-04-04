@@ -3,5 +3,6 @@
   "browser": true,
   "curly": true,
   "eqeqeq": true,
-  "unused": true
+  "unused": true,
+  "esversion": 6
 }
