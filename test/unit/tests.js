@@ -370,6 +370,62 @@
 
 			},
 
+			'Tween relative multiplier value': function(test) {
+
+				var obj = { x: 10 },
+					t = new TWEEN.Tween( obj );
+
+				t.to( { x: "*2" }, 1000 );
+				t.start( 0 );
+				t.update( 1000 );
+
+				test.equal( obj.x, 20 );
+				test.done();
+
+			},
+
+			'Tween relative negative multiplier value': function(test) {
+
+				var obj = { x: 10 },
+					t = new TWEEN.Tween( obj );
+
+				t.to( { x: "*-2" }, 1000 );
+				t.start( 0 );
+				t.update( 1000 );
+
+				test.equal( obj.x, -20 );
+				test.done();
+
+			},
+
+			'Tween relative divider value': function(test) {
+
+				var obj = { x: 10 },
+					t = new TWEEN.Tween( obj );
+
+				t.to( { x: "/2" }, 1000 );
+				t.start( 0 );
+				t.update( 1000 );
+
+				test.equal( obj.x, 5 );
+				test.done();
+
+			},
+
+			'Tween relative negative divider value': function(test) {
+
+				var obj = { x: 10 },
+					t = new TWEEN.Tween( obj );
+
+				t.to( { x: "/-2" }, 1000 );
+				t.start( 0 );
+				t.update( 1000 );
+
+				test.equal( obj.x, -5 );
+				test.done();
+
+			},
+
 			'String values without a + or - sign should not be interpreted as relative': function(test) {
 
 				var obj = { x: 100 },
