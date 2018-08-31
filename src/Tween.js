@@ -367,13 +367,22 @@ TWEEN.Tween.prototype = {
 
 			} else {
 
-				// Parses relative end values with start as base (e.g.: +10, -3)
+				// Parses relative end values with start as base (e.g.: +10, -3, *2, /10)
 				if (typeof (end) === 'string') {
 
-					if (end.charAt(0) === '+' || end.charAt(0) === '-') {
-						end = start + parseFloat(end);
-					} else {
-						end = parseFloat(end);
+					switch (end.charAt(0)) {
+						case '+':
+						case '-':
+							end = start + parseFloat(end);
+							break;
+						case '*':
+							end = start * parseFloat(end.substr(1));
+							break;
+						case '/':
+							end = start / parseFloat(end.substr(1));
+							break;
+						default:
+							end = parseFloat(end);
 					}
 				}
 
