@@ -395,7 +395,7 @@ TWEEN.Tween.prototype = {
 		}
 
 		if (this._onUpdateCallback !== null) {
-			this._onUpdateCallback(this._object,elapsed);
+			this._onUpdateCallback(this._object, elapsed);
 		}
 
 		if (elapsed === 1) {
@@ -434,7 +434,7 @@ TWEEN.Tween.prototype = {
 					this._startTime = time + this._delayTime;
 				}
 
-				if (this._onRepeatCallback!=null) {
+				if (this._onRepeatCallback !== null) {
 					this._onRepeatCallback();
 				}
 
