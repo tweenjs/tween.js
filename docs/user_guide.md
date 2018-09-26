@@ -392,7 +392,7 @@ Check [09_relative_values](../examples/09_relative_values.html) for an example.
 
 ### Tweening nested object
 
-Tween.js can also change properties across nested object. For example:
+Tween.js can also change properties across a nested object. For example:
 
 ```javascript
 var nestedObject = { scale: { x:0, y:0 }, alpha:0 }
