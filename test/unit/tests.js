@@ -232,6 +232,9 @@
 				test.ok( t.onComplete() instanceof TWEEN.Tween );
 				test.equal( t.onComplete(), t );
 
+				test.ok( t.group() instanceof TWEEN.Tween );
+				test.equal( t.group(), t );
+
 				test.done();
 
 			},
@@ -1077,56 +1080,71 @@
 					}
 				});
 
-                test.equal( obj.x, 0 );
+				test.equal( obj.x, 0 );
 
 				var t = new TWEEN.Tween( obj ).to( { x: 100 }, 100 );
 
 				t.start( 0 );
 
-                test.equal( obj.x, 0 );
+				test.equal( obj.x, 0 );
 
-                TWEEN.update( 37 );
-                test.equal( obj.x, 37 );
+				TWEEN.update( 37 );
+				test.equal( obj.x, 37 );
 
 				TWEEN.update( 100 );
 				test.equal( obj.x, 100 );
 
-                TWEEN.update( 115 );
-                test.equal( obj.x, 100 );
+				TWEEN.update( 115 );
+				test.equal( obj.x, 100 );
 
 				test.done();
 
 			},
 
-            'tween.isPlaying() is false before the tween starts': function(test) {
-                TWEEN.removeAll();
+			'tween.isPlaying() is false before the tween starts': function(test) {
+				TWEEN.removeAll();
 
-                var t = new TWEEN.Tween({x:0}).to({x:1}, 100);
-                test.equal(t.isPlaying(), false);
+				var t = new TWEEN.Tween({x:0}).to({x:1}, 100);
 
-                test.done();
-            },
+				test.equal(t.isPlaying(), false);
 
-            'tween.isPlaying() is true when a tween is started and before it ends': function(test) {
-                TWEEN.removeAll();
+				test.done();
+			},
+			
+			'tween.isPlaying() is true when a tween is started and before it ends': function(test) {
+				TWEEN.removeAll();
+				
+				var t = new TWEEN.Tween({x:0}).to({x:1}, 100);
+				t.start(0);
+				test.equal(t.isPlaying(), true);
+				
+				test.done();
+			},
+			
+			'tween.isPlaying() is false after a tween ends': function(test) {
+				TWEEN.removeAll();
+				
+				var t = new TWEEN.Tween({x:0}).to({x:1}, 100);
+				t.start(0);
+				TWEEN.update(150);
+				test.equal(t.isPlaying(), false);
+				
+				test.done();
+			},
 
-                var t = new TWEEN.Tween({x:0}).to({x:1}, 100);
-                t.start(0);
-                test.equal(t.isPlaying(), true);
+			'A zero-duration tween finishes at its starting time without an error.': function(test) {
+				TWEEN.removeAll();
 
-                test.done();
-            },
+				let object = {x: 0};
+				var t = new TWEEN.Tween(object).to({x:1}, 0);
+				t.start(0);
+				TWEEN.update(0);
 
-            'tween.isPlaying() is false after a tween ends': function(test) {
-                TWEEN.removeAll();
+				test.equal(t.isPlaying(), false);
+				test.equal(object.x, 1);
 
-                var t = new TWEEN.Tween({x:0}).to({x:1}, 100);
-                t.start(0);
-                TWEEN.update(150);
-                test.equal(t.isPlaying(), false);
-
-                test.done();
-            },
+				test.done();
+			},
 
 			// Custom TWEEN.Group tests
 
@@ -1351,6 +1369,52 @@
 				test.equal( obj.world.hero.scale.x, 100 );
 				test.equal( obj.world.hero.x, 200 );
 				test.equal( obj.time, 100 );
+
+      	test.done();
+
+			},
+        
+			'Stopping a tween within an update callback will not cause an error.': function(test) {
+				TWEEN.removeAll();
+
+				var tweenA = new TWEEN.Tween({x: 1, y: 2})
+					.to({x: 3, y: 4}, 1000)
+					.onUpdate(function(values) {
+						tweenB.stop();
+					})
+					.start(0);
+				var tweenB = new TWEEN.Tween({x: 5, y: 6})
+					.to({x: 7, y: 8})
+					.onUpdate(function(values) {
+						tweenA.stop();
+					})
+					.start(0);
+
+				let success = true;
+
+				try {
+					TWEEN.update(500);
+				}
+				catch (exception) {
+					success = false;
+				}
+				finally {
+					test.ok(success);
+					test.done();
+				}
+			},
+
+
+			'Tween.group sets the tween\'s group.': function(test) {
+
+				var group = new TWEEN.Group();
+
+				var groupTweenA = new TWEEN.Tween( {} )
+					.group( group );
+
+				groupTweenA.start();
+
+				test.equal( group.getAll().length, 1 );
 
 				test.done();
 

@@ -121,7 +121,7 @@ var currentTime = player.currentTime;
 TWEEN.update(currentTime);
 ````
 
-We use explicit time values for the unit tests. You can have a look at [TestTweens](../test/unit/TestTweens.js) to see how we call TWEEN.update() with different values in order to simulate time passing.
+We use explicit time values for the unit tests. You can have a look at [tests.js](../test/unit/tests.js) to see how we call TWEEN.update() with different values in order to simulate time passing.
 
 ## Controlling a tween
 

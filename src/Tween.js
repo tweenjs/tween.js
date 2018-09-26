@@ -54,15 +54,17 @@ _Group.prototype = {
 
 		// Tweens are updated in "batches". If you add a new tween during an update, then the
 		// new tween will be updated in the next batch.
-		// If you remove a tween during an update, it will normally still be updated. However,
+		// If you remove a tween during an update, it may or may not be updated. However,
 		// if the removed tween was added during the current batch, then it will not be updated.
 		while (tweenIds.length > 0) {
 			this._tweensAddedDuringUpdate = {};
 
 			for (var i = 0; i < tweenIds.length; i++) {
 
-				if (this._tweens[tweenIds[i]].update(time) === false) {
-					this._tweens[tweenIds[i]]._isPlaying = false;
+				var tween = this._tweens[tweenIds[i]];
+
+				if (tween && tween.update(time) === false) {
+					tween._isPlaying = false;
 
 					if (!preserve) {
 						delete this._tweens[tweenIds[i]];
@@ -214,6 +216,11 @@ TWEEN.Tween.prototype = {
 
 	},
 
+	group: function group(group) {
+		this._group = group;
+		return this;
+	},
+
 	delay: function delay(amount) {
 
 		this._delayTime = amount;
@@ -235,23 +242,23 @@ TWEEN.Tween.prototype = {
 
 	},
 
-	yoyo: function yoyo(yoyo) {
+	yoyo: function yoyo(yy) {
 
-		this._yoyo = yoyo;
+		this._yoyo = yy;
 		return this;
 
 	},
 
-	easing: function easing(easing) {
+	easing: function easing(eas) {
 
-		this._easingFunction = easing;
+		this._easingFunction = eas;
 		return this;
 
 	},
 
-	interpolation: function interpolation(interpolation) {
+	interpolation: function interpolation(inter) {
 
-		this._interpolationFunction = interpolation;
+		this._interpolationFunction = inter;
 		return this;
 
 	},
@@ -311,7 +318,7 @@ TWEEN.Tween.prototype = {
 		}
 
 		elapsed = (time - this._startTime) / this._duration;
-		elapsed = elapsed > 1 ? 1 : elapsed;
+		elapsed = (this._duration === 0 || elapsed > 1) ? 1 : elapsed;
 
 		value = this._easingFunction(elapsed);
 
