@@ -349,7 +349,7 @@ The scope for each callback is the tweened object--in this case, `obj`.
 
 ### onStart
 
-Executed right before the tween starts--i.e. before the deltas are calculated. This will be executed only once per tween, i.e. it will *not* be run when the tween is repeated via `repeat()`.
+Executed right before the tween starts animating, after any delay time specified by the `delay` method. This will be executed only once per tween, i.e. it will *not* be run when the tween is repeated via `repeat()`.
 
 It is great for synchronising to other events or triggering actions you want to happen when a tween starts.
 
