@@ -191,6 +191,20 @@ tween.start();
 
 will start executing 1 second after the `start` method has been called.
 
+### `repeatDelay`
+
+Normally the `delay` time is applied between repetitions of a tween, but if a value is provided to the `repeatDelay` function then that value will determine the total time elapsed between repetitions of a tween.
+
+Consider this example:
+
+````javascript
+tween.delay(1000);
+tween.repeatDelay(500);
+tween.start();
+````
+
+The first iteration of the tween will happen after one second, the second iteration will happen a half second after the first iteration  ends, the third iteration will happen a half second after the second iteration ends, etc. If you want to delay the initial iteration but you don't want any delay between iterations, then make sure to call `tween.repeatDelay(0)`.
+
 ## Controlling _all_ the tweens
 
 The following methods are found in the TWEEN global object, and you generally won't need to use most of them, except for `update`.
