@@ -165,7 +165,7 @@ TWEEN.Tween.prototype = {
 		}
 
 		if (this._object.boxed)
-			his._valuesEnd = { value: this._valuesEnd, boxed: true };
+			this._valuesEnd = { value: this._valuesEnd, boxed: true };
 
 		return this;
 
