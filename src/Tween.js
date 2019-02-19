@@ -143,6 +143,8 @@ TWEEN.Tween = function (object, group) {
 	this._group = group || TWEEN;
 	this._id = TWEEN.nextId();
 
+	if (typeof this._object == 'number')
+		this._object = { value: this._object, boxed: true };
 };
 
 TWEEN.Tween.prototype = {
@@ -161,6 +163,9 @@ TWEEN.Tween.prototype = {
 		if (duration !== undefined) {
 			this._duration = duration;
 		}
+
+		if (this._object.boxed)
+			his._valuesEnd = { value: this._valuesEnd, boxed: true };
 
 		return this;
 
@@ -222,7 +227,7 @@ TWEEN.Tween.prototype = {
 		this._isPlaying = false;
 
 		if (this._onStopCallback !== null) {
-			this._onStopCallback(this._object);
+			this._onStopCallback(this._object.boxed ? this._object.value : this._object);
 		}
 
 		this.stopChainedTweens();
@@ -340,7 +345,7 @@ TWEEN.Tween.prototype = {
 		if (this._onStartCallbackFired === false) {
 
 			if (this._onStartCallback !== null) {
-				this._onStartCallback(this._object);
+				this._onStartCallback(this._object.boxed ? this._object.value : this._object);
 			}
 
 			this._onStartCallbackFired = true;
@@ -387,7 +392,7 @@ TWEEN.Tween.prototype = {
 		}
 
 		if (this._onUpdateCallback !== null) {
-			this._onUpdateCallback(this._object);
+			this._onUpdateCallback(this._object.boxed ? this._object.value : this._object);
 		}
 
 		if (elapsed === 1) {
@@ -432,7 +437,7 @@ TWEEN.Tween.prototype = {
 
 				if (this._onCompleteCallback !== null) {
 
-					this._onCompleteCallback(this._object);
+					this._onCompleteCallback(this._object.boxed ? this._object.value : this._object);
 				}
 
 				for (var i = 0, numChainedTweens = this._chainedTweens.length; i < numChainedTweens; i++) {
