@@ -1,5 +1,5 @@
 (function() {
-//TODO remove this comment, just trying to trigger a TravisCI build
+
 	function getTests(TWEEN) {
 
 		var tests = {
