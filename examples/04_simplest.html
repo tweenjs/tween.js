@@ -28,10 +28,10 @@
 				var tween = new TWEEN.Tween( { x: 50, y: 0 } )
 					.to( { x: 400 }, 2000 )
 					.easing( TWEEN.Easing.Elastic.InOut )
-					.onUpdate( function () {
+					.onUpdate( function (object) {
 
-						output.innerHTML = 'x == ' + Math.round( this.x );
-						var transform = 'translateX(' + this.x + 'px)';
+						output.innerHTML = 'x == ' + Math.round( object.x );
+						var transform = 'translateX(' + object.x + 'px)';
 						output.style.webkitTransform = transform;
 						output.style.transform = transform;
 

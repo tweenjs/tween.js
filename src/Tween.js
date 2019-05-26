@@ -91,7 +91,7 @@ TWEEN.nextId = function () {
 
 // Include a performance.now polyfill.
 // In node.js, use process.hrtime.
-if (typeof (window) === 'undefined' && typeof (process) !== 'undefined') {
+if (typeof (self) === 'undefined' && typeof (process) !== 'undefined' && process.hrtime) {
 	TWEEN.now = function () {
 		var time = process.hrtime();
 
@@ -99,13 +99,13 @@ if (typeof (window) === 'undefined' && typeof (process) !== 'undefined') {
 		return time[0] * 1000 + time[1] / 1000000;
 	};
 }
-// In a browser, use window.performance.now if it is available.
-else if (typeof (window) !== 'undefined' &&
-         window.performance !== undefined &&
-		 window.performance.now !== undefined) {
+// In a browser, use self.performance.now if it is available.
+else if (typeof (self) !== 'undefined' &&
+         self.performance !== undefined &&
+		 self.performance.now !== undefined) {
 	// This must be bound, because directly assigning this function
 	// leads to an invocation exception in Chrome.
-	TWEEN.now = window.performance.now.bind(window.performance);
+	TWEEN.now = self.performance.now.bind(self.performance);
 }
 // Use Date.now if it is available.
 else if (Date.now !== undefined) {
@@ -156,7 +156,7 @@ TWEEN.Tween.prototype = {
 
 	to: function (properties, duration) {
 
-		this._valuesEnd = properties;
+		this._valuesEnd = Object.create(properties);
 
 		if (duration !== undefined) {
 			this._duration = duration;
@@ -232,7 +232,7 @@ TWEEN.Tween.prototype = {
 
 	end: function () {
 
-		this.update(this._startTime + this._duration);
+		this.update(Infinity);
 		return this;
 
 	},
@@ -271,23 +271,23 @@ TWEEN.Tween.prototype = {
 
 	},
 
-	yoyo: function (yoyo) {
+	yoyo: function (yy) {
 
-		this._yoyo = yoyo;
+		this._yoyo = yy;
 		return this;
 
 	},
 
-	easing: function (easing) {
+	easing: function (eas) {
 
-		this._easingFunction = easing;
+		this._easingFunction = eas;
 		return this;
 
 	},
 
-	interpolation: function (interpolation) {
+	interpolation: function (inter) {
 
-		this._interpolationFunction = interpolation;
+		this._interpolationFunction = inter;
 		return this;
 
 	},
@@ -347,7 +347,7 @@ TWEEN.Tween.prototype = {
 		}
 
 		elapsed = (time - this._startTime) / this._duration;
-		elapsed = elapsed > 1 ? 1 : elapsed;
+		elapsed = (this._duration === 0 || elapsed > 1) ? 1 : elapsed;
 
 		value = this._easingFunction(elapsed);
 

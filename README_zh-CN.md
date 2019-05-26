@@ -1,6 +1,6 @@
 # tween.js
 
-JavaScript tweening engine for easy animations, incorporating optimised Robert Penner's equations.
+tween.js是用于简单动画的JavaScript补间引擎，结合了优化的 Robert Penner 方程。
 
 [![NPM Version][npm-image]][npm-url]
 [![NPM Downloads][downloads-image]][downloads-url]
@@ -15,35 +15,35 @@ box.style.setProperty('width', '100px');
 box.style.setProperty('height', '100px');
 document.body.appendChild(box);
 
-// Setup the animation loop.
+// 设置循环动画
 function animate(time) {
     requestAnimationFrame(animate);
     TWEEN.update(time);
 }
 requestAnimationFrame(animate);
 
-var coords = { x: 0, y: 0 }; // Start at (0, 0)
-var tween = new TWEEN.Tween(coords) // Create a new tween that modifies 'coords'.
-        .to({ x: 300, y: 200 }, 1000) // Move to (300, 200) in 1 second.
-        .easing(TWEEN.Easing.Quadratic.Out) // Use an easing function to make the animation smooth.
-        .onUpdate(function() { // Called after tween.js updates 'coords'.
-            // Move 'box' to the position described by 'coords' with a CSS translation.
+var coords = { x: 0, y: 0 }; // 起始点 (0, 0)
+var tween = new TWEEN.Tween(coords) // 创建一个新的tween用来改变 'coords'
+        .to({ x: 300, y: 200 }, 1000) // 在1s内移动至 (300, 200)
+        .easing(TWEEN.Easing.Quadratic.Out) // 使用缓动功能使的动画更加平滑
+        .onUpdate(function() { // 在 tween.js 更新 'coords' 后调用
+            // 将 'box' 移动到 'coords' 所描述的位置，配合 CSS 过渡
             box.style.setProperty('transform', 'translate(' + coords.x + 'px, ' + coords.y + 'px)');
         })
-        .start(); // Start the tween immediately.
+        .start(); // 立即开始 tween
 ```
 
-[Test it with CodePen](https://codepen.io/mikebolt/pen/zzzvZg)
+[在线代码测试](https://codepen.io/mikebolt/pen/zzzvZg)
 
-## Installation
+## 安装
 
-Download the [library](https://raw.githubusercontent.com/tweenjs/tween.js/master/src/Tween.js) and include it in your code:
+下载 [library](https://raw.githubusercontent.com/tweenjs/tween.js/master/src/Tween.js) 并将它引入至你的代码中:
 
 ```html
 <script src="js/Tween.js"></script>
 ```
 
-You can also reference a CDN-hosted version in your code, thanks to cdnjs. For example:
+您也可以在代码中引用 CDN 托管的版本，这要感谢 cdnjs 。例如:
 
 ```html
 <script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/16.3.5/Tween.min.js"></script>
@@ -51,28 +51,30 @@ You can also reference a CDN-hosted version in your code, thanks to cdnjs. For e
 
 See [tween.js](https://cdnjs.com/libraries/tween.js/) for more versions.
 
-### More advanced users might want to...
+查看更多 [tween.js](https://cdnjs.com/libraries/tween.js/) 版本.
 
-#### Use `npm`
+### 更多高级用户想要的...
+
+#### 使用 `npm`
 
 ```bash
 npm install @tweenjs/tween.js
 ```
 
-Then include the Tween.js module with the standard node.js `require`:
+然后用标准的 node.js `require` 包含 Tween.js 模块:
 
 ```javascript
 var TWEEN = require('@tweenjs/tween.js');
 ```
 
-And you can use Tween.js as in all other examples--for example:
+您可以像所有其他示例一样使用Tween.js，例如:
 
 ```javascript
 var t = new TWEEN.Tween( /* etc */ );
 t.start();
 ```
 
-You will need to use a tool such as `browserify` to convert code using this style into something that can be run in the browser (browsers don't know about `require`).
+你将需要使用诸如`browserify`之类的工具将使用此风格的代码转换为可以在浏览器中运行的代码(浏览器无法识别 `require`)
 
 #### Use `bower`
 
@@ -80,13 +82,13 @@ You will need to use a tool such as `browserify` to convert code using this styl
 bower install @tweenjs/tweenjs --save
 ```
 
-or install an specific tag. They are git tags, and you can run `git tag` in the command line for a list if you have cloned the repository locally, or you can also check out the list in the [tween.js tags page](https://github.com/tweenjs/tween.js/tags). For example, to install `v16.3.0`:
+或者安装特定的tag.他们是git tags,如果你已经在本地克隆仓库，你可以在命令行中运行`git tag`查看tag列表,或者你可以查看下 [tween.js tags page](https://github.com/tweenjs/tween.js/tags) 列表.例如,安装 `v16.3.0`:
 
 ```bash
 bower install @tweenjs/tweenjs#v16.3.0
 ```
 
-Then reference the library source:
+然后引入库源码:
 
 ```html
 <script src="bower_components/@tweenjs/tweenjs/src/Tween.js"></script>
@@ -94,22 +96,22 @@ Then reference the library source:
 
 ## Features
 
-* Does one thing and one thing only: tween properties
-* Doesn't take care of CSS units (e.g. appending `px`)
-* Doesn't interpolate colours
-* Easing functions are reusable outside of Tween
-* Can also use custom easing functions
+* 只做一件事且仅只做一件事: 补间特性
+* 不关注CSS单位 (e.g. appending `px`)
+* 不插入颜色
+* 缓和功能可以在Tween之外重用
+* 也可以使用自定义缓动功能
 
 ## Documentation
 
-* [User guide](./docs/user_guide.md)
-* [Contributor guide](./docs/contributor_guide.md)
-* [Tutorial](http://learningthreejs.com/blog/2011/08/17/tweenjs-for-smooth-animation/)  using tween.js with three.js
-* Also: [libtween](https://github.com/jsm174/libtween), a port of tween.js to C by [jsm174](https://github.com/jsm174)
-* Also: [es6-tween](https://github.com/tweenjs/es6-tween), a port of tween.js to ES6/Harmony by [dalisoft](https://github.com/dalisoft)
-* [Understanding tween.js](https://mikebolt.me/article/understanding-tweenjs.html)
+* [使用指南](./docs/user_guide_zh-CN.md)
+* [贡献者指南](./docs/contributor_guide_zh-CN.md)
+* [教程](http://learningthreejs.com/blog/2011/08/17/tweenjs-for-smooth-animation/)  using tween.js with three.js
+* 其他: [libtween](https://github.com/jsm174/libtween), [jsm174](https://github.com/jsm174) 写的一个C语言版本的 tween.js.
+* 其他: [es6-tween](https://github.com/tweenjs/es6-tween), [dalisoft](https://github.com/dalisoft) 写的一个ES6/Harmony版本的 tween.js.
+* [理解 tween.js](https://mikebolt.me/article/understanding-tweenjs.html)
 
-## Examples
+## 示例
 
 <table>
 	<tr>
@@ -247,29 +249,29 @@ Then reference the library source:
 
 ## Tests
 
-You need to install `npm` first--this comes with node.js, so install that one first. Then, cd to `tween.js`'s directory and run:
+你首先需要安装`npm`--基于node.js,所以首先安装它.然后,进入到`tween.js`的目录下并运行:
 
 ```bash
 npm install
 ```
 
-if running the tests for the first time, to install additional dependencies for running tests, and then run
+如果是第一次运行测试,则为运行测试安装额外的依赖,然后运行
 
 ```bash
 npm test
 ```
 
-every time you want to run the tests.
+每次你想运行测试.
 
-If you want to add any feature or change existing features, you *must* run the tests to make sure you didn't break anything else. If you send a pull request (PR) to add something new and it doesn't have tests, or the tests don't pass, the PR won't be accepted. See [contributing](CONTRIBUTING.md) for more information.
+如果你想添加任何功能或改变现有的功能，你*必须*运行测试，以确保你没有影响别的东西.如果你发一个pull request（PR）添加新的东西,它没有测试,或测试不通过,这个PR将不被接受.更详细的请看 [contributing](CONTRIBUTING.md).
 
 ## People
 
-Maintainers: [mikebolt](https://github.com/mikebolt), [sole](https://github.com/sole).
+维护者: [mikebolt](https://github.com/mikebolt), [sole](https://github.com/sole).
 
-[All contributors](http://github.com/tweenjs/tween.js/contributors).
+[所有贡献者](http://github.com/tweenjs/tween.js/contributors).
 
-## Projects using tween.js
+## 使用 tween.js 的项目
 
 [![A-Frame VR](http://tweenjs.github.io/tween.js/assets/projects/10_aframe.png)](https://aframe.io)
 [![MOMA Inventing Abstraction 1910-1925](http://tweenjs.github.io/tween.js/assets/projects/09_moma.png)](http://www.moma.org/interactives/exhibitions/2012/inventingabstraction/)
