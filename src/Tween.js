@@ -156,7 +156,7 @@ TWEEN.Tween.prototype = {
 
 	to: function to(properties, duration) {
 
-		this._valuesEnd = properties;
+		this._valuesEnd = Object.create(properties);
 
 		if (duration !== undefined) {
 			this._duration = duration;
