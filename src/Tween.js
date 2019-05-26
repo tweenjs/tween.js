@@ -232,7 +232,7 @@ TWEEN.Tween.prototype = {
 
 	end: function end() {
 
-		this.update(this._startTime + this._duration);
+		this.update(Infinity);
 		return this;
 
 	},

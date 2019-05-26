@@ -1273,12 +1273,12 @@
 				var endObj = { x: 2 };
 				var duration = 1000;
 
-				var globalObj = Object.assign( startObj );
+				var globalObj = { x: 1 };
 				var globalTween = new TWEEN.Tween( globalObj )
 					.to( endObj, duration )
 					.start( 0 );
 
-				var groupObj = Object.assign( startObj );
+				var groupObj = { x: 1 };
 				var groupTween = new TWEEN.Tween( groupObj, group )
 					.to( endObj, duration )
 					.start( 0 );
@@ -1299,12 +1299,12 @@
 				var endObj = { x: 2 };
 				var duration = 1000;
 
-				var globalObj = Object.assign( startObj );
+				var globalObj = { x: 1 };
 				var globalTween = new TWEEN.Tween( globalObj )
 					.to( endObj, duration )
 					.start( 0 );
 
-				var groupObj = Object.assign( startObj );
+				var groupObj = { x: 1 };
 				var groupTween = new TWEEN.Tween( groupObj, group )
 					.to( endObj, duration )
 					.start( 0 );
