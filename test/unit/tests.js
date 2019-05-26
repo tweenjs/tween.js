@@ -1366,13 +1366,13 @@
 			function(test) {
 
 				var start = {x: 10, y: 20};
-        var end = {x: 100, y: 200, values: ['a', 'b']};
-        var valuesArray = end.values;
-        new TWEEN.Tween(start).to(end).start();
-        test.equal(valuesArray, end.values);
+				var end = {x: 100, y: 200, values: ['a', 'b']};
+				var valuesArray = end.values;
+				new TWEEN.Tween(start).to(end).start();
+				test.equal(valuesArray, end.values);
 				test.equal(end.values.length, 2);
-        test.equal(end.values[0], 'a');
-        test.equal(end.values[1], 'b');
+				test.equal(end.values[0], 'a');
+				test.equal(end.values[1], 'b');
 				test.done();
 
 			},
