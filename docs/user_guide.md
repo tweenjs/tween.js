@@ -1,6 +1,6 @@
 # tween.js user guide
 
-_**NOTE** This is a work in progress. If you find that something is unclear or missing details, please [file an issue](https://github.com/sole/tween.js/issues/new) and help make this guide better. Or feel free to submit clarifications or improvements of your own if you feel you can help too!_
+_**NOTE** This is a work in progress. If you find that something is unclear or missing details, please [file an issue](https://github.com/tweenjs/tween.js/issues/new) and help make this guide better. Or feel free to submit clarifications or improvements of your own if you feel you can help too!_
 
 ## What is a tween? How do they work? Why do you want to use them?
 
