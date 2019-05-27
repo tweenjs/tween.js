@@ -440,7 +440,7 @@ TWEEN.Tween.prototype = {
 				}
 
 				if (this._onRepeatCallback !== null) {
-					this._onRepeatCallback();
+					this._onRepeatCallback(this._object);
 				}
 
 				return true;
