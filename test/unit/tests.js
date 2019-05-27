@@ -1,6 +1,4 @@
-
- 
- on() {
+(function() {
 
 	function getTests(TWEEN) {
 
