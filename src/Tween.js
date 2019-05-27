@@ -146,15 +146,15 @@ TWEEN.Tween = function (object, group) {
 };
 
 TWEEN.Tween.prototype = {
-	getId: function getId() {
+	getId: function () {
 		return this._id;
 	},
 
-	isPlaying: function isPlaying() {
+	isPlaying: function () {
 		return this._isPlaying;
 	},
 
-	to: function to(properties, duration) {
+	to: function (properties, duration) {
 
 		this._valuesEnd = Object.create(properties);
 
@@ -166,7 +166,7 @@ TWEEN.Tween.prototype = {
 
 	},
 
-	start: function start(time) {
+	start: function (time) {
 
 		this._group.add(this);
 
@@ -212,7 +212,7 @@ TWEEN.Tween.prototype = {
 
 	},
 
-	stop: function stop() {
+	stop: function () {
 
 		if (!this._isPlaying) {
 			return this;
@@ -230,14 +230,14 @@ TWEEN.Tween.prototype = {
 
 	},
 
-	end: function end() {
+	end: function () {
 
 		this.update(Infinity);
 		return this;
 
 	},
 
-	stopChainedTweens: function stopChainedTweens() {
+	stopChainedTweens: function () {
 
 		for (var i = 0, numChainedTweens = this._chainedTweens.length; i < numChainedTweens; i++) {
 			this._chainedTweens[i].stop();
@@ -245,89 +245,89 @@ TWEEN.Tween.prototype = {
 
 	},
 
-	group: function group(group) {
+	group: function (group) {
 		this._group = group;
 		return this;
 	},
 
-	delay: function delay(amount) {
+	delay: function (amount) {
 
 		this._delayTime = amount;
 		return this;
 
 	},
 
-	repeat: function repeat(times) {
+	repeat: function (times) {
 
 		this._repeat = times;
 		return this;
 
 	},
 
-	repeatDelay: function repeatDelay(amount) {
+	repeatDelay: function (amount) {
 
 		this._repeatDelayTime = amount;
 		return this;
 
 	},
 
-	yoyo: function yoyo(yy) {
+	yoyo: function (yy) {
 
 		this._yoyo = yy;
 		return this;
 
 	},
 
-	easing: function easing(eas) {
+	easing: function (eas) {
 
 		this._easingFunction = eas;
 		return this;
 
 	},
 
-	interpolation: function interpolation(inter) {
+	interpolation: function (inter) {
 
 		this._interpolationFunction = inter;
 		return this;
 
 	},
 
-	chain: function chain() {
+	chain: function () {
 
 		this._chainedTweens = arguments;
 		return this;
 
 	},
 
-	onStart: function onStart(callback) {
+	onStart: function (callback) {
 
 		this._onStartCallback = callback;
 		return this;
 
 	},
 
-	onUpdate: function onUpdate(callback) {
+	onUpdate: function (callback) {
 
 		this._onUpdateCallback = callback;
 		return this;
 
 	},
 
-	onComplete: function onComplete(callback) {
+	onComplete: function (callback) {
 
 		this._onCompleteCallback = callback;
 		return this;
 
 	},
 
-	onStop: function onStop(callback) {
+	onStop: function (callback) {
 
 		this._onStopCallback = callback;
 		return this;
 
 	},
 
-	update: function update(time) {
+	update: function (time) {
 
 		var property;
 		var elapsed;
