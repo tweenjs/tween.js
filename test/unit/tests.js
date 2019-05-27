@@ -232,6 +232,9 @@
 				test.ok( t.onComplete() instanceof TWEEN.Tween );
 				test.equal( t.onComplete(), t );
 
+				test.ok( t.duration() instanceof TWEEN.Tween );
+				test.equal( t.duration(), t );
+
 				test.ok( t.group() instanceof TWEEN.Tween );
 				test.equal( t.group(), t );
 
@@ -1347,6 +1350,21 @@
 				}
 			},
 
+
+			'Set the duration with .duration': function(test) {
+
+				var obj = { x: 1 };
+				var t = new TWEEN.Tween( obj )
+					.to({x: 2})
+					.duration(1000)
+					.start(0);
+
+				t.update( 1000 );
+
+				test.deepEqual( obj.x, 2 );
+				test.done();
+
+			},
 
 			'Tween.group sets the tween\'s group.': function(test) {
 
