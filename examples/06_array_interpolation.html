@@ -108,16 +108,16 @@
 
 					var obj = { x: x0, y: y0, old: { x: x0, y: y0 } };
 
-					new TWEEN.Tween( obj ).to( { x: xA, y: yA }, 3000 ).onUpdate( function() {
+					new TWEEN.Tween( obj ).to( { x: xA, y: yA }, 3000 ).onUpdate( function(object) {
 
 						context.beginPath();
-						context.moveTo( this.old.x, this.old.y );
-						context.lineTo( this.x, this.y );
+						context.moveTo( object.old.x, object.old.y );
+						context.lineTo( object.x, object.y );
 						context.closePath();
 						context.stroke();
 
-						this.old.x = this.x;
-						this.old.y = this.y;
+						object.old.x = object.x;
+						object.old.y = object.y;
 
 					}).interpolation( interpolation ).easing( TWEEN.Easing.Linear.None ).delay( 250 ).start();
 

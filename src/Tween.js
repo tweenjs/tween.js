@@ -91,7 +91,7 @@ TWEEN.nextId = function () {
 
 // Include a performance.now polyfill.
 // In node.js, use process.hrtime.
-if (typeof (window) === 'undefined' && typeof (process) !== 'undefined') {
+if (typeof (self) === 'undefined' && typeof (process) !== 'undefined' && process.hrtime) {
 	TWEEN.now = function () {
 		var time = process.hrtime();
 
@@ -99,13 +99,13 @@ if (typeof (window) === 'undefined' && typeof (process) !== 'undefined') {
 		return time[0] * 1000 + time[1] / 1000000;
 	};
 }
-// In a browser, use window.performance.now if it is available.
-else if (typeof (window) !== 'undefined' &&
-         window.performance !== undefined &&
-		 window.performance.now !== undefined) {
+// In a browser, use self.performance.now if it is available.
+else if (typeof (self) !== 'undefined' &&
+         self.performance !== undefined &&
+		 self.performance.now !== undefined) {
 	// This must be bound, because directly assigning this function
 	// leads to an invocation exception in Chrome.
-	TWEEN.now = window.performance.now.bind(window.performance);
+	TWEEN.now = self.performance.now.bind(self.performance);
 }
 // Use Date.now if it is available.
 else if (Date.now !== undefined) {
@@ -146,17 +146,17 @@ TWEEN.Tween = function (object, group) {
 };
 
 TWEEN.Tween.prototype = {
-	getId: function getId() {
+	getId: function () {
 		return this._id;
 	},
 
-	isPlaying: function isPlaying() {
+	isPlaying: function () {
 		return this._isPlaying;
 	},
 
-	to: function to(properties, duration) {
+	to: function (properties, duration) {
 
-		this._valuesEnd = properties;
+		this._valuesEnd = Object.create(properties);
 
 		if (duration !== undefined) {
 			this._duration = duration;
@@ -171,7 +171,7 @@ TWEEN.Tween.prototype = {
 		return this;
 	},
 
-	start: function start(time) {
+	start: function (time) {
 
 		this._group.add(this);
 
@@ -217,7 +217,7 @@ TWEEN.Tween.prototype = {
 
 	},
 
-	stop: function stop() {
+	stop: function () {
 
 		if (!this._isPlaying) {
 			return this;
@@ -235,14 +235,14 @@ TWEEN.Tween.prototype = {
 
 	},
 
-	end: function end() {
+	end: function () {
 
-		this.update(this._startTime + this._duration);
+		this.update(Infinity);
 		return this;
 
 	},
 
-	stopChainedTweens: function stopChainedTweens() {
+	stopChainedTweens: function () {
 
 		for (var i = 0, numChainedTweens = this._chainedTweens.length; i < numChainedTweens; i++) {
 			this._chainedTweens[i].stop();
@@ -250,84 +250,89 @@ TWEEN.Tween.prototype = {
 
 	},
 
-	delay: function delay(amount) {
+	group: function (group) {
+		this._group = group;
+		return this;
+	},
+
+	delay: function (amount) {
 
 		this._delayTime = amount;
 		return this;
 
 	},
 
-	repeat: function repeat(times) {
+	repeat: function (times) {
 
 		this._repeat = times;
 		return this;
 
 	},
 
-	repeatDelay: function repeatDelay(amount) {
+	repeatDelay: function (amount) {
 
 		this._repeatDelayTime = amount;
 		return this;
 
 	},
 
-	yoyo: function yoyo(yoyo) {
+	yoyo: function (yoyo) {
 
 		this._yoyo = yoyo;
 		return this;
 
 	},
 
-	easing: function easing(easing) {
+	easing: function (easingFunction) {
 
-		this._easingFunction = easing;
+		this._easingFunction = easingFunction;
 		return this;
 
 	},
 
-	interpolation: function interpolation(interpolation) {
+	interpolation: function (interpolationFunction) {
 
-		this._interpolationFunction = interpolation;
+		this._interpolationFunction = interpolationFunction;
 		return this;
 
 	},
 
-	chain: function chain() {
+	chain: function () {
 
 		this._chainedTweens = arguments;
 		return this;
 
 	},
 
-	onStart: function onStart(callback) {
+	onStart: function (callback) {
 
 		this._onStartCallback = callback;
 		return this;
 
 	},
 
-	onUpdate: function onUpdate(callback) {
+	onUpdate: function (callback) {
 
 		this._onUpdateCallback = callback;
 		return this;
 
 	},
 
-	onComplete: function onComplete(callback) {
+	onComplete: function (callback) {
 
 		this._onCompleteCallback = callback;
 		return this;
 
 	},
 
-	onStop: function onStop(callback) {
+	onStop: function (callback) {
 
 		this._onStopCallback = callback;
 		return this;
 
 	},
 
-	update: function update(time) {
+	update: function (time) {
 
 		var property;
 		var elapsed;
@@ -347,7 +352,7 @@ TWEEN.Tween.prototype = {
 		}
 
 		elapsed = (time - this._startTime) / this._duration;
-		elapsed = elapsed > 1 ? 1 : elapsed;
+		elapsed = (this._duration === 0 || elapsed > 1) ? 1 : elapsed;
 
 		value = this._easingFunction(elapsed);
 
