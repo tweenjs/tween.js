@@ -271,23 +271,23 @@ TWEEN.Tween.prototype = {
 
 	},
 
-	yoyo: function (yy) {
+	yoyo: function (yoyo) {
 
-		this._yoyo = yy;
+		this._yoyo = yoyo;
 		return this;
 
 	},
 
-	easing: function (eas) {
+	easing: function (easingFunction) {
 
-		this._easingFunction = eas;
+		this._easingFunction = easingFunction;
 		return this;
 
 	},
 
-	interpolation: function (inter) {
+	interpolation: function (interpolationFunction) {
 
-		this._interpolationFunction = inter;
+		this._interpolationFunction = interpolationFunction;
 		return this;
 
 	},
@@ -458,7 +458,7 @@ TWEEN.Easing = {
 	Linear: {
 
 		None: function (k) {
-
+ 
 			return k;
 
 		}
