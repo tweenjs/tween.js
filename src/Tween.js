@@ -458,7 +458,7 @@ TWEEN.Easing = {
 	Linear: {
 
 		None: function (k) {
- 
+
 			return k;
 
 		}
