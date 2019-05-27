@@ -138,6 +138,7 @@ TWEEN.Tween = function (object, group) {
 	this._onStartCallback = null;
 	this._onStartCallbackFired = false;
 	this._onUpdateCallback = null;
+	this._onRepeatCallback = null;
 	this._onCompleteCallback = null;
 	this._onStopCallback = null;
 	this._group = group || TWEEN;
@@ -318,6 +319,13 @@ TWEEN.Tween.prototype = {
 
 	},
 
+	onRepeat: function onRepeat(callback) {
+
+		this._onRepeatCallback = callback;
+		return this;
+
+	},
+
 	onComplete: function (callback) {
 
 		this._onCompleteCallback = callback;
@@ -392,7 +400,7 @@ TWEEN.Tween.prototype = {
 		}
 
 		if (this._onUpdateCallback !== null) {
-			this._onUpdateCallback(this._object);
+			this._onUpdateCallback(this._object, elapsed);
 		}
 
 		if (elapsed === 1) {
@@ -429,6 +437,10 @@ TWEEN.Tween.prototype = {
 					this._startTime = time + this._repeatDelayTime;
 				} else {
 					this._startTime = time + this._delayTime;
+				}
+
+				if (this._onRepeatCallback !== null) {
+					this._onRepeatCallback(this._object);
 				}
 
 				return true;
