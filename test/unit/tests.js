@@ -232,6 +232,9 @@
 				test.ok( t.onComplete() instanceof TWEEN.Tween );
 				test.equal( t.onComplete(), t );
 
+				test.ok( t.duration() instanceof TWEEN.Tween );
+				test.equal( t.duration(), t );
+
 				test.ok( t.group() instanceof TWEEN.Tween );
 				test.equal( t.group(), t );
 
@@ -1273,12 +1276,12 @@
 				var endObj = { x: 2 };
 				var duration = 1000;
 
-				var globalObj = Object.assign( startObj );
+				var globalObj = { x: 1 };
 				var globalTween = new TWEEN.Tween( globalObj )
 					.to( endObj, duration )
 					.start( 0 );
 
-				var groupObj = Object.assign( startObj );
+				var groupObj = { x: 1 };
 				var groupTween = new TWEEN.Tween( groupObj, group )
 					.to( endObj, duration )
 					.start( 0 );
@@ -1299,12 +1302,12 @@
 				var endObj = { x: 2 };
 				var duration = 1000;
 
-				var globalObj = Object.assign( startObj );
+				var globalObj = { x: 1 };
 				var globalTween = new TWEEN.Tween( globalObj )
 					.to( endObj, duration )
 					.start( 0 );
 
-				var groupObj = Object.assign( startObj );
+				var groupObj = { x: 1 };
 				var groupTween = new TWEEN.Tween( groupObj, group )
 					.to( endObj, duration )
 					.start( 0 );
@@ -1348,6 +1351,21 @@
 			},
 
 
+			'Set the duration with .duration': function(test) {
+
+				var obj = { x: 1 };
+				var t = new TWEEN.Tween( obj )
+					.to({x: 2})
+					.duration(1000)
+					.start(0);
+
+				t.update( 1000 );
+
+				test.deepEqual( obj.x, 2 );
+				test.done();
+
+			},
+
 			'Tween.group sets the tween\'s group.': function(test) {
 
 				var group = new TWEEN.Group();
@@ -1361,6 +1379,22 @@
 				test.done();
 
 			},
+
+			'Arrays in the object passed to to() are not modified by start().':
+			function(test) {
+
+				var start = {x: 10, y: 20};
+				var end = {x: 100, y: 200, values: ['a', 'b']};
+				var valuesArray = end.values;
+				new TWEEN.Tween(start).to(end).start();
+				test.equal(valuesArray, end.values);
+				test.equal(end.values.length, 2);
+				test.equal(end.values[0], 'a');
+				test.equal(end.values[1], 'b');
+				test.done();
+
+			},
+
 
 		};
 
