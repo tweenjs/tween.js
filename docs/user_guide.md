@@ -373,6 +373,12 @@ Executed when a tween is finished normally (i.e. not stopped).
 
 The tweened object is passed in as the first parameter.
 
+### onRepeat
+
+Executed whenever a tween has just finished one repetition and will begin another.
+
+The tweened object is passed in as the first parameter.
+
 ## Advanced tweening
 
 ### Relative values
