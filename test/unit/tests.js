@@ -3,7 +3,7 @@
 	function getTests(TWEEN) {
 
 		var tests = {
-			'hello': function(test
+			'hello': function(test) {
 				test.ok(TWEEN !== null);
 				test.done();
 			},
