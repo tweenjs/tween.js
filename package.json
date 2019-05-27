@@ -22,7 +22,7 @@
     "test-unit": "nodeunit test/unit/nodeunitheadless.js",
     "test-correctness": "jshint --config test/jshintrc src/Tween.js",
     "test-style": "jscs --config test/jscs.json src/Tween.js",
-    "semantic-release": "semantic-release pre && npm publish && semantic-release post"
+    "semantic-release": "semantic-release"
   },
   "author": "tween.js contributors (https://github.com/tweenjs/tween.js/graphs/contributors)",
   "devDependencies": {
