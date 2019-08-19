@@ -471,7 +471,7 @@ var element = document.getElementById('myElement');
 var tween = new TWEEN.Tween({ top: 0, left: 0 })
     .to({ top: 100, left: 100 }, 1000)
     .onUpdate(function(object) {
-        element.style.transform = 'translate(' + object.left + 'px, ' + object.top + 'px);';
+        element.style.transform = 'translate(' + object.left + 'px, ' + object.top + 'px)';
     });
 ```
 
