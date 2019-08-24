@@ -9,7 +9,7 @@ JavaScript tweening engine for easy animations, incorporating optimised Robert P
 [![CDNJS][cdnjs-image]][cdnjs-url]
 
 ```javascript
-var box = document.createElement('div');
+const box = document.createElement('div');
 box.style.setProperty('background-color', '#008800');
 box.style.setProperty('width', '100px');
 box.style.setProperty('height', '100px');
@@ -22,13 +22,13 @@ function animate(time) {
 }
 requestAnimationFrame(animate);
 
-var coords = { x: 0, y: 0 }; // Start at (0, 0)
-var tween = new TWEEN.Tween(coords) // Create a new tween that modifies 'coords'.
+const coords = { x: 0, y: 0 }; // Start at (0, 0)
+const tween = new TWEEN.Tween(coords) // Create a new tween that modifies 'coords'.
         .to({ x: 300, y: 200 }, 1000) // Move to (300, 200) in 1 second.
         .easing(TWEEN.Easing.Quadratic.Out) // Use an easing function to make the animation smooth.
-        .onUpdate(function() { // Called after tween.js updates 'coords'.
+        .onUpdate(() => { // Called after tween.js updates 'coords'.
             // Move 'box' to the position described by 'coords' with a CSS translation.
-            box.style.setProperty('transform', 'translate(' + coords.x + 'px, ' + coords.y + 'px)');
+            box.style.setProperty('transform', `translate(${coords.x}px, ${coords.y}px)`);
         })
         .start(); // Start the tween immediately.
 ```
@@ -62,13 +62,13 @@ npm install @tweenjs/tween.js
 Then include the Tween.js module with the standard node.js `require`:
 
 ```javascript
-var TWEEN = require('@tweenjs/tween.js');
+const TWEEN = require('@tweenjs/tween.js');
 ```
 
 And you can use Tween.js as in all other examples--for example:
 
 ```javascript
-var t = new TWEEN.Tween( /* etc */ );
+const t = new TWEEN.Tween( /* etc */ );
 t.start();
 ```
 
@@ -77,19 +77,13 @@ You will need to use a tool such as `browserify` to convert code using this styl
 #### Use `bower`
 
 ```bash
-bower install @tweenjs/tweenjs --save
-```
-
-or install an specific tag. They are git tags, and you can run `git tag` in the command line for a list if you have cloned the repository locally, or you can also check out the list in the [tween.js tags page](https://github.com/tweenjs/tween.js/tags). For example, to install `v16.3.0`:
-
-```bash
-bower install @tweenjs/tweenjs#v16.3.0
+bower install tweenjs/tween.js --save
 ```
 
 Then reference the library source:
 
 ```html
-<script src="bower_components/@tweenjs/tweenjs/src/Tween.js"></script>
+<script src="bower_components/tweenjs/src/Tween.js"></script>
 ```
 
 ## Features
