@@ -31,7 +31,6 @@
     "jscs": "^2.11.0",
     "jshint": "^2.9.4",
     "nodeunit": "^0.9.5",
-    "rollup": "^0.57.1",
-    "semantic-release": "^15.13.24"
+    "rollup": "^0.57.1"
   }
 }
