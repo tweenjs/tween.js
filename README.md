@@ -77,18 +77,6 @@ t.start();
 
 You will need to use a tool such as `browserify` to convert code using this style into something that can be run in the browser (browsers don't know about `require`).
 
-#### Use `bower`
-
-```bash
-bower install tweenjs/tween.js --save
-```
-
-Then reference the library source:
-
-```html
-<script src="bower_components/tweenjs/src/Tween.js"></script>
-```
-
 ## Features
 
 * Does one thing and one thing only: tween properties
