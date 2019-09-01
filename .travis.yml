@@ -14,3 +14,4 @@ after_success:
   - npm run semantic-release
 deploy:
   provider: npm
+  email: "mikebolt@gmail.com"
