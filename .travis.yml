@@ -10,8 +10,6 @@ before_script:
   - npm prune
 script:
   - npm run test
-after_success:
-  - npm run semantic-release
 deploy:
   provider: npm
-  email: "mikebolt@gmail.com"
+  api_key: $NPM_TOKEN
