@@ -2,17 +2,14 @@
 	<head>
 		<title>nodeunit based tests</title>
 		<script src="nodeunit.js"></script>
-		<script src="../../src/Tween.js"></script>
+		<script src="../../dist/Tween.umd.js"></script>
 		<script src="tests.js"></script>
 	</head>
 	<body>
 		<script>
-
 		nodeunit.run({
 			'tween': getTests(TWEEN)
 		});
-
 		</script>
 	</body>
 </html>
-
