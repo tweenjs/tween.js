@@ -8,6 +8,8 @@ JavaScript tweening engine for easy animations, incorporating optimised Robert P
 [![Flattr this][flattr-image]][flattr-url]
 [![CDNJS][cdnjs-image]][cdnjs-url]
 
+**Update Note** In v18.0.0 the script you should include has moved from `src/Tween.js` to `dist/tween.umd.js`.
+
 ```javascript
 const box = document.createElement('div');
 box.style.setProperty('background-color', '#008800');
@@ -37,19 +39,20 @@ const tween = new TWEEN.Tween(coords) // Create a new tween that modifies 'coord
 
 ## Installation
 
-Download the [library](https://raw.githubusercontent.com/tweenjs/tween.js/master/src/Tween.js) and include it in your code:
+Download one of the builds of the library and include it in your code. For example:
 
 ```html
-<script src="js/Tween.js"></script>
+<script src="js/tween.umd.js"></script>
 ```
 
-You can also reference a CDN-hosted version in your code, thanks to cdnjs. For example:
+There are currently four different builds of the library:
 
-```html
-<script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/16.3.5/Tween.min.js"></script>
-```
+ - [UMD : tween.umd.js](https://raw.githubusercontent.com/tweenjs/tween.js/master/dist/tween.umd.js) 
+ - [AMD : tween.amd.js](https://raw.githubusercontent.com/tweenjs/tween.js/master/dist/tween.amd.js)
+ - [CommonJS : tween.cjs.js](https://raw.githubusercontent.com/tweenjs/tween.js/master/dist/tween.cjs.js)
+ - [ES6 Module : tween.es.js](https://raw.githubusercontent.com/tweenjs/tween.js/master/dist/tween.es.js)
 
-See [tween.js](https://cdnjs.com/libraries/tween.js/) for more versions.
+This library is available on [cdnjs](https://cdnjs.com/libraries/tween.js/).
 
 ### More advanced users might want to...
 
