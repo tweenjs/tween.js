@@ -8,7 +8,7 @@ JavaScript tweening engine for easy animations, incorporating optimised Robert P
 [![Flattr this][flattr-image]][flattr-url]
 [![CDNJS][cdnjs-image]][cdnjs-url]
 
-**Update Note** In v18.0.0 the script you should include has moved from `src/Tween.js` to `dist/tween.umd.js`.
+**Update Note** In v18 the script you should include has moved from `src/Tween.js` to `dist/tween.umd.js`. See the [installation section](#Installation) below.
 
 ```javascript
 const box = document.createElement('div');
@@ -39,43 +39,42 @@ const tween = new TWEEN.Tween(coords) // Create a new tween that modifies 'coord
 
 ## Installation
 
-Download one of the builds of the library and include it in your code. For example:
+Currently npm is required to build the project.
+
+```bash
+git clone https://github.com/tweenjs/tween.js
+cd tween.js
+npm i .
+npm run build
+```
+
+This will create some builds in the `dist` directory. There are currently four different builds of the library:
+
+ - UMD : tween.umd.js
+ - AMD : tween.amd.js
+ - CommonJS : tween.cjs.js
+ - ES6 Module : tween.es.js
+
+You are now able to copy tween.umd.js into your project, then include it with
+a script tag. This will add TWEEN to the global scope.
 
 ```html
 <script src="js/tween.umd.js"></script>
 ```
 
-There are currently four different builds of the library:
+### With `require('@tweenjs/tween.js')`
 
- - [UMD : tween.umd.js](https://raw.githubusercontent.com/tweenjs/tween.js/master/dist/tween.umd.js) 
- - [AMD : tween.amd.js](https://raw.githubusercontent.com/tweenjs/tween.js/master/dist/tween.amd.js)
- - [CommonJS : tween.cjs.js](https://raw.githubusercontent.com/tweenjs/tween.js/master/dist/tween.cjs.js)
- - [ES6 Module : tween.es.js](https://raw.githubusercontent.com/tweenjs/tween.js/master/dist/tween.es.js)
-
-This library is available on [cdnjs](https://cdnjs.com/libraries/tween.js/).
-
-### More advanced users might want to...
-
-#### Use `npm`
+You can add tween.js as an npm dependency:
 
 ```bash
-npm install @tweenjs/tween.js
+npm i @tweenjs/tween.js@^18
 ```
 
-Then include the Tween.js module with the standard node.js `require`:
+If you are using Node, Webpack, or Browserify, then you can now use the following to include tween.js:
 
 ```javascript
 const TWEEN = require('@tweenjs/tween.js');
 ```
-
-And you can use Tween.js as in all other examples--for example:
-
-```javascript
-const t = new TWEEN.Tween( /* etc */ );
-t.start();
-```
-
-You will need to use a tool such as `browserify` to convert code using this style into something that can be run in the browser (browsers don't know about `require`).
 
 ## Features
 
