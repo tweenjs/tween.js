@@ -17,8 +17,3 @@ deploy:
     email: "mikebolt@gmail.com"
     api_key: $NPM_TOKEN
     skip_cleanup: true
-  - on:
-      branch: master
-    provider: script
-    script: ./scripts/github-push.sh
-    skip_cleanup: true
