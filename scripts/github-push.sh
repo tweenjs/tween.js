@@ -26,4 +26,4 @@ git config --global user.email "travis@travis-ci.org"
 git config --global user.name "Travis CI"
 git add -f dist/*.js
 git commit -m "[skip travis-ci] Automatic build"
-git push https://${GH_TOKEN}@github.com/tweenjs/tween.js.git master:master --quiet > /dev/null 2>&1
+git push origin HEAD:master --quiet > /dev/null 2>&1

@@ -11,11 +11,13 @@ before_script:
 script:
   - npm run test
 deploy:
-  provider: npm
-  email: "mikebolt@gmail.com"
-  api_key: $NPM_TOKEN
-  skip_cleanup: true
-  on:
-    branch: master
-after_deploy:
-  - ./scripts/github-push.sh
+  - on:
+      branch: master
+    provider: npm
+    email: "mikebolt@gmail.com"
+    api_key: $NPM_TOKEN
+    skip_cleanup: true
+  - on:
+      branch: master
+    provider: script
+    script: ./scripts/github-push.sh
