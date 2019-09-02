@@ -21,3 +21,4 @@ deploy:
       branch: master
     provider: script
     script: ./scripts/github-push.sh
+    skip_cleanup: true
