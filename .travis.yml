@@ -14,3 +14,8 @@ deploy:
   provider: npm
   email: "mikebolt@gmail.com"
   api_key: $NPM_TOKEN
+  skip_cleanup: true
+  on:
+    branch: master
+after_deploy:
+  - ./scripts/github-push.sh
