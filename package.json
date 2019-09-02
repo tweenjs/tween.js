@@ -20,16 +20,13 @@
   "dependencies": {},
   "scripts": {
     "build": "rollup -c ./rollup.config.js",
-    "test": "npm run build && npm run test-unit && npm run test-correctness && npm run test-style",
+    "test": "npm run build && npm run test-unit && npm run test-lint",
     "test-unit": "nodeunit test/unit/nodeunitheadless.js",
-    "test-correctness": "jshint --config test/jshintrc src/Tween.js",
-    "test-style": "jscs --config test/jscs.json src/Tween.js",
-    "semantic-release": "semantic-release"
+    "test-lint": "eslint src/Tween.js"
   },
   "author": "tween.js contributors (https://github.com/tweenjs/tween.js/graphs/contributors)",
   "devDependencies": {
-    "jscs": "^2.11.0",
-    "jshint": "^2.9.4",
+    "eslint": "^6.3.0",
     "nodeunit": "^0.9.5",
     "rollup": "^0.57.1"
   }

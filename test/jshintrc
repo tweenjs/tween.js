@@ -1,8 +1,0 @@
-{
-  "node": true,
-  "browser": true,
-  "curly": true,
-  "eqeqeq": true,
-  "unused": true,
-  "esversion": 6
-}
