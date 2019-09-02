@@ -11,6 +11,9 @@ before_script:
 script:
   - npm run test
 deploy:
-  provider: npm
-  email: "mikebolt@gmail.com"
-  api_key: $NPM_TOKEN
+  - on:
+      branch: master
+    provider: npm
+    email: "mikebolt@gmail.com"
+    api_key: $NPM_TOKEN
+    skip_cleanup: true
