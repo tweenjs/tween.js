@@ -62,7 +62,7 @@ a script tag. This will add TWEEN to the global scope.
 <script src="js/tween.umd.js"></script>
 ```
 
-### With `require('@tweenjs/tween.js')`
+### With `require`
 
 You can add tween.js as an npm dependency:
 
