@@ -52,10 +52,11 @@ _Group.prototype = {
 
 		time = time !== undefined ? time : TWEEN.now();
 
-		// Tweens are updated in "batches". If you add a new tween during an update, then the
-		// new tween will be updated in the next batch.
-		// If you remove a tween during an update, it may or may not be updated. However,
-		// if the removed tween was added during the current batch, then it will not be updated.
+		// Tweens are updated in "batches". If you add a new tween during an
+		// update, then the new tween will be updated in the next batch.
+		// If you remove a tween during an update, it may or may not be updated.
+		// However, if the removed tween was added during the current batch,
+		// then it will not be updated.
 		while (tweenIds.length > 0) {
 			this._tweensAddedDuringUpdate = {};
 
@@ -203,8 +204,10 @@ TWEEN.Tween.prototype = {
 				continue;
 			}
 
-			// Save the starting value.
-			this._valuesStart[property] = this._object[property];
+			// Save the starting value, but only once.
+			if (typeof(this._valuesStart[property]) === 'undefined') {
+				this._valuesStart[property] = this._object[property];
+			}
 
 			if ((this._valuesStart[property] instanceof Array) === false) {
 				this._valuesStart[property] *= 1.0; // Ensures we're using numbers, not strings

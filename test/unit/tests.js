@@ -596,6 +596,50 @@
 
 				TWEEN.update( 3000 );
 				test.equal( obj.x, 100 ); // and x == 100 again
+
+				// Repeat the same test but with the tweens added in the
+				// opposite order.
+				var obj2 = {x:0};
+				var t3 = new TWEEN.Tween(obj2).to({x: 200}, 1000);
+				var t4 = new TWEEN.Tween(obj2).to({x: 100}, 1000);
+
+				t4.chain(t3);
+				t3.chain(t4);
+
+				test.equal(obj2.x, 0);
+
+				t4.start(0);
+
+				TWEEN.update(0);
+				test.equal(obj2.x, 0);
+
+				TWEEN.update(500);
+				test.equal(obj2.x, 50);
+
+				TWEEN.update(1000);
+				test.equal(obj2.x, 100);
+
+				TWEEN.update(1500);
+				test.equal(obj2.x, 150);
+
+				TWEEN.update(2000);
+				test.equal(obj2.x, 0);
+
+				TWEEN.update(2500);
+				test.equal(obj2.x, 50);
+
+				TWEEN.update(3000);
+				test.equal(obj2.x, 100);
+
+				TWEEN.update(3500);
+				test.equal(obj2.x, 150);
+
+				TWEEN.update(4000);
+				test.equal(obj2.x, 0);
+
+				TWEEN.update(4500);
+				test.equal(obj2.x, 50);
+
 				test.done();
 
 			},
