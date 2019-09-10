@@ -14,6 +14,12 @@ deploy:
   - on:
       branch: master
     provider: npm
+    skip_cleanup: true
     email: "mikebolt@gmail.com"
     api_key: $NPM_TOKEN
+  - on:
+      branch: master
+    provider: pages
     skip_cleanup: true
+    github_token: $GH_TOKEN
+    keep_history: true
