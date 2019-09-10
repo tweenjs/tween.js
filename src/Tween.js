@@ -121,6 +121,8 @@ else {
 
 
 TWEEN.Tween = function (object, group) {
+	this._isPaused = false;
+	this._pauseStart = null;
 	this._object = object;
 	this._valuesStart = {};
 	this._valuesEnd = {};
@@ -156,6 +158,10 @@ TWEEN.Tween.prototype = {
 		return this._isPlaying;
 	},
 
+	isPaused: function () {
+		return this._isPaused;
+	},
+
 	to: function (properties, duration) {
 
 		this._valuesEnd = Object.create(properties);
@@ -178,6 +184,8 @@ TWEEN.Tween.prototype = {
 		this._group.add(this);
 
 		this._isPlaying = true;
+
+		this._isPaused = false;
 
 		this._onStartCallbackFired = false;
 
@@ -228,7 +236,10 @@ TWEEN.Tween.prototype = {
 		}
 
 		this._group.remove(this);
+
 		this._isPlaying = false;
+
+		this._isPaused = false;
 
 		if (this._onStopCallback !== null) {
 			this._onStopCallback(this._object);
@@ -242,6 +253,41 @@ TWEEN.Tween.prototype = {
 	end: function () {
 
 		this.update(Infinity);
+		return this;
+
+	},
+
+	pause: function(time) {
+
+		if (this._isPaused || !this._isPlaying) {
+			return this;
+		}
+
+		this._isPaused = true;
+
+		this._pauseStart = time === undefined ? TWEEN.now() : time;
+
+		this._group.remove(this);
+
+		return this;
+
+	},
+
+	resume: function(time) {
+
+		if (!this._isPaused || !this._isPlaying) {
+			return this;
+		}
+
+		this._isPaused = false;
+
+		this._startTime += (time === undefined ? TWEEN.now() : time)
+			- this._pauseStart;
+
+		this._pauseStart = 0;
+
+		this._group.add(this);
+
 		return this;
 
 	},
