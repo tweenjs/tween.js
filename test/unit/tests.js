@@ -1424,61 +1424,55 @@
 
 			},
 
-			// TODO: not really sure how to test this. Advice appreciated!
-			'Test TWEEN.Tween.pause()': function(test) {
+			'Test TWEEN.Tween.pause() and TWEEN.Tween.resume()': function(test) {
 
-				var obj = { },
+				var obj = {x: 0.0},
 					t = new TWEEN.Tween( obj );
 
-				t.to( { }, 1000 );
+				t.to( {x: 1.0}, 1000 );
 
 				TWEEN.removeAll();
-				test.equal( TWEEN.getAll().length, 0 ); // TODO move to TWEEN test
-
-				t.start( 0 );
-
-				test.equal( TWEEN.getAll().length, 1 ); // TODO ditto
-
-				test.equal( t.isPaused(), false );
-
-				t.pause();
-
-				test.equal( t.isPaused(), true );
-
-				test.equal( TWEEN.getAll().length, 0 ); // TODO move to TWEEN test
-
-				test.done();
-
-			},
-
-			// TODO: not really sure how to test this. Advice appreciated!
-			'Test TWEEN.Tween.resume()': function(test) {
-
-				var obj = { },
-					t = new TWEEN.Tween( obj );
-
-				t.to( { }, 1000 );
-
-				TWEEN.removeAll();
-				test.equal( TWEEN.getAll().length, 0 ); // TODO move to TWEEN test
-
-				t.start( 0 );
-
-				test.equal( TWEEN.getAll().length, 1 ); // TODO ditto
-
-				test.equal( t.isPaused(), false );
-
-				t.pause();
-
-				test.equal( t.isPaused(), true );
 
 				test.equal( TWEEN.getAll().length, 0 );
 
-				t.resume();
+				t.start( 0 );
 
 				test.equal( TWEEN.getAll().length, 1 );
-
 				test.equal( t.isPaused(), false );
+
+				TWEEN.update(400);
+
+				test.equal(obj.x, 0.4);
+
+				t.pause(450);
+
+				test.equal( t.isPaused(), true );
+				test.equal( TWEEN.getAll().length, 0 );
+				test.equal(obj.x, 0.4);
+
+				TWEEN.update(900);
+
+				test.equal(obj.x, 0.4);
+
+				TWEEN.update(3000);
+
+				test.equal(obj.x, 0.4);
+
+				t.resume(3200);
+
+				// values do not change until an update
+				test.equal(obj.x, 0.4);
+
+				test.equal( TWEEN.getAll().length, 1 );
+				test.equal( t.isPaused(), false );
+
+				TWEEN.update(3500);
+
+				test.equal(obj.x, 0.75);
+
+				TWEEN.update(5000);
+
+				test.equal(obj.x, 1.0);
 
 				test.done();
 

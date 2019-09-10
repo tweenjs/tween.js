@@ -257,7 +257,7 @@ TWEEN.Tween.prototype = {
 
 	},
 
-	pause: function() {
+	pause: function(time) {
 
 		if (this._isPaused || !this._isPlaying) {
 			return this;
@@ -265,7 +265,7 @@ TWEEN.Tween.prototype = {
 
 		this._isPaused = true;
 
-		this._pauseStart = TWEEN.now();
+		this._pauseStart = time === undefined ? TWEEN.now() : time;
 
 		this._group.remove(this);
 
@@ -273,7 +273,7 @@ TWEEN.Tween.prototype = {
 
 	},
 
-	resume: function() {
+	resume: function(time) {
 
 		if (!this._isPaused || !this._isPlaying) {
 			return this;
@@ -281,7 +281,8 @@ TWEEN.Tween.prototype = {
 
 		this._isPaused = false;
 
-		this._startTime += TWEEN.now() - this._pauseStart;
+		this._startTime += (time === undefined ? TWEEN.now() : time)
+			- this._pauseStart;
 
 		this._pauseStart = 0;
 
