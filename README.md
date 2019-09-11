@@ -8,7 +8,11 @@ JavaScript tweening engine for easy animations, incorporating optimised Robert P
 [![Flattr this][flattr-image]][flattr-url]
 [![CDNJS][cdnjs-image]][cdnjs-url]
 
-**Update Note** In v18 the script you should include has moved from `src/Tween.js` to `dist/tween.umd.js`. See the [installation section](#Installation) below.
+Do you use tween.js? If you have some time, please fill out [this short survey](https://docs.google.com/forms/d/e/1FAIpQLScJ0xnsS1m4mdXGRmGFPVd_CYi0Ah224lLYc4UP-fmakQjNHw/viewform?usp=sf_link).
+
+**Update Note** In v18 the script you should include has moved from `src/Tween.js` to `dist/tween.umd.js`. See the [installation section](#Installation) below. v18 is not yet available on CDNJS.
+
+---
 
 ```javascript
 const box = document.createElement('div');
