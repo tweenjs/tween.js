@@ -103,7 +103,7 @@ const TWEEN = require('@tweenjs/tween.js');
 	<tr>
 		<td>
 			<a href="http://tweenjs.github.io/tween.js/examples/12_graphs_custom_functions.html">
-				<img src="./assets/examples/03_graphs.png" alt="Custom functions" />
+				<img src="https://tweenjs.github.io/tween.js/assets/examples/03_graphs.png" alt="Custom functions" />
 			</a>
 		</td>
 		<td>
@@ -112,7 +112,7 @@ const TWEEN = require('@tweenjs/tween.js');
 		</td>
 		<td>
 			<a href="http://tweenjs.github.io/tween.js/examples/11_stop_all_chained_tweens.html">
-				<img src="./assets/examples/11_stop_all_chained_tweens.png" alt="Stop all chained tweens" />
+				<img src="https://tweenjs.github.io/tween.js/assets/examples/11_stop_all_chained_tweens.png" alt="Stop all chained tweens" />
 			</a>
 		</td>
 		<td>
@@ -123,7 +123,7 @@ const TWEEN = require('@tweenjs/tween.js');
 	<tr>
 		<td>
 			<a href="http://tweenjs.github.io/tween.js/examples/10_yoyo.html">
-				<img src="./assets/examples/10_yoyo.png" alt="Yoyo" />
+				<img src="https://tweenjs.github.io/tween.js/assets/examples/10_yoyo.png" alt="Yoyo" />
 			</a>
 		</td>
 		<td>
@@ -132,7 +132,7 @@ const TWEEN = require('@tweenjs/tween.js');
 		</td>
 		<td>
 			<a href="http://tweenjs.github.io/tween.js/examples/09_relative_values.html">
-				<img src="./assets/examples/09_relative.png" alt="Relative values" />
+				<img src="https://tweenjs.github.io/tween.js/assets/examples/09_relative.png" alt="Relative values" />
 			</a>
 		</td>
 		<td>
@@ -143,7 +143,7 @@ const TWEEN = require('@tweenjs/tween.js');
 	<tr>
 		<td>
 			<a href="http://tweenjs.github.io/tween.js/examples/08_repeat.html">
-				<img src="./assets/examples/08_repeat.png" alt="Repeat" />
+				<img src="https://tweenjs.github.io/tween.js/assets/examples/08_repeat.png" alt="Repeat" />
 			</a>
 		</td>
 		<td>
@@ -152,7 +152,7 @@ const TWEEN = require('@tweenjs/tween.js');
 		</td>
 		<td>
 			<a href="http://tweenjs.github.io/tween.js/examples/07_dynamic_to.html">
-				<img src="./assets/examples/07_dynamic_to.png" alt="Dynamic to" />
+				<img src="https://tweenjs.github.io/tween.js/assets/examples/07_dynamic_to.png" alt="Dynamic to" />
 			</a>
 		</td>
 		<td>
@@ -163,7 +163,7 @@ const TWEEN = require('@tweenjs/tween.js');
 	<tr>
 		<td>
 			<a href="http://tweenjs.github.io/tween.js/examples/06_array_interpolation.html">
-				<img src="./assets/examples/03_graphs.png" alt="Array interpolation" />
+				<img src="https://tweenjs.github.io/tween.js/assets/examples/03_graphs.png" alt="Array interpolation" />
 			</a>
 		</td>
 		<td>
@@ -172,7 +172,7 @@ const TWEEN = require('@tweenjs/tween.js');
 		</td>
 		<td>
 			<a href="http://tweenjs.github.io/tween.js/examples/05_video_and_time.html">
-				<img src="./assets/examples/06_video_and_time.png" alt="Video and time" />
+				<img src="https://tweenjs.github.io/tween.js/assets/examples/06_video_and_time.png" alt="Video and time" />
 			</a>
 		</td>
 		<td>
@@ -183,7 +183,7 @@ const TWEEN = require('@tweenjs/tween.js');
 	<tr>
 		<td>
 			<a href="http://tweenjs.github.io/tween.js/examples/04_simplest.html">
-				<img src="./assets/examples/04_simplest.png" alt="Simplest possible example" />
+				<img src="https://tweenjs.github.io/tween.js/assets/examples/04_simplest.png" alt="Simplest possible example" />
 			</a>
 		</td>
 		<td>
@@ -192,7 +192,7 @@ const TWEEN = require('@tweenjs/tween.js');
 		</td>
 		<td>
 			<a href="http://tweenjs.github.io/tween.js/examples/03_graphs.html">
-				<img src="./assets/examples/03_graphs.png" alt="Graphs" />
+				<img src="https://tweenjs.github.io/tween.js/assets/examples/03_graphs.png" alt="Graphs" />
 			</a>
 		</td>
 		<td>
@@ -203,7 +203,7 @@ const TWEEN = require('@tweenjs/tween.js');
 	<tr>
 		<td>
 			<a href="http://tweenjs.github.io/tween.js/examples/02_black_and_red.html">
-				<img src="./assets/examples/02_black_and_red.png" alt="Black and red" />
+				<img src="https://tweenjs.github.io/tween.js/assets/examples/02_black_and_red.png" alt="Black and red" />
 			</a>
 		</td>
 		<td>
@@ -212,7 +212,7 @@ const TWEEN = require('@tweenjs/tween.js');
 		</td>
 		<td>
 			<a href="http://tweenjs.github.io/tween.js/examples/01_bars.html">
-				<img src="./assets/examples/01_bars.png" alt="Bars" />
+				<img src="https://tweenjs.github.io/tween.js/assets/examples/01_bars.png" alt="Bars" />
 			</a>
 		</td>
 		<td>
@@ -223,7 +223,7 @@ const TWEEN = require('@tweenjs/tween.js');
 	<tr>
 		<td>
 			<a href="http://tweenjs.github.io/tween.js/examples/00_hello_world.html">
-				<img src="./assets/examples/00_hello_world.png" alt="hello world" />
+				<img src="https://tweenjs.github.io/tween.js/assets/examples/00_hello_world.png" alt="hello world" />
 			</a>
 		</td>
 		<td>
@@ -259,16 +259,16 @@ Maintainers: [mikebolt](https://github.com/mikebolt), [sole](https://github.com/
 
 ## Projects using tween.js
 
-[![A-Frame VR](http://tweenjs.github.io/tween.js/assets/projects/10_aframe.png)](https://aframe.io)
-[![MOMA Inventing Abstraction 1910-1925](http://tweenjs.github.io/tween.js/assets/projects/09_moma.png)](http://www.moma.org/interactives/exhibitions/2012/inventingabstraction/)
-[![Web Lab](http://tweenjs.github.io/tween.js/assets/projects/08_web_lab.png)](http://www.chromeweblab.com/)
-[![MACCHINA I](http://tweenjs.github.io/tween.js/assets/projects/07_macchina.png)](http://5013.es/toys/macchina)
-[![Minesweeper 3D](http://tweenjs.github.io/tween.js/assets/projects/06_minesweeper3d.png)](http://egraether.com/mine3d/)
-[![ROME](http://tweenjs.github.io/tween.js/assets/projects/05_rome.png)](http://ro.me)
-[![WebGL Globe](http://tweenjs.github.io/tween.js/assets/projects/04_webgl_globe.png)](http://data-arts.appspot.com/globe)
-[![Androidify](http://tweenjs.github.io/tween.js/assets/projects/03_androidify.png)](http://www.androidify.com/)
-[![The Wilderness Downtown](http://tweenjs.github.io/tween.js/assets/projects/01_wilderness.png)](http://thewildernessdowntown.com/)
-[![Linechart](http://tweenjs.github.io/tween.js/assets/projects/00_linechart.png)](http://dejavis.org/linechart)
+[![A-Frame VR](https://tweenjs.github.io/tween.js/assets/projects/10_aframe.png)](https://aframe.io)
+[![MOMA Inventing Abstraction 1910-1925](https://tweenjs.github.io/tween.js/assets/projects/09_moma.png)](http://www.moma.org/interactives/exhibitions/2012/inventingabstraction/)
+[![Web Lab](https://tweenjs.github.io/tween.js/assets/projects/08_web_lab.png)](http://www.chromeweblab.com/)
+[![MACCHINA I](https://tweenjs.github.io/tween.js/assets/projects/07_macchina.png)](http://5013.es/toys/macchina)
+[![Minesweeper 3D](https://tweenjs.github.io/tween.js/assets/projects/06_minesweeper3d.png)](http://egraether.com/mine3d/)
+[![ROME](https://tweenjs.github.io/tween.js/assets/projects/05_rome.png)](http://ro.me)
+[![WebGL Globe](https://tweenjs.github.io/tween.js/assets/projects/04_webgl_globe.png)](http://data-arts.appspot.com/globe)
+[![Androidify](https://tweenjs.github.io/tween.js/assets/projects/03_androidify.png)](http://www.androidify.com/)
+[![The Wilderness Downtown](https://tweenjs.github.io/tween.js/assets/projects/01_wilderness.png)](http://thewildernessdowntown.com/)
+[![Linechart](https://tweenjs.github.io/tween.js/assets/projects/00_linechart.png)](http://dejavis.org/linechart)
 
 [npm-image]: https://img.shields.io/npm/v/@tweenjs/tween.js.svg
 [npm-url]: https://npmjs.org/package/@tweenjs/tween.js
