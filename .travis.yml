@@ -11,6 +11,7 @@ before_script:
 script:
   - npm run test
 deploy:
+  tag: next
   - on:
       branch: master
     provider: npm
