@@ -19,10 +19,12 @@
   ],
   "dependencies": {},
   "scripts": {
-    "build": "rollup -c ./rollup.config.js",
+    "build": "npm run write-version-js && rollup -c ./rollup.config.js && npm run remove-version-js",
     "test": "npm run build && npm run test-unit && npm run test-lint",
     "test-unit": "nodeunit test/unit/nodeunitheadless.js",
-    "test-lint": "eslint src/Tween.js"
+    "test-lint": "eslint src/Tween.js",
+	"write-version-js": "( echo -n \"export const version='\" && node -p \"require('./package.json').version\" | head -c -1 && echo \"';\" ) > ./version.js",
+	"remove-version-js": "rm ./version.js"
   },
   "author": "tween.js contributors (https://github.com/tweenjs/tween.js/graphs/contributors)",
   "devDependencies": {

@@ -958,4 +958,7 @@ TWEEN.Interpolation = {
 
 };
 
+import {version} from '../version';
+TWEEN.version = version;
+
 export default TWEEN;
