@@ -19,7 +19,8 @@
   ],
   "dependencies": {},
   "scripts": {
-    "build": "rollup -c ./rollup.config.js",
+    "build": "node scripts/write-version.js && npm run rollup-build && node scripts/remove-version.js",
+    "rollup-build": "rollup -c ./rollup.config.js",
     "test": "npm run build && npm run test-unit && npm run test-lint",
     "test-unit": "nodeunit test/unit/nodeunitheadless.js",
     "test-lint": "eslint src/Tween.js"
