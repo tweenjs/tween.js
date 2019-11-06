@@ -1,7 +1,7 @@
 {
   "name": "@tweenjs/tween.js",
   "description": "Super simple, fast and easy to use tweening engine which incorporates optimised Robert Penner's equations.",
-  "version": "18.3.2",
+  "version": "18.4.1",
   "main": "dist/tween.cjs.js",
   "module": "dist/tween.esm.js",
   "homepage": "https://github.com/tweenjs/tween.js",
@@ -19,7 +19,8 @@
   ],
   "dependencies": {},
   "scripts": {
-    "build": "rollup -c ./rollup.config.js",
+    "build": "node scripts/write-version.js && npm run rollup-build && node scripts/remove-version.js",
+    "rollup-build": "rollup -c ./rollup.config.js",
     "test": "npm run build && npm run test-unit && npm run test-lint",
     "test-unit": "nodeunit test/unit/nodeunitheadless.js",
     "test-lint": "eslint src/Tween.js"
