@@ -958,7 +958,7 @@ TWEEN.Interpolation = {
 
 };
 
-import {version} from '../version';
+import {version} from '../.temp.version.js';
 TWEEN.version = version;
 
 export default TWEEN;
