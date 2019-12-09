@@ -1,4 +1,4 @@
-const version = '18.4.2';
+var version = '18.4.2';
 
 /**
  * Tween.js - Licensed under the MIT license
