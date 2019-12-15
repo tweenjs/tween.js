@@ -1,4 +1,6 @@
 .DS_Store
+.idea
+.tmp
 build/npm*
 node_modules
 npm-debug.log
