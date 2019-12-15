@@ -1,7 +1,7 @@
-const pkg = require('./package.json');
-
 export default {
-	input: 'src/Tween.js',
+	input: '.tmp/Index.js',
+	// https://github.com/rollup/rollup/wiki/Troubleshooting#this-is-undefined
+	context: 'this',
 	output: [
 		{
 			file: 'dist/tween.umd.js',
