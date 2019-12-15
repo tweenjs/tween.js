@@ -92,7 +92,7 @@
     }());
 
     /**
-     *
+     * The Ease class provides a collection of easing functions for use with tween.js.
      */
     var Easing = {
         Linear: {

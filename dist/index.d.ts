@@ -3,7 +3,7 @@ declare module "TWEEN" {
     type EasingFunction = (amount: number) => number;
 
     /**
-     *
+     * The Ease class provides a collection of easing functions for use with tween.js.
      */
     const Easing: {
         Linear: {
@@ -86,7 +86,7 @@ declare module "TWEEN" {
         removeAll(): void;
         add(tween: TweenBase): void;
         remove(tween: TweenBase): void;
-        update(time: number, preserve: boolean): boolean;
+        update(time: number, preserve?: boolean): boolean;
     }
 
     /**
