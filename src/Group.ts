@@ -50,7 +50,7 @@ export default class Group {
         delete this._tweensAddedDuringUpdate[tween.getId()];
     }
 
-    update(time: number, preserve: boolean) {
+    update(time: number, preserve?: boolean) {
 
         var tweenIds = Object.keys(this._tweens);
 
