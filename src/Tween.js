@@ -146,6 +146,7 @@ TWEEN.Tween = function (object, group) {
 	this._onStopCallback = null;
 	this._group = group || TWEEN;
 	this._id = TWEEN.nextId();
+	this._isFinished = false;
 
 };
 
@@ -395,6 +396,8 @@ TWEEN.Tween.prototype = {
 		var elapsed;
 		var value;
 
+		if (this._isFinished) return false;
+
 		if (time < this._startTime) {
 			return true;
 		}
@@ -506,6 +509,8 @@ TWEEN.Tween.prototype = {
 					// even if the `update()` method was called way past the duration of the tween
 					this._chainedTweens[i].start(this._startTime + this._duration);
 				}
+
+				this._isFinished = true;
 
 				return false;
 
