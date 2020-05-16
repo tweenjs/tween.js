@@ -382,40 +382,8 @@ TWEEN.Tween.prototype = {
 
 		value = this._easingFunction(elapsed);
 
-		for (property in this._valuesEnd) {
-
-			// Don't update properties that do not exist in the source object
-			if (this._valuesStart[property] === undefined) {
-				continue;
-			}
-
-			var start = this._valuesStart[property] || 0;
-			var end = this._valuesEnd[property];
-
-			if (end instanceof Array) {
-
-				this._object[property] = this._interpolationFunction(end, value);
-
-			} else {
-
-				// Parses relative end values with start as base (e.g.: +10, -3)
-				if (typeof (end) === 'string') {
-
-					if (end.charAt(0) === '+' || end.charAt(0) === '-') {
-						end = start + parseFloat(end);
-					} else {
-						end = parseFloat(end);
-					}
-				}
-
-				// Protect against non numeric properties.
-				if (typeof (end) === 'number') {
-					this._object[property] = start + (end - start) * value;
-				}
-
-			}
-
-		}
+		// properties transformations
+		_updateProperties(this._object, this._valuesStart, this._valuesEnd, value, this._interpolationFunction);
 
 		if (this._onUpdateCallback !== null) {
 			this._onUpdateCallback(this._object, elapsed);
@@ -535,6 +503,53 @@ function _setupProperties (objectValues, startValues, endValues, startRepeatValu
 	}
 
 }
+
+function _updateProperties (objectValues, startValues, endValues, value, interpolationFn) {
+	for (var property in endValues) {
+		if (property === 'opacity' && mostrar) {
+			mostrar = false;
+
+			// console.log({ object, startProperties, endProperties });
+		}
+
+		// Don't update properties that do not exist in the source object
+		if (startValues[property] === undefined) {
+			continue;
+		}
+
+		var start = startValues[property] || 0;
+		var end = endValues[property];
+
+		if (end instanceof Array) {
+
+			objectValues[property] = interpolationFn(end, value);
+
+		} else if (end instanceof Object) {
+
+			_updateProperties(objectValues[property], start, end, value, interpolationFn);
+
+		} else {
+
+			// Parses relative end values with start as base (e.g.: +10, -3)
+			if (typeof (end) === 'string') {
+
+				if (end.charAt(0) === '+' || end.charAt(0) === '-') {
+					end = start + parseFloat(end);
+				} else {
+					end = parseFloat(end);
+				}
+			}
+
+			// Protect against non numeric properties.
+			if (typeof (end) === 'number') {
+				objectValues[property] = start + (end - start) * value;
+			}
+
+		}
+
+	}
+}
+
 
 TWEEN.Easing = {
 
