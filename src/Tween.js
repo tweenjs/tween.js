@@ -164,7 +164,7 @@ TWEEN.Tween.prototype = {
 
 	to: function (properties, duration) {
 
-		this._valuesEnd = Object.create(properties);
+		this._valuesEnd = JSON.parse(JSON.stringify(properties));
 
 		if (duration !== undefined) {
 			this._duration = duration;
