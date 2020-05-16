@@ -1157,25 +1157,25 @@
 
 				test.done();
 			},
-			
+
 			'tween.isPlaying() is true when a tween is started and before it ends': function(test) {
 				TWEEN.removeAll();
-				
+
 				var t = new TWEEN.Tween({x:0}).to({x:1}, 100);
 				t.start(0);
 				test.equal(t.isPlaying(), true);
-				
+
 				test.done();
 			},
-			
+
 			'tween.isPlaying() is false after a tween ends': function(test) {
 				TWEEN.removeAll();
-				
+
 				var t = new TWEEN.Tween({x:0}).to({x:1}, 100);
 				t.start(0);
 				TWEEN.update(150);
 				test.equal(t.isPlaying(), false);
-				
+
 				test.done();
 			},
 
@@ -1493,6 +1493,115 @@
 
 			},
 
+			'Test TWEEN.Tween with complex properties': function(test) {
+
+				var obj = { x: 0.0, y: 100, some: { value: 0.0, style: { opacity: 1.0 } } },
+					t = new TWEEN.Tween( obj );
+
+				t.to( { x: 1.0, y: 200, some: { value: 1.0, style: { opacity: 0.5 } } }, 1000 );
+
+				TWEEN.removeAll();
+
+				test.equal( TWEEN.getAll().length, 0 );
+
+				t.start( 0 );
+
+				test.equal( TWEEN.getAll().length, 1 );
+				test.equal( t.isPaused(), false );
+
+				TWEEN.update(400);
+
+				test.equal(obj.x, 0.4);
+				test.equal(obj.y, 140);
+				test.equal(obj.some.style.opacity, 0.8);
+				test.equal(obj.some.value, 0.4);
+
+
+				TWEEN.update(750);
+
+				test.equal(obj.x, 0.75);
+				test.equal(obj.y, 175);
+				test.equal(obj.some.style.opacity, 0.625);
+				test.equal(obj.some.value, 0.75);
+
+				TWEEN.update(1000);
+
+				test.equal(obj.x, 1.0);
+				test.equal(obj.y, 200);
+				test.equal(obj.some.style.opacity, 0.5);
+				test.equal(obj.some.value, 1.0);
+
+				test.done();
+
+			},
+
+			'Test TWEEN.Tween.pause() and .resume() with complex properties': function(test) {
+
+				var obj = { x: 0.0, y: 100, some: { value: 0.0 } },
+					t = new TWEEN.Tween( obj );
+
+				t.to( { x: 1.0, y: 200, some: { value: 1.0 } }, 1000 );
+
+				TWEEN.removeAll();
+
+				test.equal( TWEEN.getAll().length, 0 );
+
+				t.start( 0 );
+
+				test.equal( TWEEN.getAll().length, 1 );
+				test.equal( t.isPaused(), false );
+
+				TWEEN.update(400);
+
+				test.equal(obj.x, 0.4);
+				test.equal(obj.y, 140);
+				test.equal(obj.some.value, 0.4);
+
+				t.pause(450);
+
+				test.equal( t.isPaused(), true );
+				test.equal( TWEEN.getAll().length, 0 );
+				test.equal(obj.x, 0.4);
+				test.equal(obj.y, 140);
+				test.equal(obj.some.value, 0.4);
+
+				TWEEN.update(900);
+
+				test.equal(obj.x, 0.4);
+				test.equal(obj.y, 140);
+				test.equal(obj.some.value, 0.4);
+
+				TWEEN.update(3000);
+
+				test.equal(obj.x, 0.4);
+				test.equal(obj.y, 140);
+				test.equal(obj.some.value, 0.4);
+
+				t.resume(3200);
+
+				// values do not change until an update
+				test.equal(obj.x, 0.4);
+				test.equal(obj.y, 140);
+				test.equal(obj.some.value, 0.4);
+
+				test.equal( TWEEN.getAll().length, 1 );
+				test.equal( t.isPaused(), false );
+
+				TWEEN.update(3500);
+
+				test.equal(obj.x, 0.75);
+				test.equal(obj.y, 175);
+				test.equal(obj.some.value, 0.75);
+
+				TWEEN.update(5000);
+
+				test.equal(obj.x, 1.0);
+				test.equal(obj.y, 200);
+				test.equal(obj.some.value, 1.0);
+
+				test.done();
+
+			},
 
 		};
 
