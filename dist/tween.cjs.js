@@ -1,6 +1,6 @@
 'use strict';
 
-var version = '18.4.2';
+var version = '18.5.0';
 
 /**
  * Tween.js - Licensed under the MIT license
@@ -168,7 +168,7 @@ TWEEN.Tween.prototype = {
 
 	to: function (properties, duration) {
 
-		this._valuesEnd = Object.create(properties);
+		this._valuesEnd = JSON.parse(JSON.stringify(properties));
 
 		if (duration !== undefined) {
 			this._duration = duration;
@@ -196,38 +196,7 @@ TWEEN.Tween.prototype = {
 		this._startTime = time !== undefined ? typeof time === 'string' ? TWEEN.now() + parseFloat(time) : time : TWEEN.now();
 		this._startTime += this._delayTime;
 
-		for (var property in this._valuesEnd) {
-
-			// Check if an Array was provided as property value
-			if (this._valuesEnd[property] instanceof Array) {
-
-				if (this._valuesEnd[property].length === 0) {
-					continue;
-				}
-
-				// Create a local copy of the Array with the start value at the front
-				this._valuesEnd[property] = [this._object[property]].concat(this._valuesEnd[property]);
-
-			}
-
-			// If `to()` specifies a property that doesn't exist in the source object,
-			// we should not set that property in the object
-			if (this._object[property] === undefined) {
-				continue;
-			}
-
-			// Save the starting value, but only once.
-			if (typeof(this._valuesStart[property]) === 'undefined') {
-				this._valuesStart[property] = this._object[property];
-			}
-
-			if ((this._valuesStart[property] instanceof Array) === false) {
-				this._valuesStart[property] *= 1.0; // Ensures we're using numbers, not strings
-			}
-
-			this._valuesStartRepeat[property] = this._valuesStart[property] || 0;
-
-		}
+		_setupProperties(this._object, this._valuesStart, this._valuesEnd, this._valuesStartRepeat);
 
 		return this;
 
@@ -417,40 +386,8 @@ TWEEN.Tween.prototype = {
 
 		value = this._easingFunction(elapsed);
 
-		for (property in this._valuesEnd) {
-
-			// Don't update properties that do not exist in the source object
-			if (this._valuesStart[property] === undefined) {
-				continue;
-			}
-
-			var start = this._valuesStart[property] || 0;
-			var end = this._valuesEnd[property];
-
-			if (end instanceof Array) {
-
-				this._object[property] = this._interpolationFunction(end, value);
-
-			} else {
-
-				// Parses relative end values with start as base (e.g.: +10, -3)
-				if (typeof (end) === 'string') {
-
-					if (end.charAt(0) === '+' || end.charAt(0) === '-') {
-						end = start + parseFloat(end);
-					} else {
-						end = parseFloat(end);
-					}
-				}
-
-				// Protect against non numeric properties.
-				if (typeof (end) === 'number') {
-					this._object[property] = start + (end - start) * value;
-				}
-
-			}
-
-		}
+		// properties transformations
+		_updateProperties(this._object, this._valuesStart, this._valuesEnd, value, this._interpolationFunction);
 
 		if (this._onUpdateCallback !== null) {
 			this._onUpdateCallback(this._object, elapsed);
@@ -521,6 +458,96 @@ TWEEN.Tween.prototype = {
 
 	}
 };
+
+function _setupProperties (objectValues, startValues, endValues, startRepeatValues) {
+	for (var property in endValues) {
+
+		// Check if an Array was provided as property value
+		if (endValues[property] instanceof Array) {
+
+			if (endValues[property].length === 0) {
+				continue;
+			}
+
+			// Create a local copy of the Array with the start value at the front
+			endValues[property] = [objectValues[property]].concat(endValues[property]);
+
+		}
+
+		// If `to()` specifies a property that doesn't exist in the source object,
+		// we should not set that property in the object
+		if (objectValues[property] === undefined) {
+			continue;
+		}
+
+		// handling the deepnes of the values
+		if (endValues[property] instanceof Object) {
+
+			startValues[property] = JSON.parse(JSON.stringify(objectValues[property]));
+
+			startRepeatValues[property] = {};
+
+			_setupProperties(objectValues[property], startValues[property], endValues[property], startRepeatValues[property]);
+
+		} else {
+
+			// Save the starting value, but only once.
+			if (typeof(startValues[property]) === 'undefined') {
+				startValues[property] = objectValues[property];
+			}
+
+			if ((startValues[property] instanceof Array) === false) {
+				startValues[property] *= 1.0; // Ensures we're using numbers, not strings
+			}
+
+			startRepeatValues[property] = startValues[property] || 0;
+
+		}
+
+	}
+
+}
+
+function _updateProperties (objectValues, startValues, endValues, value, interpolationFn) {
+	for (var property in endValues) {
+
+		// Don't update properties that do not exist in the source object
+		if (startValues[property] === undefined) {
+			continue;
+		}
+
+		var start = startValues[property] || 0;
+		var end = endValues[property];
+
+		if (end instanceof Array) {
+
+			objectValues[property] = interpolationFn(end, value);
+
+		} else if (end instanceof Object) {
+
+			_updateProperties(objectValues[property], start, end, value, interpolationFn);
+
+		} else {
+
+			// Parses relative end values with start as base (e.g.: +10, -3)
+			if (typeof (end) === 'string') {
+
+				if (end.charAt(0) === '+' || end.charAt(0) === '-') {
+					end = start + parseFloat(end);
+				} else {
+					end = parseFloat(end);
+				}
+			}
+
+			// Protect against non numeric properties.
+			if (typeof (end) === 'number') {
+				objectValues[property] = start + (end - start) * value;
+			}
+
+		}
+
+	}
+}
 
 
 TWEEN.Easing = {
