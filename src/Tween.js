@@ -64,12 +64,8 @@ _Group.prototype = {
 
 				var tween = this._tweens[tweenIds[i]];
 
-				if (tween && tween.update(time) === false) {
-					tween._isPlaying = false;
-
-					if (!preserve) {
-						delete this._tweens[tweenIds[i]];
-					}
+				if (tween && tween.update(time) === false && !preserve) {
+					delete this._tweens[tweenIds[i]];
 				}
 			}
 
@@ -146,7 +142,6 @@ TWEEN.Tween = function (object, group) {
 	this._onStopCallback = null;
 	this._group = group || TWEEN;
 	this._id = TWEEN.nextId();
-	this._isComplete = false;
 	this._isChainStopped = false;
 
 };
@@ -182,6 +177,9 @@ TWEEN.Tween.prototype = {
 	},
 
 	start: function (time) {
+		if (this._isPlaying) {
+			return this;
+		}
 
 		this._group.add(this);
 
@@ -420,9 +418,15 @@ TWEEN.Tween.prototype = {
 		var property;
 		var elapsed;
 		var value;
+		var endTime = this._startTime + this._duration;
 
-		if (this._isComplete) {
+		if (time > endTime && !this._isPlaying) {
 			return false;
+		}
+
+		// If the tween was already finished,
+		if (!this.isPlaying) {
+			this.start(time);
 		}
 
 		if (time < this._startTime) {
@@ -542,7 +546,7 @@ TWEEN.Tween.prototype = {
 					this._chainedTweens[i].start(this._startTime + this._duration);
 				}
 
-				this._isComplete = true;
+				this._isPlaying = false;
 
 				return false;
 
