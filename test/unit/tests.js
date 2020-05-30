@@ -462,19 +462,34 @@
 
 			},
 
-			// 'String values without a + or - sign should not be interpreted as relative with array values': function(test) {
+			'String values without a + or - sign should not be interpreted as relative with array values': function(test) {
 
-			// 	var obj = { x: 100 },
-			// 		t = new TWEEN.Tween( obj );
+				var obj = { x: 0 },
+					t = new TWEEN.Tween( obj );
 
-			// 	t.to( { x: "100" }, 1000 );
-			// 	t.start( 0 );
-			// 	t.update( 1000 );
+				t.to( { x: ["100", "0", "100", "0"] }, 2000 );
+				t.start( 0 );
 
-			// 	test.equal( obj.x, 100 );
-			// 	test.done();
+				t.update( 250 );
+				test.equal( obj.x, 50 );
+				t.update( 500 );
+				test.equal( obj.x, 100 );
+				t.update( 750 );
+				test.equal( obj.x, 50 );
+				t.update( 1000 );
+				test.equal( obj.x, 0 );
+				t.update( 1250 );
+				test.equal( obj.x, 50 );
+				t.update( 1500 );
+				test.equal( obj.x, 100 );
+				t.update( 1750 );
+				test.equal( obj.x, 50 );
+				t.update( 2000 );
+				test.equal( obj.x, 0 );
 
-			// },
+				test.done();
+
+			},
 
 			'Test TWEEN.Tween.start()': function(test) {
 
