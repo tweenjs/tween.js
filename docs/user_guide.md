@@ -1,6 +1,6 @@
 # tween.js user guide
 
-_**NOTE** this is a work in progress, please excuse the gaps. Wherever you see something marked as TODO, it's not done yet. If you find that something is unclear or missing details, please [file an issue](https://github.com/sole/tween.js/issues/new) and help make this guide better. Or feel free to submit clarifications or improvements of your own if you feel you can help too!_
+_**NOTE** This is a work in progress. If you find that something is unclear or missing details, please [file an issue](https://github.com/tweenjs/tween.js/issues/new) and help make this guide better. Or feel free to submit clarifications or improvements of your own if you feel you can help too!_
 
 ## What is a tween? How do they work? Why do you want to use them?
 
@@ -33,10 +33,10 @@ Finally in order to run as smoothly as possible you should call the `TWEEN.updat
 animate();
 
 function animate() {
-	requestAnimationFrame(animate);
-	// [...]
-	TWEEN.update();
-	// [...]
+    requestAnimationFrame(animate);
+    // [...]
+    TWEEN.update();
+    // [...]
 }
 ````
 
@@ -45,8 +45,8 @@ This will take care of updating all active tweens; after 1 second (i.e. 1000 mil
 But unless you print the value of `x` to the console, you can't see its value changing. You might want to use the `onUpdate` callback:
 
 ````javascript
-tween.onUpdate(function() {
-	console.log(this.x);
+tween.onUpdate(function(object) {
+    console.log(object.x);
 });
 ````
 
@@ -56,16 +56,16 @@ So far we've only used tweens to print values to the console, but you could use 
 
 ````javascript
 var tween = new TWEEN.Tween(cube.position)
-		.to({ x: 100, y: 100, z: 100 }, 10000)
-		.start();
+        .to({ x: 100, y: 100, z: 100 }, 10000)
+        .start();
 
 animate();
 
 function animate() {
-	requestAnimationFrame(animate);
-	TWEEN.update();
+    requestAnimationFrame(animate);
+    TWEEN.update();
 
-	threeRenderer.render(scene, camera);
+    threeRenderer.render(scene, camera);
 }
 ````
 
@@ -83,8 +83,8 @@ into this
 
 ````javascript
 var tween = new TWEEN.Tween(position)
-	.to({ x: 200 }, 1000)
-	.start();
+    .to({ x: 200 }, 1000)
+    .start();
 ````
 
 You'll see this a lot in the examples, so it's good to be familiar with it! Check [04-simplest](../examples/04_simplest.html) for a working example.
@@ -99,10 +99,10 @@ We've seen this example before:
 animate();
 
 function animate() {
-	requestAnimationFrame(animate);
-	// [...]
-	TWEEN.update();
-	// [...]
+    requestAnimationFrame(animate);
+    // [...]
+    TWEEN.update();
+    // [...]
 }
 ````
 
@@ -114,14 +114,14 @@ However you can also pass an explicit time parameter to `update`. Thus,
 TWEEN.update(100);
 ````
 
-means "update with time = 100 milliseconds". You can use this to make sure that all the time-dependent functions in your code are using the very same time value. For example suppose you've got a player and want to run tweens in sync. Your `animate` code could look like this:
+means "update with time = 100 milliseconds". You can use this to make sure that all the time-dependent functions in your code are using the very same time value. For example, suppose you've got a player and want to run tweens in sync. Your `animate` code could look like this:
 
 ````javascript
 var currentTime = player.currentTime;
 TWEEN.update(currentTime);
 ````
 
-We use explicit time values for the unit tests. You can have a look at [TestTweens](../test/unit/TestTweens.js) to see how we call TWEEN.update() with different values in order to simulate time passing.
+We use explicit time values for the unit tests. You can have a look at [tests.js](../test/unit/tests.js) to see how we call TWEEN.update() with different values in order to simulate time passing.
 
 ## Controlling a tween
 
@@ -163,15 +163,17 @@ In other cases, you may want to chain multiple tweens to another tween in a way 
 tweenA.chain(tweenB,tweenC);
 ````
 
+> WARNING: Calling `tweenA.chain(tweenB)` actually modifies tweenA so that tweenB is always started when tweenA finishes. The return value of `chain` is just tweenA, not a new tween.
+
 ### `repeat`
 
-If you wanted a tween to repeat forever you could chain it to itself, but a better way is to use the `repeat` method. It accepts a parameter that describes how many repetitions you want:
+If you wanted a tween to repeat forever you could chain it to itself, but a better way is to use the `repeat` method. It accepts a parameter that describes how many repetitions you want after the first tween is completed:
 
 ````javascript
-tween.repeat(10); // repeats 10 times and stops
+tween.repeat(10); // repeats 10 times after the first tween and stops
 tween.repeat(Infinity); // repeats forever
 ````
-
+The total number of tweens will be the repeat parameter plus one for the initial tween.
 Check the [Repeat](../examples/08_repeat.html) example.
 
 ### `yoyo`
@@ -189,6 +191,20 @@ tween.start();
 
 will start executing 1 second after the `start` method has been called.
 
+### `repeatDelay`
+
+Normally the `delay` time is applied between repetitions of a tween, but if a value is provided to the `repeatDelay` function then that value will determine the total time elapsed between repetitions of a tween.
+
+Consider this example:
+
+````javascript
+tween.delay(1000);
+tween.repeatDelay(500);
+tween.start();
+````
+
+The first iteration of the tween will happen after one second, the second iteration will happen a half second after the first iteration  ends, the third iteration will happen a half second after the second iteration ends, etc. If you want to delay the initial iteration but you don't want any delay between iterations, then make sure to call `tween.repeatDelay(0)`.
+
 ## Controlling _all_ the tweens
 
 The following methods are found in the TWEEN global object, and you generally won't need to use most of them, except for `update`.
@@ -205,9 +221,49 @@ Used to get a reference to the active `tweens` array and to remove all of them f
 
 ### `TWEEN.add(tween)` and `TWEEN.remove(tween)`
 
-Used to add a tween to the list of active tweens, or to remove an specific one from the list, respectively.
+Used to add a tween to the list of active tweens, or to remove a specific one from the list, respectively.
 
 These methods are usually used internally only, but are exposed just in case you want to do something _funny_.
+
+## Controlling groups of tweens
+
+Using the `TWEEN` singleton to manage your tweens can cause issues in large apps with many components. In these cases, you may want to create your own smaller groups of tweens. 
+
+#### Example: cross-component conflict
+
+A conflict can occur if you have multiple components using `TWEEN`, and each component wants to manage its own set of tweens. If one component calls `TWEEN.update()` or `TWEEN.removeAll()` the tweens of other components will also be updated or removed.
+
+#### Creating your own tween groups
+
+To solve this, each component can make their own instance of `TWEEN.Group` (which is what the global `TWEEN` object uses internally). These groups can be passed in as a second optional parameter when instantiating a new tween:
+
+```javascript
+var groupA = new TWEEN.Group();
+var groupB = new TWEEN.Group();
+
+var tweenA = new TWEEN.Tween({ x: 1 }, groupA)
+    .to({ x: 10 }, 100)
+    .start();
+
+var tweenB = new TWEEN.Tween({ x: 1 }, groupB)
+    .to({ x: 10 }, 100)
+    .start();
+
+var tweenC = new TWEEN.Tween({ x: 1 })
+    .to({ x: 10 }, 100)
+    .start();
+
+groupA.update(); // only updates tweenA
+groupB.update(); // only updates tweenB
+TWEEN.update(); // only updates tweenC
+
+groupA.removeAll(); // only removes tweenA
+groupB.removeAll(); // only removes tweenB
+TWEEN.removeAll(); // only removes tweenC
+
+```
+
+In this way, each component can handle creating, updating, and destroying its own set of tweens.
 
 ## Changing the easing function (AKA make it bouncy)
 
@@ -232,7 +288,7 @@ _Credit where credit is due:_ these functions are derived from the original set 
 Not only can you use any of the existing functions, but you can also provide your own, as long as it follows a couple of conventions:
 
 - it must accept one parameter:
-	- `k`: the easing progress, or how far along the duration of the tween we are. Allowed values are in the range [0, 1].
+    - `k`: the easing progress, or how far along the duration of the tween we are. Allowed values are in the range [0, 1].
 - it must return a value based on the input parameters.
 
 The easing function is only called _once per tween_ on each update, no matter how many properties are to be changed. The result is then used with the initial value and the difference (the _deltas_) between this and the final values, as in this pseudocode:
@@ -240,16 +296,16 @@ The easing function is only called _once per tween_ on each update, no matter ho
 ````
 easedElapsed = easing(k);
 for each property:
-	newPropertyValue = initialPropertyValue + propertyDelta * easedElapsed;
+    newPropertyValue = initialPropertyValue + propertyDelta * easedElapsed;
 ````
 
-For the performance obsessed people out there: the deltas are calculated only when `start()` is called on a tween.
+For the performance-obsessed people out there: the deltas are calculated only when `start()` is called on a tween.
 
-So let's suppose you wanted to use a custom easing function that eased the values but appplied a Math.floor to the output, so only the integer part would be returned, resulting in a sort of step-ladder output:
+So let's suppose you wanted to use a custom easing function that eased the values but applied a Math.floor to the output, so only the integer part would be returned, resulting in a sort of step-ladder output:
 
 ````javascript
 function tenStepEasing(k) {
-	return Math.floor(k * 10) / 10;
+    return Math.floor(k * 10) / 10;
 }
 ````
 
@@ -265,57 +321,63 @@ Check the [graphs for custom easing functions](../examples/12_graphs_custom_func
 
 Another powerful feature is to be able to run your own functions at specific times in each tween's life cycle. This is usually required when changing properties is not enough.
 
-For example, suppose you're trying to animate some object whose properties can't be accessed directly but require you to call a setter instead. You can use an `update` callback to read the new updated values and then manually call the setters:
+For example, suppose you're trying to animate some object whose properties can't be accessed directly but require you to call a setter instead. You can use an `update` callback to read the new updated values and then manually call the setters. All callbacks are passed the tweened object as the only parameter.
 
 ````javascript
 var trickyObjTween = new TWEEN.Tween({
-	propertyA: trickyObj.getPropertyA(),
-	propertyB: trickyObj.getPropertyB()
+    propertyA: trickyObj.getPropertyA(),
+    propertyB: trickyObj.getPropertyB()
 })
-	.to({ propertyA: 100, propertyB: 200 })
-	.onUpdate(function() {
-		this.setA( this.propertyA );
-		this.setB( this.propertyB );
-	});
+    .to({ propertyA: 100, propertyB: 200 })
+    .onUpdate(function(object) {
+        object.setA( object.propertyA );
+        object.setB( object.propertyB );
+    });
 ````
 
-Or imagine you want to play a sound when a tween is started. You can use an `start` callback:
+Or imagine you want to play a sound when a tween is started. You can use a `start` callback:
 
 ````javascript
 var tween = new TWEEN.Tween(obj)
-	.to({ x: 100 })
-	.onStart(function() {
-		sound.play();
-	});
+    .to({ x: 100 })
+    .onStart(function() {
+        sound.play();
+    });
 ````
 
 The scope for each callback is the tweened object--in this case, `obj`.
 
 ### onStart
 
-Executed right before the tween starts--i.e. before the deltas are calculated. This will be executed only once per tween, i.e. it will *not* be run when the tween is repeated via `repeat()`.
+Executed right before the tween starts animating, after any delay time specified by the `delay` method. This will be executed only once per tween, i.e. it will *not* be run when the tween is repeated via `repeat()`.
 
 It is great for synchronising to other events or triggering actions you want to happen when a tween starts.
 
-The tweened object is passed in as the first parameter. It may also be accessed using the `this` value.
+The tweened object is passed in as the first parameter.
 
 ### onStop
 
 Executed when a tween is explicitly stopped via `stop()`, but not when it is completed normally, and before stopping any possible chained tween.
 
-The tweened object is passed in as the first parameter. It may also be accessed using the `this` value.
+The tweened object is passed in as the first parameter.
 
 ### onUpdate
 
 Executed each time the tween is updated, after the values have been actually updated.
 
-The tweened object may be accessed using the `this` value. The first parameter passed to the callback is the tween's progress, represented as a value from 0 to 1. However, this may change in future releases. You are advised not to rely on this value.
+The tweened object is passed in as the first parameter.
 
 ### onComplete
 
 Executed when a tween is finished normally (i.e. not stopped).
 
-The tweened object is passed in as the first parameter. It may also be accessed using the `this` value.
+The tweened object is passed in as the first parameter.
+
+### onRepeat
+
+Executed whenever a tween has just finished one repetition and will begin another.
+
+The tweened object is passed in as the first parameter.
 
 ## Advanced tweening
 
@@ -395,11 +457,11 @@ When you try to animate the position of an element in the page, the easiest solu
 ```javascript
 var element = document.getElementById('myElement');
 var tween = new TWEEN.Tween({ top: 0, left: 0 })
-	.to({ top: 100, left: 100 }, 1000)
-	.onUpdate(function() {
-		element.style.top = this.top + 'px';
-		element.style.left = this.left + 'px';
-	});
+    .to({ top: 100, left: 100 }, 1000)
+    .onUpdate(function(object) {
+        element.style.top = object.top + 'px';
+        element.style.left = object.left + 'px';
+    });
 ```
 
 but this is really inefficient because altering these properties forces the browser to recalculate the layout on each update, and this is a very costly operation. Instead of using these, you should use `transform`, which doesn't invalidate the layout and will also be hardware accelerated when possible, like this:
@@ -407,10 +469,10 @@ but this is really inefficient because altering these properties forces the brow
 ```javascript
 var element = document.getElementById('myElement');
 var tween = new TWEEN.Tween({ top: 0, left: 0 })
-	.to({ top: 100, left: 100 }, 1000)
-	.onUpdate(function() {
-		element.style.transform = 'translate(' + this.left + 'px, ' + this.top + 'px);';
-	});
+    .to({ top: 100, left: 100 }, 1000)
+    .onUpdate(function(object) {
+        element.style.transform = 'translate(' + object.left + 'px, ' + object.top + 'px)';
+    });
 ```
 
 If you want to read more about this, have a look at [this article](http://www.paulirish.com/2012/why-moving-elements-with-translate-is-better-than-posabs-topleft/).
@@ -424,4 +486,3 @@ If you use an `onUpdate` callback, you need to be very careful with what you put
 ## Crazy tweening
 
 This is something you might not use often, but you can use the tweening equations outside of Tween.js. They're just functions, after all. So you could use them to calculate smooth curves as input data. For example, they're used to generate audio data in [this experiment](http://5013.es/toys/tween.audio/).
-

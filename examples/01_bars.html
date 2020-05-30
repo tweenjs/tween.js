@@ -1,7 +1,7 @@
 <!DOCTYPE html> 
 <html lang="en">
 	<head>
-		<title>bars / Tween.js</title>
+		<title>Tween.js / bars</title>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 		<link href="css/style.css" media="screen" rel="stylesheet" type="text/css" />
 	</head>
@@ -13,7 +13,7 @@
 			</div>
 		<div id="target"></div>
 
-		<script src="../src/Tween.js"></script>
+		<script src="../dist/tween.umd.js"></script>
 		<script src="js/stats.min.js"></script>
 		<script src="js/RequestAnimationFrame.js"></script>
 		<script>
@@ -48,8 +48,8 @@
 
 					var elem = { x: startValue, domElement: domElement };
 
-					var updateCallback = function() {
-						this.domElement.style.left = this.x + 'px';
+					var updateCallback = function(object) {
+						object.domElement.style.left = object.x + 'px';
 					}
 
 					var tween = new TWEEN.Tween(elem)

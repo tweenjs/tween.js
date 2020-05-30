@@ -1,18 +1,15 @@
 <html>
 	<head>
 		<title>nodeunit based tests</title>
-		<script src="../../node_modules/nodeunit/examples/browser/nodeunit.js"></script>
-		<script src="../../src/Tween.js"></script>
+		<script src="nodeunit.js"></script>
+		<script src="../../dist/tween.umd.js"></script>
 		<script src="tests.js"></script>
 	</head>
 	<body>
 		<script>
-
 		nodeunit.run({
 			'tween': getTests(TWEEN)
 		});
-
 		</script>
 	</body>
 </html>
-

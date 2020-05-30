@@ -1,8 +1,9 @@
 {
-  "name": "tween.js",
+  "name": "@tweenjs/tween.js",
   "description": "Super simple, fast and easy to use tweening engine which incorporates optimised Robert Penner's equations.",
-  "version": "0.0.0-development",
-  "main": "src/Tween.js",
+  "version": "18.5.0",
+  "main": "dist/tween.cjs.js",
+  "module": "dist/tween.esm.js",
   "homepage": "https://github.com/tweenjs/tween.js",
   "repository": {
     "type": "git",
@@ -18,17 +19,16 @@
   ],
   "dependencies": {},
   "scripts": {
-    "test": "npm run test-unit && npm run test-correctness && npm run test-style",
+    "build": "node scripts/write-version.js && npm run rollup-build && node scripts/remove-version.js",
+    "rollup-build": "rollup -c ./rollup.config.js",
+    "test": "npm run build && npm run test-unit && npm run test-lint",
     "test-unit": "nodeunit test/unit/nodeunitheadless.js",
-    "test-correctness": "jshint --config test/jshintrc src/Tween.js",
-    "test-style": "jscs --config test/jscs.json src/Tween.js",
-    "semantic-release": "semantic-release pre && npm publish && semantic-release post"
+    "test-lint": "eslint src/Tween.js"
   },
   "author": "tween.js contributors (https://github.com/tweenjs/tween.js/graphs/contributors)",
   "devDependencies": {
-    "jscs": "^2.2.0",
-    "jshint": "^2.8.0",
-    "nodeunit": "^0.9.1",
-    "semantic-release": "^6.3.2"
+    "eslint": "^6.3.0",
+    "nodeunit": "^0.9.5",
+    "rollup": "^0.57.1"
   }
 }

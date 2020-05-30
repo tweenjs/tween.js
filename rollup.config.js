@@ -1,0 +1,24 @@
+const pkg = require('./package.json');
+
+export default {
+	input: 'src/Tween.js',
+	output: [
+		{
+			file: 'dist/tween.umd.js',
+			name: 'TWEEN',
+			format: 'umd'
+		},
+		{
+			file: 'dist/tween.amd.js',
+			format: 'amd'
+		},
+		{
+			file: 'dist/tween.cjs.js',
+			format: 'cjs'
+		},
+		{
+			file: 'dist/tween.esm.js',
+			format: 'es'
+		}
+	]
+};

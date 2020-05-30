@@ -17,7 +17,7 @@
 				background: #fcc;
 			}
 		</style>
-		<script src="../src/Tween.js"></script>
+		<script src="../dist/tween.umd.js"></script>
 		<script src="js/RequestAnimationFrame.js"></script>
 		<script>
 			window.onload = function() {
@@ -32,10 +32,10 @@
 						.repeat( 5 )
 						.delay( 500 )
 						.easing( TWEEN.Easing.Exponential.In )
-						.onUpdate( function() {
-							this.top = Math.round(this.top);
-							this.left = Math.round(this.left);
-							updateBox( target1, this );
+						.onUpdate( function(object) {
+							object.top = Math.round(object.top);
+							object.left = Math.round(object.left);
+							updateBox( target1, object );
 						})
 						.start();
 					

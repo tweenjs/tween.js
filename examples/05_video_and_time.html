@@ -16,7 +16,7 @@
 			<video id="video" src="video/sintel.webm" width="320" height="138"></video>
 		</div>
 
-		<script src="../src/Tween.js"></script>
+		<script src="../dist/tween.umd.js"></script>
 		<script src="js/RequestAnimationFrame.js"></script>
 		<script>
 
@@ -40,9 +40,9 @@
 					new TWEEN.Tween( { x: 50, y: 0 } )
 						.to( { x: 400 }, this.duration )
 						.easing( TWEEN.Easing.Linear.None )
-						.onUpdate( function () {
+						.onUpdate( function (object) {
 
-							var roundX = Math.round(this.x);
+							var roundX = Math.round(object.x);
 							var transform = 'translateX(' + roundX + 'px)';
 							output.innerHTML = 'x == ' + roundX;
 							target.style.transform = transform;

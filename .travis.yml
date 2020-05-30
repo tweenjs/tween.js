@@ -1,17 +1,26 @@
 sudo: false
 language: node_js
-cache:
-  directories:
-    - node_modules
 notifications:
   email: false
 node_js:
-  - "6"
+  - "10"
 before_install:
-  - npm i -g npm@^2.0.0
+  - npm i -g npm@^6.0.0
 before_script:
   - npm prune
 script:
   - npm run test
-after_success:
-  - npm run semantic-release
+deploy:
+  - on:
+      branch: master
+    provider: npm
+    skip_cleanup: true
+    email: "mikebolt@gmail.com"
+    api_key: $NPM_TOKEN
+  - on:
+      branch: master
+    provider: pages
+    skip_cleanup: true
+    github_token: $GH_TOKEN
+    local_dir: .
+    keep_history: false

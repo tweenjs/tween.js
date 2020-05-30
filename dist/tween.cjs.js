@@ -1,3 +1,7 @@
+'use strict';
+
+var version = '18.4.2';
+
 /**
  * Tween.js - Licensed under the MIT license
  * https://github.com/tweenjs/tween.js
@@ -202,7 +206,6 @@ TWEEN.Tween.prototype = {
 				}
 
 				// Create a local copy of the Array with the start value at the front
-
 				this._valuesEnd[property] = [this._object[property]].concat(this._valuesEnd[property]);
 
 			}
@@ -222,11 +225,7 @@ TWEEN.Tween.prototype = {
 				this._valuesStart[property] *= 1.0; // Ensures we're using numbers, not strings
 			}
 
-			if (this._valuesEnd[property] instanceof Array) {
-				this._valuesStartRepeat[property] = this._valuesEnd[property].slice().reverse();
-			} else {
-				this._valuesStartRepeat[property] = this._valuesStart[property] || 0;
-			}
+			this._valuesStartRepeat[property] = this._valuesStart[property] || 0;
 
 		}
 
@@ -962,8 +961,6 @@ TWEEN.Interpolation = {
 	}
 
 };
-
-import {version} from '../.temp.version.js';
 TWEEN.version = version;
 
-export default TWEEN;
+module.exports = TWEEN;

@@ -20,7 +20,7 @@
 			</div>
 		</div>
 
-		<script src="../src/Tween.js"></script>
+		<script src="../dist/tween.umd.js"></script>
 		<script src="js/RequestAnimationFrame.js"></script>
 		<script>
 
@@ -35,8 +35,8 @@
 						.delay( 1000 )
 						.yoyo( true )
 						.easing( TWEEN.Easing.Cubic.InOut )
-						.onUpdate( function() {
-							updateBox( target1, this );
+						.onUpdate( function(object) {
+							updateBox( target1, object );
 						})
 						.start(),
 					target2 = document.getElementById( 'target2' ),
@@ -46,8 +46,8 @@
 						.delay( 1000 )
 						.yoyo( true )
 						.easing( TWEEN.Easing.Cubic.InOut )
-						.onUpdate( function() {
-							updateBox( target2, this );
+						.onUpdate( function(object) {
+							updateBox( target2, object );
 						})
 						.start();
 			}
