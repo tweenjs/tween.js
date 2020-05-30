@@ -146,7 +146,7 @@ TWEEN.Tween = function (object, group) {
 	this._onStopCallback = null;
 	this._group = group || TWEEN;
 	this._id = TWEEN.nextId();
-	this._isFinished = false;
+	this._isComplete = false;
 	this._isChainStopped = false;
 
 };
@@ -421,7 +421,7 @@ TWEEN.Tween.prototype = {
 		var elapsed;
 		var value;
 
-		if (this._isFinished) return false;
+		if (this._isComplete) return false;
 
 		if (time < this._startTime) {
 			return true;
@@ -540,7 +540,7 @@ TWEEN.Tween.prototype = {
 					this._chainedTweens[i].start(this._startTime + this._duration);
 				}
 
-				this._isFinished = true;
+				this._isComplete = true;
 
 				return false;
 
