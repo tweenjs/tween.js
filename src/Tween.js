@@ -475,14 +475,19 @@ TWEEN.Tween.prototype = {
 				// Reassign starting values, restart by making startTime = now
 				for (property in this._valuesStartRepeat) {
 
-					if (typeof (this._valuesEnd[property]) === 'string') {
-						this._valuesStartRepeat[property] = this._valuesStartRepeat[property] + parseFloat(this._valuesEnd[property]);
+					if (!this._yoyo && typeof(this._valuesEnd[property]) === 'string') {
+						this._valuesStartRepeat[property] = this._valuesStartRepeat[property] + parseFloat(this._valuesEnd[property], 10);
 					}
 
 					if (this._yoyo) {
 						var tmp = this._valuesStartRepeat[property];
 
-						this._valuesStartRepeat[property] = this._valuesEnd[property];
+						if (typeof(this._valuesEnd[property]) === 'string') {
+							this._valuesStartRepeat[property] = this._valuesStartRepeat[property] + parseFloat(this._valuesEnd[property], 10);
+						} else {
+							this._valuesStartRepeat[property] = this._valuesEnd[property];
+						}
+
 						this._valuesEnd[property] = tmp;
 					}
 

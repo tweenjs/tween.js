@@ -345,7 +345,7 @@
 
 			},
 
-			'Tween relative positive value, with sign': function(test) {
+			'Tween relative positive value': function(test) {
 
 				var obj = { x: 0 },
 					t = new TWEEN.Tween( obj );
@@ -383,6 +383,52 @@
 				t.update( 1000 );
 
 				test.equal( obj.x, 100 );
+				test.done();
+
+			},
+
+			'Tween relative positive value, with yoyo': function(test) {
+
+				var obj = { x: 0 },
+					t = new TWEEN.Tween( obj );
+
+				t.to( { x: "+100" }, 1000 );
+				t.repeat( 1 );
+				t.yoyo( true );
+				t.start( 0 );
+
+				t.update( 500 );
+				test.equal( obj.x, 50 );
+				t.update( 1000 );
+				test.equal( obj.x, 100 );
+				t.update( 1500 );
+				test.equal( obj.x, 50 );
+				t.update( 2000 );
+				test.equal( obj.x, 0 );
+
+				test.done();
+
+			},
+
+			'Tween relative negative value, with yoyo': function(test) {
+
+				var obj = { x: 0 },
+					t = new TWEEN.Tween( obj );
+
+				t.to( { x: "-100" }, 1000 );
+				t.repeat( 1 );
+				t.yoyo( true );
+				t.start( 0 );
+
+				t.update( 500 );
+				test.equal( obj.x, -50 );
+				t.update( 1000 );
+				test.equal( obj.x, -100 );
+				t.update( 1500 );
+				test.equal( obj.x, -50 );
+				t.update( 2000 );
+				test.equal( obj.x, -0 );
+
 				test.done();
 
 			},
