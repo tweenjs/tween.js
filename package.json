@@ -1,37 +1,34 @@
 {
-  "name": "tween.js",
-  "version": "0.15.0",
+  "name": "@tweenjs/tween.js",
   "description": "Super simple, fast and easy to use tweening engine which incorporates optimised Robert Penner's equations.",
-  "main": "src/Tween.js",
-  "homepage": "https://github.com/sole/tween.js",
+  "version": "18.5.0",
+  "main": "dist/tween.cjs.js",
+  "module": "dist/tween.esm.js",
+  "homepage": "https://github.com/tweenjs/tween.js",
   "repository": {
     "type": "git",
-    "url": "git://github.com/sole/tween.js.git"
+    "url": "https://github.com/tweenjs/tween.js.git"
   },
   "bugs": {
-    "url": "https://github.com/sole/tween.js/issues"
+    "url": "https://github.com/tweenjs/tween.js/issues"
   },
-  "licenses": [
-    {
-      "type": "MIT",
-      "url": "https://github.com/sole/tween.js/blob/master/LICENSE"
-    }
-  ],
+  "license": "MIT",
   "keywords": [
     "tween",
     "interpolation"
   ],
-  "dependencies": {
-    "gulp": "^3.8.7",
-    "gulp-concat": "^2.3.4",
-    "gulp-html-replace": "^1.1.0",
-    "gulp-insert": "^0.4.0",
-    "gulp-jshint": "^1.8.3",
-    "gulp-rename": "^1.2.0",
-    "gulp-uglify": "^0.3.1",
-    "nodeunit": "^0.9.0"
-  },
+  "dependencies": {},
   "scripts": {
-    "test": "node_modules/.bin/nodeunit $(pwd)/test/unit/nodeunitheadless.js"
+    "build": "node scripts/write-version.js && npm run rollup-build && node scripts/remove-version.js",
+    "rollup-build": "rollup -c ./rollup.config.js",
+    "test": "npm run build && npm run test-unit && npm run test-lint",
+    "test-unit": "nodeunit test/unit/nodeunitheadless.js",
+    "test-lint": "eslint src/Tween.js"
+  },
+  "author": "tween.js contributors (https://github.com/tweenjs/tween.js/graphs/contributors)",
+  "devDependencies": {
+    "eslint": "^6.3.0",
+    "nodeunit": "^0.9.5",
+    "rollup": "^0.57.1"
   }
 }

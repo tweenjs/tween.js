@@ -1,13 +1,13 @@
 <!DOCTYPE html> 
 <html lang="en">
 	<head>
-		<title>Black and Red / Tween.js</title>
+		<title>Tween.js / Black and Red</title>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 		<link href="css/style.css" media="screen" rel="stylesheet" type="text/css" />
 	</head>
 	<body>
 		<div id="info">
-			<h1><a href="http://github.com/sole/tween.js">tween.js</a></h1>
+			<h1><a href="http://github.com/tweenjs/tween.js">tween.js</a></h1>
 			<h2>02 _ Black and red</h2>
 			<p>4096 continuously changing color cells (in a 64x64 table)</p>
 			<p></p>
@@ -16,12 +16,12 @@
 
 		<style>
 			body { font-family: Arial, Helvetica, sans; }
-			table { border-collapse:collapse; }
+			table { border-collapse: collapse; }
 			td { width: 5px; height: 5px; }
 			#target { position: absolute; top: 4em; right: 3em; }
 		</style>
 
-		<script src="../build/tween.min.js"></script>
+		<script src="../dist/tween.umd.js"></script>
 		<script src="js/stats.min.js"></script>
 		<script src="js/RequestAnimationFrame.js"></script>
 		<script>
@@ -49,18 +49,18 @@
 							.to({ value: 1 }, 8000)
 							.delay((0.001 * index + Math.random()) * 500)
 							.easing(TWEEN.Easing.Elastic.InOut)
-							.onUpdate(function() {
-								var c = Math.floor(this.value * 0xff);
-								this.td.style.background = 'rgb(' + c + ', 0, 0)';
+							.onUpdate(function(object) {
+								var c = Math.floor(object.value * 0xff);
+								object.td.style.background = 'rgb(' + c + ', 0, 0)';
 							});
 
 						var tweenBack = new TWEEN.Tween(cell)
 							.to({ value: 0 }, 4000)
 							.delay((0.001*index + Math.random()) * 500)
 							.easing(TWEEN.Easing.Elastic.InOut)
-							.onUpdate(function() {
-								var c = Math.floor(this.value * 0xff);
-								this.td.style.background = 'rgb(' + c + ', 0, 0)';
+							.onUpdate(function(object) {
+								var c = Math.floor(object.value * 0xff);
+								object.td.style.background = 'rgb(' + c + ', 0, 0)';
 							});
 
 						tween.chain(tweenBack);

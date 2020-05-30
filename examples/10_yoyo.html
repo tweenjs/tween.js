@@ -7,7 +7,7 @@
 	</head>
 	<body>
 		<div id="info">
-			<h1><a href="http://github.com/sole/tween.js">tween.js</a></h1>
+			<h1><a href="http://github.com/tweenjs/tween.js">tween.js</a></h1>
 			<h2>10 _ yoyo</h2>
 			<p>Demonstrating the yoyo() feature.</p>
 		</div>
@@ -20,7 +20,7 @@
 			</div>
 		</div>
 
-		<script src="../build/tween.min.js"></script>
+		<script src="../dist/tween.umd.js"></script>
 		<script src="js/RequestAnimationFrame.js"></script>
 		<script>
 
@@ -35,8 +35,8 @@
 						.delay( 1000 )
 						.yoyo( true )
 						.easing( TWEEN.Easing.Cubic.InOut )
-						.onUpdate( function() {
-							updateBox( target1, this );
+						.onUpdate( function(object) {
+							updateBox( target1, object );
 						})
 						.start(),
 					target2 = document.getElementById( 'target2' ),
@@ -46,8 +46,8 @@
 						.delay( 1000 )
 						.yoyo( true )
 						.easing( TWEEN.Easing.Cubic.InOut )
-						.onUpdate( function() {
-							updateBox( target2, this );
+						.onUpdate( function(object) {
+							updateBox( target2, object );
 						})
 						.start();
 			}
@@ -63,12 +63,11 @@
 			function updateBox( box, params ) {
 
 				var s = box.style,
-					transform = 'rotate(' + Math.floor( params.rotation ) + 'deg)';
+					transform = 'translateY(' + Math.round(params.y) + 'px) rotate(' + Math.floor( params.rotation ) + 'deg)';
 				s.webkitTransform = transform;
 				s.mozTransform = transform;
 				s.transform = transform;
 
-				box.style.top = params.y + 'px';
 			}
 
 		</script>
@@ -77,7 +76,10 @@
 			.box {
 				width: 100px;
 				height: 100px;
-				display: block;
+				display: flex;
+				flex-flow: row;
+				align-items: center;
+				text-align: center;
 				-webkit-border-radius: 70px;
 				-moz-border-radius: 70px;
 				border-radius: 70px;

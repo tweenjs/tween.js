@@ -7,23 +7,25 @@
 	</head>
 	<body>
 		<div id="info">
-			<h1><a href="http://github.com/sole/tween.js">tween.js</a></h1>
+			<h1><a href="http://github.com/tweenjs/tween.js">tween.js</a></h1>
 			<h2>05 _ video and time</h2>
 			<p>Playing a video, synchronizing a tween to it</p>
 		</div>
 
 		<div id="target" style="position: absolute; left: 50px; top: 300px; font-size: 100px; letter-spacing: -7px; ">
-			<video id="video" src="video/sintel.webm" width="320" height="138" autoplay></video>
+			<video id="video" src="video/sintel.webm" width="320" height="138"></video>
 		</div>
 
-		<script src="../build/tween.min.js"></script>
+		<script src="../dist/tween.umd.js"></script>
 		<script src="js/RequestAnimationFrame.js"></script>
 		<script>
 
 			var video;
 
-			init();
-			animate();
+			window.addEventListener('load', function() {
+				init();
+				animate();
+			});
 
 			function init() {
 
@@ -34,19 +36,23 @@
 
 				video = document.getElementById( 'video' );
 				video.addEventListener( 'play', function() {
-
+					
 					new TWEEN.Tween( { x: 50, y: 0 } )
 						.to( { x: 400 }, this.duration )
 						.easing( TWEEN.Easing.Linear.None )
-						.onUpdate( function () {
+						.onUpdate( function (object) {
 
-							output.innerHTML = 'x == ' + Math.round( this.x );
-							target.style.left = ( this.x ) + 'px';
+							var roundX = Math.round(object.x);
+							var transform = 'translateX(' + roundX + 'px)';
+							output.innerHTML = 'x == ' + roundX;
+							target.style.transform = transform;
 
 						} )
 						.start( video.currentTime );
 
 				}, false );
+
+				video.play();
 
 			}
 
