@@ -204,6 +204,19 @@ TWEEN.Tween.prototype = {
 					continue;
 				}
 
+				// handle relative values
+				this._valuesEnd[property] = this._valuesEnd[property].map(n => {
+					if (typeof n !== 'string') {
+						return n;
+					}
+
+					if (n.charAt(0) === '+' || n.charAt(0) === '-') {
+						return this._object[property] + parseFloat(n);
+					} else {
+						return parseFloat(n);
+					}
+				});
+
 				// Create a local copy of the Array with the start value at the front
 
 				this._valuesEnd[property] = [this._object[property]].concat(this._valuesEnd[property]);
