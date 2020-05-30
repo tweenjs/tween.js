@@ -205,6 +205,7 @@ TWEEN.Tween.prototype = {
 				}
 
 				// Create a local copy of the Array with the start value at the front
+
 				this._valuesEnd[property] = [this._object[property]].concat(this._valuesEnd[property]);
 
 			}
@@ -224,7 +225,11 @@ TWEEN.Tween.prototype = {
 				this._valuesStart[property] *= 1.0; // Ensures we're using numbers, not strings
 			}
 
-			this._valuesStartRepeat[property] = this._valuesStart[property] || 0;
+			if (this._valuesEnd[property] instanceof Array) {
+				this._valuesStartRepeat[property] = this._valuesEnd[property].slice().reverse();
+			} else {
+				this._valuesStartRepeat[property] = this._valuesStart[property] || 0;
+			}
 
 		}
 

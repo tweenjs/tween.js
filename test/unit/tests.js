@@ -942,6 +942,30 @@
 				test.done();
 			},
 
+			'Test yoyo works with arrays': function(test) {
+				
+				TWEEN.removeAll();
+
+				var obj = { x: 0 },
+					t = new TWEEN.Tween( obj ).to( { x: [100, 200] }, 100 ).repeat( 1 ).yoyo(true);
+
+				t.start( 0 );
+
+				TWEEN.update( 50 );
+				test.equal( obj.x, 100 );
+
+				TWEEN.update( 100 );
+				test.equal( obj.x, 200 );
+
+				TWEEN.update( 150 );
+				test.equal( obj.x, 100 );
+
+				TWEEN.update( 200 );
+				test.equal( obj.x, 0 );
+
+				test.done();
+
+			},
 
 			'Test TWEEN.Tween.stopChainedTweens()': function(test) {
 				var t = new TWEEN.Tween( {} ),
@@ -983,8 +1007,8 @@
 				test.equal( tStarted, true );
 				test.equal( t2Started, false );
 				test.equal( TWEEN.getAll().length, 0 );
-				test.done();
 
+				test.done();
 			},
 
 			'Test TWEEN.Tween.chain progressess into chained tweens': function(test) {
