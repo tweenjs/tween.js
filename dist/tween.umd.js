@@ -4,7 +4,7 @@
 	(global.TWEEN = factory());
 }(this, (function () { 'use strict';
 
-	var version = '18.4.2';
+	var version = '18.5.0';
 
 	/**
 	 * Tween.js - Licensed under the MIT license
@@ -154,6 +154,7 @@
 		this._onStopCallback = null;
 		this._group = group || TWEEN;
 		this._id = TWEEN.nextId();
+		this._isChainStopped = false;
 
 	};
 
@@ -197,6 +198,8 @@
 
 			this._onStartCallbackFired = false;
 
+			this._isChainStopped = false;
+
 			this._startTime = time !== undefined ? typeof time === 'string' ? TWEEN.now() + parseFloat(time) : time : TWEEN.now();
 			this._startTime += this._delayTime;
 
@@ -239,6 +242,11 @@
 
 		stop: function () {
 
+			if (!this._isChainStopped) {
+				this._isChainStopped = true;
+				this.stopChainedTweens();
+			}
+
 			if (!this._isPlaying) {
 				return this;
 			}
@@ -253,7 +261,6 @@
 				this._onStopCallback(this._object);
 			}
 
-			this.stopChainedTweens();
 			return this;
 
 		},
