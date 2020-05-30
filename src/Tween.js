@@ -147,6 +147,7 @@ TWEEN.Tween = function (object, group) {
 	this._group = group || TWEEN;
 	this._id = TWEEN.nextId();
 	this._isFinished = false;
+	this._isChainStopped = false;
 
 };
 
@@ -190,6 +191,8 @@ TWEEN.Tween.prototype = {
 
 		this._onStartCallbackFired = false;
 
+		this._isChainStopped = false;
+
 		this._startTime = time !== undefined ? typeof time === 'string' ? TWEEN.now() + parseFloat(time) : time : TWEEN.now();
 		this._startTime += this._delayTime;
 
@@ -202,7 +205,21 @@ TWEEN.Tween.prototype = {
 					continue;
 				}
 
+				// handle relative values
+				this._valuesEnd[property] = this._valuesEnd[property].map(n => {
+					if (typeof n !== 'string') {
+						return n;
+					}
+
+					if (n.charAt(0) === '+' || n.charAt(0) === '-') {
+						return this._object[property] + parseFloat(n);
+					} else {
+						return parseFloat(n);
+					}
+				});
+
 				// Create a local copy of the Array with the start value at the front
+
 				this._valuesEnd[property] = [this._object[property]].concat(this._valuesEnd[property]);
 
 			}
@@ -222,7 +239,11 @@ TWEEN.Tween.prototype = {
 				this._valuesStart[property] *= 1.0; // Ensures we're using numbers, not strings
 			}
 
-			this._valuesStartRepeat[property] = this._valuesStart[property] || 0;
+			if (this._valuesEnd[property] instanceof Array) {
+				this._valuesStartRepeat[property] = this._valuesEnd[property].slice().reverse();
+			} else {
+				this._valuesStartRepeat[property] = this._valuesStart[property] || 0;
+			}
 
 		}
 
@@ -231,6 +252,11 @@ TWEEN.Tween.prototype = {
 	},
 
 	stop: function () {
+
+		if (!this._isChainStopped) {
+			this._isChainStopped = true;
+			this.stopChainedTweens();
+		}
 
 		if (!this._isPlaying) {
 			return this;
@@ -246,7 +272,6 @@ TWEEN.Tween.prototype = {
 			this._onStopCallback(this._object);
 		}
 
-		this.stopChainedTweens();
 		return this;
 
 	},
@@ -466,14 +491,19 @@ TWEEN.Tween.prototype = {
 				// Reassign starting values, restart by making startTime = now
 				for (property in this._valuesStartRepeat) {
 
-					if (typeof (this._valuesEnd[property]) === 'string') {
-						this._valuesStartRepeat[property] = this._valuesStartRepeat[property] + parseFloat(this._valuesEnd[property]);
+					if (!this._yoyo && typeof(this._valuesEnd[property]) === 'string') {
+						this._valuesStartRepeat[property] = this._valuesStartRepeat[property] + parseFloat(this._valuesEnd[property], 10);
 					}
 
 					if (this._yoyo) {
 						var tmp = this._valuesStartRepeat[property];
 
-						this._valuesStartRepeat[property] = this._valuesEnd[property];
+						if (typeof(this._valuesEnd[property]) === 'string') {
+							this._valuesStartRepeat[property] = this._valuesStartRepeat[property] + parseFloat(this._valuesEnd[property], 10);
+						} else {
+							this._valuesStartRepeat[property] = this._valuesEnd[property];
+						}
+
 						this._valuesEnd[property] = tmp;
 					}
 

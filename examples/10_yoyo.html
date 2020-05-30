@@ -15,8 +15,14 @@
 			<div id="target1" data-rotation="0" data-y="0" class="box" style="left: 0px; top: 0px">
 				yoyo with repeat once
 			</div>
-			<div id="target2" data-rotation="0" data-y="0" class="box" style="left: 300px; top: 0px">
+			<div id="target2" data-rotation="0" data-y="0" class="box" style="left: 200px; top: 0px">
 				yoyo with repeat forever
+			</div>
+			<div id="target3" data-rotation="0" data-y="0" class="box" style="left: 400px; top: 0px">
+				yoyo with repeat once, relative values
+			</div>
+			<div id="target4" data-rotation="0" data-y="0" class="box" style="left: 600px; top: 0px">
+                yoyo with repeat forever, relative values
 			</div>
 		</div>
 
@@ -48,6 +54,28 @@
 						.easing( TWEEN.Easing.Cubic.InOut )
 						.onUpdate( function(object) {
 							updateBox( target2, object );
+						})
+						.start();
+					target3 = document.getElementById( 'target3' ),
+					tween3 = new TWEEN.Tween( target3.dataset )
+						.to( { rotation: "+360", y:"+300" }, 750 )
+						.repeat( 1 )
+						.delay( 1000 )
+						.yoyo( true )
+						.easing( TWEEN.Easing.Cubic.InOut )
+						.onUpdate( function(object) {
+							updateBox( target3, object );
+						})
+						.start();
+					target4 = document.getElementById( 'target4' ),
+					tween4 = new TWEEN.Tween( target4.dataset )
+						.to( { rotation: "+360", y:"+300" }, 750 )
+						.repeat( Infinity )
+						.delay( 1000 )
+						.yoyo( true )
+						.easing( TWEEN.Easing.Cubic.InOut )
+						.onUpdate( function(object) {
+							updateBox( target4, object );
 						})
 						.start();
 			}
@@ -93,6 +121,12 @@
 			}
 			#target2 {
 				background: #cfc;
+			}
+			#target3 {
+				background: deeppink;
+			}
+			#target4 {
+				background: cyan;
 			}
 		</style>
 	</body>
