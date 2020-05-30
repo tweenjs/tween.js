@@ -158,8 +158,7 @@
 				test.done();
 			},
 
-
-			'Unremoved tweens which have been updated past their finish time may be reused': function(test) {
+			'Unremoved tweens which have been updated past their finish time may go backward in time': function(test) {
 
 				TWEEN.removeAll();
 
@@ -182,7 +181,6 @@
 
 				test.done();
 			},
-
 
 			// TWEEN.Tween tests
 
