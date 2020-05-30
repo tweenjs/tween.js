@@ -421,7 +421,9 @@ TWEEN.Tween.prototype = {
 		var elapsed;
 		var value;
 
-		if (this._isComplete) return false;
+		if (this._isComplete) {
+			return false;
+		}
 
 		if (time < this._startTime) {
 			return true;
