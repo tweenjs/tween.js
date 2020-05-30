@@ -72,12 +72,8 @@
 
 					var tween = this._tweens[tweenIds[i]];
 
-					if (tween && tween.update(time) === false) {
-						tween._isPlaying = false;
-
-						if (!preserve) {
-							delete this._tweens[tweenIds[i]];
-						}
+					if (tween && tween.update(time) === false && !preserve) {
+						delete this._tweens[tweenIds[i]];
 					}
 				}
 
@@ -189,6 +185,9 @@
 		},
 
 		start: function (time) {
+			if (this._isPlaying) {
+				return this;
+			}
 
 			this._group.add(this);
 
@@ -212,7 +211,21 @@
 						continue;
 					}
 
+					// handle relative values
+					this._valuesEnd[property] = this._valuesEnd[property].map(n => {
+						if (typeof n !== 'string') {
+							return n;
+						}
+
+						if (n.charAt(0) === '+' || n.charAt(0) === '-') {
+							return this._object[property] + parseFloat(n);
+						} else {
+							return parseFloat(n);
+						}
+					});
+
 					// Create a local copy of the Array with the start value at the front
+
 					this._valuesEnd[property] = [this._object[property]].concat(this._valuesEnd[property]);
 
 				}
@@ -232,7 +245,11 @@
 					this._valuesStart[property] *= 1.0; // Ensures we're using numbers, not strings
 				}
 
-				this._valuesStartRepeat[property] = this._valuesStart[property] || 0;
+				if (this._valuesEnd[property] instanceof Array) {
+					this._valuesStartRepeat[property] = this._valuesEnd[property].slice().reverse();
+				} else {
+					this._valuesStartRepeat[property] = this._valuesStart[property] || 0;
+				}
 
 			}
 
@@ -409,6 +426,16 @@
 			var property;
 			var elapsed;
 			var value;
+			var endTime = this._startTime + this._duration;
+
+			if (time > endTime && !this._isPlaying) {
+				return false;
+			}
+
+			// If the tween was already finished,
+			if (!this.isPlaying) {
+				this.start(time);
+			}
 
 			if (time < this._startTime) {
 				return true;
@@ -478,14 +505,19 @@
 					// Reassign starting values, restart by making startTime = now
 					for (property in this._valuesStartRepeat) {
 
-						if (typeof (this._valuesEnd[property]) === 'string') {
-							this._valuesStartRepeat[property] = this._valuesStartRepeat[property] + parseFloat(this._valuesEnd[property]);
+						if (!this._yoyo && typeof(this._valuesEnd[property]) === 'string') {
+							this._valuesStartRepeat[property] = this._valuesStartRepeat[property] + parseFloat(this._valuesEnd[property], 10);
 						}
 
 						if (this._yoyo) {
 							var tmp = this._valuesStartRepeat[property];
 
-							this._valuesStartRepeat[property] = this._valuesEnd[property];
+							if (typeof(this._valuesEnd[property]) === 'string') {
+								this._valuesStartRepeat[property] = this._valuesStartRepeat[property] + parseFloat(this._valuesEnd[property], 10);
+							} else {
+								this._valuesStartRepeat[property] = this._valuesEnd[property];
+							}
+
 							this._valuesEnd[property] = tmp;
 						}
 
@@ -521,6 +553,8 @@
 						// even if the `update()` method was called way past the duration of the tween
 						this._chainedTweens[i].start(this._startTime + this._duration);
 					}
+
+					this._isPlaying = false;
 
 					return false;
 
