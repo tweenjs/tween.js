@@ -488,15 +488,7 @@ TWEEN.Tween.prototype = {
 					}
 
 					if (this._yoyo) {
-						var tmp = this._valuesStartRepeat[property];
-
-						if (typeof(this._valuesEnd[property]) === 'string') {
-							this._valuesStartRepeat[property] = this._valuesStartRepeat[property] + parseFloat(this._valuesEnd[property], 10);
-						} else {
-							this._valuesStartRepeat[property] = this._valuesEnd[property];
-						}
-
-						this._valuesEnd[property] = tmp;
+						this._swapEndStartRepeatValues(property);
 					}
 
 					this._valuesStart[property] = this._valuesStartRepeat[property];
@@ -555,6 +547,20 @@ TWEEN.Tween.prototype = {
 		} else {
 			return parseFloat(end);
 		}
+
+	},
+
+	_swapEndStartRepeatValues: function (property) {
+
+		var tmp = this._valuesStartRepeat[property];
+
+		if (typeof(this._valuesEnd[property]) === 'string') {
+			this._valuesStartRepeat[property] = this._valuesStartRepeat[property] + parseFloat(this._valuesEnd[property], 10);
+		} else {
+			this._valuesStartRepeat[property] = this._valuesEnd[property];
+		}
+
+		this._valuesEnd[property] = tmp;
 
 	}
 };
