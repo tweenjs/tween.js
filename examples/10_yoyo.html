@@ -10,13 +10,24 @@
 			<h1><a href="http://github.com/tweenjs/tween.js">tween.js</a></h1>
 			<h2>10 _ yoyo</h2>
 			<p>Demonstrating the yoyo() feature.</p>
+			<button onclick="restart()">restart</button>
+			<button onclick="stop()">stop</button>
+			<button onclick="start()">start</button>
+			<button onclick="pause()">pause</button>
+			<button onclick="resume()">resume</button>
 		</div>
 		<div style="position: absolute; top: 100px; left: 400px; ">
 			<div id="target1" data-rotation="0" data-y="0" class="box" style="left: 0px; top: 0px">
 				yoyo with repeat once
 			</div>
-			<div id="target2" data-rotation="0" data-y="0" class="box" style="left: 300px; top: 0px">
+			<div id="target2" data-rotation="0" data-y="0" class="box" style="left: 200px; top: 0px">
 				yoyo with repeat forever
+			</div>
+			<div id="target3" data-rotation="0" data-y="0" class="box" style="left: 400px; top: 0px">
+				yoyo with repeat once, relative values
+			</div>
+			<div id="target4" data-rotation="0" data-y="0" class="box" style="left: 600px; top: 0px">
+                yoyo with repeat forever, relative values
 			</div>
 		</div>
 
@@ -26,6 +37,8 @@
 
 			init();
 			animate();
+
+			var restart, stop, start, pause, resume
 
 			function init() {
 				var target1 = document.getElementById( 'target1' ),
@@ -50,6 +63,63 @@
 							updateBox( target2, object );
 						})
 						.start();
+					target3 = document.getElementById( 'target3' ),
+					tween3 = new TWEEN.Tween( target3.dataset )
+						.to( { rotation: "+360", y:"+300" }, 750 )
+						.repeat( 1 )
+						.delay( 1000 )
+						.yoyo( true )
+						.easing( TWEEN.Easing.Cubic.InOut )
+						.onUpdate( function(object) {
+							updateBox( target3, object );
+						})
+						.start();
+					target4 = document.getElementById( 'target4' ),
+					tween4 = new TWEEN.Tween( target4.dataset )
+						.to( { rotation: "+360", y:"+300" }, 750 )
+						.repeat( Infinity )
+						.delay( 1000 )
+						.yoyo( true )
+						.easing( TWEEN.Easing.Cubic.InOut )
+						.onUpdate( function(object) {
+							updateBox( target4, object );
+						})
+						.start();
+
+				restart = function() {
+					tween1.stop().start()
+					tween2.stop().start()
+					tween3.stop().start()
+					tween4.stop().start()
+				}
+
+				stop = function() {
+					tween1.stop()
+					tween2.stop()
+					tween3.stop()
+					tween4.stop()
+				}
+
+				start = function() {
+					tween1.start()
+					tween2.start()
+					tween3.start()
+					tween4.start()
+				}
+
+				pause = function() {
+					tween1.pause()
+					tween2.pause()
+					tween3.pause()
+					tween4.pause()
+				}
+
+				resume = function() {
+					tween1.resume()
+					tween2.resume()
+					tween3.resume()
+					tween4.resume()
+				}
 			}
 
 			function animate( time ) {
@@ -93,6 +163,12 @@
 			}
 			#target2 {
 				background: #cfc;
+			}
+			#target3 {
+				background: orange;
+			}
+			#target4 {
+				background: skyblue;
 			}
 		</style>
 	</body>

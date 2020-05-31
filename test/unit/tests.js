@@ -158,8 +158,7 @@
 				test.done();
 			},
 
-
-			'Unremoved tweens which have been updated past their finish time may be reused': function(test) {
+			'Unremoved tweens which have been updated past their finish time may go backward in time': function(test) {
 
 				TWEEN.removeAll();
 
@@ -182,7 +181,6 @@
 
 				test.done();
 			},
-
 
 			// TWEEN.Tween tests
 
@@ -345,7 +343,7 @@
 
 			},
 
-			'Tween relative positive value, with sign': function(test) {
+			'Tween relative positive value': function(test) {
 
 				var obj = { x: 0 },
 					t = new TWEEN.Tween( obj );
@@ -383,6 +381,110 @@
 				t.update( 1000 );
 
 				test.equal( obj.x, 100 );
+				test.done();
+
+			},
+
+			'Tween relative positive value, with yoyo': function(test) {
+
+				var obj = { x: 0 },
+					t = new TWEEN.Tween( obj );
+
+				t.to( { x: "+100" }, 1000 );
+				t.repeat( 1 );
+				t.yoyo( true );
+				t.start( 0 );
+
+				t.update( 500 );
+				test.equal( obj.x, 50 );
+				t.update( 1000 );
+				test.equal( obj.x, 100 );
+				t.update( 1500 );
+				test.equal( obj.x, 50 );
+				t.update( 2000 );
+				test.equal( obj.x, 0 );
+
+				test.done();
+
+			},
+
+			'Tween relative negative value, with yoyo': function(test) {
+
+				var obj = { x: 0 },
+					t = new TWEEN.Tween( obj );
+
+				t.to( { x: "-100" }, 1000 );
+				t.repeat( 1 );
+				t.yoyo( true );
+				t.start( 0 );
+
+				t.update( 500 );
+				test.equal( obj.x, -50 );
+				t.update( 1000 );
+				test.equal( obj.x, -100 );
+				t.update( 1500 );
+				test.equal( obj.x, -50 );
+				t.update( 2000 );
+				test.equal( obj.x, -0 );
+
+				test.done();
+
+			},
+
+			'Tween relative positive array values': function(test) {
+
+				var obj = { x: 0 },
+					t = new TWEEN.Tween( obj );
+
+				t.to( { x: ["+100", "+0", "-100", "+0"] }, 2000 );
+				t.start( 0 );
+
+				t.update( 250 );
+				test.equal( obj.x, 50 );
+				t.update( 500 );
+				test.equal( obj.x, 100 );
+				t.update( 750 );
+				test.equal( obj.x, 50 );
+				t.update( 1000 );
+				test.equal( obj.x, 0 );
+				t.update( 1250 );
+				test.equal( obj.x, -50 );
+				t.update( 1500 );
+				test.equal( obj.x, -100 );
+				t.update( 1750 );
+				test.equal( obj.x, -50 );
+				t.update( 2000 );
+				test.equal( obj.x, 0 );
+
+				test.done();
+
+			},
+
+			'String values without a + or - sign should not be interpreted as relative with array values': function(test) {
+
+				var obj = { x: 0 },
+					t = new TWEEN.Tween( obj );
+
+				t.to( { x: ["100", "0", "100", "0"] }, 2000 );
+				t.start( 0 );
+
+				t.update( 250 );
+				test.equal( obj.x, 50 );
+				t.update( 500 );
+				test.equal( obj.x, 100 );
+				t.update( 750 );
+				test.equal( obj.x, 50 );
+				t.update( 1000 );
+				test.equal( obj.x, 0 );
+				t.update( 1250 );
+				test.equal( obj.x, 50 );
+				t.update( 1500 );
+				test.equal( obj.x, 100 );
+				t.update( 1750 );
+				test.equal( obj.x, 50 );
+				t.update( 2000 );
+				test.equal( obj.x, 0 );
+
 				test.done();
 
 			},
@@ -939,6 +1041,120 @@
 
 				TWEEN.update( 225 );
 				test.equal( obj.x, 0 );
+				test.done();
+			},
+
+			'Test yoyo works with arrays': function(test) {
+				
+				TWEEN.removeAll();
+
+				var obj = { x: 0 },
+					t = new TWEEN.Tween( obj ).to( { x: [100, 200] }, 100 ).repeat( 1 ).yoyo(true);
+
+				t.start( 0 );
+
+				TWEEN.update( 50 );
+				test.equal( obj.x, 100 );
+
+				TWEEN.update( 100 );
+				test.equal( obj.x, 200 );
+
+				TWEEN.update( 150 );
+				test.equal( obj.x, 100 );
+
+				TWEEN.update( 200 );
+				test.equal( obj.x, 0 );
+
+				test.done();
+
+			},
+
+			'Test yoyo can be stopped and restarted properly': function(test) {
+
+				TWEEN.removeAll();
+
+				var obj = { x: 0 },
+					t = new TWEEN.Tween( obj ).to( { x: 100 }, 100 ).repeat( 1 ).yoyo(true);
+
+				t.start( 0 );
+
+				TWEEN.update( 0 );
+				test.equal( obj.x, 0 );
+
+				TWEEN.update( 25 );
+				test.equal( obj.x, 25 );
+
+				TWEEN.update( 100 );
+				test.equal( obj.x, 100 );
+
+				TWEEN.update( 125 );
+				test.equal( obj.x, 75 );
+
+				t.stop();
+				t.start( 0 );
+
+				TWEEN.update( 0 );
+				test.equal( obj.x, 0 );
+
+				TWEEN.update( 25 );
+				test.equal( obj.x, 25 );
+
+				TWEEN.update( 100 );
+				test.equal( obj.x, 100 );
+
+				TWEEN.update( 125 );
+				test.equal( obj.x, 75 );
+
+				TWEEN.update( 200 );
+				test.equal( obj.x, 0 );
+
+				TWEEN.update( 225 );
+				test.equal( obj.x, 0 );
+
+				test.done();
+			},
+
+			'Test TWEEN.Tween.stopChainedTweens()': function(test) {
+				var t = new TWEEN.Tween( {} ),
+					tStarted = false,
+					tCompleted = false,
+					t2 = new TWEEN.Tween( {} ),
+					t2Started = false;
+
+				TWEEN.removeAll();
+
+				t.to( {}, 1000 );
+				t2.delay(500).to( {}, 1000 );
+
+				t.chain( t2 );
+				t2.chain( t );
+
+				t.onStart(function() {
+					tStarted = true;
+				});
+
+				t.onComplete(function() {
+					tCompleted = true;
+				});
+
+				t2.onStart(function() {
+					test.equal( tStarted, true );
+					test.equal( tCompleted, true );
+					test.equal( t2Started, false );
+					t2Started = true;
+				});
+
+				test.equal( tStarted, false );
+				test.equal( t2Started, false );
+
+				t.start( 0 );
+				TWEEN.update( 1001 );
+				t.stop();
+
+				test.equal( tStarted, true );
+				test.equal( t2Started, false );
+				test.equal( TWEEN.getAll().length, 0 );
+
 				test.done();
 			},
 
@@ -1515,7 +1731,6 @@
 				test.equal(obj.y, 140);
 				test.equal(obj.some.style.opacity, 0.8);
 				test.equal(obj.some.value, 0.4);
-
 
 				TWEEN.update(750);
 

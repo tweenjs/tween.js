@@ -64,12 +64,8 @@ _Group.prototype = {
 
 				var tween = this._tweens[tweenIds[i]];
 
-				if (tween && tween.update(time) === false) {
-					tween._isPlaying = false;
-
-					if (!preserve) {
-						delete this._tweens[tweenIds[i]];
-					}
+				if (tween && tween.update(time) === false && !preserve) {
+					delete this._tweens[tweenIds[i]];
 				}
 			}
 
@@ -128,6 +124,7 @@ TWEEN.Tween = function (object, group) {
 	this._valuesEnd = {};
 	this._valuesStartRepeat = {};
 	this._duration = 1000;
+	this._initialRepeat = 0;
 	this._repeat = 0;
 	this._repeatDelayTime = undefined;
 	this._yoyo = false;
@@ -146,6 +143,7 @@ TWEEN.Tween = function (object, group) {
 	this._onStopCallback = null;
 	this._group = group || TWEEN;
 	this._id = TWEEN.nextId();
+	this._isChainStopped = false;
 
 };
 
@@ -164,7 +162,9 @@ TWEEN.Tween.prototype = {
 
 	to: function (properties, duration) {
 
-		this._valuesEnd = JSON.parse(JSON.stringify(properties));
+		for (var prop in properties) {
+			this._valuesEnd[prop] = properties[prop];
+		}
 
 		if (duration !== undefined) {
 			this._duration = duration;
@@ -180,14 +180,35 @@ TWEEN.Tween.prototype = {
 	},
 
 	start: function (time) {
+		if (this._isPlaying) {
+			return this;
+		}
 
 		this._group.add(this);
+
+		this._repeat = this._initialRepeat;
+
+		if (this._reversed) {
+			// If we were reversed (f.e. using the yoyo feature) then we need to
+			// flip the tween direction back to forward.
+
+			this._reversed = false;
+
+			var property;
+
+			for (property in this._valuesStartRepeat) {
+				this._swapEndStartRepeatValues(property);
+				this._valuesStart[property] = this._valuesStartRepeat[property];
+			}
+		}
 
 		this._isPlaying = true;
 
 		this._isPaused = false;
 
 		this._onStartCallbackFired = false;
+
+		this._isChainStopped = false;
 
 		this._startTime = time !== undefined ? typeof time === 'string' ? TWEEN.now() + parseFloat(time) : time : TWEEN.now();
 		this._startTime += this._delayTime;
@@ -204,12 +225,19 @@ TWEEN.Tween.prototype = {
 			// Check if an Array was provided as property value
 			if (_valuesEnd[property] instanceof Array) {
 
-				if (_valuesEnd[property].length === 0) {
+				var endValues = _valuesEnd[property];
+
+				if (endValues.length === 0) {
 					continue;
 				}
 
+				var startValue = _object[property];
+
+				// handle an array of relative values
+				endValues = endValues.map(this._handleRelativeValue.bind(this, startValue));
+
 				// Create a local copy of the Array with the start value at the front
-				_valuesEnd[property] = [_object[property]].concat(_valuesEnd[property]);
+				_valuesEnd[property] = [startValue].concat(endValues);
 
 			}
 
@@ -219,12 +247,16 @@ TWEEN.Tween.prototype = {
 				continue;
 			}
 
-			// handling the deepnes of the values
+			// handle the deepness of the values
 			if (_valuesEnd[property] instanceof Object) {
 
-				_valuesStart[property] = JSON.parse(JSON.stringify(_object[property]));
+				_valuesStart[property] = {};
 
-				_valuesStartRepeat[property] = {};
+				for (var prop in _object[property]) {
+					_valuesStart[property][prop] = _object[property][prop];
+				}
+
+				_valuesStartRepeat[property] = {}; // TODO? repeat nested values? And yoyo? And array values?
 
 				this._setupProperties(_object[property], _valuesStart[property], _valuesEnd[property], _valuesStartRepeat[property]);
 
@@ -239,7 +271,11 @@ TWEEN.Tween.prototype = {
 					_valuesStart[property] *= 1.0; // Ensures we're using numbers, not strings
 				}
 
-				_valuesStartRepeat[property] = _valuesStart[property] || 0;
+				if (_valuesEnd[property] instanceof Array) {
+					_valuesStartRepeat[property] = _valuesEnd[property].slice().reverse();
+				} else {
+					_valuesStartRepeat[property] = _valuesStart[property] || 0;
+				}
 
 			}
 
@@ -248,6 +284,11 @@ TWEEN.Tween.prototype = {
 	},
 
 	stop: function () {
+
+		if (!this._isChainStopped) {
+			this._isChainStopped = true;
+			this.stopChainedTweens();
+		}
 
 		if (!this._isPlaying) {
 			return this;
@@ -263,7 +304,6 @@ TWEEN.Tween.prototype = {
 			this._onStopCallback(this._object);
 		}
 
-		this.stopChainedTweens();
 		return this;
 
 	},
@@ -332,6 +372,7 @@ TWEEN.Tween.prototype = {
 
 	repeat: function (times) {
 
+		this._initialRepeat = times;
 		this._repeat = times;
 		return this;
 
@@ -412,6 +453,16 @@ TWEEN.Tween.prototype = {
 		var property;
 		var elapsed;
 		var value;
+		var endTime = this._startTime + this._duration;
+
+		if (time > endTime && !this._isPlaying) {
+			return false;
+		}
+
+		// If the tween was already finished,
+		if (!this.isPlaying) {
+			this.start(time);
+		}
 
 		if (time < this._startTime) {
 			return true;
@@ -432,47 +483,7 @@ TWEEN.Tween.prototype = {
 		value = this._easingFunction(elapsed);
 
 		// properties transformations
-		_updateProperties(this._object, this._valuesStart, this._valuesEnd, value, this._interpolationFunction);
-
-		function _updateProperties(_object, _valuesStart, _valuesEnd, value, _interpolationFunction) {
-		for (var property in _valuesEnd) {
-			// Don't update properties that do not exist in the source object
-			if (_valuesStart[property] === undefined) {
-				continue;
-			}
-
-			var start = _valuesStart[property] || 0;
-			var end = _valuesEnd[property];
-
-			if (end instanceof Array) {
-
-				_object[property] = _interpolationFunction(end, value);
-
-			} else if (end instanceof Object) {
-
-				_updateProperties(_object[property], start, end, value, _interpolationFunction);
-
-			} else {
-
-				// Parses relative end values with start as base (e.g.: +10, -3)
-				if (typeof (end) === 'string') {
-
-					if (end.charAt(0) === '+' || end.charAt(0) === '-') {
-						end = start + parseFloat(end);
-					} else {
-						end = parseFloat(end);
-					}
-				}
-
-				// Protect against non numeric properties.
-				if (typeof (end) === 'number') {
-					_object[property] = start + (end - start) * value;
-				}
-
-			}
-
-		}
-		}
+		this._updateProperties(this._object, this._valuesStart, this._valuesEnd, value, this._interpolationFunction);
 
 		if (this._onUpdateCallback !== null) {
 			this._onUpdateCallback(this._object, elapsed);
@@ -489,15 +500,12 @@ TWEEN.Tween.prototype = {
 				// Reassign starting values, restart by making startTime = now
 				for (property in this._valuesStartRepeat) {
 
-					if (typeof (this._valuesEnd[property]) === 'string') {
-						this._valuesStartRepeat[property] = this._valuesStartRepeat[property] + parseFloat(this._valuesEnd[property]);
+					if (!this._yoyo && typeof(this._valuesEnd[property]) === 'string') {
+						this._valuesStartRepeat[property] = this._valuesStartRepeat[property] + parseFloat(this._valuesEnd[property], 10);
 					}
 
 					if (this._yoyo) {
-						var tmp = this._valuesStartRepeat[property];
-
-						this._valuesStartRepeat[property] = this._valuesEnd[property];
-						this._valuesEnd[property] = tmp;
+						this._swapEndStartRepeatValues(property);
 					}
 
 					this._valuesStart[property] = this._valuesStartRepeat[property];
@@ -533,6 +541,8 @@ TWEEN.Tween.prototype = {
 					this._chainedTweens[i].start(this._startTime + this._duration);
 				}
 
+				this._isPlaying = false;
+
 				return false;
 
 			}
@@ -540,6 +550,67 @@ TWEEN.Tween.prototype = {
 		}
 
 		return true;
+
+	},
+
+	_updateProperties: function (_object, _valuesStart, _valuesEnd, value, _interpolationFunction) {
+		for (var property in _valuesEnd) {
+			// Don't update properties that do not exist in the source object
+			if (_valuesStart[property] === undefined) {
+				continue;
+			}
+
+			var start = _valuesStart[property] || 0;
+			var end = _valuesEnd[property];
+
+			if (end instanceof Array) {
+
+				_object[property] = _interpolationFunction(end, value);
+
+			} else if (end instanceof Object) {
+
+				this._updateProperties(_object[property], start, end, value, _interpolationFunction);
+
+			} else {
+
+				// Parses relative end values with start as base (e.g.: +10, -3)
+				end = this._handleRelativeValue(start, end);
+
+				// Protect against non numeric properties.
+				if (typeof (end) === 'number') {
+					_object[property] = start + (end - start) * value;
+				}
+
+			}
+
+		}
+	},
+
+	_handleRelativeValue: function (start, end) {
+
+		if (typeof end !== 'string') {
+			return end;
+		}
+
+		if (end.charAt(0) === '+' || end.charAt(0) === '-') {
+			return start + parseFloat(end);
+		} else {
+			return parseFloat(end);
+		}
+
+	},
+
+	_swapEndStartRepeatValues: function (property) {
+
+		var tmp = this._valuesStartRepeat[property];
+
+		if (typeof(this._valuesEnd[property]) === 'string') {
+			this._valuesStartRepeat[property] = this._valuesStartRepeat[property] + parseFloat(this._valuesEnd[property], 10);
+		} else {
+			this._valuesStartRepeat[property] = this._valuesEnd[property];
+		}
+
+		this._valuesEnd[property] = tmp;
 
 	}
 };
