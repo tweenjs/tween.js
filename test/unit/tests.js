@@ -1794,7 +1794,7 @@
 			},
 
 
-			'Tween.js animate complex nested object including relative value': function(test) {
+			'Tween.js animate nested object including relative value': function(test) {
 
 				var obj = { world: { hero: { scale: { x: 0 }, x: 100 } }, time: 0 };
 
@@ -1826,7 +1826,7 @@
 			},
 
 
-			'Test TWEEN.Tween with complex properties': function(test) {
+			'Test TWEEN.Tween with nested objects': function(test) {
 
 				var obj = { x: 0.0, y: 100, some: { value: 0.0, style: { opacity: 1.0 } } },
 					t = new TWEEN.Tween( obj );
@@ -1867,7 +1867,7 @@
 
 			},
 
-			'Test TWEEN.Tween.pause() and .resume() with complex properties': function(test) {
+			'Test TWEEN.Tween.pause() and .resume() with nested objects': function(test) {
 
 				var obj = { x: 0.0, y: 100, some: { value: 0.0 } },
 					t = new TWEEN.Tween( obj );
