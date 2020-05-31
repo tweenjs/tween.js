@@ -220,10 +220,13 @@ TWEEN.Tween.prototype = {
 	},
 
 	_setupProperties: function  (_object, _valuesStart, _valuesEnd, _valuesStartRepeat) {
+
 		for (var property in _valuesEnd) {
 
+			var isInterpolationList = Array.isArray(_valuesEnd[property]);
+
 			// Check if an Array was provided as property value
-			if (_valuesEnd[property] instanceof Array) {
+			if (isInterpolationList) {
 
 				var endValues = _valuesEnd[property];
 
@@ -243,12 +246,15 @@ TWEEN.Tween.prototype = {
 
 			// If `to()` specifies a property that doesn't exist in the source object,
 			// we should not set that property in the object
-			if (_object[property] === undefined) {
+			var propValue = _object[property];
+			var propType = typeof propValue;
+
+			if (propType === 'undefined' || propType === 'function') {
 				continue;
 			}
 
 			// handle the deepness of the values
-			if (_valuesEnd[property] instanceof Object && !(_valuesEnd[property] instanceof Array)) {
+			if (propType === 'object' && propValue && !isInterpolationList) {
 
 				_valuesStart[property] = {};
 
@@ -267,11 +273,11 @@ TWEEN.Tween.prototype = {
 					_valuesStart[property] = _object[property];
 				}
 
-				if ((_valuesStart[property] instanceof Array) === false) {
+				if (isInterpolationList) {
 					_valuesStart[property] *= 1.0; // Ensures we're using numbers, not strings
 				}
 
-				if (_valuesEnd[property] instanceof Array) {
+				if (isInterpolationList) {
 					_valuesStartRepeat[property] = _valuesEnd[property].slice().reverse();
 				} else {
 					_valuesStartRepeat[property] = _valuesStart[property] || 0;
@@ -483,7 +489,7 @@ TWEEN.Tween.prototype = {
 		value = this._easingFunction(elapsed);
 
 		// properties transformations
-		this._updateProperties(this._object, this._valuesStart, this._valuesEnd, value, this._interpolationFunction);
+		this._updateProperties(this._object, this._valuesStart, this._valuesEnd, value);
 
 		if (this._onUpdateCallback !== null) {
 			this._onUpdateCallback(this._object, elapsed);
@@ -553,7 +559,7 @@ TWEEN.Tween.prototype = {
 
 	},
 
-	_updateProperties: function (_object, _valuesStart, _valuesEnd, value, _interpolationFunction) {
+	_updateProperties: function (_object, _valuesStart, _valuesEnd, value) {
 		for (var property in _valuesEnd) {
 			// Don't update properties that do not exist in the source object
 			if (_valuesStart[property] === undefined) {
@@ -563,13 +569,13 @@ TWEEN.Tween.prototype = {
 			var start = _valuesStart[property] || 0;
 			var end = _valuesEnd[property];
 
-			if (end instanceof Array) {
+			if (Array.isArray(end)) {
 
-				_object[property] = _interpolationFunction(end, value);
+				_object[property] = this._interpolationFunction(end, value);
 
-			} else if (end instanceof Object) {
+			} else if (end && typeof end === 'object') {
 
-				this._updateProperties(_object[property], start, end, value, _interpolationFunction);
+				this._updateProperties(_object[property], start, end, value);
 
 			} else {
 
