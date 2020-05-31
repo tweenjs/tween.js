@@ -273,9 +273,7 @@ TWEEN.Tween.prototype = {
 					_valuesStart[property] = _object[property];
 				}
 
-				if (isInterpolationList) {
-					_valuesStart[property] *= 1.0; // Ensures we're using numbers, not strings
-				}
+				_valuesStart[property] *= 1.0; // Ensures we're using numbers, not strings
 
 				if (isInterpolationList) {
 					_valuesStartRepeat[property] = _valuesEnd[property].slice().reverse();
