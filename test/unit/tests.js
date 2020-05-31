@@ -1709,6 +1709,64 @@
 
 			},
 
+			'Tween.js animate nested object': function(test) {
+
+				var obj = { scale: { x: 0 }, alpha:0 };
+
+				var t = new TWEEN.Tween( obj ).to( { scale: { x: 100 }, alpha: 100 }, 100 );
+				t.start( 0 );
+
+				test.equal( obj.scale.x, 0 );
+
+				TWEEN.update( 37 );
+				test.equal( obj.scale.x, 37 );
+				test.equal( obj.alpha, 37 );
+
+				TWEEN.update( 100 );
+				test.equal( obj.scale.x, 100 );
+				test.equal( obj.alpha, 100 );
+
+				TWEEN.update( 115 );
+				test.equal( obj.scale.x, 100 );
+				test.equal( obj.alpha, 100 );
+
+				test.done();
+
+			},
+
+
+			'Tween.js animate complex nested object including relative value': function(test) {
+
+				var obj = { world: { hero: { scale: { x: 0 }, x: 100 } }, time: 0 };
+
+				var t = new TWEEN
+					.Tween( obj )
+					.to( { world: { hero: { scale: { x: 100 }, x: '+100' } }, time: 100 }
+						, 100 );
+				t.start( 0 );
+
+				test.equal( obj.world.hero.scale.x, 0 );
+
+				TWEEN.update( 37 );
+				test.equal( obj.world.hero.scale.x, 37 );
+				test.equal( obj.world.hero.x, 137 );
+				test.equal( obj.time, 37 );
+
+				TWEEN.update( 100 );
+				test.equal( obj.world.hero.scale.x, 100 );
+				test.equal( obj.world.hero.x, 200 );
+				test.equal( obj.time, 100 );
+
+				TWEEN.update( 115 );
+				test.equal( obj.world.hero.scale.x, 100 );
+				test.equal( obj.world.hero.x, 200 );
+				test.equal( obj.time, 100 );
+
+				test.done();
+
+			},
+
+
 			'Test TWEEN.Tween with complex properties': function(test) {
 
 				var obj = { x: 0.0, y: 100, some: { value: 0.0, style: { opacity: 1.0 } } },
