@@ -128,6 +128,7 @@ TWEEN.Tween = function (object, group) {
 	this._valuesEnd = {};
 	this._valuesStartRepeat = {};
 	this._duration = 1000;
+	this._initialRepeat = 0;
 	this._repeat = 0;
 	this._repeatDelayTime = undefined;
 	this._yoyo = false;
@@ -165,7 +166,9 @@ TWEEN.Tween.prototype = {
 
 	to: function (properties, duration) {
 
-		this._valuesEnd = Object.create(properties);
+		for (var prop in properties) {
+			this._valuesEnd[prop] = properties[prop];
+		}
 
 		if (duration !== undefined) {
 			this._duration = duration;
@@ -187,6 +190,22 @@ TWEEN.Tween.prototype = {
 
 		this._group.add(this);
 
+		this._repeat = this._initialRepeat;
+
+		if (this._reversed) {
+			// If we were reversed (f.e. using the yoyo feature) then we need to
+			// flip the tween direction back to forward.
+
+			this._reversed = false;
+
+			var property;
+
+			for (property in this._valuesStartRepeat) {
+				this._swapEndStartRepeatValues(property);
+				this._valuesStart[property] = this._valuesStartRepeat[property];
+			}
+		}
+
 		this._isPlaying = true;
 
 		this._isPaused = false;
@@ -200,42 +219,37 @@ TWEEN.Tween.prototype = {
 
 		for (var property in this._valuesEnd) {
 
-			// Check if an Array was provided as property value
-			if (this._valuesEnd[property] instanceof Array) {
-
-				if (this._valuesEnd[property].length === 0) {
-					continue;
-				}
-
-				// handle relative values
-				this._valuesEnd[property] = this._valuesEnd[property].map(n => {
-					if (typeof n !== 'string') {
-						return n;
-					}
-
-					if (n.charAt(0) === '+' || n.charAt(0) === '-') {
-						return this._object[property] + parseFloat(n);
-					} else {
-						return parseFloat(n);
-					}
-				});
-
-				// Create a local copy of the Array with the start value at the front
-
-				this._valuesEnd[property] = [this._object[property]].concat(this._valuesEnd[property]);
-
-			}
-
 			// If `to()` specifies a property that doesn't exist in the source object,
 			// we should not set that property in the object
 			if (this._object[property] === undefined) {
 				continue;
 			}
 
-			// Save the starting value, but only once.
-			if (typeof(this._valuesStart[property]) === 'undefined') {
-				this._valuesStart[property] = this._object[property];
+			// Save the starting value only once.
+			if (typeof(this._valuesStart[property]) !== 'undefined') {
+				continue;
 			}
+
+			// Check if an Array was provided as property value
+			if (this._valuesEnd[property] instanceof Array) {
+
+				var endValues = this._valuesEnd[property];
+
+				if (endValues.length === 0) {
+					continue;
+				}
+
+				var startValue = this._object[property];
+
+				// handle an array of relative values
+				endValues = endValues.map(this._handleRelativeValue.bind(this, startValue));
+
+				// Create a local copy of the Array with the start value at the front
+				this._valuesEnd[property] = [startValue].concat(endValues);
+
+			}
+
+			this._valuesStart[property] = this._object[property];
 
 			if ((this._valuesStart[property] instanceof Array) === false) {
 				this._valuesStart[property] *= 1.0; // Ensures we're using numbers, not strings
@@ -342,6 +356,7 @@ TWEEN.Tween.prototype = {
 
 	repeat: function (times) {
 
+		this._initialRepeat = times;
 		this._repeat = times;
 		return this;
 
@@ -468,14 +483,7 @@ TWEEN.Tween.prototype = {
 			} else {
 
 				// Parses relative end values with start as base (e.g.: +10, -3)
-				if (typeof (end) === 'string') {
-
-					if (end.charAt(0) === '+' || end.charAt(0) === '-') {
-						end = start + parseFloat(end);
-					} else {
-						end = parseFloat(end);
-					}
-				}
+				end = this._handleRelativeValue(start, end);
 
 				// Protect against non numeric properties.
 				if (typeof (end) === 'number') {
@@ -506,15 +514,7 @@ TWEEN.Tween.prototype = {
 					}
 
 					if (this._yoyo) {
-						var tmp = this._valuesStartRepeat[property];
-
-						if (typeof(this._valuesEnd[property]) === 'string') {
-							this._valuesStartRepeat[property] = this._valuesStartRepeat[property] + parseFloat(this._valuesEnd[property], 10);
-						} else {
-							this._valuesStartRepeat[property] = this._valuesEnd[property];
-						}
-
-						this._valuesEnd[property] = tmp;
+						this._swapEndStartRepeatValues(property);
 					}
 
 					this._valuesStart[property] = this._valuesStartRepeat[property];
@@ -559,6 +559,34 @@ TWEEN.Tween.prototype = {
 		}
 
 		return true;
+
+	},
+
+	_handleRelativeValue: function (start, end) {
+
+		if (typeof end !== 'string') {
+			return end;
+		}
+
+		if (end.charAt(0) === '+' || end.charAt(0) === '-') {
+			return start + parseFloat(end);
+		} else {
+			return parseFloat(end);
+		}
+
+	},
+
+	_swapEndStartRepeatValues: function (property) {
+
+		var tmp = this._valuesStartRepeat[property];
+
+		if (typeof(this._valuesEnd[property]) === 'string') {
+			this._valuesStartRepeat[property] = this._valuesStartRepeat[property] + parseFloat(this._valuesEnd[property], 10);
+		} else {
+			this._valuesStartRepeat[property] = this._valuesEnd[property];
+		}
+
+		this._valuesEnd[property] = tmp;
 
 	}
 };
