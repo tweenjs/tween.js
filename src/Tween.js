@@ -248,7 +248,7 @@ TWEEN.Tween.prototype = {
 			}
 
 			// handle the deepness of the values
-			if (_valuesEnd[property] instanceof Object) {
+			if (_valuesEnd[property] instanceof Object && !(_valuesEnd[property] instanceof Array)) {
 
 				_valuesStart[property] = {};
 
