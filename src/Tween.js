@@ -124,6 +124,7 @@ TWEEN.Tween = function (object, group) {
 	this._valuesEnd = {};
 	this._valuesStartRepeat = {};
 	this._duration = 1000;
+	this._initialRepeat = 0;
 	this._repeat = 0;
 	this._repeatDelayTime = undefined;
 	this._yoyo = false;
@@ -161,7 +162,9 @@ TWEEN.Tween.prototype = {
 
 	to: function (properties, duration) {
 
-		this._valuesEnd = Object.create(properties);
+		for (var prop in properties) {
+			this._valuesEnd[prop] = properties[prop];
+		}
 
 		if (duration !== undefined) {
 			this._duration = duration;
@@ -183,6 +186,22 @@ TWEEN.Tween.prototype = {
 
 		this._group.add(this);
 
+		this._repeat = this._initialRepeat;
+
+		if (this._reversed) {
+			// If we were reversed (f.e. using the yoyo feature) then we need to
+			// flip the tween direction back to forward.
+
+			this._reversed = false;
+
+			var property;
+
+			for (property in this._valuesStartRepeat) {
+				this._swapEndStartRepeatValues(property);
+				this._valuesStart[property] = this._valuesStartRepeat[property];
+			}
+		}
+
 		this._isPlaying = true;
 
 		this._isPaused = false;
@@ -195,6 +214,17 @@ TWEEN.Tween.prototype = {
 		this._startTime += this._delayTime;
 
 		for (var property in this._valuesEnd) {
+
+			// If `to()` specifies a property that doesn't exist in the source object,
+			// we should not set that property in the object
+			if (this._object[property] === undefined) {
+				continue;
+			}
+
+			// Save the starting value only once.
+			if (typeof(this._valuesStart[property]) !== 'undefined') {
+				continue;
+			}
 
 			// Check if an Array was provided as property value
 			if (this._valuesEnd[property] instanceof Array) {
@@ -215,16 +245,7 @@ TWEEN.Tween.prototype = {
 
 			}
 
-			// If `to()` specifies a property that doesn't exist in the source object,
-			// we should not set that property in the object
-			if (this._object[property] === undefined) {
-				continue;
-			}
-
-			// Save the starting value, but only once.
-			if (typeof(this._valuesStart[property]) === 'undefined') {
-				this._valuesStart[property] = this._object[property];
-			}
+			this._valuesStart[property] = this._object[property];
 
 			if ((this._valuesStart[property] instanceof Array) === false) {
 				this._valuesStart[property] *= 1.0; // Ensures we're using numbers, not strings
@@ -331,6 +352,7 @@ TWEEN.Tween.prototype = {
 
 	repeat: function (times) {
 
+		this._initialRepeat = times;
 		this._repeat = times;
 		return this;
 

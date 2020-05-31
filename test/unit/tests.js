@@ -1069,6 +1069,51 @@
 
 			},
 
+			'Test yoyo can be stopped and restarted properly': function(test) {
+
+				TWEEN.removeAll();
+
+				var obj = { x: 0 },
+					t = new TWEEN.Tween( obj ).to( { x: 100 }, 100 ).repeat( 1 ).yoyo(true);
+
+				t.start( 0 );
+
+				TWEEN.update( 0 );
+				test.equal( obj.x, 0 );
+
+				TWEEN.update( 25 );
+				test.equal( obj.x, 25 );
+
+				TWEEN.update( 100 );
+				test.equal( obj.x, 100 );
+
+				TWEEN.update( 125 );
+				test.equal( obj.x, 75 );
+
+				t.stop();
+				t.start( 0 );
+
+				TWEEN.update( 0 );
+				test.equal( obj.x, 0 );
+
+				TWEEN.update( 25 );
+				test.equal( obj.x, 25 );
+
+				TWEEN.update( 100 );
+				test.equal( obj.x, 100 );
+
+				TWEEN.update( 125 );
+				test.equal( obj.x, 75 );
+
+				TWEEN.update( 200 );
+				test.equal( obj.x, 0 );
+
+				TWEEN.update( 225 );
+				test.equal( obj.x, 0 );
+
+				test.done();
+			},
+
 			'Test TWEEN.Tween.stopChainedTweens()': function(test) {
 				var t = new TWEEN.Tween( {} ),
 					tStarted = false,
