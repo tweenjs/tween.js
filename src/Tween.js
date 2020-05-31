@@ -483,7 +483,40 @@ TWEEN.Tween.prototype = {
 		value = this._easingFunction(elapsed);
 
 		// properties transformations
-		this._updateProperties(this._object, this._valuesStart, this._valuesEnd, value, this._interpolationFunction);
+		_updateProperties.call(this, this._object, this._valuesStart, this._valuesEnd, value, this._interpolationFunction);
+
+		function _updateProperties(_object, _valuesStart, _valuesEnd, value, _interpolationFunction) {
+			for (var property in _valuesEnd) {
+				// Don't update properties that do not exist in the source object
+				if (_valuesStart[property] === undefined) {
+					continue;
+				}
+
+				var start = _valuesStart[property] || 0;
+				var end = _valuesEnd[property];
+
+				if (end instanceof Array) {
+
+					_object[property] = _interpolationFunction(end, value);
+
+				} else if (end instanceof Object) {
+
+					_updateProperties.call(this, _object[property], start, end, value, _interpolationFunction);
+
+				} else {
+
+					// Parses relative end values with start as base (e.g.: +10, -3)
+					end = this._handleRelativeValue(start, end);
+
+					// Protect against non numeric properties.
+					if (typeof (end) === 'number') {
+						_object[property] = start + (end - start) * value;
+					}
+
+				}
+
+			}
+		}
 
 		if (this._onUpdateCallback !== null) {
 			this._onUpdateCallback(this._object, elapsed);
@@ -551,39 +584,6 @@ TWEEN.Tween.prototype = {
 
 		return true;
 
-	},
-
-	_updateProperties: function (_object, _valuesStart, _valuesEnd, value, _interpolationFunction) {
-		for (var property in _valuesEnd) {
-			// Don't update properties that do not exist in the source object
-			if (_valuesStart[property] === undefined) {
-				continue;
-			}
-
-			var start = _valuesStart[property] || 0;
-			var end = _valuesEnd[property];
-
-			if (end instanceof Array) {
-
-				_object[property] = _interpolationFunction(end, value);
-
-			} else if (end instanceof Object) {
-
-				this._updateProperties(_object[property], start, end, value, _interpolationFunction);
-
-			} else {
-
-				// Parses relative end values with start as base (e.g.: +10, -3)
-				end = this._handleRelativeValue(start, end);
-
-				// Protect against non numeric properties.
-				if (typeof (end) === 'number') {
-					_object[property] = start + (end - start) * value;
-				}
-
-			}
-
-		}
 	},
 
 	_handleRelativeValue: function (start, end) {
