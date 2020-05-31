@@ -489,6 +489,35 @@
 
 			},
 
+			'animate values in an array': function (test) {
+
+				var obj = [0, 0, 0],
+					t = new TWEEN.Tween( obj );
+
+				t.to( [1000, '-2000', "+2000"], 1000 );
+				t.start( 0 );
+
+				t.update( 250 );
+				test.equal( obj[0], 250 );
+				test.equal( obj[1], -500 );
+				test.equal( obj[2], 500 );
+				t.update( 500 );
+				test.equal( obj[0], 500 );
+				test.equal( obj[1], -1000 );
+				test.equal( obj[2], 1000 );
+				t.update( 750 );
+				test.equal( obj[0], 750 );
+				test.equal( obj[1], -1500 );
+				test.equal( obj[2], 1500 );
+				t.update( 1000 );
+				test.equal( obj[0], 1000 );
+				test.equal( obj[1], -2000 );
+				test.equal( obj[2], 2000 );
+
+				test.done();
+
+			},
+
 			'Test TWEEN.Tween.start()': function(test) {
 
 				var obj = { },

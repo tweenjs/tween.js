@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>Tween.js / animate an array of values</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+		<link
+			href="css/style.css"
+			media="screen"
+			rel="stylesheet"
+			type="text/css"
+		/>
+	</head>
+	<body>
+		<div id="info">
+			<h1><a href="http://github.com/tweenjs/tween.js">tween.js</a></h1>
+			<h2>16 _ animate an array of values</h2>
+			<p>
+				Animate multiple objects with a single tween using an array of values.
+			</p>
+		</div>
+		<div class="container">
+			<div id="target0" class="box">one</div>
+			<div id="target1" class="box">two</div>
+			<div id="target2" class="box">three</div>
+		</div>
+
+		<script src="../dist/tween.umd.js"></script>
+		<script src="js/RequestAnimationFrame.js"></script>
+		<script>
+			init();
+			animate();
+
+			function init() {
+				var target,
+					axes = ["Y", "Z", "X"],
+					tween1 = new TWEEN.Tween([0, 0, 0])
+						.to([360, 540, "+180"], 2000)
+						.repeat(1)
+						.delay(1000)
+						.easing(TWEEN.Easing.Cubic.InOut)
+						.onUpdate(function (rotations) {
+							for (var i = 0; i < rotations.length; i++)
+								document.getElementById("target" + i).style.transform =
+									"rotate" + axes[i] + "(" + Math.floor(rotations[i]) + "deg)";
+						})
+						.start();
+			}
+
+			function animate(time) {
+				// Keep requesting frames only if we still need to update.
+				if (TWEEN.update(time)) requestAnimationFrame(animate);
+			}
+		</script>
+
+		<style type="text/css">
+			.container {
+				position: absolute;
+				top: 180px;
+				left: 400px;
+				perspective: 400px;
+			}
+			.box {
+				width: 100px;
+				height: 100px;
+				margin: 10px;
+				padding: 10px;
+				/* display: inline-block; */
+				float: left;
+			}
+			#target0 {
+				background: #fcc;
+			}
+			#target1 {
+				background: #cfc;
+			}
+			#target2 {
+				background: #ccf;
+			}
+		</style>
+	</body>
+</html>
