@@ -10,6 +10,11 @@
 			<h1><a href="http://github.com/tweenjs/tween.js">tween.js</a></h1>
 			<h2>10 _ yoyo</h2>
 			<p>Demonstrating the yoyo() feature.</p>
+			<button onclick="restart()">restart</button>
+			<button onclick="stop()">stop</button>
+			<button onclick="start()">start</button>
+			<button onclick="pause()">pause</button>
+			<button onclick="resume()">resume</button>
 		</div>
 		<div style="position: absolute; top: 100px; left: 400px; ">
 			<div id="target1" data-rotation="0" data-y="0" class="box" style="left: 0px; top: 0px">
@@ -32,6 +37,8 @@
 
 			init();
 			animate();
+
+			var restart, stop, start, pause, resume
 
 			function init() {
 				var target1 = document.getElementById( 'target1' ),
@@ -78,6 +85,41 @@
 							updateBox( target4, object );
 						})
 						.start();
+
+				restart = function() {
+					tween1.stop().start()
+					tween2.stop().start()
+					tween3.stop().start()
+					tween4.stop().start()
+				}
+
+				stop = function() {
+					tween1.stop()
+					tween2.stop()
+					tween3.stop()
+					tween4.stop()
+				}
+
+				start = function() {
+					tween1.start()
+					tween2.start()
+					tween3.start()
+					tween4.start()
+				}
+
+				pause = function() {
+					tween1.pause()
+					tween2.pause()
+					tween3.pause()
+					tween4.pause()
+				}
+
+				resume = function() {
+					tween1.resume()
+					tween2.resume()
+					tween3.resume()
+					tween4.resume()
+				}
 			}
 
 			function animate( time ) {
@@ -123,10 +165,10 @@
 				background: #cfc;
 			}
 			#target3 {
-				background: deeppink;
+				background: orange;
 			}
 			#target4 {
-				background: cyan;
+				background: skyblue;
 			}
 		</style>
 	</body>
