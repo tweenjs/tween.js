@@ -223,7 +223,16 @@ TWEEN.Tween.prototype = {
 
 		for (var property in _valuesEnd) {
 
-			var isInterpolationList = Array.isArray(_valuesEnd[property]);
+			var startValue = _object[property];
+			var startValueIsArray = Array.isArray(startValue);
+			var propType = startValueIsArray ? 'array' : typeof startValue;
+			var isInterpolationList = !startValueIsArray && Array.isArray(_valuesEnd[property]);
+
+			// If `to()` specifies a property that doesn't exist in the source object,
+			// we should not set that property in the object
+			if (propType === 'undefined' || propType === 'function') {
+				continue;
+			}
 
 			// Check if an Array was provided as property value
 			if (isInterpolationList) {
@@ -234,8 +243,6 @@ TWEEN.Tween.prototype = {
 					continue;
 				}
 
-				var startValue = _object[property];
-
 				// handle an array of relative values
 				endValues = endValues.map(this._handleRelativeValue.bind(this, startValue));
 
@@ -244,36 +251,29 @@ TWEEN.Tween.prototype = {
 
 			}
 
-			// If `to()` specifies a property that doesn't exist in the source object,
-			// we should not set that property in the object
-			var propValue = _object[property];
-			var propType = typeof propValue;
-
-			if (propType === 'undefined' || propType === 'function') {
-				continue;
-			}
-
 			// handle the deepness of the values
-			if (propType === 'object' && propValue && !isInterpolationList) {
+			if ((propType === 'object' || startValueIsArray) && startValue && !isInterpolationList) {
 
-				_valuesStart[property] = {};
+				_valuesStart[property] = startValueIsArray ? [] : {};
 
-				for (var prop in _object[property]) {
-					_valuesStart[property][prop] = _object[property][prop];
+				for (var prop in startValue) {
+					_valuesStart[property][prop] = startValue[prop];
 				}
 
-				_valuesStartRepeat[property] = {}; // TODO? repeat nested values? And yoyo? And array values?
+				_valuesStartRepeat[property] = startValueIsArray ? [] : {}; // TODO? repeat nested values? And yoyo? And array values?
 
-				this._setupProperties(_object[property], _valuesStart[property], _valuesEnd[property], _valuesStartRepeat[property]);
+				this._setupProperties(startValue, _valuesStart[property], _valuesEnd[property], _valuesStartRepeat[property]);
 
 			} else {
 
 				// Save the starting value, but only once.
 				if (typeof(_valuesStart[property]) === 'undefined') {
-					_valuesStart[property] = _object[property];
+					_valuesStart[property] = startValue;
 				}
 
-				_valuesStart[property] *= 1.0; // Ensures we're using numbers, not strings
+				if (!startValueIsArray) {
+					_valuesStart[property] *= 1.0; // Ensures we're using numbers, not strings
+				}
 
 				if (isInterpolationList) {
 					_valuesStartRepeat[property] = _valuesEnd[property].slice().reverse();
@@ -566,12 +566,15 @@ TWEEN.Tween.prototype = {
 
 			var start = _valuesStart[property] || 0;
 			var end = _valuesEnd[property];
+			var startIsArray = Array.isArray(_object[property]);
+			var endIsArray = Array.isArray(end);
+			var isInterpolationList = !startIsArray && endIsArray;
 
-			if (Array.isArray(end)) {
+			if (isInterpolationList) {
 
 				_object[property] = this._interpolationFunction(end, value);
 
-			} else if (end && typeof end === 'object') {
+			} else if (typeof end === 'object' && end) {
 
 				this._updateProperties(_object[property], start, end, value);
 
