@@ -102,7 +102,7 @@ if (typeof (self) === 'undefined' && typeof (process) !== 'undefined' && process
 }
 // In a browser, use self.performance.now if it is available.
 else if (typeof (self) !== 'undefined' &&
-         self.performance !== undefined &&
+		 self.performance !== undefined &&
 		 self.performance.now !== undefined) {
 	// This must be bound, because directly assigning this function
 	// leads to an invocation exception in Chrome.
@@ -217,53 +217,77 @@ TWEEN.Tween.prototype = {
 		this._startTime = time !== undefined ? typeof time === 'string' ? TWEEN.now() + parseFloat(time) : time : TWEEN.now();
 		this._startTime += this._delayTime;
 
-		for (var property in this._valuesEnd) {
+		this._setupProperties(this._object, this._valuesStart, this._valuesEnd, this._valuesStartRepeat);
+
+		return this;
+
+	},
+
+	_setupProperties: function  (_object, _valuesStart, _valuesEnd, _valuesStartRepeat) {
+
+		for (var property in _valuesEnd) {
+
+			var startValue = _object[property];
+			var startValueIsArray = Array.isArray(startValue);
+			var propType = startValueIsArray ? 'array' : typeof startValue;
+			var isInterpolationList = !startValueIsArray && Array.isArray(_valuesEnd[property]);
 
 			// If `to()` specifies a property that doesn't exist in the source object,
 			// we should not set that property in the object
-			if (this._object[property] === undefined) {
-				continue;
-			}
-
-			// Save the starting value only once.
-			if (typeof(this._valuesStart[property]) !== 'undefined') {
+			if (propType === 'undefined' || propType === 'function') {
 				continue;
 			}
 
 			// Check if an Array was provided as property value
-			if (this._valuesEnd[property] instanceof Array) {
+			if (isInterpolationList) {
 
-				var endValues = this._valuesEnd[property];
+				var endValues = _valuesEnd[property];
 
 				if (endValues.length === 0) {
 					continue;
 				}
 
-				var startValue = this._object[property];
-
 				// handle an array of relative values
 				endValues = endValues.map(this._handleRelativeValue.bind(this, startValue));
 
 				// Create a local copy of the Array with the start value at the front
-				this._valuesEnd[property] = [startValue].concat(endValues);
+				_valuesEnd[property] = [startValue].concat(endValues);
 
 			}
 
-			this._valuesStart[property] = this._object[property];
+			// handle the deepness of the values
+			if ((propType === 'object' || startValueIsArray) && startValue && !isInterpolationList) {
 
-			if ((this._valuesStart[property] instanceof Array) === false) {
-				this._valuesStart[property] *= 1.0; // Ensures we're using numbers, not strings
-			}
+				_valuesStart[property] = startValueIsArray ? [] : {};
 
-			if (this._valuesEnd[property] instanceof Array) {
-				this._valuesStartRepeat[property] = this._valuesEnd[property].slice().reverse();
+				for (var prop in startValue) {
+					_valuesStart[property][prop] = startValue[prop];
+				}
+
+				_valuesStartRepeat[property] = startValueIsArray ? [] : {}; // TODO? repeat nested values? And yoyo? And array values?
+
+				this._setupProperties(startValue, _valuesStart[property], _valuesEnd[property], _valuesStartRepeat[property]);
+
 			} else {
-				this._valuesStartRepeat[property] = this._valuesStart[property] || 0;
+
+				// Save the starting value, but only once.
+				if (typeof(_valuesStart[property]) === 'undefined') {
+					_valuesStart[property] = startValue;
+				}
+
+				if (!startValueIsArray) {
+					_valuesStart[property] *= 1.0; // Ensures we're using numbers, not strings
+				}
+
+				if (isInterpolationList) {
+					_valuesStartRepeat[property] = _valuesEnd[property].slice().reverse();
+				} else {
+					_valuesStartRepeat[property] = _valuesStart[property] || 0;
+				}
+
 			}
 
 		}
-
-		return this;
 
 	},
 
@@ -466,33 +490,8 @@ TWEEN.Tween.prototype = {
 
 		value = this._easingFunction(elapsed);
 
-		for (property in this._valuesEnd) {
-
-			// Don't update properties that do not exist in the source object
-			if (this._valuesStart[property] === undefined) {
-				continue;
-			}
-
-			var start = this._valuesStart[property] || 0;
-			var end = this._valuesEnd[property];
-
-			if (end instanceof Array) {
-
-				this._object[property] = this._interpolationFunction(end, value);
-
-			} else {
-
-				// Parses relative end values with start as base (e.g.: +10, -3)
-				end = this._handleRelativeValue(start, end);
-
-				// Protect against non numeric properties.
-				if (typeof (end) === 'number') {
-					this._object[property] = start + (end - start) * value;
-				}
-
-			}
-
-		}
+		// properties transformations
+		this._updateProperties(this._object, this._valuesStart, this._valuesEnd, value);
 
 		if (this._onUpdateCallback !== null) {
 			this._onUpdateCallback(this._object, elapsed);
@@ -560,6 +559,42 @@ TWEEN.Tween.prototype = {
 
 		return true;
 
+	},
+
+	_updateProperties: function (_object, _valuesStart, _valuesEnd, value) {
+		for (var property in _valuesEnd) {
+			// Don't update properties that do not exist in the source object
+			if (_valuesStart[property] === undefined) {
+				continue;
+			}
+
+			var start = _valuesStart[property] || 0;
+			var end = _valuesEnd[property];
+			var startIsArray = Array.isArray(_object[property]);
+			var endIsArray = Array.isArray(end);
+			var isInterpolationList = !startIsArray && endIsArray;
+
+			if (isInterpolationList) {
+
+				_object[property] = this._interpolationFunction(end, value);
+
+			} else if (typeof end === 'object' && end) {
+
+				this._updateProperties(_object[property], start, end, value);
+
+			} else {
+
+				// Parses relative end values with start as base (e.g.: +10, -3)
+				end = this._handleRelativeValue(start, end);
+
+				// Protect against non numeric properties.
+				if (typeof (end) === 'number') {
+					_object[property] = start + (end - start) * value;
+				}
+
+			}
+
+		}
 	},
 
 	_handleRelativeValue: function (start, end) {
