@@ -1,8 +1,8 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="en">
 	<head>
 		<title>Tween.js / repeat</title>
-		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 		<link href="css/style.css" media="screen" rel="stylesheet" type="text/css" />
 	</head>
 	<body>
@@ -11,7 +11,7 @@
 			<h2>08 _ repeat</h2>
 			<p>Demonstrating the repeat() feature.</p>
 		</div>
-		<div style="position: absolute; top: 100px; left: 400px; ">
+		<div style="position: absolute; top: 100px; left: 400px;">
 			<div id="target1" data-rotation="0" class="box">
 				repeat once
 			</div>
@@ -26,57 +26,52 @@
 		<script src="../dist/tween.umd.js"></script>
 		<script src="js/RequestAnimationFrame.js"></script>
 		<script>
-
-			init();
-			animate();
+			init()
+			animate()
 
 			function init() {
-				var target1 = document.getElementById( 'target1' ),
-					tween1 = new TWEEN.Tween( target1.dataset )
-						.to( { rotation: 360 }, 2000 )
-						.repeat( 1 )
-						.delay( 1000 )
-						.onUpdate( function(object) {
-							updateBox( target1, object );
+				var target1 = document.getElementById('target1'),
+					tween1 = new TWEEN.Tween(target1.dataset)
+						.to({rotation: 360}, 2000)
+						.repeat(1)
+						.delay(1000)
+						.onUpdate(function (object) {
+							updateBox(target1, object)
 						})
 						.start(),
-					target2 = document.getElementById( 'target2' ),
-					tween2 = new TWEEN.Tween( target2.dataset )
-						.to( { rotation: 360 }, 2000 )
-						.repeat( 5 )
-						.delay( 1000 )
-						.onUpdate( function(object) {
-							updateBox( target2, object );
+					target2 = document.getElementById('target2'),
+					tween2 = new TWEEN.Tween(target2.dataset)
+						.to({rotation: 360}, 2000)
+						.repeat(5)
+						.delay(1000)
+						.onUpdate(function (object) {
+							updateBox(target2, object)
 						})
 						.start(),
-					target3 = document.getElementById( 'target3' ),
-					tween3 = new TWEEN.Tween( target3.dataset )
-						.to( { rotation: 360 }, 2000 )
-						.repeat( Infinity )
-						.delay( 1000 )
-						.onUpdate( function(object) {
-							updateBox( target3, object );
+					target3 = document.getElementById('target3'),
+					tween3 = new TWEEN.Tween(target3.dataset)
+						.to({rotation: 360}, 2000)
+						.repeat(Infinity)
+						.delay(1000)
+						.onUpdate(function (object) {
+							updateBox(target3, object)
 						})
-						.start();
+						.start()
 			}
 
-			function animate( time ) {
+			function animate(time) {
+				requestAnimationFrame(animate)
 
-				requestAnimationFrame( animate );
-
-				TWEEN.update( time );
-
+				TWEEN.update(time)
 			}
 
-			function updateBox( box, params ) {
-				
+			function updateBox(box, params) {
 				var s = box.style,
-					transform = 'rotate(' + Math.floor( params.rotation ) + 'deg)';
-				s.webkitTransform = transform;
-				s.mozTransform = transform;
-				s.transform = transform;
+					transform = 'rotate(' + Math.floor(params.rotation) + 'deg)'
+				s.webkitTransform = transform
+				s.mozTransform = transform
+				s.transform = transform
 			}
-
 		</script>
 
 		<style type="text/css">

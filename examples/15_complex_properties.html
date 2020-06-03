@@ -2,7 +2,7 @@
 <html lang="en">
 	<head>
 		<title>Tween.js / complex properties</title>
-		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 		<link href="css/style.css" media="screen" rel="stylesheet" type="text/css" />
 	</head>
 	<body>
@@ -11,57 +11,65 @@
 			<h2>15 _ complex properties</h2>
 			<p>Simple example for illustrating the creation and chaining of tweens.</p>
 		</div>
-		<div id="target" style="position:absolute; top: 100px; left: 100px; width: 100px; height: 100px; background: #a0dde9; padding: 1em;">
+		<div
+			id="target"
+			style="
+				position: absolute;
+				top: 100px;
+				left: 100px;
+				width: 100px;
+				height: 100px;
+				background: #a0dde9;
+				padding: 1em;
+			"
+		>
 			hello world!
 		</div>
 
 		<script src="../dist/tween.umd.js"></script>
 		<script src="js/RequestAnimationFrame.js"></script>
 		<script>
-			var position;
-			var target;
-			var tween, tweenBack;
+			var position
+			var target
+			var tween, tweenBack
 
-			init();
-			animate();
+			init()
+			animate()
 
 			function init() {
-
-				position = { x: 100, y: 100, styles: { opacity: 1.0 } };
-				target = document.getElementById('target');
+				position = {x: 100, y: 100, styles: {opacity: 1.0}}
+				target = document.getElementById('target')
 				tween = new TWEEN.Tween(position)
-					.to({ x: 700, y: 200, styles: { opacity: 0.5 } }, 1000)
+					.to({x: 700, y: 200, styles: {opacity: 0.5}}, 1000)
 					.delay(1000)
-					.onUpdate(update);
+					.onUpdate(update)
 
 				tweenBack = new TWEEN.Tween(position)
-					.to({ x: 100, y: 100, styles: { opacity: 1.0 } }, 1000)
+					.to({x: 100, y: 100, styles: {opacity: 1.0}}, 1000)
 
-					.onUpdate(update);
+					.onUpdate(update)
 
-				tween.chain(tweenBack);
-				tweenBack.chain(tween);
+				tween.chain(tweenBack)
+				tweenBack.chain(tween)
 
-				tween.start();
-
+				tween.start()
 			}
 
 			//If we register the callback animate, but the TWEEN.update(time) returns false,
 			//cancel/unregister the handler
-			function animate( time ) {
-				var id = requestAnimationFrame(animate);
+			function animate(time) {
+				var id = requestAnimationFrame(animate)
 
-				var result = TWEEN.update(time);
+				var result = TWEEN.update(time)
 
-				if(!result) cancelAnimationFrame(id);
+				if (!result) cancelAnimationFrame(id)
 			}
 
 			function update(values) {
-				target.style.opacity = values.styles.opacity;
-				target.style.left = values.x + 'px';
-				target.style.top = values.y + 'px';
+				target.style.opacity = values.styles.opacity
+				target.style.left = values.x + 'px'
+				target.style.top = values.y + 'px'
 			}
-
 		</script>
 	</body>
 </html>

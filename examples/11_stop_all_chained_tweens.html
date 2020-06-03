@@ -2,7 +2,7 @@
 <html lang="en">
 	<head>
 		<title>Tween.js / stop chained</title>
-		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 		<link href="css/style.css" media="screen" rel="stylesheet" type="text/css" />
 	</head>
 	<body>
@@ -11,13 +11,13 @@
 			<h2>11 _ stop all chained tweens.</h2>
 			<p>Tween#stopChainedTweens</p>
 		</div>
-		<div style="position: absolute; top: 250px; left: 50px; ">
+		<div style="position: absolute; top: 250px; left: 50px;">
 			<button id="start">Start</button>
 			<button id="stop">Stop</button>
-			<div id="target1" data-rotation="0" data-y="0" class="box" style="left: 0px; top: 50px">
+			<div id="target1" data-rotation="0" data-y="0" class="box" style="left: 0px; top: 50px;">
 				Box One
 			</div>
-			<div id="target2" data-rotation="0" data-y="0" class="box" style="left: 0px; top: 200px">
+			<div id="target2" data-rotation="0" data-y="0" class="box" style="left: 0px; top: 200px;">
 				Box Two
 			</div>
 		</div>
@@ -25,57 +25,56 @@
 		<script src="../dist/tween.umd.js"></script>
 		<script src="js/RequestAnimationFrame.js"></script>
 		<script>
-			
-			function animate( time ) {
-				requestAnimationFrame( animate );
-				TWEEN.update( time );
+			function animate(time) {
+				requestAnimationFrame(animate)
+				TWEEN.update(time)
 			}
 
-			animate();
+			animate()
 
-			var a = document.getElementById('target1');
-			var b = document.getElementById('target2');
-			var start = document.getElementById('start');
-			var stop = document.getElementById('stop');
-			var t0, t1;
-			var p0 = { x: 0 },
-				p1 = { x: 0 }
+			var a = document.getElementById('target1')
+			var b = document.getElementById('target2')
+			var start = document.getElementById('start')
+			var stop = document.getElementById('stop')
+			var t0, t1
+			var p0 = {x: 0},
+				p1 = {x: 0}
 
-			start.onclick = function() {
+			start.onclick = function () {
 				if (!t0 && !t1) {
 					t0 = new TWEEN.Tween(p0)
-						.to({ x: 700 }, 2000)
+						.to({x: 700}, 2000)
 						.delay(1000)
 						.easing(TWEEN.Easing.Elastic.InOut)
-						.onUpdate(function() {
-							a.style.left = p0.x + 'px';
+						.onUpdate(function () {
+							a.style.left = p0.x + 'px'
 						})
-						.onComplete(function() {
-							p0.x = 0;
-							a.style.left = p0.x + 'px';
-						});
+						.onComplete(function () {
+							p0.x = 0
+							a.style.left = p0.x + 'px'
+						})
 
 					t1 = new TWEEN.Tween(p1)
-						.to({ x: 1000 }, 3000)
+						.to({x: 1000}, 3000)
 						.delay(1000)
 						.easing(TWEEN.Easing.Elastic.InOut)
-						.onUpdate(function() {
-							b.style.left = p1.x + 'px';
+						.onUpdate(function () {
+							b.style.left = p1.x + 'px'
 						})
-						.onComplete(function() {
-							p1.x = 0;
-							b.style.left = p1.x + 'px';
-						});
+						.onComplete(function () {
+							p1.x = 0
+							b.style.left = p1.x + 'px'
+						})
 
-					t0.chain(t1);
-					t1.chain(t0);
+					t0.chain(t1)
+					t1.chain(t0)
 				}
-				t0.start();
-			};
+				t0.start()
+			}
 
 			stop.onclick = function () {
-				t0.stop();
-			};
+				t0.stop()
+			}
 		</script>
 
 		<style type="text/css">

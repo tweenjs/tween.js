@@ -1,6 +1,6 @@
 # tween.js
 
-tween.js是用于简单动画的JavaScript补间引擎，结合了优化的 Robert Penner 方程。
+tween.js 是用于简单动画的 JavaScript 补间引擎，结合了优化的 Robert Penner 方程。
 
 [![NPM Version][npm-image]][npm-url]
 [![NPM Downloads][downloads-image]][downloads-url]
@@ -9,28 +9,29 @@ tween.js是用于简单动画的JavaScript补间引擎，结合了优化的 Robe
 [![CDNJS][cdnjs-image]][cdnjs-url]
 
 ```javascript
-var box = document.createElement('div');
-box.style.setProperty('background-color', '#008800');
-box.style.setProperty('width', '100px');
-box.style.setProperty('height', '100px');
-document.body.appendChild(box);
+var box = document.createElement('div')
+box.style.setProperty('background-color', '#008800')
+box.style.setProperty('width', '100px')
+box.style.setProperty('height', '100px')
+document.body.appendChild(box)
 
 // 设置循环动画
 function animate(time) {
-    requestAnimationFrame(animate);
-    TWEEN.update(time);
+	requestAnimationFrame(animate)
+	TWEEN.update(time)
 }
-requestAnimationFrame(animate);
+requestAnimationFrame(animate)
 
-var coords = { x: 0, y: 0 }; // 起始点 (0, 0)
+var coords = {x: 0, y: 0} // 起始点 (0, 0)
 var tween = new TWEEN.Tween(coords) // 创建一个新的tween用来改变 'coords'
-        .to({ x: 300, y: 200 }, 1000) // 在1s内移动至 (300, 200)
-        .easing(TWEEN.Easing.Quadratic.Out) // 使用缓动功能使的动画更加平滑
-        .onUpdate(function() { // 在 tween.js 更新 'coords' 后调用
-            // 将 'box' 移动到 'coords' 所描述的位置，配合 CSS 过渡
-            box.style.setProperty('transform', 'translate(' + coords.x + 'px, ' + coords.y + 'px)');
-        })
-        .start(); // 立即开始 tween
+	.to({x: 300, y: 200}, 1000) // 在1s内移动至 (300, 200)
+	.easing(TWEEN.Easing.Quadratic.Out) // 使用缓动功能使的动画更加平滑
+	.onUpdate(function () {
+		// 在 tween.js 更新 'coords' 后调用
+		// 将 'box' 移动到 'coords' 所描述的位置，配合 CSS 过渡
+		box.style.setProperty('transform', 'translate(' + coords.x + 'px, ' + coords.y + 'px)')
+	})
+	.start() // 立即开始 tween
 ```
 
 [在线代码测试](https://codepen.io/mikebolt/pen/zzzvZg)
@@ -64,14 +65,14 @@ npm install @tweenjs/tween.js
 然后用标准的 node.js `require` 包含 Tween.js 模块:
 
 ```javascript
-var TWEEN = require('@tweenjs/tween.js');
+var TWEEN = require('@tweenjs/tween.js')
 ```
 
-您可以像所有其他示例一样使用Tween.js，例如:
+您可以像所有其他示例一样使用 Tween.js，例如:
 
 ```javascript
-var t = new TWEEN.Tween( /* etc */ );
-t.start();
+var t = new TWEEN.Tween(/* etc */)
+t.start()
 ```
 
 你将需要使用诸如`browserify`之类的工具将使用此风格的代码转换为可以在浏览器中运行的代码(浏览器无法识别 `require`)
@@ -82,7 +83,7 @@ t.start();
 bower install @tweenjs/tweenjs --save
 ```
 
-或者安装特定的tag.他们是git tags,如果你已经在本地克隆仓库，你可以在命令行中运行`git tag`查看tag列表,或者你可以查看下 [tween.js tags page](https://github.com/tweenjs/tween.js/tags) 列表.例如,安装 `v16.3.0`:
+或者安装特定的 tag.他们是 git tags,如果你已经在本地克隆仓库，你可以在命令行中运行`git tag`查看 tag 列表,或者你可以查看下 [tween.js tags page](https://github.com/tweenjs/tween.js/tags) 列表.例如,安装 `v16.3.0`:
 
 ```bash
 bower install @tweenjs/tweenjs#v16.3.0
@@ -96,20 +97,20 @@ bower install @tweenjs/tweenjs#v16.3.0
 
 ## Features
 
-* 只做一件事且仅只做一件事: 补间特性
-* 不关注CSS单位 (e.g. appending `px`)
-* 不插入颜色
-* 缓和功能可以在Tween之外重用
-* 也可以使用自定义缓动功能
+- 只做一件事且仅只做一件事: 补间特性
+- 不关注 CSS 单位 (e.g. appending `px`)
+- 不插入颜色
+- 缓和功能可以在 Tween 之外重用
+- 也可以使用自定义缓动功能
 
 ## Documentation
 
-* [使用指南](./docs/user_guide_zh-CN.md)
-* [贡献者指南](./docs/contributor_guide_zh-CN.md)
-* [教程](http://learningthreejs.com/blog/2011/08/17/tweenjs-for-smooth-animation/)  using tween.js with three.js
-* 其他: [libtween](https://github.com/jsm174/libtween), [jsm174](https://github.com/jsm174) 写的一个C语言版本的 tween.js.
-* 其他: [es6-tween](https://github.com/tweenjs/es6-tween), [dalisoft](https://github.com/dalisoft) 写的一个ES6/Harmony版本的 tween.js.
-* [理解 tween.js](https://mikebolt.me/article/understanding-tweenjs.html)
+- [使用指南](./docs/user_guide_zh-CN.md)
+- [贡献者指南](./docs/contributor_guide_zh-CN.md)
+- [教程](http://learningthreejs.com/blog/2011/08/17/tweenjs-for-smooth-animation/) using tween.js with three.js
+- 其他: [libtween](https://github.com/jsm174/libtween), [jsm174](https://github.com/jsm174) 写的一个 C 语言版本的 tween.js.
+- 其他: [es6-tween](https://github.com/tweenjs/es6-tween), [dalisoft](https://github.com/dalisoft) 写的一个 ES6/Harmony 版本的 tween.js.
+- [理解 tween.js](https://mikebolt.me/article/understanding-tweenjs.html)
 
 ## 示例
 
@@ -249,7 +250,7 @@ bower install @tweenjs/tweenjs#v16.3.0
 
 ## Tests
 
-你首先需要安装`npm`--基于node.js,所以首先安装它.然后,进入到`tween.js`的目录下并运行:
+你首先需要安装`npm`--基于 node.js,所以首先安装它.然后,进入到`tween.js`的目录下并运行:
 
 ```bash
 npm install
@@ -263,7 +264,7 @@ npm test
 
 每次你想运行测试.
 
-如果你想添加任何功能或改变现有的功能，你*必须*运行测试，以确保你没有影响别的东西.如果你发一个pull request（PR）添加新的东西,它没有测试,或测试不通过,这个PR将不被接受.更详细的请看 [contributing](CONTRIBUTING.md).
+如果你想添加任何功能或改变现有的功能，你*必须*运行测试，以确保你没有影响别的东西.如果你发一个 pull request（PR）添加新的东西,它没有测试,或测试不通过,这个 PR 将不被接受.更详细的请看 [contributing](CONTRIBUTING.md).
 
 ## People
 
@@ -294,4 +295,3 @@ npm test
 [flattr-url]: https://flattr.com/thing/45014/tween-js
 [cdnjs-image]: https://img.shields.io/cdnjs/v/tween.js.svg
 [cdnjs-url]: https://cdnjs.com/libraries/tween.js
-

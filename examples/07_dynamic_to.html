@@ -2,9 +2,8 @@
 <html lang="en">
 	<head>
 		<title>Tween.js / dynamic to</title>
-		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 		<style>
-
 			body {
 				margin: 0px;
 			}
@@ -13,7 +12,6 @@
 				font-size: 13px;
 				padding: 0px 32px;
 			}
-
 		</style>
 		<link href="css/style.css" media="screen" rel="stylesheet" type="text/css" />
 	</head>
@@ -29,99 +27,93 @@
 		<script src="../dist/tween.umd.js"></script>
 		<script src="js/RequestAnimationFrame.js"></script>
 		<script>
-
-			init();
-			animate();
+			init()
+			animate()
 
 			function init() {
+				var width = 480
+				var height = 320
 
-				var width = 480;
-				var height = 320;
+				var target = document.getElementById('target')
 
-				var target = document.getElementById('target');
+				var canvas = document.createElement('canvas')
+				canvas.width = width
+				canvas.height = height
+				target.appendChild(canvas)
 
-				var canvas = document.createElement( 'canvas' );
-				canvas.width = width;
-				canvas.height = height;
-				target.appendChild( canvas );
+				var context = canvas.getContext('2d')
 
-				var context = canvas.getContext( '2d' );
+				var rabbit = {x: width - 50, y: 50}
 
+				new TWEEN.Tween(rabbit)
+					.to({x: width - 50, y: height - 50}, 3000)
+					.onUpdate(function (object) {
+						// draw background
+						context.fillStyle = 'rgb(240,250,240)'
+						context.fillRect(0, 0, width, height)
 
-				var rabbit = { x: width - 50, y: 50 };
+						// draw rabbit
+						context.fillStyle = 'rgb(150,150,150)'
 
-				new TWEEN.Tween( rabbit ).to( { x: width - 50, y: height - 50 }, 3000 ).onUpdate( function(object) {
+						context.save()
+						context.translate(object.x, object.y)
 
-					// draw background
-					context.fillStyle = "rgb(240,250,240)";
-					context.fillRect( 0, 0, width, height );
+						context.beginPath()
+						context.moveTo(0, 0)
+						context.bezierCurveTo(15, 0, 15, -40, 5, -30)
+						context.lineTo(0, 0)
+						context.bezierCurveTo(-15, 0, -15, -40, -5, -30)
+						context.lineTo(0, 0)
+						context.fill()
 
-					// draw rabbit
-					context.fillStyle = "rgb(150,150,150)";
+						context.beginPath()
+						context.arc(0, 0, 15, 0, Math.PI * 2, true)
+						context.fill()
 
-					context.save();
-					context.translate( object.x, object.y );
+						context.restore()
+					})
+					.start()
 
-					context.beginPath();
-					context.moveTo( 0, 0 );
-					context.bezierCurveTo( 15, 0, 15, -40, 5, -30 );
-					context.lineTo( 0, 0 );
-					context.bezierCurveTo( -15, 0, -15, -40, -5, -30 );
-					context.lineTo( 0, 0 );
-					context.fill();
+				var fox = {x: 50, y: 50}
 
-					context.beginPath();
-					context.arc( 0, 0, 15, 0, Math.PI * 2, true );
-					context.fill();
+				new TWEEN.Tween(fox)
+					.to(rabbit, 3000)
+					.onUpdate(function (object) {
+						// draw fox
+						context.fillStyle = 'rgb(200,80,80)'
 
-					context.restore();
+						context.save()
+						context.translate(object.x, object.y - 13)
+						context.scale(1.2, 1.2)
 
-				} ).start();
+						context.beginPath()
+						context.moveTo(4, 24)
+						context.lineTo(8, 16)
+						context.lineTo(14, 10)
+						context.lineTo(15, 0)
+						context.lineTo(9, -10)
+						context.lineTo(2, 0)
+						context.lineTo(-2, 0)
+						context.lineTo(-9, -10)
+						context.lineTo(-15, 0)
+						context.lineTo(-14, 10)
+						context.lineTo(-8, 16)
+						context.lineTo(-4, 24)
+						context.closePath()
+						context.fill()
 
-
-				var fox = { x: 50, y: 50 };
-
-				new TWEEN.Tween( fox ).to( rabbit, 3000 ).onUpdate( function(object) {
-
-					// draw fox
-					context.fillStyle = "rgb(200,80,80)";
-
-					context.save();
-					context.translate( object.x, object.y - 13 );
-					context.scale( 1.2, 1.2 );
-
-					context.beginPath();
-					context.moveTo( 4, 24 );
-					context.lineTo( 8, 16 );
-					context.lineTo( 14, 10 );
-					context.lineTo( 15, 0 );
-					context.lineTo( 9, -10 );
-					context.lineTo( 2, 0 );
-					context.lineTo( -2, 0 );
-					context.lineTo( -9, -10 );
-					context.lineTo( -15, 0 );
-					context.lineTo( -14, 10 );
-					context.lineTo( -8, 16 );
-					context.lineTo( -4, 24 );
-					context.closePath();
-					context.fill();
-
-					context.restore();
-
-				} ).start();
-
+						context.restore()
+					})
+					.start()
 			}
 
-			function animate( time ) {
+			function animate(time) {
+				requestAnimationFrame(animate)
 
-				requestAnimationFrame( animate );
-
-				TWEEN.update( time );
-
+				TWEEN.update(time)
 			}
 
-			animate();
-
+			animate()
 		</script>
 	</body>
 </html>

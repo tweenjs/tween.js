@@ -2,7 +2,7 @@
 <html lang="en">
 	<head>
 		<title>Tween.js / graphs for custom easing functions</title>
-		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 		<style>
 			body {
 				margin: 0px;
@@ -12,7 +12,6 @@
 				font-size: 13px;
 				padding: 0px 32px;
 			}
-
 		</style>
 		<link href="css/style.css" media="screen" rel="stylesheet" type="text/css" />
 	</head>
@@ -20,7 +19,10 @@
 		<div id="info" style="position: relative;">
 			<h1><a href="http://github.com/tweenjs/tween.js">tween.js</a></h1>
 			<h2>12 _ graphs for custom easing functions</h2>
-			<p>A version of the <a href="03_graphs.html">graphs</a> example, but using custom easing functions (not included in <a href="https://github.com/tween.js/tween.js">tween.js</a> by default).</p>
+			<p>
+				A version of the <a href="03_graphs.html">graphs</a> example, but using custom easing functions (not included in
+				<a href="https://github.com/tween.js/tween.js">tween.js</a> by default).
+			</p>
 		</div>
 
 		<div id="target"></div>
@@ -29,73 +31,68 @@
 		<script src="js/RequestAnimationFrame.js"></script>
 		<script src="js/createGraph.js"></script>
 		<script>
-
-			window.addEventListener('load', function() {
-				init();
-				animate();
-			});
+			window.addEventListener('load', function () {
+				init()
+				animate()
+			})
 
 			function init() {
+				var target = document.getElementById('target')
 
-				var target = document.getElementById('target');
+				target.appendChild(createGraph('Ten Steps', tenStepsEasing))
 
-				target.appendChild( createGraph( 'Ten Steps', tenStepsEasing ) );
+				target.appendChild(document.createElement('br'))
 
-				target.appendChild( document.createElement( 'br' ) );
-				
-				for(var i = 0; i < 4; i++) {
-					var numSteps = (i + 1) * 4;
-					target.appendChild( createGraph(numSteps + ' steps', createStepFunction(numSteps)) );
+				for (var i = 0; i < 4; i++) {
+					var numSteps = (i + 1) * 4
+					target.appendChild(createGraph(numSteps + ' steps', createStepFunction(numSteps)))
 				}
 
-				target.appendChild( document.createElement( 'br' ) );
+				target.appendChild(document.createElement('br'))
 
-				target.appendChild( createGraph('Random', randomEasing) );
+				target.appendChild(createGraph('Random', randomEasing))
 
-				target.appendChild( document.createElement( 'br' ) );
-				
-				target.appendChild( createGraph('Noisy Exponential.InOut', createNoisyEasing(0.1, TWEEN.Easing.Exponential.InOut) ) );
-				target.appendChild( createGraph('Noisy Elastic.InOut', createNoisyEasing(0.1, TWEEN.Easing.Elastic.InOut) ) );
-				target.appendChild( createGraph('Noisy Circular.InOut', createNoisyEasing(0.1, TWEEN.Easing.Circular.InOut) ) );
+				target.appendChild(document.createElement('br'))
 
+				target.appendChild(
+					createGraph('Noisy Exponential.InOut', createNoisyEasing(0.1, TWEEN.Easing.Exponential.InOut)),
+				)
+				target.appendChild(createGraph('Noisy Elastic.InOut', createNoisyEasing(0.1, TWEEN.Easing.Elastic.InOut)))
+				target.appendChild(createGraph('Noisy Circular.InOut', createNoisyEasing(0.1, TWEEN.Easing.Circular.InOut)))
 			}
 
 			function animate() {
+				requestAnimationFrame(animate)
 
-				requestAnimationFrame( animate );
-
-				TWEEN.update();
-
+				TWEEN.update()
 			}
 
 			function tenStepsEasing(k) {
-				return (Math.floor(k * 10) / 10);
+				return Math.floor(k * 10) / 10
 			}
 
 			// This is where we get very meta and write a function for
-			// generating functions! The returned function is similar to 
+			// generating functions! The returned function is similar to
 			// the tenStepsEasing function above, but the number of steps
 			// is passed as a parameter
 			function createStepFunction(numSteps) {
-				return function(k) {
-					return (Math.floor(k * numSteps) / numSteps);
+				return function (k) {
+					return Math.floor(k * numSteps) / numSteps
 				}
 			}
 
 			function randomEasing(k) {
-				return Math.random();
+				return Math.random()
 			}
 
-
-			// Getting meta again: why not use existing functions as the 
+			// Getting meta again: why not use existing functions as the
 			// base for new easing functions?
 			function createNoisyEasing(randomProportion, easingFunction) {
-				var normalProportion = 1.0 - randomProportion;
-				return function(k) {
-					return randomProportion * Math.random() + normalProportion * easingFunction(k);
+				var normalProportion = 1.0 - randomProportion
+				return function (k) {
+					return randomProportion * Math.random() + normalProportion * easingFunction(k)
 				}
 			}
-
 		</script>
 	</body>
 </html>

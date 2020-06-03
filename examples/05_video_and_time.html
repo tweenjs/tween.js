@@ -2,7 +2,7 @@
 <html lang="en">
 	<head>
 		<title>Tween.js / video and time</title>
-		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 		<link href="css/style.css" media="screen" rel="stylesheet" type="text/css" />
 	</head>
 	<body>
@@ -12,62 +12,54 @@
 			<p>Playing a video, synchronizing a tween to it</p>
 		</div>
 
-		<div id="target" style="position: absolute; left: 50px; top: 300px; font-size: 100px; letter-spacing: -7px; ">
+		<div id="target" style="position: absolute; left: 50px; top: 300px; font-size: 100px; letter-spacing: -7px;">
 			<video id="video" src="video/sintel.webm" width="320" height="138"></video>
 		</div>
 
 		<script src="../dist/tween.umd.js"></script>
 		<script src="js/RequestAnimationFrame.js"></script>
 		<script>
+			var video
 
-			var video;
-
-			window.addEventListener('load', function() {
-				init();
-				animate();
-			});
+			window.addEventListener('load', function () {
+				init()
+				animate()
+			})
 
 			function init() {
+				var output = document.createElement('div')
 
-				var output = document.createElement( 'div' );
+				var target = document.getElementById('target')
+				target.appendChild(output)
 
-				var target = document.getElementById( 'target' );
-				target.appendChild( output );
+				video = document.getElementById('video')
+				video.addEventListener(
+					'play',
+					function () {
+						new TWEEN.Tween({x: 50, y: 0})
+							.to({x: 400}, this.duration)
+							.easing(TWEEN.Easing.Linear.None)
+							.onUpdate(function (object) {
+								var roundX = Math.round(object.x)
+								var transform = 'translateX(' + roundX + 'px)'
+								output.innerHTML = 'x == ' + roundX
+								target.style.transform = transform
+							})
+							.start(video.currentTime)
+					},
+					false,
+				)
 
-				video = document.getElementById( 'video' );
-				video.addEventListener( 'play', function() {
-					
-					new TWEEN.Tween( { x: 50, y: 0 } )
-						.to( { x: 400 }, this.duration )
-						.easing( TWEEN.Easing.Linear.None )
-						.onUpdate( function (object) {
-
-							var roundX = Math.round(object.x);
-							var transform = 'translateX(' + roundX + 'px)';
-							output.innerHTML = 'x == ' + roundX;
-							target.style.transform = transform;
-
-						} )
-						.start( video.currentTime );
-
-				}, false );
-
-				video.play();
-
+				video.play()
 			}
 
 			function animate() {
+				requestAnimationFrame(animate)
 
-				requestAnimationFrame( animate );
-
-				if ( video.readyState === video.HAVE_ENOUGH_DATA ) {
-
-					TWEEN.update( video.currentTime );
-
+				if (video.readyState === video.HAVE_ENOUGH_DATA) {
+					TWEEN.update(video.currentTime)
 				}
-				
 			}
-
 		</script>
 	</body>
 </html>

@@ -3,12 +3,7 @@
 	<head>
 		<title>Tween.js / animate an array of values</title>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-		<link
-			href="css/style.css"
-			media="screen"
-			rel="stylesheet"
-			type="text/css"
-		/>
+		<link href="css/style.css" media="screen" rel="stylesheet" type="text/css" />
 	</head>
 	<body>
 		<div id="info">
@@ -27,28 +22,28 @@
 		<script src="../dist/tween.umd.js"></script>
 		<script src="js/RequestAnimationFrame.js"></script>
 		<script>
-			init();
-			animate();
+			init()
+			animate()
 
 			function init() {
 				var target,
-					axes = ["Y", "Z", "X"],
+					axes = ['Y', 'Z', 'X'],
 					tween1 = new TWEEN.Tween([0, 0, 0])
-						.to([360, 540, "+180"], 2000)
+						.to([360, 540, '+180'], 2000)
 						.repeat(1)
 						.delay(1000)
 						.easing(TWEEN.Easing.Cubic.InOut)
 						.onUpdate(function (rotations) {
 							for (var i = 0; i < rotations.length; i++)
-								document.getElementById("target" + i).style.transform =
-									"rotate" + axes[i] + "(" + Math.floor(rotations[i]) + "deg)";
+								document.getElementById('target' + i).style.transform =
+									'rotate' + axes[i] + '(' + Math.floor(rotations[i]) + 'deg)'
 						})
-						.start();
+						.start()
 			}
 
 			function animate(time) {
 				// Keep requesting frames only if we still need to update.
-				if (TWEEN.update(time)) requestAnimationFrame(animate);
+				if (TWEEN.update(time)) requestAnimationFrame(animate)
 			}
 		</script>
 

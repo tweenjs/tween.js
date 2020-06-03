@@ -2,7 +2,7 @@
 <html lang="en">
 	<head>
 		<title>Tween.js / yoyo</title>
-		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 		<link href="css/style.css" media="screen" rel="stylesheet" type="text/css" />
 	</head>
 	<body>
@@ -16,105 +16,104 @@
 			<button onclick="pause()">pause</button>
 			<button onclick="resume()">resume</button>
 		</div>
-		<div style="position: absolute; top: 100px; left: 400px; ">
-			<div id="target1" data-rotation="0" data-y="0" class="box" style="left: 0px; top: 0px">
+		<div style="position: absolute; top: 100px; left: 400px;">
+			<div id="target1" data-rotation="0" data-y="0" class="box" style="left: 0px; top: 0px;">
 				yoyo with repeat once
 			</div>
-			<div id="target2" data-rotation="0" data-y="0" class="box" style="left: 200px; top: 0px">
+			<div id="target2" data-rotation="0" data-y="0" class="box" style="left: 200px; top: 0px;">
 				yoyo with repeat forever
 			</div>
-			<div id="target3" data-rotation="0" data-y="0" class="box" style="left: 400px; top: 0px">
+			<div id="target3" data-rotation="0" data-y="0" class="box" style="left: 400px; top: 0px;">
 				yoyo with repeat once, relative values
 			</div>
-			<div id="target4" data-rotation="0" data-y="0" class="box" style="left: 600px; top: 0px">
-                yoyo with repeat forever, relative values
+			<div id="target4" data-rotation="0" data-y="0" class="box" style="left: 600px; top: 0px;">
+				yoyo with repeat forever, relative values
 			</div>
 		</div>
 
 		<script src="../dist/tween.umd.js"></script>
 		<script src="js/RequestAnimationFrame.js"></script>
 		<script>
-
-			init();
-			animate();
+			init()
+			animate()
 
 			var restart, stop, start, pause, resume
 
 			function init() {
-				var target1 = document.getElementById( 'target1' ),
-					tween1 = new TWEEN.Tween( target1.dataset )
-						.to( { rotation: 360, y: 300 }, 750 )
-						.repeat( 1 )
-						.delay( 1000 )
-						.yoyo( true )
-						.easing( TWEEN.Easing.Cubic.InOut )
-						.onUpdate( function(object) {
-							updateBox( target1, object );
-						})
-						.start(),
-					target2 = document.getElementById( 'target2' ),
-					tween2 = new TWEEN.Tween( target2.dataset )
-						.to( { rotation: 360, y:300 }, 750 )
-						.repeat( Infinity )
-						.delay( 1000 )
-						.yoyo( true )
-						.easing( TWEEN.Easing.Cubic.InOut )
-						.onUpdate( function(object) {
-							updateBox( target2, object );
-						})
-						.start();
-					target3 = document.getElementById( 'target3' ),
-					tween3 = new TWEEN.Tween( target3.dataset )
-						.to( { rotation: "+360", y:"+300" }, 750 )
-						.repeat( 1 )
-						.delay( 1000 )
-						.yoyo( true )
-						.easing( TWEEN.Easing.Cubic.InOut )
-						.onUpdate( function(object) {
-							updateBox( target3, object );
-						})
-						.start();
-					target4 = document.getElementById( 'target4' ),
-					tween4 = new TWEEN.Tween( target4.dataset )
-						.to( { rotation: "+360", y:"+300" }, 750 )
-						.repeat( Infinity )
-						.delay( 1000 )
-						.yoyo( true )
-						.easing( TWEEN.Easing.Cubic.InOut )
-						.onUpdate( function(object) {
-							updateBox( target4, object );
-						})
-						.start();
+				var target1 = document.getElementById('target1')
+				var tween1 = new TWEEN.Tween(target1.dataset)
+					.to({rotation: 360, y: 300}, 750)
+					.repeat(1)
+					.delay(1000)
+					.yoyo(true)
+					.easing(TWEEN.Easing.Cubic.InOut)
+					.onUpdate(function (object) {
+						updateBox(target1, object)
+					})
+					.start()
+				var target2 = document.getElementById('target2')
+				var tween2 = new TWEEN.Tween(target2.dataset)
+					.to({rotation: 360, y: 300}, 750)
+					.repeat(Infinity)
+					.delay(1000)
+					.yoyo(true)
+					.easing(TWEEN.Easing.Cubic.InOut)
+					.onUpdate(function (object) {
+						updateBox(target2, object)
+					})
+					.start()
+				var target3 = document.getElementById('target3')
+				var tween3 = new TWEEN.Tween(target3.dataset)
+					.to({rotation: '+360', y: '+300'}, 750)
+					.repeat(1)
+					.delay(1000)
+					.yoyo(true)
+					.easing(TWEEN.Easing.Cubic.InOut)
+					.onUpdate(function (object) {
+						updateBox(target3, object)
+					})
+					.start()
+				var target4 = document.getElementById('target4')
+				var tween4 = new TWEEN.Tween(target4.dataset)
+					.to({rotation: '+360', y: '+300'}, 750)
+					.repeat(Infinity)
+					.delay(1000)
+					.yoyo(true)
+					.easing(TWEEN.Easing.Cubic.InOut)
+					.onUpdate(function (object) {
+						updateBox(target4, object)
+					})
+					.start()
 
-				restart = function() {
+				restart = function () {
 					tween1.stop().start()
 					tween2.stop().start()
 					tween3.stop().start()
 					tween4.stop().start()
 				}
 
-				stop = function() {
+				stop = function () {
 					tween1.stop()
 					tween2.stop()
 					tween3.stop()
 					tween4.stop()
 				}
 
-				start = function() {
+				start = function () {
 					tween1.start()
 					tween2.start()
 					tween3.start()
 					tween4.start()
 				}
 
-				pause = function() {
+				pause = function () {
 					tween1.pause()
 					tween2.pause()
 					tween3.pause()
 					tween4.pause()
 				}
 
-				resume = function() {
+				resume = function () {
 					tween1.resume()
 					tween2.resume()
 					tween3.resume()
@@ -122,24 +121,19 @@
 				}
 			}
 
-			function animate( time ) {
+			function animate(time) {
+				requestAnimationFrame(animate)
 
-				requestAnimationFrame( animate );
-
-				TWEEN.update( time );
-
+				TWEEN.update(time)
 			}
 
-			function updateBox( box, params ) {
-
+			function updateBox(box, params) {
 				var s = box.style,
-					transform = 'translateY(' + Math.round(params.y) + 'px) rotate(' + Math.floor( params.rotation ) + 'deg)';
-				s.webkitTransform = transform;
-				s.mozTransform = transform;
-				s.transform = transform;
-
+					transform = 'translateY(' + Math.round(params.y) + 'px) rotate(' + Math.floor(params.rotation) + 'deg)'
+				s.webkitTransform = transform
+				s.mozTransform = transform
+				s.transform = transform
 			}
-
 		</script>
 
 		<style type="text/css">

@@ -2,7 +2,7 @@
 <html lang="en">
 	<head>
 		<title>Tween.js / simplest possible example!</title>
-		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 		<link href="css/style.css" media="screen" rel="stylesheet" type="text/css" />
 	</head>
 	<body>
@@ -15,38 +15,30 @@
 		<script src="../dist/tween.umd.js"></script>
 		<script src="js/RequestAnimationFrame.js"></script>
 		<script>
-
-			init();
-			animate();
+			init()
+			animate()
 
 			function init() {
+				var output = document.createElement('div')
+				output.style.cssText = 'position: absolute; left: 50px; top: 300px; font-size: 100px'
+				document.body.appendChild(output)
 
-				var output = document.createElement( 'div' );
-				output.style.cssText = 'position: absolute; left: 50px; top: 300px; font-size: 100px';
-				document.body.appendChild( output );
-
-				var tween = new TWEEN.Tween( { x: 50, y: 0 } )
-					.to( { x: 400 }, 2000 )
-					.easing( TWEEN.Easing.Elastic.InOut )
-					.onUpdate( function (object) {
-
-						output.innerHTML = 'x == ' + Math.round( object.x );
-						var transform = 'translateX(' + object.x + 'px)';
-						output.style.webkitTransform = transform;
-						output.style.transform = transform;
-
-					} )
-					.start();
-
+				var tween = new TWEEN.Tween({x: 50, y: 0})
+					.to({x: 400}, 2000)
+					.easing(TWEEN.Easing.Elastic.InOut)
+					.onUpdate(function (object) {
+						output.innerHTML = 'x == ' + Math.round(object.x)
+						var transform = 'translateX(' + object.x + 'px)'
+						output.style.webkitTransform = transform
+						output.style.transform = transform
+					})
+					.start()
 			}
 
-			function animate( time ) {
-
-				requestAnimationFrame( animate );
-				TWEEN.update( time );
-
+			function animate(time) {
+				requestAnimationFrame(animate)
+				TWEEN.update(time)
 			}
-
 		</script>
 	</body>
 </html>

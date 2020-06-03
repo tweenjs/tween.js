@@ -4,26 +4,21 @@
 
 Please note that this project is released with a [Contributor Code of Conduct](./CODE_OF_CONDUCT.md). **By participating in this project you agree to abide by its terms**.
 
-Before reporting a bug
----
+## Before reporting a bug
 
 If you find something that you believe to be a bug, please
 
 1. search the [issue tracker](https://github.com/tweenjs/tween.js/issues) for similar issues
 2. check out the [master](https://github.com/tweenjs/tween.js/tree/master) branch and see if the bug still exists there.
 
-
-How to report a bug
----
+## How to report a bug
 
 1. Specify the revision number of the tween.js library where the bug occurred
 2. Specify your browser version and operating system (i.e. Chrome 23.0.1271.95, Windows 7)
 3. Describe the problem in detail. What happened? What did you expect to happen?
 4. Provide a small test case (e.g. using http://jsfiddle.net). Or if not possible, provide a link to a live version of your application.
 
-
-Contributing
----
+## Contributing
 
 1. Get a GitHub account (if you don't have one yet).
 2. Fork the project in GitHub.

@@ -1,8 +1,8 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="en">
 	<head>
 		<title>Tween.js / Black and Red</title>
-		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 		<link href="css/style.css" media="screen" rel="stylesheet" type="text/css" />
 	</head>
 	<body>
@@ -15,71 +15,81 @@
 		<div id="target"></div>
 
 		<style>
-			body { font-family: Arial, Helvetica, sans; }
-			table { border-collapse: collapse; }
-			td { width: 5px; height: 5px; }
-			#target { position: absolute; top: 4em; right: 3em; }
+			body {
+				font-family: Arial, Helvetica, sans;
+			}
+			table {
+				border-collapse: collapse;
+			}
+			td {
+				width: 5px;
+				height: 5px;
+			}
+			#target {
+				position: absolute;
+				top: 4em;
+				right: 3em;
+			}
 		</style>
 
 		<script src="../dist/tween.umd.js"></script>
 		<script src="js/stats.min.js"></script>
 		<script src="js/RequestAnimationFrame.js"></script>
 		<script>
-			var stats;
+			var stats
 
-			init();
-			animate();
+			init()
+			animate()
 
 			function init() {
-				var target = document.getElementById('target');
-				stats = new Stats();
-				target.appendChild(stats.domElement);
+				var target = document.getElementById('target')
+				stats = new Stats()
+				target.appendChild(stats.domElement)
 
-				var t = document.createElement('table');
-				var index = 0;
+				var t = document.createElement('table')
+				var index = 0
 
-				for(var i = 0; i < 64; i++) {
-					var tr = t.insertRow(-1);
-					for(var j = 0; j < 64; j++) {
-						var td = tr.insertCell(-1);
-						td.style.background = '#000';
-						var x = (i+j) * 0.1;
-						var cell = { 'td': td, value : 0 };
+				for (var i = 0; i < 64; i++) {
+					var tr = t.insertRow(-1)
+					for (var j = 0; j < 64; j++) {
+						var td = tr.insertCell(-1)
+						td.style.background = '#000'
+						var x = (i + j) * 0.1
+						var cell = {td: td, value: 0}
 						var tween = new TWEEN.Tween(cell)
-							.to({ value: 1 }, 8000)
+							.to({value: 1}, 8000)
 							.delay((0.001 * index + Math.random()) * 500)
 							.easing(TWEEN.Easing.Elastic.InOut)
-							.onUpdate(function(object) {
-								var c = Math.floor(object.value * 0xff);
-								object.td.style.background = 'rgb(' + c + ', 0, 0)';
-							});
+							.onUpdate(function (object) {
+								var c = Math.floor(object.value * 0xff)
+								object.td.style.background = 'rgb(' + c + ', 0, 0)'
+							})
 
 						var tweenBack = new TWEEN.Tween(cell)
-							.to({ value: 0 }, 4000)
-							.delay((0.001*index + Math.random()) * 500)
+							.to({value: 0}, 4000)
+							.delay((0.001 * index + Math.random()) * 500)
 							.easing(TWEEN.Easing.Elastic.InOut)
-							.onUpdate(function(object) {
-								var c = Math.floor(object.value * 0xff);
-								object.td.style.background = 'rgb(' + c + ', 0, 0)';
-							});
+							.onUpdate(function (object) {
+								var c = Math.floor(object.value * 0xff)
+								object.td.style.background = 'rgb(' + c + ', 0, 0)'
+							})
 
-						tween.chain(tweenBack);
-						tweenBack.chain(tween);
+						tween.chain(tweenBack)
+						tweenBack.chain(tween)
 
-						tween.start();
-						index++;
+						tween.start()
+						index++
 					}
 				}
 
-				target.appendChild(t);
+				target.appendChild(t)
 			}
 
-			function animate( time ) {
+			function animate(time) {
+				requestAnimationFrame(animate)
 
-				requestAnimationFrame( animate );
-
-				TWEEN.update( time );
-				stats.update();
+				TWEEN.update(time)
+				stats.update()
 			}
 		</script>
 	</body>

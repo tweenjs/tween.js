@@ -1,40 +1,40 @@
-body { 
+body {
 	background: #fff;
-	font-family: Helvetica, Arial, sans; 
+	font-family: Helvetica, Arial, sans;
 }
 
-	a {
-		color: #333;
-	}
+a {
+	color: #333;
+}
 
-	h2 {
-		font-weight: normal;
-	}
+h2 {
+	font-weight: normal;
+}
 
-	#info {
-		position: absolute;
-		top: 0;
-		left: 0;
-		padding: 1.5em 2em; 
-	}
+#info {
+	position: absolute;
+	top: 0;
+	left: 0;
+	padding: 1.5em 2em;
+}
 
-		#info h1 {
-			font-size: 3em; 
-			color: #333; 
-			margin-top: 0;
-			letter-spacing: -0.05em; 
-		}
+#info h1 {
+	font-size: 3em;
+	color: #333;
+	margin-top: 0;
+	letter-spacing: -0.05em;
+}
 
-		#info h2 {
-			font-size: 2.5em;
-			text-transform: uppercase;
-			color: #666;
-			margin-top: 0; 
-		}
-	
-		#info p {
-			font-size: 2em;
-			line-height: 1em;
-			color: #aaa;
-			max-width: 10em;
-		}
+#info h2 {
+	font-size: 2.5em;
+	text-transform: uppercase;
+	color: #666;
+	margin-top: 0;
+}
+
+#info p {
+	font-size: 2em;
+	line-height: 1em;
+	color: #aaa;
+	max-width: 10em;
+}
