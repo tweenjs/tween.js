@@ -54,7 +54,6 @@ export class Tween<T extends UnknownProps> {
 	}
 
 	to(properties: UnknownProps, duration?: number): this {
-		// to (properties, duration) {
 		for (const prop in properties) {
 			this._valuesEnd[prop] = properties[prop]
 		}
