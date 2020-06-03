@@ -7,13 +7,13 @@
  * Thank you all, you're awesome!
  */
 
-import NOW from './Now';
-import Group from './Group';
-import Easing from './Easing';
-import Interpolation from './Interpolation';
-import Sequence from './Sequence';
-import Tween from './Tween';
-import VERSION from './Version';
+import NOW from './Now'
+import Group from './Group'
+import Easing from './Easing'
+import Interpolation from './Interpolation'
+import Sequence from './Sequence'
+import Tween from './Tween'
+import VERSION from './Version'
 
 /**
  * Controlling groups of tweens
@@ -22,23 +22,23 @@ import VERSION from './Version';
  * In these cases, you may want to create your own smaller groups of tween
  */
 class Main extends Group {
-    public version = VERSION;
+	public version = VERSION
 
-    public now = NOW;
+	public now = NOW
 
-    public Group = Group;
+	public Group = Group
 
-    public Easing = Easing;
+	public Easing = Easing
 
-    public Interpolation = Interpolation;
+	public Interpolation = Interpolation
 
-    public nextId = Sequence.nextId;
+	public nextId = Sequence.nextId
 
-    public Tween = Tween;
+	public Tween = Tween
 }
 
-const TWEEN = new Main();
+const TWEEN = new Main()
 
-Tween.inject(TWEEN);
+Tween.inject(TWEEN)
 
-export default TWEEN;
+export default TWEEN

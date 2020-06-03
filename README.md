@@ -15,28 +15,29 @@ Do you use tween.js? If you have some time, please fill out [this short survey](
 ---
 
 ```javascript
-const box = document.createElement('div');
-box.style.setProperty('background-color', '#008800');
-box.style.setProperty('width', '100px');
-box.style.setProperty('height', '100px');
-document.body.appendChild(box);
+const box = document.createElement('div')
+box.style.setProperty('background-color', '#008800')
+box.style.setProperty('width', '100px')
+box.style.setProperty('height', '100px')
+document.body.appendChild(box)
 
 // Setup the animation loop.
 function animate(time) {
-    requestAnimationFrame(animate);
-    TWEEN.update(time);
+	requestAnimationFrame(animate)
+	TWEEN.update(time)
 }
-requestAnimationFrame(animate);
+requestAnimationFrame(animate)
 
-const coords = { x: 0, y: 0 }; // Start at (0, 0)
+const coords = {x: 0, y: 0} // Start at (0, 0)
 const tween = new TWEEN.Tween(coords) // Create a new tween that modifies 'coords'.
-        .to({ x: 300, y: 200 }, 1000) // Move to (300, 200) in 1 second.
-        .easing(TWEEN.Easing.Quadratic.Out) // Use an easing function to make the animation smooth.
-        .onUpdate(() => { // Called after tween.js updates 'coords'.
-            // Move 'box' to the position described by 'coords' with a CSS translation.
-            box.style.setProperty('transform', `translate(${coords.x}px, ${coords.y}px)`);
-        })
-        .start(); // Start the tween immediately.
+	.to({x: 300, y: 200}, 1000) // Move to (300, 200) in 1 second.
+	.easing(TWEEN.Easing.Quadratic.Out) // Use an easing function to make the animation smooth.
+	.onUpdate(() => {
+		// Called after tween.js updates 'coords'.
+		// Move 'box' to the position described by 'coords' with a CSS translation.
+		box.style.setProperty('transform', `translate(${coords.x}px, ${coords.y}px)`)
+	})
+	.start() // Start the tween immediately.
 ```
 
 [Test it with CodePen](https://codepen.io/mikebolt/pen/zzzvZg)
@@ -54,10 +55,10 @@ npm run build
 
 This will create some builds in the `dist` directory. There are currently four different builds of the library:
 
- - UMD : tween.umd.js
- - AMD : tween.amd.js
- - CommonJS : tween.cjs.js
- - ES6 Module : tween.es.js
+- UMD : tween.umd.js
+- AMD : tween.amd.js
+- CommonJS : tween.cjs.js
+- ES6 Module : tween.es.js
 
 You are now able to copy tween.umd.js into your project, then include it with
 a script tag. This will add TWEEN to the global scope.
@@ -77,25 +78,25 @@ npm i @tweenjs/tween.js@^18
 If you are using Node, Webpack, or Browserify, then you can now use the following to include tween.js:
 
 ```javascript
-const TWEEN = require('@tweenjs/tween.js');
+const TWEEN = require('@tweenjs/tween.js')
 ```
 
 ## Features
 
-* Does one thing and one thing only: tween properties
-* Doesn't take care of CSS units (e.g. appending `px`)
-* Doesn't interpolate colours
-* Easing functions are reusable outside of Tween
-* Can also use custom easing functions
+- Does one thing and one thing only: tween properties
+- Doesn't take care of CSS units (e.g. appending `px`)
+- Doesn't interpolate colours
+- Easing functions are reusable outside of Tween
+- Can also use custom easing functions
 
 ## Documentation
 
-* [User guide](./docs/user_guide.md)
-* [Contributor guide](./docs/contributor_guide.md)
-* [Tutorial](http://learningthreejs.com/blog/2011/08/17/tweenjs-for-smooth-animation/)  using tween.js with three.js
-* Also: [libtween](https://github.com/jsm174/libtween), a port of tween.js to C by [jsm174](https://github.com/jsm174)
-* Also: [es6-tween](https://github.com/tweenjs/es6-tween), a port of tween.js to ES6/Harmony by [dalisoft](https://github.com/dalisoft)
-* [Understanding tween.js](https://mikebolt.me/article/understanding-tweenjs.html)
+- [User guide](./docs/user_guide.md)
+- [Contributor guide](./docs/contributor_guide.md)
+- [Tutorial](http://learningthreejs.com/blog/2011/08/17/tweenjs-for-smooth-animation/) using tween.js with three.js
+- Also: [libtween](https://github.com/jsm174/libtween), a port of tween.js to C by [jsm174](https://github.com/jsm174)
+- Also: [es6-tween](https://github.com/tweenjs/es6-tween), a port of tween.js to ES6/Harmony by [dalisoft](https://github.com/dalisoft)
+- [Understanding tween.js](https://mikebolt.me/article/understanding-tweenjs.html)
 
 ## Examples
 
@@ -249,7 +250,7 @@ npm test
 
 every time you want to run the tests.
 
-If you want to add any feature or change existing features, you *must* run the tests to make sure you didn't break anything else. If you send a pull request (PR) to add something new and it doesn't have tests, or the tests don't pass, the PR won't be accepted. See [contributing](CONTRIBUTING.md) for more information.
+If you want to add any feature or change existing features, you _must_ run the tests to make sure you didn't break anything else. If you send a pull request (PR) to add something new and it doesn't have tests, or the tests don't pass, the PR won't be accepted. See [contributing](CONTRIBUTING.md) for more information.
 
 ## People
 
@@ -280,4 +281,3 @@ Maintainers: [mikebolt](https://github.com/mikebolt), [sole](https://github.com/
 [flattr-url]: https://flattr.com/thing/45014/tween-js
 [cdnjs-image]: https://img.shields.io/cdnjs/v/tween.js.svg
 [cdnjs-url]: https://cdnjs.com/libraries/tween.js
-

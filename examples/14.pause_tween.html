@@ -1,27 +1,33 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="en">
 	<head>
 		<title>Tween.js / pause tween</title>
-		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 		<link href="css/style.css" media="screen" rel="stylesheet" type="text/css" />
 	</head>
 	<body>
 		<div id="info">
 			<h1><a href="http://github.com/tweenjs/tween.js">tween.js</a></h1>
 			<h2>14 _ pause tween</h2>
-            <br>
+			<br />
 			<p>
 				<button type="button" onclick="pause()">
-						Pause
+					Pause
 				</button>
-				, then 
+				, then
 				<button type="button" onclick="resume()">
-						Resume
-				</button>.
+					Resume</button
+				>.
 			</p>
 		</div>
-		<div id="progress_bar_wrapper" style="position:absolute; top: 300px; left: 100px; width: 500px; height: 100px; border: 0.5em solid black; overflow: hidden;">
-			<div id="progress_bar_fill" style="position:absolute; top: 0px; left: 0px; width: 0%; height: 100%; background: #a0dde9; line-height: 6em; text-align: center;">
+		<div
+			id="progress_bar_wrapper"
+			style="position:absolute; top: 300px; left: 100px; width: 500px; height: 100px; border: 0.5em solid black; overflow: hidden;"
+		>
+			<div
+				id="progress_bar_fill"
+				style="position:absolute; top: 0px; left: 0px; width: 0%; height: 100%; background: #a0dde9; line-height: 6em; text-align: center;"
+			>
 				0%
 			</div>
 		</div>
@@ -29,54 +35,43 @@
 		<script src="../dist/tween.umd.js"></script>
 		<script src="js/RequestAnimationFrame.js"></script>
 		<script>
-			var progress;
-			var fill;
-			var tween1;
+			var progress
+			var fill
+			var tween1
 
-			init();
-			animate();
+			init()
+			animate()
 
 			function init() {
-
-				progress = {width: 0};
-				fill = document.getElementById('progress_bar_fill');
+				progress = {width: 0}
+				fill = document.getElementById('progress_bar_fill')
 
 				tween1 = new TWEEN.Tween(progress)
 					.to({width: 100}, 2000)
 					.onUpdate(update1)
 					.yoyo(true)
 					.repeat(Infinity)
-					.start('+500');
-
+					.start('+500')
 			}
 
-			function animate( time ) {
+			function animate(time) {
+				requestAnimationFrame(animate)
 
-				requestAnimationFrame( animate );
-
-				TWEEN.update( time );
-
+				TWEEN.update(time)
 			}
 
 			function update1() {
-
-				fill.style.width = progress.width + '%';
-				fill.innerHTML = Math.floor(progress.width) + '%';
-
+				fill.style.width = progress.width + '%'
+				fill.innerHTML = Math.floor(progress.width) + '%'
 			}
 
 			function pause() {
-
-				tween1.pause();
-
+				tween1.pause()
 			}
 
 			function resume() {
-
-				tween1.resume();
-
+				tween1.resume()
 			}
-            
 		</script>
 	</body>
 </html>

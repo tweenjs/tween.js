@@ -6,19 +6,19 @@ export default {
 		{
 			file: 'dist/tween.umd.js',
 			name: 'TWEEN',
-			format: 'umd'
+			format: 'umd',
 		},
 		{
 			file: 'dist/tween.amd.js',
-			format: 'amd'
+			format: 'amd',
 		},
 		{
 			file: 'dist/tween.cjs.js',
-			format: 'cjs'
+			format: 'cjs',
 		},
 		{
 			file: 'dist/tween.esm.js',
-			format: 'es'
-		}
-	]
-};
+			format: 'es',
+		},
+	],
+}

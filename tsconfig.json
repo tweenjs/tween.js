@@ -1,18 +1,13 @@
 {
-  "compilerOptions": {
-    "baseUrl": ".",
-    "outDir": "./.tmp",
-    "noImplicitAny": true,
-    "sourceMap": true,
-    "module": "es6",
-    "target": "es5",
-    "moduleResolution": "node",
-    "lib": [
-      "dom",
-      "es2015"
-    ]
-  },
-  "exclude": [
-    "node_modules"
-  ]
+	"compilerOptions": {
+		"baseUrl": ".",
+		"outDir": "./.tmp",
+		"noImplicitAny": true,
+		"sourceMap": true,
+		"module": "es6",
+		"target": "es5",
+		"moduleResolution": "node",
+		"lib": ["dom", "es2015"]
+	},
+	"exclude": ["node_modules"]
 }

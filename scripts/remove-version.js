@@ -1,7 +1,7 @@
-const fs = require('fs');
+const fs = require('fs')
 
-fs.unlink('.temp.version.js', (error) => {
-  if (error) {
-    process.exit(1);
-  }
-});
+fs.unlink('.temp.version.js', error => {
+	if (error) {
+		process.exit(1)
+	}
+})

@@ -1,80 +1,76 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="en">
 	<head>
 		<title>Tween.js / relative start time</title>
-		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 		<link href="css/style.css" media="screen" rel="stylesheet" type="text/css" />
 	</head>
 	<body>
 		<div id="info">
 			<h1><a href="http://github.com/tweenjs/tween.js">tween.js</a></h1>
 			<h2>13 _ relative start time</h2>
-            <br>
+			<br />
 			<p>One starts late, Two starts early.</p>
 		</div>
-		<div id="target1" style="position:absolute; top: 100px; left: 100px; width: 100px; height: 100px; background: #a0dde9; padding: 1em;">
+		<div
+			id="target1"
+			style="position:absolute; top: 100px; left: 100px; width: 100px; height: 100px; background: #a0dde9; padding: 1em;"
+		>
 			One
 		</div>
-        
-        <div id="target2" style="position:absolute; top: 300px; left: 100px; width: 100px; height: 100px; background: #a0dde9; padding: 1em;">
+
+		<div
+			id="target2"
+			style="position:absolute; top: 300px; left: 100px; width: 100px; height: 100px; background: #a0dde9; padding: 1em;"
+		>
 			Two
 		</div>
 
 		<script src="../dist/tween.umd.js"></script>
 		<script src="js/RequestAnimationFrame.js"></script>
 		<script>
-			var position;
-			var target;
-			var tween1, tween2;
+			var position
+			var target
+			var tween1, tween2
 
-			init();
-			animate();
+			init()
+			animate()
 
 			function init() {
+				position1 = {x: 100, y: 100, rotation: 0}
+				position2 = {x: 100, y: 300, rotation: 0}
+				target1 = document.getElementById('target1')
+				target2 = document.getElementById('target2')
 
-				position1 = {x: 100, y: 100, rotation: 0};
-                position2 = {x: 100, y: 300, rotation: 0};
-				target1 = document.getElementById('target1');
-                target2 = document.getElementById('target2');
-                
 				tween1 = new TWEEN.Tween(position1)
 					.to({x: 700, y: 200, rotation: 359}, 2000)
 					.easing(TWEEN.Easing.Elastic.InOut)
-					.onUpdate(update1);
-                    
-                tween2 = new TWEEN.Tween(position2)
-                    .to({x: 500, y: 300, rotation: -90}, 2000)
-					.onUpdate(update2);
+					.onUpdate(update1)
 
-				tween1.start('+4000');
-                tween2.start('-500');
+				tween2 = new TWEEN.Tween(position2).to({x: 500, y: 300, rotation: -90}, 2000).onUpdate(update2)
 
+				tween1.start('+4000')
+				tween2.start('-500')
 			}
 
-			function animate( time ) {
+			function animate(time) {
+				requestAnimationFrame(animate)
 
-				requestAnimationFrame( animate );
-
-				TWEEN.update( time );
-
+				TWEEN.update(time)
 			}
 
 			function update1() {
-
-				target1.style.left = position1.x + 'px';
-				target1.style.top = position1.y + 'px';
-				target1.style.webkitTransform = 'rotate(' + Math.floor(position1.rotation) + 'deg)';
-				target1.style.MozTransform = 'rotate(' + Math.floor(position1.rotation) + 'deg)';
-
+				target1.style.left = position1.x + 'px'
+				target1.style.top = position1.y + 'px'
+				target1.style.webkitTransform = 'rotate(' + Math.floor(position1.rotation) + 'deg)'
+				target1.style.MozTransform = 'rotate(' + Math.floor(position1.rotation) + 'deg)'
 			}
-            
-            function update2() {
 
-				target2.style.left = position2.x + 'px';
-				target2.style.top = position2.y + 'px';
-				target2.style.webkitTransform = 'rotate(' + Math.floor(position2.rotation) + 'deg)';
-				target2.style.MozTransform = 'rotate(' + Math.floor(position2.rotation) + 'deg)';
-
+			function update2() {
+				target2.style.left = position2.x + 'px'
+				target2.style.top = position2.y + 'px'
+				target2.style.webkitTransform = 'rotate(' + Math.floor(position2.rotation) + 'deg)'
+				target2.style.MozTransform = 'rotate(' + Math.floor(position2.rotation) + 'deg)'
 			}
 		</script>
 	</body>

@@ -1,88 +1,82 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="en">
 	<head>
 		<title>Tween.js / bars</title>
-		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 		<link href="css/style.css" media="screen" rel="stylesheet" type="text/css" />
 	</head>
 	<body>
 		<div id="info">
-				<h1><a href="http://github.com/tweenjs/tween.js">tween.js</a></h1>
-				<h2>01 _ Bars</h2>
-				<p>1000 bars, moving horizontally, looped.</p>
-			</div>
+			<h1><a href="http://github.com/tweenjs/tween.js">tween.js</a></h1>
+			<h2>01 _ Bars</h2>
+			<p>1000 bars, moving horizontally, looped.</p>
+		</div>
 		<div id="target"></div>
 
 		<script src="../dist/tween.umd.js"></script>
 		<script src="js/stats.min.js"></script>
 		<script src="js/RequestAnimationFrame.js"></script>
 		<script>
-			var stats;
-			var elems = [];
+			var stats
+			var elems = []
 
-			init();
-			animate();
+			init()
+			animate()
 
 			function init() {
-				stats = new Stats();
-				var sds = stats.domElement.style;
-				sds.position = 'absolute';
-				sds.right = '0px';
-				sds.top = '0px';
-				sds.margin = '4em 3em';
-				document.body.appendChild(stats.domElement);
+				stats = new Stats()
+				var sds = stats.domElement.style
+				sds.position = 'absolute'
+				sds.right = '0px'
+				sds.top = '0px'
+				sds.margin = '4em 3em'
+				document.body.appendChild(stats.domElement)
 
-				for(var i = 0; i < 1000; i++) {
+				for (var i = 0; i < 1000; i++) {
+					var startValue = 500 + (Math.random() - Math.random()) * 250
+					var endValue = 500 + (Math.random() - Math.random()) * 250
 
-					var startValue = 500 + (Math.random() - Math.random()) * 250;
-					var endValue = 500 + (Math.random() - Math.random()) * 250;
+					var domElement = document.createElement('div')
+					var bg = (Math.random() * 0xffffff) >> 0
+					domElement.style.position = 'absolute'
+					domElement.style.top = Math.random() * window.innerHeight + 'px'
+					domElement.style.left = startValue + 'px'
+					domElement.style.background = '#' + bg.toString(16)
+					domElement.style.width = '100px'
+					domElement.style.height = '2px'
 
-					var domElement = document.createElement('div');
-					var bg = (Math.random() * 0xffffff) >> 0;
-					domElement.style.position = 'absolute';
-					domElement.style.top = (Math.random() * window.innerHeight) + 'px';
-					domElement.style.left = startValue + 'px';
-					domElement.style.background = '#' + bg.toString(16);
-					domElement.style.width = '100px';
-					domElement.style.height = '2px';
-
-					var elem = { x: startValue, domElement: domElement };
+					var elem = {x: startValue, domElement: domElement}
 
 					var updateCallback = function(object) {
-						object.domElement.style.left = object.x + 'px';
+						object.domElement.style.left = object.x + 'px'
 					}
 
 					var tween = new TWEEN.Tween(elem)
-						.to({ x: endValue }, 4000)
+						.to({x: endValue}, 4000)
 						.delay(Math.random() * 1000)
 						.onUpdate(updateCallback)
 						.easing(TWEEN.Easing.Back.Out)
-						.start();
+						.start()
 
 					var tweenBack = new TWEEN.Tween(elem, false)
-						.to({ x: startValue}, 4000)
+						.to({x: startValue}, 4000)
 						.delay(Math.random() * 1000)
 						.onUpdate(updateCallback)
-						.easing(TWEEN.Easing.Elastic.InOut);
+						.easing(TWEEN.Easing.Elastic.InOut)
 
-					tween.chain(tweenBack);
-					tweenBack.chain(tween);
+					tween.chain(tweenBack)
+					tweenBack.chain(tween)
 
-					document.body.appendChild(elem.domElement);
-
+					document.body.appendChild(elem.domElement)
 				}
-
 			}
 
-			function animate( time ) {
+			function animate(time) {
+				requestAnimationFrame(animate)
 
-				requestAnimationFrame( animate );
-
-				TWEEN.update( time );
-				stats.update();
-
+				TWEEN.update(time)
+				stats.update()
 			}
-
 		</script>
 	</body>
 </html>
