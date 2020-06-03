@@ -45,7 +45,7 @@ This will take care of updating all active tweens; after 1 second (i.e. 1000 mil
 But unless you print the value of `x` to the console, you can't see its value changing. You might want to use the `onUpdate` callback:
 
 ```javascript
-tween.onUpdate(function(object) {
+tween.onUpdate(function (object) {
 	console.log(object.x)
 })
 ```
@@ -320,7 +320,7 @@ var trickyObjTween = new TWEEN.Tween({
 	propertyB: trickyObj.getPropertyB(),
 })
 	.to({propertyA: 100, propertyB: 200})
-	.onUpdate(function(object) {
+	.onUpdate(function (object) {
 		object.setA(object.propertyA)
 		object.setB(object.propertyB)
 	})
@@ -329,7 +329,7 @@ var trickyObjTween = new TWEEN.Tween({
 Or imagine you want to play a sound when a tween is started. You can use a `start` callback:
 
 ```javascript
-var tween = new TWEEN.Tween(obj).to({x: 100}).onStart(function() {
+var tween = new TWEEN.Tween(obj).to({x: 100}).onStart(function () {
 	sound.play()
 })
 ```
@@ -399,6 +399,15 @@ relativeTween.start() // Makes x go to -100 +100 = 0
 
 Check [09_relative_values](../examples/09_relative_values.html) for an example.
 
+### Tweening nested objects
+
+Tween.js can also change properties across nested objects. For example:
+
+```javascript
+var nestedObject = {scale: {x: 0, y: 0}, alpha: 0}
+var tween = new TWEEN.Tween(nestedObject).to({scale: {x: 100, y: 100}, alpha: 1})
+```
+
 ### Tweening to arrays of values
 
 In addition to tweening to an absolute or a relative value, you can also have Tween.js change properties across a series of values. To do this, you just need to specify an array of values instead of a single value for a property. For example:
@@ -445,7 +454,7 @@ When you try to animate the position of an element in the page, the easiest solu
 
 ```javascript
 var element = document.getElementById('myElement')
-var tween = new TWEEN.Tween({top: 0, left: 0}).to({top: 100, left: 100}, 1000).onUpdate(function(object) {
+var tween = new TWEEN.Tween({top: 0, left: 0}).to({top: 100, left: 100}, 1000).onUpdate(function (object) {
 	element.style.top = object.top + 'px'
 	element.style.left = object.left + 'px'
 })
@@ -455,7 +464,7 @@ but this is really inefficient because altering these properties forces the brow
 
 ```javascript
 var element = document.getElementById('myElement')
-var tween = new TWEEN.Tween({top: 0, left: 0}).to({top: 100, left: 100}, 1000).onUpdate(function(object) {
+var tween = new TWEEN.Tween({top: 0, left: 0}).to({top: 100, left: 100}, 1000).onUpdate(function (object) {
 	element.style.transform = 'translate(' + object.left + 'px, ' + object.top + 'px)'
 })
 ```

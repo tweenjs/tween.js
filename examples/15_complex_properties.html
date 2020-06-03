@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
-		<title>Tween.js / hello world!</title>
+		<title>Tween.js / complex properties</title>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 		<link href="css/style.css" media="screen" rel="stylesheet" type="text/css" />
 	</head>
 	<body>
 		<div id="info">
 			<h1><a href="http://github.com/tweenjs/tween.js">tween.js</a></h1>
-			<h2>00 _ hello world</h2>
+			<h2>15 _ complex properties</h2>
 			<p>Simple example for illustrating the creation and chaining of tweens.</p>
 		</div>
 		<div
@@ -37,17 +37,16 @@
 			animate()
 
 			function init() {
-				position = {x: 100, y: 100, rotation: 0}
+				position = {x: 100, y: 100, styles: {opacity: 1.0}}
 				target = document.getElementById('target')
 				tween = new TWEEN.Tween(position)
-					.to({x: 700, y: 200, rotation: 359}, 2000)
+					.to({x: 700, y: 200, styles: {opacity: 0.5}}, 1000)
 					.delay(1000)
-					.easing(TWEEN.Easing.Elastic.InOut)
 					.onUpdate(update)
 
 				tweenBack = new TWEEN.Tween(position)
-					.to({x: 100, y: 100, rotation: 0}, 3000)
-					.easing(TWEEN.Easing.Elastic.InOut)
+					.to({x: 100, y: 100, styles: {opacity: 1.0}}, 1000)
+
 					.onUpdate(update)
 
 				tween.chain(tweenBack)
@@ -66,11 +65,10 @@
 				if (!result) cancelAnimationFrame(id)
 			}
 
-			function update() {
-				target.style.left = position.x + 'px'
-				target.style.top = position.y + 'px'
-				target.style.webkitTransform = 'rotate(' + Math.floor(position.rotation) + 'deg)'
-				target.style.MozTransform = 'rotate(' + Math.floor(position.rotation) + 'deg)'
+			function update(values) {
+				target.style.opacity = values.styles.opacity
+				target.style.left = values.x + 'px'
+				target.style.top = values.y + 'px'
 			}
 		</script>
 	</body>

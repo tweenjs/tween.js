@@ -23,22 +23,13 @@ import VERSION from './Version'
  */
 class Main extends Group {
 	public version = VERSION
-
 	public now = NOW
-
 	public Group = Group
-
 	public Easing = Easing
-
 	public Interpolation = Interpolation
-
 	public nextId = Sequence.nextId
-
 	public Tween = Tween
 }
 
 const TWEEN = new Main()
-
-Tween.inject(TWEEN)
-
 export default TWEEN

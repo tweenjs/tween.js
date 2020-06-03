@@ -29,14 +29,11 @@ function createGraph(t, f, c) {
 	var position = {x: 5, y: 80}
 	var position_old = {x: 5, y: 80}
 
-	new TWEEN.Tween(position)
-		.to({x: 175}, 2000)
-		.easing(TWEEN.Easing.Linear.None)
-		.start()
+	new TWEEN.Tween(position).to({x: 175}, 2000).easing(TWEEN.Easing.Linear.None).start()
 	new TWEEN.Tween(position)
 		.to({y: 20}, 2000)
 		.easing(f)
-		.onUpdate(function() {
+		.onUpdate(function () {
 			context.beginPath()
 			context.moveTo(position_old.x, position_old.y)
 			context.lineTo(position.x, position.y)

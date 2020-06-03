@@ -2,9 +2,9 @@
  * Utils
  */
 export default class Sequence {
-	static _nextId = 0
+	private static _nextId = 0
 
-	static nextId = function(): number {
+	static nextId(): number {
 		return Sequence._nextId++
 	}
 }

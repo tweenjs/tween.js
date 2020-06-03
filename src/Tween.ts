@@ -7,391 +7,406 @@
  * Thank you all, you're awesome!
  */
 
-import NOW from './Now'
-import Easing, {EasingFunction} from './Easing'
-import Interpolation, {InterpolationFunction} from './Interpolation'
-import Group, {TweenBase} from './Group'
-import Sequence from './Sequence'
+import type {EasingFunction} from './Easing'
+import type {InterpolationFunction} from './Interpolation'
+import type Group from './Group'
+import TWEEN from './Index'
 
-type AnyProps = {
-	[key: string]: any
-}
+export class Tween<T extends UnknownProps> {
+	private _isPaused = false
+	private _pauseStart = 0
+	private _valuesStart: UnknownProps = {}
+	private _valuesEnd: UnknownProps = {}
+	private _valuesStartRepeat: UnknownProps = {}
+	private _duration = 1000
+	private _initialRepeat = 0
+	private _repeat = 0
+	private _repeatDelayTime?: number
+	private _yoyo = false
+	private _isPlaying = false
+	private _reversed = false
+	private _delayTime = 0
+	private _startTime = 0
+	private _easingFunction: EasingFunction = TWEEN.Easing.Linear.None
+	private _interpolationFunction: InterpolationFunction = TWEEN.Interpolation.Linear
+	private _chainedTweens: Array<Tween<UnknownProps>> = []
+	private _onStartCallback?: (object: T) => void
+	private _onStartCallbackFired = false
+	private _onUpdateCallback?: (object: T, elapsed: number) => void
+	private _onRepeatCallback?: (object: T) => void
+	private _onCompleteCallback?: (object: T) => void
+	private _onStopCallback?: (object: T) => void
+	private _id = TWEEN.nextId()
+	private _isChainStopped = false
 
-/**
- * A tween (from in-between) is a concept that allows you to change the values of the properties of an object in a
- * smooth way. You just tell it which properties you want to change, which final values should they have when the
- * tween finishes running, and how long should this take, and the tweening engine will take care of finding the
- * intermediate values from the starting to the ending point.
- */
-export default class Tween implements TweenBase {
-	static TWEEN: Group
+	constructor(private _object: T, private _group: Group = TWEEN) {}
 
-	static inject(instance: Group) {
-		Tween.TWEEN = instance
+	getId(): number {
+		return this._id
 	}
 
-	public playing = false
-
-	private id: number
-
-	private object: any
-
-	private groupRef: Group
-
-	private paused = false
-
-	private pauseStart = 0
-
-	private valuesStart: AnyProps = {}
-
-	private valuesEnd: AnyProps = {}
-
-	private valuesStartRepeat: AnyProps = {}
-
-	private durationValue = 1000
-
-	private repeatValue = 0
-
-	private repeatDelayTime?: number
-
-	private yoyoValue = false
-
-	private reversed = false
-
-	private delayTime = 0
-
-	private startTime = 0
-
-	private easingFunction: EasingFunction = Easing.Linear.None
-
-	private interpolationFunction: InterpolationFunction = Interpolation.Linear
-
-	private chainedTweens: Tween[] = []
-
-	private onStartCallbackFired = false
-
-	private onStartCallback?: (object: any) => void
-
-	private onUpdateCallback?: (object: any, elapsed: number) => void
-
-	private onRepeatCallback?: (object: any) => void
-
-	private onCompleteCallback?: (object: any) => void
-
-	private onStopCallback?: (object: any) => void
-
-	constructor(object: any, groupRef?: Group) {
-		this.id = Sequence.nextId()
-		this.object = object
-		this.groupRef = groupRef || Tween.TWEEN
+	isPlaying(): boolean {
+		return this._isPlaying
 	}
 
-	getId() {
-		return this.id
+	isPaused(): boolean {
+		return this._isPaused
 	}
 
-	isPlaying() {
-		return this.playing
-	}
-
-	isPaused() {
-		return this.paused
-	}
-
-	to(properties: {}, duration?: number) {
-		this.valuesEnd = Object.create(properties)
+	to(properties: UnknownProps, duration?: number): this {
+		// to (properties, duration) {
+		for (const prop in properties) {
+			this._valuesEnd[prop] = properties[prop]
+		}
 
 		if (duration !== undefined) {
-			this.durationValue = duration
+			this._duration = duration
 		}
 
 		return this
 	}
 
-	duration(value: number) {
-		this.durationValue = value
+	duration(d: number): this {
+		this._duration = d
 		return this
 	}
 
-	start(time?: number | string) {
-		this.groupRef.add(this)
-
-		this.playing = true
-
-		this.paused = false
-
-		this.onStartCallbackFired = false
-
-		this.startTime = time !== undefined ? (typeof time === 'string' ? NOW() + parseFloat(time) : time) : NOW()
-		this.startTime += this.delayTime
-
-		for (const property in this.valuesEnd) {
-			// Check if an Array was provided as property value
-			if (this.valuesEnd[property] instanceof Array) {
-				if (this.valuesEnd[property].length === 0) {
-					continue
-				}
-
-				// Create a local copy of the Array with the start value at the front
-				this.valuesEnd[property] = [this.object[property]].concat(this.valuesEnd[property])
-			}
-
-			// If `to()` specifies a property that doesn't exist in the source object,
-			// we should not set that property in the object
-			if (this.object[property] === undefined) {
-				continue
-			}
-
-			// Save the starting value, but only once.
-			if (typeof this.valuesStart[property] === 'undefined') {
-				this.valuesStart[property] = this.object[property]
-			}
-
-			if (this.valuesStart[property] instanceof Array === false) {
-				this.valuesStart[property] *= 1.0 // Ensures we're using numbers, not strings
-			}
-
-			this.valuesStartRepeat[property] = this.valuesStart[property] || 0
-		}
-
-		return this
-	}
-
-	stop() {
-		if (!this.playing) {
+	start(time: number): this {
+		if (this._isPlaying) {
 			return this
 		}
 
-		this.groupRef.remove(this)
+		// eslint-disable-next-line
+		// @ts-ignore FIXME?
+		this._group.add(this)
 
-		this.playing = false
+		this._repeat = this._initialRepeat
 
-		this.paused = false
+		if (this._reversed) {
+			// If we were reversed (f.e. using the yoyo feature) then we need to
+			// flip the tween direction back to forward.
 
-		if (this.onStopCallback) {
-			this.onStopCallback(this.object)
+			this._reversed = false
+
+			for (const property in this._valuesStartRepeat) {
+				this._swapEndStartRepeatValues(property)
+				this._valuesStart[property] = this._valuesStartRepeat[property]
+			}
 		}
 
-		this.stopChainedTweens()
+		this._isPlaying = true
+
+		this._isPaused = false
+
+		this._onStartCallbackFired = false
+
+		this._isChainStopped = false
+
+		this._startTime =
+			time !== undefined ? (typeof time === 'string' ? TWEEN.now() + parseFloat(time) : time) : TWEEN.now()
+		this._startTime += this._delayTime
+
+		this._setupProperties(this._object, this._valuesStart, this._valuesEnd, this._valuesStartRepeat)
+
 		return this
 	}
 
-	end() {
+	private _setupProperties(
+		_object: UnknownProps,
+		_valuesStart: UnknownProps,
+		_valuesEnd: UnknownProps,
+		_valuesStartRepeat: UnknownProps,
+	): void {
+		for (const property in _valuesEnd) {
+			const startValue = _object[property]
+			const startValueIsArray = Array.isArray(startValue)
+			const propType = startValueIsArray ? 'array' : typeof startValue
+			const isInterpolationList = !startValueIsArray && Array.isArray(_valuesEnd[property])
+
+			// If `to()` specifies a property that doesn't exist in the source object,
+			// we should not set that property in the object
+			if (propType === 'undefined' || propType === 'function') {
+				continue
+			}
+
+			// Check if an Array was provided as property value
+			if (isInterpolationList) {
+				let endValues = _valuesEnd[property] as Array<number | string>
+
+				if (endValues.length === 0) {
+					continue
+				}
+
+				// handle an array of relative values
+				endValues = endValues.map(this._handleRelativeValue.bind(this, startValue as number))
+
+				// Create a local copy of the Array with the start value at the front
+				_valuesEnd[property] = [startValue].concat(endValues)
+			}
+
+			// handle the deepness of the values
+			if ((propType === 'object' || startValueIsArray) && startValue && !isInterpolationList) {
+				_valuesStart[property] = startValueIsArray ? [] : {}
+
+				// eslint-disable-next-line
+				for (const prop in startValue as object) {
+					// eslint-disable-next-line
+					// @ts-ignore FIXME?
+					_valuesStart[property][prop] = startValue[prop]
+				}
+
+				_valuesStartRepeat[property] = startValueIsArray ? [] : {} // TODO? repeat nested values? And yoyo? And array values?
+
+				// eslint-disable-next-line
+				// @ts-ignore FIXME?
+				this._setupProperties(startValue, _valuesStart[property], _valuesEnd[property], _valuesStartRepeat[property])
+			} else {
+				// Save the starting value, but only once.
+				if (typeof _valuesStart[property] === 'undefined') {
+					_valuesStart[property] = startValue
+				}
+
+				if (!startValueIsArray) {
+					// eslint-disable-next-line
+					// @ts-ignore FIXME?
+					_valuesStart[property] *= 1.0 // Ensures we're using numbers, not strings
+				}
+
+				if (isInterpolationList) {
+					// eslint-disable-next-line
+					// @ts-ignore FIXME?
+					_valuesStartRepeat[property] = _valuesEnd[property].slice().reverse()
+				} else {
+					_valuesStartRepeat[property] = _valuesStart[property] || 0
+				}
+			}
+		}
+	}
+
+	stop(): this {
+		if (!this._isChainStopped) {
+			this._isChainStopped = true
+			this.stopChainedTweens()
+		}
+
+		if (!this._isPlaying) {
+			return this
+		}
+
+		// eslint-disable-next-line
+		// @ts-ignore FIXME?
+		this._group.remove(this)
+
+		this._isPlaying = false
+
+		this._isPaused = false
+
+		if (this._onStopCallback) {
+			this._onStopCallback(this._object)
+		}
+
+		return this
+	}
+
+	end(): this {
 		this.update(Infinity)
 		return this
 	}
 
-	pause(time: number) {
-		if (this.paused || !this.playing) {
+	pause(time: number): this {
+		if (this._isPaused || !this._isPlaying) {
 			return this
 		}
 
-		this.paused = true
+		this._isPaused = true
 
-		this.pauseStart = time === undefined ? NOW() : time
+		this._pauseStart = time === undefined ? TWEEN.now() : time
 
-		this.groupRef.remove(this)
+		// eslint-disable-next-line
+		// @ts-ignore FIXME?
+		this._group.remove(this)
 
 		return this
 	}
 
-	resume(time: number) {
-		if (!this.paused || !this.playing) {
+	resume(time: number): this {
+		if (!this._isPaused || !this._isPlaying) {
 			return this
 		}
 
-		this.paused = false
+		this._isPaused = false
 
-		this.startTime += (time === undefined ? NOW() : time) - this.pauseStart
+		this._startTime += (time === undefined ? TWEEN.now() : time) - this._pauseStart
 
-		this.pauseStart = 0
+		this._pauseStart = 0
 
-		this.groupRef.add(this)
+		// eslint-disable-next-line
+		// @ts-ignore FIXME?
+		this._group.add(this)
 
 		return this
 	}
 
-	stopChainedTweens() {
-		for (let i = 0, numChainedTweens = this.chainedTweens.length; i < numChainedTweens; i++) {
-			this.chainedTweens[i].stop()
+	stopChainedTweens(): this {
+		for (let i = 0, numChainedTweens = this._chainedTweens.length; i < numChainedTweens; i++) {
+			this._chainedTweens[i].stop()
 		}
-	}
-
-	group(group: Group) {
-		this.groupRef = group
 		return this
 	}
 
-	delay(amount: number) {
-		this.delayTime = amount
+	group(group: Group): this {
+		this._group = group
 		return this
 	}
 
-	repeat(times: number) {
-		this.repeatValue = times
+	delay(amount: number): this {
+		this._delayTime = amount
 		return this
 	}
 
-	repeatDelay(amount: number) {
-		this.repeatDelayTime = amount
+	repeat(times: number): this {
+		this._initialRepeat = times
+		this._repeat = times
 		return this
 	}
 
-	yoyo(yoyo: boolean) {
-		this.yoyoValue = yoyo
+	repeatDelay(amount: number): this {
+		this._repeatDelayTime = amount
 		return this
 	}
 
-	easing(easing: EasingFunction) {
-		this.easingFunction = easing
+	yoyo(yoyo: boolean): this {
+		this._yoyo = yoyo
 		return this
 	}
 
-	interpolation(interpolation: InterpolationFunction) {
-		this.interpolationFunction = interpolation
+	easing(easingFunction: EasingFunction): this {
+		this._easingFunction = easingFunction
 		return this
 	}
 
-	chain(...tweens: Tween[]) {
-		this.chainedTweens = tweens
+	interpolation(interpolationFunction: InterpolationFunction): this {
+		this._interpolationFunction = interpolationFunction
 		return this
 	}
 
-	onStart(callback: (object: any) => void) {
-		this.onStartCallback = callback
+	chain(...tweens: Array<Tween<UnknownProps>>): this {
+		this._chainedTweens = tweens
 		return this
 	}
 
-	onUpdate(callback: (object: any, elapsed: number) => void) {
-		this.onUpdateCallback = callback
+	onStart(callback: (object: T) => void): this {
+		this._onStartCallback = callback
 		return this
 	}
 
-	onRepeat(callback: (object: any) => void) {
-		this.onRepeatCallback = callback
+	onUpdate(callback: (object: T, elapsed: number) => void): this {
+		this._onUpdateCallback = callback
 		return this
 	}
 
-	onComplete(callback: (object: any) => void) {
-		this.onCompleteCallback = callback
+	onRepeat(callback: (object: T) => void): this {
+		this._onRepeatCallback = callback
 		return this
 	}
 
-	onStop(callback: (object: any) => void) {
-		this.onStopCallback = callback
+	onComplete(callback: (object: T) => void): this {
+		this._onCompleteCallback = callback
 		return this
 	}
 
-	/**
-	 * Tween.js doesn't run by itself. You need to tell it when to run, by explicitly calling the update method.
-	 * The recommended method is to do this inside your main animation loop, which should be called with
-	 * requestAnimationFrame for getting the best graphics performance
-	 *
-	 * If called without parameters, update will determine the current time in order to find out how long has it been
-	 * since the last time it ran.
-	 *
-	 * @param time
-	 */
-	update(time = 0) {
+	onStop(callback: (object: T) => void): this {
+		this._onStopCallback = callback
+		return this
+	}
+
+	update(time: number): boolean {
 		let property
 		let elapsed
+		const endTime = this._startTime + this._duration
 
-		if (time < this.startTime) {
+		if (time > endTime && !this._isPlaying) {
+			return false
+		}
+
+		// If the tween was already finished,
+		if (!this.isPlaying) {
+			this.start(time)
+		}
+
+		if (time < this._startTime) {
 			return true
 		}
 
-		if (this.onStartCallbackFired === false) {
-			if (this.onStartCallback) {
-				this.onStartCallback(this.object)
+		if (this._onStartCallbackFired === false) {
+			if (this._onStartCallback) {
+				this._onStartCallback(this._object)
 			}
 
-			this.onStartCallbackFired = true
+			this._onStartCallbackFired = true
 		}
 
-		elapsed = (time - this.startTime) / this.durationValue
-		elapsed = this.durationValue === 0 || elapsed > 1 ? 1 : elapsed
+		elapsed = (time - this._startTime) / this._duration
+		elapsed = this._duration === 0 || elapsed > 1 ? 1 : elapsed
 
-		const value = this.easingFunction(elapsed)
+		const value = this._easingFunction(elapsed)
 
-		for (property in this.valuesEnd) {
-			// Don't update properties that do not exist in the source object
-			if (this.valuesStart[property] === undefined) {
-				continue
-			}
+		// properties transformations
+		this._updateProperties(this._object, this._valuesStart, this._valuesEnd, value)
 
-			const start = this.valuesStart[property] || 0
-			let end = this.valuesEnd[property]
-
-			if (end instanceof Array) {
-				this.object[property] = this.interpolationFunction(end, value)
-			} else {
-				// Parses relative end values with start as base (e.g.: +10, -3)
-				if (typeof end === 'string') {
-					if (end.charAt(0) === '+' || end.charAt(0) === '-') {
-						end = start + parseFloat(end)
-					} else {
-						end = parseFloat(end)
-					}
-				}
-
-				// Protect against non numeric properties.
-				if (typeof end === 'number') {
-					this.object[property] = start + (end - start) * value
-				}
-			}
-		}
-
-		if (this.onUpdateCallback) {
-			this.onUpdateCallback(this.object, elapsed)
+		if (this._onUpdateCallback) {
+			this._onUpdateCallback(this._object, elapsed)
 		}
 
 		if (elapsed === 1) {
-			if (this.repeatValue > 0) {
-				if (isFinite(this.repeatValue)) {
-					this.repeatValue--
+			if (this._repeat > 0) {
+				if (isFinite(this._repeat)) {
+					this._repeat--
 				}
 
 				// Reassign starting values, restart by making startTime = now
-				for (property in this.valuesStartRepeat) {
-					if (typeof this.valuesEnd[property] === 'string') {
-						this.valuesStartRepeat[property] = this.valuesStartRepeat[property] + parseFloat(this.valuesEnd[property])
+				for (property in this._valuesStartRepeat) {
+					if (!this._yoyo && typeof this._valuesEnd[property] === 'string') {
+						this._valuesStartRepeat[property] =
+							// eslint-disable-next-line
+							// @ts-ignore FIXME?
+							this._valuesStartRepeat[property] + parseFloat(this._valuesEnd[property])
 					}
 
-					if (this.yoyoValue) {
-						const tmp = this.valuesStartRepeat[property]
-
-						this.valuesStartRepeat[property] = this.valuesEnd[property]
-						this.valuesEnd[property] = tmp
+					if (this._yoyo) {
+						this._swapEndStartRepeatValues(property)
 					}
 
-					this.valuesStart[property] = this.valuesStartRepeat[property]
+					this._valuesStart[property] = this._valuesStartRepeat[property]
 				}
 
-				if (this.yoyoValue) {
-					this.reversed = !this.reversed
+				if (this._yoyo) {
+					this._reversed = !this._reversed
 				}
 
-				if (this.repeatDelayTime !== undefined) {
-					this.startTime = time + this.repeatDelayTime
+				if (this._repeatDelayTime !== undefined) {
+					this._startTime = time + this._repeatDelayTime
 				} else {
-					this.startTime = time + this.delayTime
+					this._startTime = time + this._delayTime
 				}
 
-				if (this.onRepeatCallback) {
-					this.onRepeatCallback(this.object)
+				if (this._onRepeatCallback) {
+					this._onRepeatCallback(this._object)
 				}
 
 				return true
 			} else {
-				if (this.onCompleteCallback) {
-					this.onCompleteCallback(this.object)
+				if (this._onCompleteCallback) {
+					this._onCompleteCallback(this._object)
 				}
 
-				for (let i = 0, numChainedTweens = this.chainedTweens.length; i < numChainedTweens; i++) {
+				for (let i = 0, numChainedTweens = this._chainedTweens.length; i < numChainedTweens; i++) {
 					// Make the chained tweens start exactly at the time they should,
 					// even if the `update()` method was called way past the duration of the tween
-					this.chainedTweens[i].start(this.startTime + this.durationValue)
+					this._chainedTweens[i].start(this._startTime + this._duration)
 				}
+
+				this._isPlaying = false
 
 				return false
 			}
@@ -399,4 +414,72 @@ export default class Tween implements TweenBase {
 
 		return true
 	}
+
+	private _updateProperties(
+		_object: UnknownProps,
+		_valuesStart: UnknownProps,
+		_valuesEnd: UnknownProps,
+		value: number,
+	): void {
+		for (const property in _valuesEnd) {
+			// Don't update properties that do not exist in the source object
+			if (_valuesStart[property] === undefined) {
+				continue
+			}
+
+			const start = _valuesStart[property] || 0
+			let end = _valuesEnd[property]
+			const startIsArray = Array.isArray(_object[property])
+			const endIsArray = Array.isArray(end)
+			const isInterpolationList = !startIsArray && endIsArray
+
+			if (isInterpolationList) {
+				_object[property] = this._interpolationFunction(end as Array<number>, value)
+			} else if (typeof end === 'object' && end) {
+				// eslint-disable-next-line
+				// @ts-ignore FIXME?
+				this._updateProperties(_object[property], start, end, value)
+			} else {
+				// Parses relative end values with start as base (e.g.: +10, -3)
+				end = this._handleRelativeValue(start as number, end as number | string)
+
+				// Protect against non numeric properties.
+				if (typeof end === 'number') {
+					// eslint-disable-next-line
+					// @ts-ignore FIXME?
+					_object[property] = start + (end - start) * value
+				}
+			}
+		}
+	}
+
+	private _handleRelativeValue(start: number, end: number | string): number {
+		if (typeof end !== 'string') {
+			return end
+		}
+
+		if (end.charAt(0) === '+' || end.charAt(0) === '-') {
+			return start + parseFloat(end)
+		} else {
+			return parseFloat(end)
+		}
+	}
+
+	private _swapEndStartRepeatValues(property: string): void {
+		const tmp = this._valuesStartRepeat[property]
+
+		if (typeof this._valuesEnd[property] === 'string') {
+			// eslint-disable-next-line
+			// @ts-ignore FIXME?
+			this._valuesStartRepeat[property] = this._valuesStartRepeat[property] + parseFloat(this._valuesEnd[property])
+		} else {
+			this._valuesStartRepeat[property] = this._valuesEnd[property]
+		}
+
+		this._valuesEnd[property] = tmp
+	}
 }
+
+export type UnknownProps = Record<string, unknown>
+
+export default Tween

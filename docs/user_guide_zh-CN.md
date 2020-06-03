@@ -43,7 +43,7 @@ function animate() {
 除非你在控制台中打印出 `x` 的值，不然你看不到它的变化。你可能想要使用 `onUpdate` 回调:
 
 ```js
-tween.onUpdate(function(object) {
+tween.onUpdate(function (object) {
 	console.log(object.x)
 })
 ```
@@ -304,7 +304,7 @@ var trickyObjTween = new TWEEN.Tween({
 	propertyB: trickyObj.getPropertyB(),
 })
 	.to({propertyA: 100, propertyB: 200})
-	.onUpdate(function(object) {
+	.onUpdate(function (object) {
 		object.setA(object.propertyA)
 		object.setB(object.propertyB)
 	})
@@ -313,7 +313,7 @@ var trickyObjTween = new TWEEN.Tween({
 或者想象一下，当一个补间开始时，你想播放声音。你可以使用 `start` 回调：
 
 ```js
-var tween = new TWEEN.Tween(obj).to({x: 100}).onStart(function() {
+var tween = new TWEEN.Tween(obj).to({x: 100}).onStart(function () {
 	sound.play()
 })
 ```
@@ -425,7 +425,7 @@ tween.interpolation(TWEEN.Interpolation.Bezier)
 
 ```js
 var element = document.getElementById('myElement')
-var tween = new TWEEN.Tween({top: 0, left: 0}).to({top: 100, left: 100}, 1000).onUpdate(function(object) {
+var tween = new TWEEN.Tween({top: 0, left: 0}).to({top: 100, left: 100}, 1000).onUpdate(function (object) {
 	element.style.top = object.top + 'px'
 	element.style.left = object.left + 'px'
 })
@@ -435,7 +435,7 @@ var tween = new TWEEN.Tween({top: 0, left: 0}).to({top: 100, left: 100}, 1000).o
 
 ```js
 var element = document.getElementById('myElement')
-var tween = new TWEEN.Tween({top: 0, left: 0}).to({top: 100, left: 100}, 1000).onUpdate(function(object) {
+var tween = new TWEEN.Tween({top: 0, left: 0}).to({top: 100, left: 100}, 1000).onUpdate(function (object) {
 	element.style.transform = 'translate(' + object.left + 'px, ' + object.top + 'px);'
 })
 ```

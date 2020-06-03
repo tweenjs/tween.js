@@ -7,7 +7,7 @@ export type InterpolationFunction = (v: number[], k: number) => number
  *
  */
 const Interpolation = {
-	Linear: function(v: number[], k: number): number {
+	Linear: function (v: number[], k: number): number {
 		const m = v.length - 1
 		const f = m * k
 		const i = Math.floor(f)
@@ -24,7 +24,7 @@ const Interpolation = {
 		return fn(v[i], v[i + 1 > m ? m : i + 1], f - i)
 	},
 
-	Bezier: function(v: number[], k: number): number {
+	Bezier: function (v: number[], k: number): number {
 		let b = 0
 		const n = v.length - 1
 		const pw = Math.pow
@@ -37,7 +37,7 @@ const Interpolation = {
 		return b
 	},
 
-	CatmullRom: function(v: number[], k: number): number {
+	CatmullRom: function (v: number[], k: number): number {
 		const m = v.length - 1
 		let f = m * k
 		let i = Math.floor(f)
@@ -63,18 +63,18 @@ const Interpolation = {
 	},
 
 	Utils: {
-		Linear: function(p0: number, p1: number, t: number): number {
+		Linear: function (p0: number, p1: number, t: number): number {
 			return (p1 - p0) * t + p0
 		},
-		Bernstein: function(n: number, i: number): number {
+		Bernstein: function (n: number, i: number): number {
 			const fc = Interpolation.Utils.Factorial
 
 			return fc(n) / fc(i) / fc(n - i)
 		},
-		Factorial: (function() {
+		Factorial: (function () {
 			const a = [1]
 
-			return function(n: number): number {
+			return function (n: number): number {
 				let s = 1
 
 				if (a[n]) {
@@ -90,7 +90,7 @@ const Interpolation = {
 			}
 		})(),
 
-		CatmullRom: function(p0: number, p1: number, p2: number, p3: number, t: number): number {
+		CatmullRom: function (p0: number, p1: number, p2: number, p3: number, t: number): number {
 			const v0 = (p2 - p0) * 0.5
 			const v1 = (p3 - p1) * 0.5
 			const t2 = t * t

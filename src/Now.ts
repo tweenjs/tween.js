@@ -5,7 +5,7 @@ let NOW: () => number
 // eslint-disable-next-line
 // @ts-ignore
 if (typeof self === 'undefined' && typeof process !== 'undefined' && process.hrtime) {
-	NOW = function() {
+	NOW = function (): number {
 		// eslint-disable-next-line
 		// @ts-ignore
 		const time = process.hrtime()
@@ -26,7 +26,7 @@ else if (Date.now !== undefined) {
 }
 // Otherwise, use 'new Date().getTime()'.
 else {
-	NOW = function() {
+	NOW = function (): number {
 		return new Date().getTime()
 	}
 }

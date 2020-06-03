@@ -11,7 +11,7 @@
 			<h2>08 _ repeat</h2>
 			<p>Demonstrating the repeat() feature.</p>
 		</div>
-		<div style="position: absolute; top: 100px; left: 400px; ">
+		<div style="position: absolute; top: 100px; left: 400px;">
 			<div id="target1" data-rotation="0" class="box">
 				repeat once
 			</div>
@@ -35,7 +35,7 @@
 						.to({rotation: 360}, 2000)
 						.repeat(1)
 						.delay(1000)
-						.onUpdate(function(object) {
+						.onUpdate(function (object) {
 							updateBox(target1, object)
 						})
 						.start(),
@@ -44,7 +44,7 @@
 						.to({rotation: 360}, 2000)
 						.repeat(5)
 						.delay(1000)
-						.onUpdate(function(object) {
+						.onUpdate(function (object) {
 							updateBox(target2, object)
 						})
 						.start(),
@@ -53,7 +53,7 @@
 						.to({rotation: 360}, 2000)
 						.repeat(Infinity)
 						.delay(1000)
-						.onUpdate(function(object) {
+						.onUpdate(function (object) {
 							updateBox(target3, object)
 						})
 						.start()

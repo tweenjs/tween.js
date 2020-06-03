@@ -61,33 +61,7 @@ declare module "TWEEN" {
         };
     };
 
-    var NOW: () => number;
-
-    /**
-     * Basic representation of a Tween
-     */
-    interface TweenBase {
-        playing: boolean;
-        update: (time: number) => boolean;
-        getId: () => number;
-    }
-
-    /**
-     * Controlling groups of tweens
-     *
-     * Using the TWEEN singleton to manage your tweens can cause issues in large apps with many components.
-     * In these cases, you may want to create your own smaller groups of tween
-     */
-    class Group {
-        private _tweens;
-        private _tweensAddedDuringUpdate;
-        constructor();
-        getAll(): TweenBase[];
-        removeAll(): void;
-        add(tween: TweenBase): void;
-        remove(tween: TweenBase): void;
-        update(time: number, preserve?: boolean): boolean;
-    }
+    let NOW: () => number;
 
     /**
      *
@@ -113,84 +87,11 @@ declare module "TWEEN" {
      * Utils
      */
     class Sequence {
-        static _nextId: number;
-        static nextId: () => number;
+        private static _nextId;
+        static nextId(): number;
     }
 
-    /**
-     * A tween (from in-between) is a concept that allows you to change the values of the properties of an object in a
-     * smooth way. You just tell it which properties you want to change, which final values should they have when the
-     * tween finishes running, and how long should this take, and the tweening engine will take care of finding the
-     * intermediate values from the starting to the ending point.
-     */
-    class Tween implements TweenBase {
-        static TWEEN: Group;
-        static inject(instance: Group): void;
-        playing: boolean;
-        private id;
-        private object;
-        private groupRef;
-        private paused;
-        private pauseStart;
-        private valuesStart;
-        private valuesEnd;
-        private valuesStartRepeat;
-        private durationValue;
-        private repeatValue;
-        private repeatDelayTime;
-        private yoyoValue;
-        private reversed;
-        private delayTime;
-        private startTime;
-        private easingFunction;
-        private interpolationFunction;
-        private chainedTweens;
-        private onStartCallbackFired;
-        private onStartCallback;
-        private onUpdateCallback;
-        private onRepeatCallback;
-        private onCompleteCallback;
-        private onStopCallback;
-        constructor(object: any, groupRef?: Group);
-        getId(): number;
-        isPlaying(): boolean;
-        isPaused(): boolean;
-        to(properties: {}, duration?: number): this;
-        duration(value: number): this;
-        start(time?: number | string): this;
-        stop(): this;
-        end(): this;
-        pause(time: number): this;
-        resume(time: number): this;
-        stopChainedTweens(): void;
-        group(group: Group): this;
-        delay(amount: number): this;
-        repeat(times: number): this;
-        repeatDelay(amount: number): this;
-        yoyo(yoyo: boolean): this;
-        easing(easing: EasingFunction): this;
-        interpolation(interpolation: InterpolationFunction): this;
-        chain(...tweens: Tween[]): this;
-        onStart(callback: (object: any) => void): this;
-        onUpdate(callback: (object: any, elapsed: number) => void): this;
-        onRepeat(callback: (object: any) => void): this;
-        onComplete(callback: (object: any) => void): this;
-        onStop(callback: (object: any) => void): this;
-
-        /**
-         * Tween.js doesn't run by itself. You need to tell it when to run, by explicitly calling the update method.
-         * The recommended method is to do this inside your main animation loop, which should be called with
-         * requestAnimationFrame for getting the best graphics performance
-         *
-         * If called without parameters, update will determine the current time in order to find out how long has it been
-         * since the last time it ran.
-         *
-         * @param time
-         */
-        update(time?: number): boolean;
-    }
-
-    const VERSION = "18.6.0";
+    const VERSION = "18.5.0";
 
     /**
      * Controlling groups of tweens
@@ -268,11 +169,100 @@ declare module "TWEEN" {
                 CatmullRom: (p0: number, p1: number, p2: number, p3: number, t: number) => number;
             };
         };
-        nextId: () => number;
+        nextId: typeof Sequence.nextId;
         Tween: typeof Tween;
     }
 
     const TWEEN: Main;
+
+    /**
+     * Tween.js - Licensed under the MIT license
+     * https://github.com/tweenjs/tween.js
+     * ----------------------------------------------
+     *
+     * See https://github.com/tweenjs/tween.js/graphs/contributors for the full list of contributors.
+     * Thank you all, you're awesome!
+     */
+    
+    
+    
+    class Tween<T extends UnknownProps> {
+        private _object;
+        private _group;
+        private _isPaused;
+        private _pauseStart;
+        private _valuesStart;
+        private _valuesEnd;
+        private _valuesStartRepeat;
+        private _duration;
+        private _initialRepeat;
+        private _repeat;
+        private _repeatDelayTime?;
+        private _yoyo;
+        private _isPlaying;
+        private _reversed;
+        private _delayTime;
+        private _startTime;
+        private _easingFunction;
+        private _interpolationFunction;
+        private _chainedTweens;
+        private _onStartCallback?;
+        private _onStartCallbackFired;
+        private _onUpdateCallback?;
+        private _onRepeatCallback?;
+        private _onCompleteCallback?;
+        private _onStopCallback?;
+        private _id;
+        private _isChainStopped;
+        constructor(_object: T, _group?: Group);
+        getId(): number;
+        isPlaying(): boolean;
+        isPaused(): boolean;
+        to(properties: UnknownProps, duration?: number): this;
+        duration(d: number): this;
+        start(time: number): this;
+        private _setupProperties;
+        stop(): this;
+        end(): this;
+        pause(time: number): this;
+        resume(time: number): this;
+        stopChainedTweens(): this;
+        group(group: Group): this;
+        delay(amount: number): this;
+        repeat(times: number): this;
+        repeatDelay(amount: number): this;
+        yoyo(yoyo: boolean): this;
+        easing(easingFunction: EasingFunction): this;
+        interpolation(interpolationFunction: InterpolationFunction): this;
+        chain(...tweens: Array<Tween<UnknownProps>>): this;
+        onStart(callback: (object: T) => void): this;
+        onUpdate(callback: (object: T, elapsed: number) => void): this;
+        onRepeat(callback: (object: T) => void): this;
+        onComplete(callback: (object: T) => void): this;
+        onStop(callback: (object: T) => void): this;
+        update(time: number): boolean;
+        private _updateProperties;
+        private _handleRelativeValue;
+        private _swapEndStartRepeatValues;
+    }
+
+    type UnknownProps = Record<string, unknown>;
+
+    /**
+     * Controlling groups of tweens
+     *
+     * Using the TWEEN singleton to manage your tweens can cause issues in large apps with many components.
+     * In these cases, you may want to create your own smaller groups of tween
+     */
+    class Group {
+        private _tweens;
+        private _tweensAddedDuringUpdate;
+        getAll(): Array<Tween<UnknownProps>>;
+        removeAll(): void;
+        add(tween: Tween<UnknownProps>): void;
+        remove(tween: Tween<UnknownProps>): void;
+        update(time: number, preserve?: boolean): boolean;
+    }
 
     export default TWEEN;
 }

@@ -31,7 +31,7 @@
 		<script src="js/RequestAnimationFrame.js"></script>
 		<script src="js/createGraph.js"></script>
 		<script>
-			window.addEventListener('load', function() {
+			window.addEventListener('load', function () {
 				init()
 				animate()
 			})
@@ -76,7 +76,7 @@
 			// the tenStepsEasing function above, but the number of steps
 			// is passed as a parameter
 			function createStepFunction(numSteps) {
-				return function(k) {
+				return function (k) {
 					return Math.floor(k * numSteps) / numSteps
 				}
 			}
@@ -89,7 +89,7 @@
 			// base for new easing functions?
 			function createNoisyEasing(randomProportion, easingFunction) {
 				var normalProportion = 1.0 - randomProportion
-				return function(k) {
+				return function (k) {
 					return randomProportion * Math.random() + normalProportion * easingFunction(k)
 				}
 			}

@@ -103,7 +103,7 @@
 
 					new TWEEN.Tween(obj)
 						.to({x: xA, y: yA}, 3000)
-						.onUpdate(function(object) {
+						.onUpdate(function (object) {
 							context.beginPath()
 							context.moveTo(object.old.x, object.old.y)
 							context.lineTo(object.x, object.y)

@@ -3,6 +3,7 @@
 		"baseUrl": ".",
 		"outDir": "./.tmp",
 		"strict": true,
+		"importsNotUsedAsValues": "error",
 		"sourceMap": true,
 		"module": "es2015",
 		"target": "es5",

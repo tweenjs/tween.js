@@ -1,13 +1,5 @@
 import NOW from './Now'
-
-/**
- * Basic representation of a Tween
- */
-export interface TweenBase {
-	playing: boolean
-	update: (time: number) => boolean
-	getId: () => number
-}
+import type {Tween, UnknownProps} from './Tween'
 
 /**
  * Controlling groups of tweens
@@ -17,39 +9,34 @@ export interface TweenBase {
  */
 export default class Group {
 	private _tweens: {
-		[key: string]: TweenBase
-	}
+		[key: string]: Tween<UnknownProps>
+	} = {}
 
 	private _tweensAddedDuringUpdate: {
-		[key: string]: TweenBase
-	}
+		[key: string]: Tween<UnknownProps>
+	} = {}
 
-	constructor() {
-		this._tweens = {}
-		this._tweensAddedDuringUpdate = {}
-	}
-
-	getAll() {
+	getAll(): Array<Tween<UnknownProps>> {
 		return Object.keys(this._tweens).map(tweenId => {
 			return this._tweens[tweenId]
 		})
 	}
 
-	removeAll() {
+	removeAll(): void {
 		this._tweens = {}
 	}
 
-	add(tween: TweenBase) {
+	add(tween: Tween<UnknownProps>): void {
 		this._tweens[tween.getId()] = tween
 		this._tweensAddedDuringUpdate[tween.getId()] = tween
 	}
 
-	remove(tween: TweenBase) {
+	remove(tween: Tween<UnknownProps>): void {
 		delete this._tweens[tween.getId()]
 		delete this._tweensAddedDuringUpdate[tween.getId()]
 	}
 
-	update(time: number, preserve?: boolean) {
+	update(time: number, preserve?: boolean): boolean {
 		let tweenIds = Object.keys(this._tweens)
 
 		if (tweenIds.length === 0) {
@@ -69,12 +56,8 @@ export default class Group {
 			for (let i = 0; i < tweenIds.length; i++) {
 				const tween = this._tweens[tweenIds[i]]
 
-				if (tween && tween.update(time) === false) {
-					tween.playing = false
-
-					if (!preserve) {
-						delete this._tweens[tweenIds[i]]
-					}
+				if (tween && tween.update(time) === false && !preserve) {
+					delete this._tweens[tweenIds[i]]
 				}
 			}
 

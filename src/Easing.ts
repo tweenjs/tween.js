@@ -5,18 +5,18 @@ export type EasingFunction = (amount: number) => number
  */
 const Easing = {
 	Linear: {
-		None: function(amount: number): number {
+		None: function (amount: number): number {
 			return amount
 		},
 	},
 	Quadratic: {
-		In: function(amount: number): number {
+		In: function (amount: number): number {
 			return amount * amount
 		},
-		Out: function(amount: number): number {
+		Out: function (amount: number): number {
 			return amount * (2 - amount)
 		},
-		InOut: function(amount: number): number {
+		InOut: function (amount: number): number {
 			if ((amount *= 2) < 1) {
 				return 0.5 * amount * amount
 			}
@@ -25,13 +25,13 @@ const Easing = {
 		},
 	},
 	Cubic: {
-		In: function(amount: number): number {
+		In: function (amount: number): number {
 			return amount * amount * amount
 		},
-		Out: function(amount: number): number {
+		Out: function (amount: number): number {
 			return --amount * amount * amount + 1
 		},
-		InOut: function(amount: number): number {
+		InOut: function (amount: number): number {
 			if ((amount *= 2) < 1) {
 				return 0.5 * amount * amount * amount
 			}
@@ -39,13 +39,13 @@ const Easing = {
 		},
 	},
 	Quartic: {
-		In: function(amount: number): number {
+		In: function (amount: number): number {
 			return amount * amount * amount * amount
 		},
-		Out: function(amount: number): number {
+		Out: function (amount: number): number {
 			return 1 - --amount * amount * amount * amount
 		},
-		InOut: function(amount: number): number {
+		InOut: function (amount: number): number {
 			if ((amount *= 2) < 1) {
 				return 0.5 * amount * amount * amount * amount
 			}
@@ -54,13 +54,13 @@ const Easing = {
 		},
 	},
 	Quintic: {
-		In: function(amount: number): number {
+		In: function (amount: number): number {
 			return amount * amount * amount * amount * amount
 		},
-		Out: function(amount: number): number {
+		Out: function (amount: number): number {
 			return --amount * amount * amount * amount * amount + 1
 		},
-		InOut: function(amount: number): number {
+		InOut: function (amount: number): number {
 			if ((amount *= 2) < 1) {
 				return 0.5 * amount * amount * amount * amount * amount
 			}
@@ -69,24 +69,24 @@ const Easing = {
 		},
 	},
 	Sinusoidal: {
-		In: function(amount: number): number {
+		In: function (amount: number): number {
 			return 1 - Math.cos((amount * Math.PI) / 2)
 		},
-		Out: function(amount: number): number {
+		Out: function (amount: number): number {
 			return Math.sin((amount * Math.PI) / 2)
 		},
-		InOut: function(amount: number): number {
+		InOut: function (amount: number): number {
 			return 0.5 * (1 - Math.cos(Math.PI * amount))
 		},
 	},
 	Exponential: {
-		In: function(amount: number): number {
+		In: function (amount: number): number {
 			return amount === 0 ? 0 : Math.pow(1024, amount - 1)
 		},
-		Out: function(amount: number): number {
+		Out: function (amount: number): number {
 			return amount === 1 ? 1 : 1 - Math.pow(2, -10 * amount)
 		},
-		InOut: function(amount: number): number {
+		InOut: function (amount: number): number {
 			if (amount === 0) {
 				return 0
 			}
@@ -103,13 +103,13 @@ const Easing = {
 		},
 	},
 	Circular: {
-		In: function(amount: number): number {
+		In: function (amount: number): number {
 			return 1 - Math.sqrt(1 - amount * amount)
 		},
-		Out: function(amount: number): number {
+		Out: function (amount: number): number {
 			return Math.sqrt(1 - --amount * amount)
 		},
-		InOut: function(amount: number): number {
+		InOut: function (amount: number): number {
 			if ((amount *= 2) < 1) {
 				return -0.5 * (Math.sqrt(1 - amount * amount) - 1)
 			}
@@ -117,7 +117,7 @@ const Easing = {
 		},
 	},
 	Elastic: {
-		In: function(amount: number): number {
+		In: function (amount: number): number {
 			if (amount === 0) {
 				return 0
 			}
@@ -128,7 +128,7 @@ const Easing = {
 
 			return -Math.pow(2, 10 * (amount - 1)) * Math.sin((amount - 1.1) * 5 * Math.PI)
 		},
-		Out: function(amount: number): number {
+		Out: function (amount: number): number {
 			if (amount === 0) {
 				return 0
 			}
@@ -138,7 +138,7 @@ const Easing = {
 			}
 			return Math.pow(2, -10 * amount) * Math.sin((amount - 0.1) * 5 * Math.PI) + 1
 		},
-		InOut: function(amount: number): number {
+		InOut: function (amount: number): number {
 			if (amount === 0) {
 				return 0
 			}
@@ -157,15 +157,15 @@ const Easing = {
 		},
 	},
 	Back: {
-		In: function(amount: number): number {
+		In: function (amount: number): number {
 			const s = 1.70158
 			return amount * amount * ((s + 1) * amount - s)
 		},
-		Out: function(amount: number): number {
+		Out: function (amount: number): number {
 			const s = 1.70158
 			return --amount * amount * ((s + 1) * amount + s) + 1
 		},
-		InOut: function(amount: number): number {
+		InOut: function (amount: number): number {
 			const s = 1.70158 * 1.525
 			if ((amount *= 2) < 1) {
 				return 0.5 * (amount * amount * ((s + 1) * amount - s))
@@ -174,10 +174,10 @@ const Easing = {
 		},
 	},
 	Bounce: {
-		In: function(amount: number): number {
+		In: function (amount: number): number {
 			return 1 - Easing.Bounce.Out(1 - amount)
 		},
-		Out: function(amount: number): number {
+		Out: function (amount: number): number {
 			if (amount < 1 / 2.75) {
 				return 7.5625 * amount * amount
 			} else if (amount < 2 / 2.75) {
@@ -188,7 +188,7 @@ const Easing = {
 				return 7.5625 * (amount -= 2.625 / 2.75) * amount + 0.984375
 			}
 		},
-		InOut: function(amount: number): number {
+		InOut: function (amount: number): number {
 			if (amount < 0.5) {
 				return Easing.Bounce.In(amount * 2) * 0.5
 			}

@@ -3,9 +3,11 @@ define(function () { 'use strict';
     var NOW;
     // Include a performance.now polyfill.
     // In node.js, use process.hrtime.
+    // eslint-disable-next-line
     // @ts-ignore
-    if (typeof (self) === 'undefined' && typeof (process) !== 'undefined' && process.hrtime) {
+    if (typeof self === 'undefined' && typeof process !== 'undefined' && process.hrtime) {
         NOW = function () {
+            // eslint-disable-next-line
             // @ts-ignore
             var time = process.hrtime();
             // Convert [seconds, nanoseconds] to milliseconds.
@@ -13,7 +15,7 @@ define(function () { 'use strict';
         };
     }
     // In a browser, use self.performance.now if it is available.
-    else if (typeof (self) !== 'undefined' && self.performance !== undefined && self.performance.now !== undefined) {
+    else if (typeof self !== 'undefined' && self.performance !== undefined && self.performance.now !== undefined) {
         // This must be bound, because directly assigning this function
         // leads to an invocation exception in Chrome.
         NOW = self.performance.now.bind(self.performance);
@@ -73,11 +75,8 @@ define(function () { 'use strict';
                 this._tweensAddedDuringUpdate = {};
                 for (var i = 0; i < tweenIds.length; i++) {
                     var tween = this._tweens[tweenIds[i]];
-                    if (tween && tween.update(time) === false) {
-                        tween.playing = false;
-                        if (!preserve) {
-                            delete this._tweens[tweenIds[i]];
-                        }
+                    if (tween && tween.update(time) === false && !preserve) {
+                        delete this._tweens[tweenIds[i]];
                     }
                 }
                 tweenIds = Object.keys(this._tweensAddedDuringUpdate);
@@ -94,7 +93,7 @@ define(function () { 'use strict';
         Linear: {
             None: function (amount) {
                 return amount;
-            }
+            },
         },
         Quadratic: {
             In: function (amount) {
@@ -108,7 +107,7 @@ define(function () { 'use strict';
                     return 0.5 * amount * amount;
                 }
                 return -0.5 * (--amount * (amount - 2) - 1);
-            }
+            },
         },
         Cubic: {
             In: function (amount) {
@@ -122,21 +121,21 @@ define(function () { 'use strict';
                     return 0.5 * amount * amount * amount;
                 }
                 return 0.5 * ((amount -= 2) * amount * amount + 2);
-            }
+            },
         },
         Quartic: {
             In: function (amount) {
                 return amount * amount * amount * amount;
             },
             Out: function (amount) {
-                return 1 - (--amount * amount * amount * amount);
+                return 1 - --amount * amount * amount * amount;
             },
             InOut: function (amount) {
                 if ((amount *= 2) < 1) {
                     return 0.5 * amount * amount * amount * amount;
                 }
                 return -0.5 * ((amount -= 2) * amount * amount * amount - 2);
-            }
+            },
         },
         Quintic: {
             In: function (amount) {
@@ -150,18 +149,18 @@ define(function () { 'use strict';
                     return 0.5 * amount * amount * amount * amount * amount;
                 }
                 return 0.5 * ((amount -= 2) * amount * amount * amount * amount + 2);
-            }
+            },
         },
         Sinusoidal: {
             In: function (amount) {
-                return 1 - Math.cos(amount * Math.PI / 2);
+                return 1 - Math.cos((amount * Math.PI) / 2);
             },
             Out: function (amount) {
-                return Math.sin(amount * Math.PI / 2);
+                return Math.sin((amount * Math.PI) / 2);
             },
             InOut: function (amount) {
                 return 0.5 * (1 - Math.cos(Math.PI * amount));
-            }
+            },
         },
         Exponential: {
             In: function (amount) {
@@ -181,21 +180,21 @@ define(function () { 'use strict';
                     return 0.5 * Math.pow(1024, amount - 1);
                 }
                 return 0.5 * (-Math.pow(2, -10 * (amount - 1)) + 2);
-            }
+            },
         },
         Circular: {
             In: function (amount) {
                 return 1 - Math.sqrt(1 - amount * amount);
             },
             Out: function (amount) {
-                return Math.sqrt(1 - (--amount * amount));
+                return Math.sqrt(1 - --amount * amount);
             },
             InOut: function (amount) {
                 if ((amount *= 2) < 1) {
                     return -0.5 * (Math.sqrt(1 - amount * amount) - 1);
                 }
                 return 0.5 * (Math.sqrt(1 - (amount -= 2) * amount) + 1);
-            }
+            },
         },
         Elastic: {
             In: function (amount) {
@@ -228,7 +227,7 @@ define(function () { 'use strict';
                     return -0.5 * Math.pow(2, 10 * (amount - 1)) * Math.sin((amount - 1.1) * 5 * Math.PI);
                 }
                 return 0.5 * Math.pow(2, -10 * (amount - 1)) * Math.sin((amount - 1.1) * 5 * Math.PI) + 1;
-            }
+            },
         },
         Back: {
             In: function (amount) {
@@ -245,24 +244,24 @@ define(function () { 'use strict';
                     return 0.5 * (amount * amount * ((s + 1) * amount - s));
                 }
                 return 0.5 * ((amount -= 2) * amount * ((s + 1) * amount + s) + 2);
-            }
+            },
         },
         Bounce: {
             In: function (amount) {
                 return 1 - Easing.Bounce.Out(1 - amount);
             },
             Out: function (amount) {
-                if (amount < (1 / 2.75)) {
+                if (amount < 1 / 2.75) {
                     return 7.5625 * amount * amount;
                 }
-                else if (amount < (2 / 2.75)) {
-                    return 7.5625 * (amount -= (1.5 / 2.75)) * amount + 0.75;
+                else if (amount < 2 / 2.75) {
+                    return 7.5625 * (amount -= 1.5 / 2.75) * amount + 0.75;
                 }
-                else if (amount < (2.5 / 2.75)) {
-                    return 7.5625 * (amount -= (2.25 / 2.75)) * amount + 0.9375;
+                else if (amount < 2.5 / 2.75) {
+                    return 7.5625 * (amount -= 2.25 / 2.75) * amount + 0.9375;
                 }
                 else {
-                    return 7.5625 * (amount -= (2.625 / 2.75)) * amount + 0.984375;
+                    return 7.5625 * (amount -= 2.625 / 2.75) * amount + 0.984375;
                 }
             },
             InOut: function (amount) {
@@ -270,8 +269,8 @@ define(function () { 'use strict';
                     return Easing.Bounce.In(amount * 2) * 0.5;
                 }
                 return Easing.Bounce.Out(amount * 2 - 1) * 0.5 + 0.5;
-            }
-        }
+            },
+        },
     };
 
     /**
@@ -308,7 +307,7 @@ define(function () { 'use strict';
             var fn = Interpolation.Utils.CatmullRom;
             if (v[0] === v[m]) {
                 if (k < 0) {
-                    i = Math.floor(f = m * (1 + k));
+                    i = Math.floor((f = m * (1 + k)));
                 }
                 return fn(v[(i - 1 + m) % m], v[i], v[(i + 1) % m], v[(i + 2) % m], f - i);
             }
@@ -350,8 +349,8 @@ define(function () { 'use strict';
                 var t2 = t * t;
                 var t3 = t * t2;
                 return (2 * p1 - 2 * p2 + v0 + v1) * t3 + (-3 * p1 + 3 * p2 - 2 * v0 - v1) * t2 + v0 * t + p1;
-            }
-        }
+            },
+        },
     };
 
     /**
@@ -360,10 +359,10 @@ define(function () { 'use strict';
     var Sequence = /** @class */ (function () {
         function Sequence() {
         }
-        Sequence._nextId = 0;
         Sequence.nextId = function () {
             return Sequence._nextId++;
         };
+        Sequence._nextId = 0;
         return Sequence;
     }());
 
@@ -375,104 +374,154 @@ define(function () { 'use strict';
      * See https://github.com/tweenjs/tween.js/graphs/contributors for the full list of contributors.
      * Thank you all, you're awesome!
      */
-    /**
-     * A tween (from in-between) is a concept that allows you to change the values of the properties of an object in a
-     * smooth way. You just tell it which properties you want to change, which final values should they have when the
-     * tween finishes running, and how long should this take, and the tweening engine will take care of finding the
-     * intermediate values from the starting to the ending point.
-     */
     var Tween = /** @class */ (function () {
-        function Tween(object, groupRef) {
-            this.playing = false;
-            this.paused = false;
-            this.pauseStart = 0;
-            this.valuesStart = {};
-            this.valuesEnd = {};
-            this.valuesStartRepeat = {};
-            this.durationValue = 1000;
-            this.repeatValue = 0;
-            this.yoyoValue = false;
-            this.reversed = false;
-            this.delayTime = 0;
-            this.startTime = 0;
-            this.easingFunction = Easing.Linear.None;
-            this.interpolationFunction = Interpolation.Linear;
-            this.chainedTweens = [];
-            this.onStartCallbackFired = false;
-            this.id = Sequence.nextId();
-            this.object = object;
-            this.groupRef = groupRef || Tween.TWEEN;
+        function Tween(_object, _group) {
+            if (_group === void 0) { _group = TWEEN; }
+            this._object = _object;
+            this._group = _group;
+            this._isPaused = false;
+            this._pauseStart = 0;
+            this._valuesStart = {};
+            this._valuesEnd = {};
+            this._valuesStartRepeat = {};
+            this._duration = 1000;
+            this._initialRepeat = 0;
+            this._repeat = 0;
+            this._yoyo = false;
+            this._isPlaying = false;
+            this._reversed = false;
+            this._delayTime = 0;
+            this._startTime = 0;
+            this._easingFunction = TWEEN.Easing.Linear.None;
+            this._interpolationFunction = TWEEN.Interpolation.Linear;
+            this._chainedTweens = [];
+            this._onStartCallbackFired = false;
+            this._id = TWEEN.nextId();
+            this._isChainStopped = false;
         }
-        Tween.inject = function (instance) {
-            Tween.TWEEN = instance;
-        };
         Tween.prototype.getId = function () {
-            return this.id;
+            return this._id;
         };
         Tween.prototype.isPlaying = function () {
-            return this.playing;
+            return this._isPlaying;
         };
         Tween.prototype.isPaused = function () {
-            return this.paused;
+            return this._isPaused;
         };
         Tween.prototype.to = function (properties, duration) {
-            this.valuesEnd = Object.create(properties);
+            // to (properties, duration) {
+            for (var prop in properties) {
+                this._valuesEnd[prop] = properties[prop];
+            }
             if (duration !== undefined) {
-                this.durationValue = duration;
+                this._duration = duration;
             }
             return this;
         };
-        Tween.prototype.duration = function (value) {
-            this.durationValue = value;
+        Tween.prototype.duration = function (d) {
+            this._duration = d;
             return this;
         };
         Tween.prototype.start = function (time) {
-            this.groupRef.add(this);
-            this.playing = true;
-            this.paused = false;
-            this.onStartCallbackFired = false;
-            this.startTime = time !== undefined
-                ? (typeof time === 'string'
-                    ? NOW$1() + parseFloat(time)
-                    : time)
-                : NOW$1();
-            this.startTime += this.delayTime;
-            for (var property in this.valuesEnd) {
-                // Check if an Array was provided as property value
-                if (this.valuesEnd[property] instanceof Array) {
-                    if (this.valuesEnd[property].length === 0) {
-                        continue;
-                    }
-                    // Create a local copy of the Array with the start value at the front
-                    this.valuesEnd[property] = [this.object[property]].concat(this.valuesEnd[property]);
-                }
-                // If `to()` specifies a property that doesn't exist in the source object,
-                // we should not set that property in the object
-                if (this.object[property] === undefined) {
-                    continue;
-                }
-                // Save the starting value, but only once.
-                if (typeof (this.valuesStart[property]) === 'undefined') {
-                    this.valuesStart[property] = this.object[property];
-                }
-                if ((this.valuesStart[property] instanceof Array) === false) {
-                    this.valuesStart[property] *= 1.0; // Ensures we're using numbers, not strings
-                }
-                this.valuesStartRepeat[property] = this.valuesStart[property] || 0;
-            }
-            return this;
-        };
-        Tween.prototype.stop = function () {
-            if (!this.playing) {
+            if (this._isPlaying) {
                 return this;
             }
-            this.groupRef.remove(this);
-            this.playing = false;
-            this.paused = false;
-            if (this.onStopCallback) {
-                this.onStopCallback(this.object);
+            // eslint-disable-next-line
+            // @ts-ignore FIXME?
+            this._group.add(this);
+            this._repeat = this._initialRepeat;
+            if (this._reversed) {
+                // If we were reversed (f.e. using the yoyo feature) then we need to
+                // flip the tween direction back to forward.
+                this._reversed = false;
+                for (var property in this._valuesStartRepeat) {
+                    this._swapEndStartRepeatValues(property);
+                    this._valuesStart[property] = this._valuesStartRepeat[property];
+                }
             }
-            this.stopChainedTweens();
+            this._isPlaying = true;
+            this._isPaused = false;
+            this._onStartCallbackFired = false;
+            this._isChainStopped = false;
+            this._startTime =
+                time !== undefined ? (typeof time === 'string' ? TWEEN.now() + parseFloat(time) : time) : TWEEN.now();
+            this._startTime += this._delayTime;
+            this._setupProperties(this._object, this._valuesStart, this._valuesEnd, this._valuesStartRepeat);
+            return this;
+        };
+        Tween.prototype._setupProperties = function (_object, _valuesStart, _valuesEnd, _valuesStartRepeat) {
+            for (var property in _valuesEnd) {
+                var startValue = _object[property];
+                var startValueIsArray = Array.isArray(startValue);
+                var propType = startValueIsArray ? 'array' : typeof startValue;
+                var isInterpolationList = !startValueIsArray && Array.isArray(_valuesEnd[property]);
+                // If `to()` specifies a property that doesn't exist in the source object,
+                // we should not set that property in the object
+                if (propType === 'undefined' || propType === 'function') {
+                    continue;
+                }
+                // Check if an Array was provided as property value
+                if (isInterpolationList) {
+                    var endValues = _valuesEnd[property];
+                    if (endValues.length === 0) {
+                        continue;
+                    }
+                    // handle an array of relative values
+                    endValues = endValues.map(this._handleRelativeValue.bind(this, startValue));
+                    // Create a local copy of the Array with the start value at the front
+                    _valuesEnd[property] = [startValue].concat(endValues);
+                }
+                // handle the deepness of the values
+                if ((propType === 'object' || startValueIsArray) && startValue && !isInterpolationList) {
+                    _valuesStart[property] = startValueIsArray ? [] : {};
+                    // eslint-disable-next-line
+                    for (var prop in startValue) {
+                        // eslint-disable-next-line
+                        // @ts-ignore FIXME?
+                        _valuesStart[property][prop] = startValue[prop];
+                    }
+                    _valuesStartRepeat[property] = startValueIsArray ? [] : {}; // TODO? repeat nested values? And yoyo? And array values?
+                    // eslint-disable-next-line
+                    // @ts-ignore FIXME?
+                    this._setupProperties(startValue, _valuesStart[property], _valuesEnd[property], _valuesStartRepeat[property]);
+                }
+                else {
+                    // Save the starting value, but only once.
+                    if (typeof _valuesStart[property] === 'undefined') {
+                        _valuesStart[property] = startValue;
+                    }
+                    if (!startValueIsArray) {
+                        // eslint-disable-next-line
+                        // @ts-ignore FIXME?
+                        _valuesStart[property] *= 1.0; // Ensures we're using numbers, not strings
+                    }
+                    if (isInterpolationList) {
+                        // eslint-disable-next-line
+                        // @ts-ignore FIXME?
+                        _valuesStartRepeat[property] = _valuesEnd[property].slice().reverse();
+                    }
+                    else {
+                        _valuesStartRepeat[property] = _valuesStart[property] || 0;
+                    }
+                }
+            }
+        };
+        Tween.prototype.stop = function () {
+            if (!this._isChainStopped) {
+                this._isChainStopped = true;
+                this.stopChainedTweens();
+            }
+            if (!this._isPlaying) {
+                return this;
+            }
+            // eslint-disable-next-line
+            // @ts-ignore FIXME?
+            this._group.remove(this);
+            this._isPlaying = false;
+            this._isPaused = false;
+            if (this._onStopCallback) {
+                this._onStopCallback(this._object);
+            }
             return this;
         };
         Tween.prototype.end = function () {
@@ -480,55 +529,61 @@ define(function () { 'use strict';
             return this;
         };
         Tween.prototype.pause = function (time) {
-            if (this.paused || !this.playing) {
+            if (this._isPaused || !this._isPlaying) {
                 return this;
             }
-            this.paused = true;
-            this.pauseStart = time === undefined ? NOW$1() : time;
-            this.groupRef.remove(this);
+            this._isPaused = true;
+            this._pauseStart = time === undefined ? TWEEN.now() : time;
+            // eslint-disable-next-line
+            // @ts-ignore FIXME?
+            this._group.remove(this);
             return this;
         };
         Tween.prototype.resume = function (time) {
-            if (!this.paused || !this.playing) {
+            if (!this._isPaused || !this._isPlaying) {
                 return this;
             }
-            this.paused = false;
-            this.startTime += (time === undefined ? NOW$1() : time) - this.pauseStart;
-            this.pauseStart = 0;
-            this.groupRef.add(this);
+            this._isPaused = false;
+            this._startTime += (time === undefined ? TWEEN.now() : time) - this._pauseStart;
+            this._pauseStart = 0;
+            // eslint-disable-next-line
+            // @ts-ignore FIXME?
+            this._group.add(this);
             return this;
         };
         Tween.prototype.stopChainedTweens = function () {
-            for (var i = 0, numChainedTweens = this.chainedTweens.length; i < numChainedTweens; i++) {
-                this.chainedTweens[i].stop();
+            for (var i = 0, numChainedTweens = this._chainedTweens.length; i < numChainedTweens; i++) {
+                this._chainedTweens[i].stop();
             }
+            return this;
         };
         Tween.prototype.group = function (group) {
-            this.groupRef = group;
+            this._group = group;
             return this;
         };
         Tween.prototype.delay = function (amount) {
-            this.delayTime = amount;
+            this._delayTime = amount;
             return this;
         };
         Tween.prototype.repeat = function (times) {
-            this.repeatValue = times;
+            this._initialRepeat = times;
+            this._repeat = times;
             return this;
         };
         Tween.prototype.repeatDelay = function (amount) {
-            this.repeatDelayTime = amount;
+            this._repeatDelayTime = amount;
             return this;
         };
         Tween.prototype.yoyo = function (yoyo) {
-            this.yoyoValue = yoyo;
+            this._yoyo = yoyo;
             return this;
         };
-        Tween.prototype.easing = function (easing) {
-            this.easingFunction = easing;
+        Tween.prototype.easing = function (easingFunction) {
+            this._easingFunction = easingFunction;
             return this;
         };
-        Tween.prototype.interpolation = function (interpolation) {
-            this.interpolationFunction = interpolation;
+        Tween.prototype.interpolation = function (interpolationFunction) {
+            this._interpolationFunction = interpolationFunction;
             return this;
         };
         Tween.prototype.chain = function () {
@@ -536,134 +591,162 @@ define(function () { 'use strict';
             for (var _i = 0; _i < arguments.length; _i++) {
                 tweens[_i] = arguments[_i];
             }
-            this.chainedTweens = tweens;
+            this._chainedTweens = tweens;
             return this;
         };
         Tween.prototype.onStart = function (callback) {
-            this.onStartCallback = callback;
+            this._onStartCallback = callback;
             return this;
         };
         Tween.prototype.onUpdate = function (callback) {
-            this.onUpdateCallback = callback;
+            this._onUpdateCallback = callback;
             return this;
         };
         Tween.prototype.onRepeat = function (callback) {
-            this.onRepeatCallback = callback;
+            this._onRepeatCallback = callback;
             return this;
         };
         Tween.prototype.onComplete = function (callback) {
-            this.onCompleteCallback = callback;
+            this._onCompleteCallback = callback;
             return this;
         };
         Tween.prototype.onStop = function (callback) {
-            this.onStopCallback = callback;
+            this._onStopCallback = callback;
             return this;
         };
-        /**
-         * Tween.js doesn't run by itself. You need to tell it when to run, by explicitly calling the update method.
-         * The recommended method is to do this inside your main animation loop, which should be called with
-         * requestAnimationFrame for getting the best graphics performance
-         *
-         * If called without parameters, update will determine the current time in order to find out how long has it been
-         * since the last time it ran.
-         *
-         * @param time
-         */
         Tween.prototype.update = function (time) {
-            if (time === void 0) { time = 0; }
             var property;
             var elapsed;
-            var value;
-            if (time < this.startTime) {
+            var endTime = this._startTime + this._duration;
+            if (time > endTime && !this._isPlaying) {
+                return false;
+            }
+            // If the tween was already finished,
+            if (!this.isPlaying) {
+                this.start(time);
+            }
+            if (time < this._startTime) {
                 return true;
             }
-            if (this.onStartCallbackFired === false) {
-                if (this.onStartCallback) {
-                    this.onStartCallback(this.object);
+            if (this._onStartCallbackFired === false) {
+                if (this._onStartCallback) {
+                    this._onStartCallback(this._object);
                 }
-                this.onStartCallbackFired = true;
+                this._onStartCallbackFired = true;
             }
-            elapsed = (time - this.startTime) / this.durationValue;
-            elapsed = (this.durationValue === 0 || elapsed > 1) ? 1 : elapsed;
-            value = this.easingFunction(elapsed);
-            for (property in this.valuesEnd) {
-                // Don't update properties that do not exist in the source object
-                if (this.valuesStart[property] === undefined) {
-                    continue;
-                }
-                var start = this.valuesStart[property] || 0;
-                var end = this.valuesEnd[property];
-                if (end instanceof Array) {
-                    this.object[property] = this.interpolationFunction(end, value);
-                }
-                else {
-                    // Parses relative end values with start as base (e.g.: +10, -3)
-                    if (typeof (end) === 'string') {
-                        if (end.charAt(0) === '+' || end.charAt(0) === '-') {
-                            end = start + parseFloat(end);
-                        }
-                        else {
-                            end = parseFloat(end);
-                        }
-                    }
-                    // Protect against non numeric properties.
-                    if (typeof (end) === 'number') {
-                        this.object[property] = start + (end - start) * value;
-                    }
-                }
-            }
-            if (this.onUpdateCallback) {
-                this.onUpdateCallback(this.object, elapsed);
+            elapsed = (time - this._startTime) / this._duration;
+            elapsed = this._duration === 0 || elapsed > 1 ? 1 : elapsed;
+            var value = this._easingFunction(elapsed);
+            // properties transformations
+            this._updateProperties(this._object, this._valuesStart, this._valuesEnd, value);
+            if (this._onUpdateCallback) {
+                this._onUpdateCallback(this._object, elapsed);
             }
             if (elapsed === 1) {
-                if (this.repeatValue > 0) {
-                    if (isFinite(this.repeatValue)) {
-                        this.repeatValue--;
+                if (this._repeat > 0) {
+                    if (isFinite(this._repeat)) {
+                        this._repeat--;
                     }
                     // Reassign starting values, restart by making startTime = now
-                    for (property in this.valuesStartRepeat) {
-                        if (typeof (this.valuesEnd[property]) === 'string') {
-                            this.valuesStartRepeat[property] = this.valuesStartRepeat[property] + parseFloat(this.valuesEnd[property]);
+                    for (property in this._valuesStartRepeat) {
+                        if (!this._yoyo && typeof this._valuesEnd[property] === 'string') {
+                            this._valuesStartRepeat[property] =
+                                // eslint-disable-next-line
+                                // @ts-ignore FIXME?
+                                this._valuesStartRepeat[property] + parseFloat(this._valuesEnd[property]);
                         }
-                        if (this.yoyoValue) {
-                            var tmp = this.valuesStartRepeat[property];
-                            this.valuesStartRepeat[property] = this.valuesEnd[property];
-                            this.valuesEnd[property] = tmp;
+                        if (this._yoyo) {
+                            this._swapEndStartRepeatValues(property);
                         }
-                        this.valuesStart[property] = this.valuesStartRepeat[property];
+                        this._valuesStart[property] = this._valuesStartRepeat[property];
                     }
-                    if (this.yoyoValue) {
-                        this.reversed = !this.reversed;
+                    if (this._yoyo) {
+                        this._reversed = !this._reversed;
                     }
-                    if (this.repeatDelayTime !== undefined) {
-                        this.startTime = time + this.repeatDelayTime;
+                    if (this._repeatDelayTime !== undefined) {
+                        this._startTime = time + this._repeatDelayTime;
                     }
                     else {
-                        this.startTime = time + this.delayTime;
+                        this._startTime = time + this._delayTime;
                     }
-                    if (this.onRepeatCallback) {
-                        this.onRepeatCallback(this.object);
+                    if (this._onRepeatCallback) {
+                        this._onRepeatCallback(this._object);
                     }
                     return true;
                 }
                 else {
-                    if (this.onCompleteCallback) {
-                        this.onCompleteCallback(this.object);
+                    if (this._onCompleteCallback) {
+                        this._onCompleteCallback(this._object);
                     }
-                    for (var i = 0, numChainedTweens = this.chainedTweens.length; i < numChainedTweens; i++) {
+                    for (var i = 0, numChainedTweens = this._chainedTweens.length; i < numChainedTweens; i++) {
                         // Make the chained tweens start exactly at the time they should,
                         // even if the `update()` method was called way past the duration of the tween
-                        this.chainedTweens[i].start(this.startTime + this.durationValue);
+                        this._chainedTweens[i].start(this._startTime + this._duration);
                     }
+                    this._isPlaying = false;
                     return false;
                 }
             }
             return true;
         };
+        Tween.prototype._updateProperties = function (_object, _valuesStart, _valuesEnd, value) {
+            for (var property in _valuesEnd) {
+                // Don't update properties that do not exist in the source object
+                if (_valuesStart[property] === undefined) {
+                    continue;
+                }
+                var start = _valuesStart[property] || 0;
+                var end = _valuesEnd[property];
+                var startIsArray = Array.isArray(_object[property]);
+                var endIsArray = Array.isArray(end);
+                var isInterpolationList = !startIsArray && endIsArray;
+                if (isInterpolationList) {
+                    _object[property] = this._interpolationFunction(end, value);
+                }
+                else if (typeof end === 'object' && end) {
+                    // eslint-disable-next-line
+                    // @ts-ignore FIXME?
+                    this._updateProperties(_object[property], start, end, value);
+                }
+                else {
+                    // Parses relative end values with start as base (e.g.: +10, -3)
+                    end = this._handleRelativeValue(start, end);
+                    // Protect against non numeric properties.
+                    if (typeof end === 'number') {
+                        // eslint-disable-next-line
+                        // @ts-ignore FIXME?
+                        _object[property] = start + (end - start) * value;
+                    }
+                }
+            }
+        };
+        Tween.prototype._handleRelativeValue = function (start, end) {
+            if (typeof end !== 'string') {
+                return end;
+            }
+            if (end.charAt(0) === '+' || end.charAt(0) === '-') {
+                return start + parseFloat(end);
+            }
+            else {
+                return parseFloat(end);
+            }
+        };
+        Tween.prototype._swapEndStartRepeatValues = function (property) {
+            var tmp = this._valuesStartRepeat[property];
+            if (typeof this._valuesEnd[property] === 'string') {
+                // eslint-disable-next-line
+                // @ts-ignore FIXME?
+                this._valuesStartRepeat[property] = this._valuesStartRepeat[property] + parseFloat(this._valuesEnd[property]);
+            }
+            else {
+                this._valuesStartRepeat[property] = this._valuesEnd[property];
+            }
+            this._valuesEnd[property] = tmp;
+        };
         return Tween;
     }());
 
-    var VERSION = '18.6.0';
+    var VERSION = '18.5.0';
 
     /**
      * Tween.js - Licensed under the MIT license
@@ -708,7 +791,6 @@ define(function () { 'use strict';
         return Main;
     }(Group));
     var TWEEN = new Main();
-    Tween.inject(TWEEN);
 
     return TWEEN;
 

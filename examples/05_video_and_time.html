@@ -12,7 +12,7 @@
 			<p>Playing a video, synchronizing a tween to it</p>
 		</div>
 
-		<div id="target" style="position: absolute; left: 50px; top: 300px; font-size: 100px; letter-spacing: -7px; ">
+		<div id="target" style="position: absolute; left: 50px; top: 300px; font-size: 100px; letter-spacing: -7px;">
 			<video id="video" src="video/sintel.webm" width="320" height="138"></video>
 		</div>
 
@@ -21,7 +21,7 @@
 		<script>
 			var video
 
-			window.addEventListener('load', function() {
+			window.addEventListener('load', function () {
 				init()
 				animate()
 			})
@@ -35,11 +35,11 @@
 				video = document.getElementById('video')
 				video.addEventListener(
 					'play',
-					function() {
+					function () {
 						new TWEEN.Tween({x: 50, y: 0})
 							.to({x: 400}, this.duration)
 							.easing(TWEEN.Easing.Linear.None)
-							.onUpdate(function(object) {
+							.onUpdate(function (object) {
 								var roundX = Math.round(object.x)
 								var transform = 'translateX(' + roundX + 'px)'
 								output.innerHTML = 'x == ' + roundX

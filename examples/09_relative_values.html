@@ -20,7 +20,7 @@
 		<script src="../dist/tween.umd.js"></script>
 		<script src="js/RequestAnimationFrame.js"></script>
 		<script>
-			window.onload = function() {
+			window.onload = function () {
 				init()
 				animate()
 			}
@@ -32,7 +32,7 @@
 						.repeat(5)
 						.delay(500)
 						.easing(TWEEN.Easing.Exponential.In)
-						.onUpdate(function(object) {
+						.onUpdate(function (object) {
 							object.top = Math.round(object.top)
 							object.left = Math.round(object.left)
 							updateBox(target1, object)
@@ -60,7 +60,7 @@
 			<h2>09 _ relative values</h2>
 			<p>Tweening to relative values, with repeat.</p>
 		</div>
-		<div style="position: absolute; left: 400px; ">
+		<div style="position: absolute; left: 400px;">
 			<div id="target1" style="position: absolute;" data-top="150" data-left="150" class="box"></div>
 		</div>
 	</body>

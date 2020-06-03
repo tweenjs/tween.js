@@ -11,13 +11,13 @@
 			<h2>11 _ stop all chained tweens.</h2>
 			<p>Tween#stopChainedTweens</p>
 		</div>
-		<div style="position: absolute; top: 250px; left: 50px; ">
+		<div style="position: absolute; top: 250px; left: 50px;">
 			<button id="start">Start</button>
 			<button id="stop">Stop</button>
-			<div id="target1" data-rotation="0" data-y="0" class="box" style="left: 0px; top: 50px">
+			<div id="target1" data-rotation="0" data-y="0" class="box" style="left: 0px; top: 50px;">
 				Box One
 			</div>
-			<div id="target2" data-rotation="0" data-y="0" class="box" style="left: 0px; top: 200px">
+			<div id="target2" data-rotation="0" data-y="0" class="box" style="left: 0px; top: 200px;">
 				Box Two
 			</div>
 		</div>
@@ -40,16 +40,16 @@
 			var p0 = {x: 0},
 				p1 = {x: 0}
 
-			start.onclick = function() {
+			start.onclick = function () {
 				if (!t0 && !t1) {
 					t0 = new TWEEN.Tween(p0)
 						.to({x: 700}, 2000)
 						.delay(1000)
 						.easing(TWEEN.Easing.Elastic.InOut)
-						.onUpdate(function() {
+						.onUpdate(function () {
 							a.style.left = p0.x + 'px'
 						})
-						.onComplete(function() {
+						.onComplete(function () {
 							p0.x = 0
 							a.style.left = p0.x + 'px'
 						})
@@ -58,10 +58,10 @@
 						.to({x: 1000}, 3000)
 						.delay(1000)
 						.easing(TWEEN.Easing.Elastic.InOut)
-						.onUpdate(function() {
+						.onUpdate(function () {
 							b.style.left = p1.x + 'px'
 						})
-						.onComplete(function() {
+						.onComplete(function () {
 							p1.x = 0
 							b.style.left = p1.x + 'px'
 						})
@@ -72,7 +72,7 @@
 				t0.start()
 			}
 
-			stop.onclick = function() {
+			stop.onclick = function () {
 				t0.stop()
 			}
 		</script>
