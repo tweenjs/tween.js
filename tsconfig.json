@@ -2,9 +2,9 @@
 	"compilerOptions": {
 		"baseUrl": ".",
 		"outDir": "./.tmp",
-		"noImplicitAny": true,
+		"strict": true,
 		"sourceMap": true,
-		"module": "es6",
+		"module": "es2015",
 		"target": "es5",
 		"moduleResolution": "node",
 		"lib": ["dom", "es2015"]

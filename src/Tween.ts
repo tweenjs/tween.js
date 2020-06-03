@@ -52,7 +52,7 @@ export default class Tween implements TweenBase {
 
 	private repeatValue = 0
 
-	private repeatDelayTime: number
+	private repeatDelayTime?: number
 
 	private yoyoValue = false
 
@@ -70,15 +70,15 @@ export default class Tween implements TweenBase {
 
 	private onStartCallbackFired = false
 
-	private onStartCallback: (object: any) => void
+	private onStartCallback?: (object: any) => void
 
-	private onUpdateCallback: (object: any, elapsed: number) => void
+	private onUpdateCallback?: (object: any, elapsed: number) => void
 
-	private onRepeatCallback: (object: any) => void
+	private onRepeatCallback?: (object: any) => void
 
-	private onCompleteCallback: (object: any) => void
+	private onCompleteCallback?: (object: any) => void
 
-	private onStopCallback: (object: any) => void
+	private onStopCallback?: (object: any) => void
 
 	constructor(object: any, groupRef?: Group) {
 		this.id = Sequence.nextId()

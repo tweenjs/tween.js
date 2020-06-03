@@ -28,6 +28,7 @@
 		"build": "rimraf dist && node scripts/write-version.js && npm run tsc && npm run rollup-build && npm run tsc-d.ts && npm run adjust-d.ts",
 		"rollup-build": "rollup -c ./rollup.config.js",
 		"tsc": "tsc",
+		"tsc-watch": "tsc --watch",
 		"tsc-d.ts": "tsc --declaration --emitDeclarationOnly --esModuleInterop --outFile dist/index.d.ts",
 		"adjust-d.ts": "node scripts/adjust-d.ts.js",
 		"test": "npm run build && npm run test-unit && npm run test-lint",
