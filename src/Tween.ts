@@ -295,7 +295,6 @@ export default class Tween implements TweenBase {
 	update(time = 0) {
 		let property
 		let elapsed
-		let value
 
 		if (time < this.startTime) {
 			return true
@@ -312,7 +311,7 @@ export default class Tween implements TweenBase {
 		elapsed = (time - this.startTime) / this.durationValue
 		elapsed = this.durationValue === 0 || elapsed > 1 ? 1 : elapsed
 
-		value = this.easingFunction(elapsed)
+		const value = this.easingFunction(elapsed)
 
 		for (property in this.valuesEnd) {
 			// Don't update properties that do not exist in the source object

@@ -2,9 +2,11 @@ let NOW: () => number
 
 // Include a performance.now polyfill.
 // In node.js, use process.hrtime.
+// eslint-disable-next-line
 // @ts-ignore
 if (typeof self === 'undefined' && typeof process !== 'undefined' && process.hrtime) {
 	NOW = function() {
+		// eslint-disable-next-line
 		// @ts-ignore
 		const time = process.hrtime()
 
