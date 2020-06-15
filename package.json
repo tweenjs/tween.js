@@ -35,7 +35,8 @@
 		"test-unit": "nodeunit test/unit/nodeunitheadless.js",
 		"test-lint": "npm run prettier -- --check && eslint 'src/**/*.ts'",
 		"lint": "npm run prettier -- --write && eslint 'src/**/*.ts' --fix",
-		"prettier": "prettier './**/*.{js,ts,md,json,html,css}'"
+		"prettier": "prettier './**/*.{js,ts,md,json,html,css}'",
+		"prepare": "npm run build"
 	},
 	"author": "tween.js contributors (https://github.com/tweenjs/tween.js/graphs/contributors)",
 	"devDependencies": {
