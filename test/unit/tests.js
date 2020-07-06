@@ -1790,6 +1790,90 @@
 
 				test.done()
 			},
+
+			'Test TWEEN.Tween.to() with a dynamic target provided as object': function (test) {
+				TWEEN.removeAll()
+
+				var dynamicTargetValue = {x: 5}
+				var chasingValue = {x: 0}
+				var duration = 1000 // must be even
+				var t1 = new TWEEN.Tween(dynamicTargetValue).to({x: 10}, duration),
+					t2 = new TWEEN.Tween(chasingValue).to(dynamicTargetValue, duration)
+
+				test.equal(TWEEN.getAll().length, 0)
+
+				t1.start(0)
+				t2.start(0)
+				test.notDeepEqual(chasingValue, dynamicTargetValue)
+
+				TWEEN.update(duration / 2, true)
+				test.notDeepEqual(chasingValue, dynamicTargetValue)
+
+				TWEEN.update(duration, true)
+				test.deepEqual(chasingValue, dynamicTargetValue)
+
+				test.done()
+			},
+
+			'Test TWEEN.Tween.to() with a dynamic target provided as array': function (test) {
+				TWEEN.removeAll()
+
+				var dynamicTargetValue = [5]
+				var chasingValue = [0]
+				var duration = 1000 // must be even
+				var t1 = new TWEEN.Tween(dynamicTargetValue).to([10], duration),
+					t2 = new TWEEN.Tween(chasingValue).to(dynamicTargetValue, duration)
+
+				test.equal(TWEEN.getAll().length, 0)
+
+				t1.start(0)
+				t2.start(0)
+				test.notDeepEqual(chasingValue, dynamicTargetValue)
+
+				TWEEN.update(duration / 2, true)
+				test.notDeepEqual(chasingValue, dynamicTargetValue)
+
+				TWEEN.update(duration, true)
+				test.deepEqual(chasingValue, dynamicTargetValue)
+
+				test.done()
+			},
+
+			'Test TWEEN.Tween.to() with multiple dynamic targets provided as array': function (test) {
+				TWEEN.removeAll()
+
+				var dynamicTargetValues = {x: [5, 10, 15, 20]}
+				var chasingValue = {x: 0}
+				var duration = 1000 // must be even
+				var tweens = []
+
+				var observedValues = []
+				for (let i = 0; i < dynamicTargetValues.x.length; i++) {
+					const initialValue = {x: 2}
+					observedValues.push(initialValue)
+					tweens.push(
+						new TWEEN.Tween(initialValue).to({x: dynamicTargetValues.x[i]}, duration).onUpdate(function (object) {
+							dynamicTargetValues.x[i] = object.x
+						}),
+					)
+				}
+				var t = new TWEEN.Tween(chasingValue).to(dynamicTargetValues, duration)
+
+				test.equal(TWEEN.getAll().length, 0)
+
+				tweens.forEach(tween => tween.start(0))
+				t.start(0)
+
+				test.equal(TWEEN.getAll().length, tweens.length + 1)
+
+				for (let intermediateStop = 0; intermediateStop < dynamicTargetValues.x.length; intermediateStop++) {
+					var progress = ((intermediateStop + 1) * duration) / dynamicTargetValues.x.length
+					TWEEN.update(progress, true)
+					test.deepEqual(chasingValue, observedValues[intermediateStop])
+				}
+
+				test.done()
+			},
 		}
 
 		return tests
