@@ -70,7 +70,7 @@ export class Tween<T extends UnknownProps> {
 		return this
 	}
 
-	start(time: number): this {
+	start(time?: number): this {
 		if (this._isPlaying) {
 			return this
 		}
@@ -319,9 +319,12 @@ export class Tween<T extends UnknownProps> {
 		return this
 	}
 
-	update(time: number): boolean {
+	update(time?: number): boolean {
 		let property
 		let elapsed
+
+		time = time !== undefined ? time : TWEEN.now()
+
 		const endTime = this._startTime + this._duration
 
 		if (time > endTime && !this._isPlaying) {
