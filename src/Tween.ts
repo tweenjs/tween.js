@@ -321,7 +321,6 @@ export class Tween<T extends UnknownProps> {
 
 	update(time?: number): boolean {
 		let property
-		let elapsed
 
 		time = time !== undefined ? time : TWEEN.now()
 
@@ -348,9 +347,25 @@ export class Tween<T extends UnknownProps> {
 			this._onStartCallbackFired = true
 		}
 
-		elapsed = (time - this._startTime) / this._duration
-		elapsed = this._duration === 0 || elapsed > 1 ? 1 : elapsed
+		const differenceTime = time - this._startTime
+		const durationAndDelay = this._duration + (this._repeatDelayTime ?? this._delayTime)
 
+		const calculateElapsed = () => {
+			if (this._duration === 0) return 1
+			if (differenceTime > this._duration + this._repeat * durationAndDelay) {
+				return 1
+			}
+
+			const repeatTime = Math.trunc(differenceTime / durationAndDelay)
+			const elapsedTime = differenceTime - repeatTime * durationAndDelay
+
+			const elapsed = Math.min(elapsedTime / this._duration, 1)
+			if (elapsed === 0 && differenceTime === this._duration) {
+				return 1
+			}
+			return elapsed
+		}
+		const elapsed = calculateElapsed()
 		const value = this._easingFunction(elapsed)
 
 		// properties transformations
@@ -360,7 +375,7 @@ export class Tween<T extends UnknownProps> {
 			this._onUpdateCallback(this._object, elapsed)
 		}
 
-		if (elapsed === 1) {
+		if (this._duration === 0 || differenceTime >= this._duration) {
 			if (this._repeat > 0) {
 				if (isFinite(this._repeat)) {
 					this._repeat--
