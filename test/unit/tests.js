@@ -1296,6 +1296,38 @@
 				test.done()
 			},
 
+			'Test TWEEN.update() should reduce the repeat count': function (test) {
+				TWEEN.removeAll()
+
+				const obj = {x: 0},
+					t = new TWEEN.Tween(obj).to({x: 100}, 100).repeat(5).delay(100)
+
+				t.start(0)
+
+				TWEEN.update(100)
+				test.equal(t._repeat, 5)
+
+				TWEEN.update(150)
+				test.equal(t._repeat, 5)
+
+				TWEEN.update(200)
+				test.equal(t._repeat, 4)
+
+				TWEEN.update(250)
+				test.equal(t._repeat, 4)
+
+				TWEEN.update(300)
+				test.equal(t._repeat, 4)
+
+				TWEEN.update(350)
+				test.equal(t._repeat, 4)
+
+				TWEEN.update(400)
+				test.equal(t._repeat, 3)
+
+				test.done()
+			},
+
 			'Tween.js compatible with Object.defineProperty getter / setters': function (test) {
 				var obj = {_x: 0}
 
