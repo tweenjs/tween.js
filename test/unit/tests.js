@@ -1328,6 +1328,77 @@
 				test.done()
 			},
 
+			'Test TWEEN.update() should reduce the repeat count multiple times': function (test) {
+				TWEEN.removeAll()
+
+				const obj = {x: 0},
+					t = new TWEEN.Tween(obj).to({x: 100}, 100).repeat(5).delay(100)
+
+				t.start(0)
+
+				TWEEN.update(400)
+				test.equal(t._repeat, 3)
+
+				test.done()
+			},
+
+			'Test browser tab sleep with delay': function (test) {
+				TWEEN.removeAll()
+
+				var obj = {x: 0},
+					t = new TWEEN.Tween(obj).to({x: 100}, 100).repeat(Infinity).delay(100)
+
+				t.start(0)
+
+				TWEEN.update(350)
+				test.equal(obj.x, 50)
+
+				TWEEN.update(750)
+				test.equal(obj.x, 50)
+
+				test.done()
+			},
+
+			'Test browser tab sleep with repeatDelay': function (test) {
+				TWEEN.removeAll()
+
+				var obj = {x: 0},
+					t = new TWEEN.Tween(obj).to({x: 100}, 100).repeat(1).repeatDelay(200)
+
+				t.start(0)
+
+				TWEEN.update(350)
+				test.equal(obj.x, 50)
+
+				TWEEN.update(600)
+				test.equal(obj.x, 100)
+
+				TWEEN.update(Infinity)
+				test.equal(obj.x, 100)
+
+				test.done()
+			},
+
+			'Test browser tab sleep with repeatDelay and delay': function (test) {
+				TWEEN.removeAll()
+
+				var obj = {x: 0},
+					t = new TWEEN.Tween(obj).to({x: 100}, 100).delay(100).repeat(1).repeatDelay(200)
+
+				t.start(0)
+
+				TWEEN.update(450)
+				test.equal(obj.x, 50)
+
+				TWEEN.update(500)
+				test.equal(obj.x, 100)
+
+				TWEEN.update(Infinity)
+				test.equal(obj.x, 100)
+
+				test.done()
+			},
+
 			'Tween.js compatible with Object.defineProperty getter / setters': function (test) {
 				var obj = {_x: 0}
 
