@@ -377,8 +377,12 @@ export class Tween<T extends UnknownProps> {
 
 		if (this._duration === 0 || differenceTime >= this._duration) {
 			if (this._repeat > 0) {
+				const completeCount = Math.min(
+					Math.trunc((differenceTime - this._duration) / durationAndDelay) + 1,
+					this._repeat,
+				)
 				if (isFinite(this._repeat)) {
-					this._repeat--
+					this._repeat -= completeCount
 				}
 
 				// Reassign starting values, restart by making startTime = now
@@ -401,11 +405,7 @@ export class Tween<T extends UnknownProps> {
 					this._reversed = !this._reversed
 				}
 
-				if (this._repeatDelayTime !== undefined) {
-					this._startTime = time + this._repeatDelayTime
-				} else {
-					this._startTime = time + this._delayTime
-				}
+				this._startTime += durationAndDelay * completeCount
 
 				if (this._onRepeatCallback) {
 					this._onRepeatCallback(this._object)
