@@ -25,7 +25,7 @@
 	],
 	"dependencies": {},
 	"scripts": {
-		"build": "rimraf dist && node scripts/write-version.js && npm run tsc && npm run rollup-build && npm run tsc-d.ts && npm run adjust-d.ts",
+		"build": "rimraf dist && rimraf .tmp && node scripts/write-version.js && npm run tsc && npm run rollup-build && npm run tsc-d.ts && npm run adjust-d.ts",
 		"rollup-build": "rollup -c ./rollup.config.js",
 		"tsc": "tsc",
 		"tsc-watch": "tsc --watch",
@@ -55,6 +55,6 @@
 		"rollup": "^0.57.1",
 		"rollup-plugin-typescript": "^1.0.1",
 		"tslib": "^1.10.0",
-		"typescript": "^3.9.0"
+		"typescript": "^4.0.0"
 	}
 }

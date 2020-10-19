@@ -7,29 +7,33 @@
  * Thank you all, you're awesome!
  */
 
-import NOW from './Now'
-import Group from './Group'
 import Easing from './Easing'
+import Group from './Group'
 import Interpolation from './Interpolation'
+import now from './Now'
 import Sequence from './Sequence'
 import Tween from './Tween'
 import VERSION from './Version'
+import {mainGroup} from './mainGroup'
+
+const nextId = Sequence.nextId
 
 /**
  * Controlling groups of tweens
  *
  * Using the TWEEN singleton to manage your tweens can cause issues in large apps with many components.
- * In these cases, you may want to create your own smaller groups of tween
+ * In these cases, you may want to create your own smaller groups of tweens.
  */
-class Main extends Group {
-	public version = VERSION
-	public now = NOW
-	public Group = Group
-	public Easing = Easing
-	public Interpolation = Interpolation
-	public nextId = Sequence.nextId
-	public Tween = Tween
-}
+const TWEEN = mainGroup
 
-const TWEEN = new Main()
-export default TWEEN
+// This is the best way to export things in a way that's compatible with both ES
+// Modules and CommonJS, without build hacks, and so as not to break the
+// existing API.
+// https://github.com/rollup/rollup/issues/1961#issuecomment-423037881
+const getAll = TWEEN.getAll.bind(TWEEN)
+const removeAll = TWEEN.removeAll.bind(TWEEN)
+const add = TWEEN.add.bind(TWEEN)
+const remove = TWEEN.remove.bind(TWEEN)
+const update = TWEEN.update.bind(TWEEN)
+
+export {Easing, Group, Interpolation, now, Sequence, nextId, Tween, VERSION, getAll, removeAll, add, remove, update}

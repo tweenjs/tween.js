@@ -12,7 +12,7 @@ let content = fs.readFileSync(file) + ''
 content = content
 	.replace(/\r\n/g, '\n')
 	.replace(/\s*export default [^;{]+;/g, '')
-	.replace(/export (default )?/g, '')
+	.replace(/export (default )?(?!{)/g, '')
 	.replace(/(}\n)?declare module [^{]+{/g, '')
 	.replace(/import [^;]+;/g, '')
 	.replace(/}\n$/, '')
@@ -20,15 +20,8 @@ content = content
 	.replace(/}\n(\s*)([^\s])/g, '}\n\n$1$2')
 	.replace(/\n\n(\s*\n)+/g, '\n\n')
 
-content = `declare module "TWEEN" {
+content = `declare module "@tweenjs/tween.js" {
 ${content}
-    export default TWEEN;
-}
-
-declare module "@tweenjs/tween.js" {
-    import TWEEN from "TWEEN";
-    export = TWEEN;
-}
-`
+} `
 
 fs.writeFileSync(file, content)

@@ -7,10 +7,15 @@
  * Thank you all, you're awesome!
  */
 
+import Easing from './Easing'
+import Interpolation from './Interpolation'
+import {mainGroup} from './mainGroup'
+import Sequence from './Sequence'
+import now from './Now'
+
 import type {EasingFunction} from './Easing'
 import type {InterpolationFunction} from './Interpolation'
 import type Group from './Group'
-import TWEEN from './Index'
 
 export class Tween<T extends UnknownProps> {
 	private _isPaused = false
@@ -27,8 +32,8 @@ export class Tween<T extends UnknownProps> {
 	private _reversed = false
 	private _delayTime = 0
 	private _startTime = 0
-	private _easingFunction: EasingFunction = TWEEN.Easing.Linear.None
-	private _interpolationFunction: InterpolationFunction = TWEEN.Interpolation.Linear
+	private _easingFunction: EasingFunction = Easing.Linear.None
+	private _interpolationFunction: InterpolationFunction = Interpolation.Linear
 	private _chainedTweens: Array<Tween<UnknownProps>> = []
 	private _onStartCallback?: (object: T) => void
 	private _onStartCallbackFired = false
@@ -36,10 +41,10 @@ export class Tween<T extends UnknownProps> {
 	private _onRepeatCallback?: (object: T) => void
 	private _onCompleteCallback?: (object: T) => void
 	private _onStopCallback?: (object: T) => void
-	private _id = TWEEN.nextId()
+	private _id = Sequence.nextId()
 	private _isChainStopped = false
 
-	constructor(private _object: T, private _group: Group = TWEEN) {}
+	constructor(private _object: T, private _group: Group = mainGroup) {}
 
 	getId(): number {
 		return this._id
@@ -101,8 +106,7 @@ export class Tween<T extends UnknownProps> {
 
 		this._isChainStopped = false
 
-		this._startTime =
-			time !== undefined ? (typeof time === 'string' ? TWEEN.now() + parseFloat(time) : time) : TWEEN.now()
+		this._startTime = time !== undefined ? (typeof time === 'string' ? now() + parseFloat(time) : time) : now()
 		this._startTime += this._delayTime
 
 		this._setupProperties(this._object, this._valuesStart, this._valuesEnd, this._valuesStartRepeat)
@@ -219,7 +223,7 @@ export class Tween<T extends UnknownProps> {
 
 		this._isPaused = true
 
-		this._pauseStart = time === undefined ? TWEEN.now() : time
+		this._pauseStart = time === undefined ? now() : time
 
 		// eslint-disable-next-line
 		// @ts-ignore FIXME?
@@ -235,7 +239,7 @@ export class Tween<T extends UnknownProps> {
 
 		this._isPaused = false
 
-		this._startTime += (time === undefined ? TWEEN.now() : time) - this._pauseStart
+		this._startTime += (time === undefined ? now() : time) - this._pauseStart
 
 		this._pauseStart = 0
 
@@ -323,7 +327,7 @@ export class Tween<T extends UnknownProps> {
 		let property
 		let elapsed
 
-		time = time !== undefined ? time : TWEEN.now()
+		time = time !== undefined ? time : now()
 
 		const endTime = this._startTime + this._duration
 
