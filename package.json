@@ -36,7 +36,11 @@
 		"test-lint": "npm run prettier -- --check && eslint 'src/**/*.ts'",
 		"lint": "npm run prettier -- --write && eslint 'src/**/*.ts' --fix",
 		"prettier": "prettier './**/*.{js,ts,md,json,html,css}'",
-		"prepare": "npm run build"
+		"prepare": "npm run build",
+		"version": "npm test && git add .",
+		"release:patch": "npm version patch --message 'v%s' && npm publish && git push --follow-tags",
+		"release:minor": "npm version minor --message 'v%s' && npm publish && git push --follow-tags",
+		"release:major": "npm version major --message 'v%s' && npm publish && git push --follow-tags"
 	},
 	"author": "tween.js contributors (https://github.com/tweenjs/tween.js/graphs/contributors)",
 	"devDependencies": {
