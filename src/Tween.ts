@@ -212,6 +212,7 @@ export class Tween<T extends UnknownProps> {
 	}
 
 	end(): this {
+		this._goToEnd = true
 		this.update(Infinity)
 		return this
 	}
@@ -323,22 +324,20 @@ export class Tween<T extends UnknownProps> {
 		return this
 	}
 
-	update(time?: number): boolean {
+	private _goToEnd = false
+
+	update(time = now(), preserve = false): boolean {
 		let property
 		let elapsed
 
-		time = time !== undefined ? time : now()
-
 		const endTime = this._startTime + this._duration
 
-		if (time > endTime && !this._isPlaying) {
-			return false
+		if (!this._goToEnd && !this._isPlaying) {
+			if (time > endTime) return false
+			if (!preserve) this.start(time)
 		}
 
-		// If the tween was already finished,
-		if (!this.isPlaying) {
-			this.start(time)
-		}
+		this._goToEnd = false
 
 		if (time < this._startTime) {
 			return true

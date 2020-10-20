@@ -29,6 +29,7 @@
 		"rollup-build": "rollup -c ./rollup.config.js",
 		"tsc": "tsc",
 		"tsc-watch": "tsc --watch",
+		"examples": "npx serve .",
 		"test": "npm run build && npm run test-unit && npm run test-lint",
 		"test-unit": "nodeunit test/unit/nodeunitheadless.js",
 		"test-lint": "npm run prettier -- --check && eslint 'src/**/*.ts'",

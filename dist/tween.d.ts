@@ -131,7 +131,8 @@ declare class Tween<T extends UnknownProps> {
     onRepeat(callback: (object: T) => void): this;
     onComplete(callback: (object: T) => void): this;
     onStop(callback: (object: T) => void): this;
-    update(time?: number): boolean;
+    private _goToEnd;
+    update(time?: number, preserve?: boolean): boolean;
     private _updateProperties;
     private _handleRelativeValue;
     private _swapEndStartRepeatValues;
