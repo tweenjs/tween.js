@@ -260,7 +260,7 @@ var Group = /** @class */ (function () {
             this._tweensAddedDuringUpdate = {};
             for (var i = 0; i < tweenIds.length; i++) {
                 var tween = this._tweens[tweenIds[i]];
-                if (tween && tween.update(time) === false && !preserve) {
+                if (tween && tween.update(time, preserve) === false && !preserve) {
                     delete this._tweens[tweenIds[i]];
                 }
             }
@@ -398,6 +398,7 @@ var Tween = /** @class */ (function () {
         this._onStartCallbackFired = false;
         this._id = Sequence.nextId();
         this._isChainStopped = false;
+        this._goToEnd = false;
     }
     Tween.prototype.getId = function () {
         return this._id;
@@ -523,6 +524,7 @@ var Tween = /** @class */ (function () {
         return this;
     };
     Tween.prototype.end = function () {
+        this._goToEnd = true;
         this.update(Infinity);
         return this;
     };
@@ -612,18 +614,19 @@ var Tween = /** @class */ (function () {
         this._onStopCallback = callback;
         return this;
     };
-    Tween.prototype.update = function (time) {
+    Tween.prototype.update = function (time, preserve) {
+        if (time === void 0) { time = now$1(); }
+        if (preserve === void 0) { preserve = false; }
         var property;
         var elapsed;
-        time = time !== undefined ? time : now$1();
         var endTime = this._startTime + this._duration;
-        if (time > endTime && !this._isPlaying) {
-            return false;
+        if (!this._goToEnd && !this._isPlaying) {
+            if (time > endTime)
+                return false;
+            if (!preserve)
+                this.start(time);
         }
-        // If the tween was already finished,
-        if (!this.isPlaying) {
-            this.start(time);
-        }
+        this._goToEnd = false;
         if (time < this._startTime) {
             return true;
         }
