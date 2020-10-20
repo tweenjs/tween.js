@@ -1,11 +1,11 @@
-let NOW: () => number
+let now: () => number
 
 // Include a performance.now polyfill.
 // In node.js, use process.hrtime.
 // eslint-disable-next-line
 // @ts-ignore
 if (typeof self === 'undefined' && typeof process !== 'undefined' && process.hrtime) {
-	NOW = function (): number {
+	now = function (): number {
 		// eslint-disable-next-line
 		// @ts-ignore
 		const time = process.hrtime()
@@ -18,17 +18,17 @@ if (typeof self === 'undefined' && typeof process !== 'undefined' && process.hrt
 else if (typeof self !== 'undefined' && self.performance !== undefined && self.performance.now !== undefined) {
 	// This must be bound, because directly assigning this function
 	// leads to an invocation exception in Chrome.
-	NOW = self.performance.now.bind(self.performance)
+	now = self.performance.now.bind(self.performance)
 }
 // Use Date.now if it is available.
 else if (Date.now !== undefined) {
-	NOW = Date.now
+	now = Date.now
 }
 // Otherwise, use 'new Date().getTime()'.
 else {
-	NOW = function (): number {
+	now = function (): number {
 		return new Date().getTime()
 	}
 }
 
-export default NOW
+export default now

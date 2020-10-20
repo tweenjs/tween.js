@@ -1,4 +1,4 @@
-import NOW from './Now'
+import now from './Now'
 import type {Tween, UnknownProps} from './Tween'
 
 /**
@@ -43,7 +43,7 @@ export default class Group {
 			return false
 		}
 
-		time = time !== undefined ? time : NOW()
+		time = time !== undefined ? time : now()
 
 		// Tweens are updated in "batches". If you add a new tween during an
 		// update, then the new tween will be updated in the next batch.
