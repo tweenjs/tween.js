@@ -153,6 +153,9 @@
 				t1.start(0)
 				t2.start(0)
 
+				// To be able to make a tween go backward in time, it must be
+				// updated with preserve set to true. Otherwise, the
+				// backward-in-time feature does not apply.
 				TWEEN.update(200, true)
 				TWEEN.update(2500, true)
 				TWEEN.update(500, true)

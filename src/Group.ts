@@ -56,7 +56,7 @@ export default class Group {
 			for (let i = 0; i < tweenIds.length; i++) {
 				const tween = this._tweens[tweenIds[i]]
 
-				if (tween && tween.update(time) === false && !preserve) {
+				if (tween && tween.update(time, preserve) === false && !preserve) {
 					delete this._tweens[tweenIds[i]]
 				}
 			}

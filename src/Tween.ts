@@ -326,21 +326,15 @@ export class Tween<T extends UnknownProps> {
 
 	private _goToEnd = false
 
-	update(time = now()): boolean {
+	update(time = now(), preserve = false): boolean {
 		let property
 		let elapsed
 
 		const endTime = this._startTime + this._duration
 
-		if (!this._goToEnd) {
-			if (time > endTime && !this._isPlaying) {
-				return false
-			}
-
-			// If the tween was already finished,
-			if (!this._isPlaying) {
-				this.start(time)
-			}
+		if (!this._goToEnd && !this._isPlaying) {
+			if (time > endTime) return false
+			if (!preserve) this.start(time)
 		}
 
 		this._goToEnd = false
