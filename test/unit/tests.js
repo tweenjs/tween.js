@@ -514,6 +514,28 @@
 				test.done()
 			},
 
+			'Ensure tweens start without calling start() method.': function (test) {
+				var obj = {x: 0},
+					t = new TWEEN.Tween(obj)
+
+				t.to({x: 1000}, 1000)
+				let started = false
+				t.onStart(() => (started = true))
+				t.onComplete(() => (started = false))
+
+				t.update(0)
+				test.deepEqual(started, true)
+				test.deepEqual(obj.x, 0)
+				t.update(500)
+				test.deepEqual(started, true)
+				test.deepEqual(obj.x, 500)
+				t.update(1000)
+				test.deepEqual(obj.x, 1000)
+				test.deepEqual(started, false)
+
+				test.done()
+			},
+
 			'Test TWEEN.Tween.stop()': function (test) {
 				var obj = {},
 					t = new TWEEN.Tween(obj)
@@ -1196,6 +1218,24 @@
 
 				tween1.start()
 				tween1.end()
+
+				test.done()
+			},
+
+			'Ensure Tween.end() works after stopping a tween.': function (test) {
+				var object = {x: 0, y: -50, z: 1000}
+				var target = {x: 50, y: 123, z: '+234'}
+
+				var tween = new TWEEN.Tween(object).to(target, 1000)
+
+				tween.start(300)
+				tween.update(500)
+				tween.stop()
+				tween.end()
+
+				test.equal(object.x, 50)
+				test.equal(object.y, 123)
+				test.equal(object.z, 1234)
 
 				test.done()
 			},
