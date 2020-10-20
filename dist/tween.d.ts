@@ -165,7 +165,7 @@ declare class Sequence {
     static nextId(): number;
 }
 
-declare const VERSION = "18.6.1";
+declare const VERSION = "18.6.2";
 
 declare const nextId: typeof Sequence.nextId;
 declare const getAll: () => Tween<Record<string, unknown>>[];
