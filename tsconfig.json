@@ -2,6 +2,7 @@
 	"compilerOptions": {
 		"baseUrl": ".",
 		"outDir": "./.tmp",
+		"declaration": true,
 		"strict": true,
 		"importsNotUsedAsValues": "error",
 		"sourceMap": true,

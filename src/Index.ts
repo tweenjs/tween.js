@@ -37,3 +37,21 @@ const remove = TWEEN.remove.bind(TWEEN)
 const update = TWEEN.update.bind(TWEEN)
 
 export {Easing, Group, Interpolation, now, Sequence, nextId, Tween, VERSION, getAll, removeAll, add, remove, update}
+
+const exports = {
+	Easing,
+	Group,
+	Interpolation,
+	now,
+	Sequence,
+	nextId,
+	Tween,
+	VERSION,
+	getAll,
+	removeAll,
+	add,
+	remove,
+	update,
+}
+
+export default exports
