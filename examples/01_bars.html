@@ -58,7 +58,7 @@
 						.easing(TWEEN.Easing.Back.Out)
 						.start()
 
-					var tweenBack = new TWEEN.Tween(elem, false)
+					var tweenBack = new TWEEN.Tween(elem)
 						.to({x: startValue}, 4000)
 						.delay(Math.random() * 1000)
 						.onUpdate(updateCallback)

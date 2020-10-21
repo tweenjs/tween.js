@@ -36,14 +36,12 @@ export default class Group {
 		delete this._tweensAddedDuringUpdate[tween.getId()]
 	}
 
-	update(time: number, preserve?: boolean): boolean {
+	update(time: number = now(), preserve = false): boolean {
 		let tweenIds = Object.keys(this._tweens)
 
 		if (tweenIds.length === 0) {
 			return false
 		}
-
-		time = time !== undefined ? time : now()
 
 		// Tweens are updated in "batches". If you add a new tween during an
 		// update, then the new tween will be updated in the next batch.
@@ -55,8 +53,9 @@ export default class Group {
 
 			for (let i = 0; i < tweenIds.length; i++) {
 				const tween = this._tweens[tweenIds[i]]
+				const autoStart = !preserve
 
-				if (tween && tween.update(time, preserve) === false && !preserve) {
+				if (tween && tween.update(time, autoStart) === false && !preserve) {
 					delete this._tweens[tweenIds[i]]
 				}
 			}
