@@ -1567,6 +1567,32 @@
 				test.done()
 			},
 
+			'Ensure tweens work without any group': function (test) {
+				var obj = {x: 0},
+					t = new TWEEN.Tween(obj, false)
+
+				t.to({x: 1000}, 1000)
+
+				t.start(0)
+				test.equal(obj.x, 0)
+				t.update(500)
+				test.equal(obj.x, 500)
+				t.pause(600)
+				test.equal(obj.x, 500)
+				t.update(750)
+				test.equal(obj.x, 500)
+				t.resume(800)
+				test.equal(obj.x, 500)
+				t.update(1000)
+				test.equal(obj.x, 800)
+				t.update(1001)
+				test.equal(obj.x, 801)
+				t.stop().end()
+				test.equal(obj.x, 1000)
+
+				test.done()
+			},
+
 			'Stopping a tween within an update callback will not cause an error.': function (test) {
 				TWEEN.removeAll()
 
@@ -1623,48 +1649,72 @@
 				t.to({x: 1.0}, 1000)
 
 				TWEEN.removeAll()
-
 				test.equal(TWEEN.getAll().length, 0)
 
 				t.start(0)
-
 				test.equal(TWEEN.getAll().length, 1)
 				test.equal(t.isPaused(), false)
 
 				TWEEN.update(400)
-
 				test.equal(obj.x, 0.4)
 
 				t.pause(450)
-
 				test.equal(t.isPaused(), true)
 				test.equal(TWEEN.getAll().length, 0)
 				test.equal(obj.x, 0.4)
 
 				TWEEN.update(900)
-
 				test.equal(obj.x, 0.4)
 
 				TWEEN.update(3000)
-
 				test.equal(obj.x, 0.4)
 
 				t.resume(3200)
-
 				// values do not change until an update
 				test.equal(obj.x, 0.4)
-
 				test.equal(TWEEN.getAll().length, 1)
 				test.equal(t.isPaused(), false)
 
 				TWEEN.update(3500)
-
 				test.equal(obj.x, 0.75)
 
 				TWEEN.update(5000)
-
 				test.equal(obj.x, 1.0)
+				test.done()
+			},
 
+			'Test TWEEN.Tween.pause() and TWEEN.Tween.resume(), without groups': function (test) {
+				var obj = {x: 0.0},
+					t = new TWEEN.Tween(obj, false)
+
+				t.to({x: 1.0}, 1000)
+
+				t.start(0)
+				test.equal(t.isPaused(), false)
+
+				t.update(400)
+				test.equal(obj.x, 0.4)
+
+				t.pause(450)
+				test.equal(t.isPaused(), true)
+				test.equal(obj.x, 0.4)
+
+				t.update(900)
+				test.equal(obj.x, 0.4)
+
+				t.update(3000)
+				test.equal(obj.x, 0.4)
+
+				t.resume(3200)
+				// values do not change until an update
+				test.equal(obj.x, 0.4)
+				test.equal(t.isPaused(), false)
+
+				t.update(3500)
+				test.equal(obj.x, 0.75)
+
+				t.update(5000)
+				test.equal(obj.x, 1.0)
 				test.done()
 			},
 

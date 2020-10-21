@@ -44,7 +44,7 @@ export class Tween<T extends UnknownProps> {
 	private _id = Sequence.nextId()
 	private _isChainStopped = false
 
-	constructor(private _object: T, private _group: Group = mainGroup) {}
+	constructor(private _object: T, private _group: Group | false = mainGroup) {}
 
 	getId(): number {
 		return this._id
@@ -81,8 +81,7 @@ export class Tween<T extends UnknownProps> {
 		}
 
 		// eslint-disable-next-line
-		// @ts-ignore FIXME?
-		this._group.add(this)
+		this._group && this._group.add(this as any)
 
 		this._repeat = this._initialRepeat
 
@@ -197,8 +196,7 @@ export class Tween<T extends UnknownProps> {
 		}
 
 		// eslint-disable-next-line
-		// @ts-ignore FIXME?
-		this._group.remove(this)
+		this._group && this._group.remove(this as any)
 
 		this._isPlaying = false
 
@@ -217,36 +215,34 @@ export class Tween<T extends UnknownProps> {
 		return this
 	}
 
-	pause(time: number): this {
+	pause(time: number = now()): this {
 		if (this._isPaused || !this._isPlaying) {
 			return this
 		}
 
 		this._isPaused = true
 
-		this._pauseStart = time === undefined ? now() : time
+		this._pauseStart = time
 
 		// eslint-disable-next-line
-		// @ts-ignore FIXME?
-		this._group.remove(this)
+		this._group && this._group.remove(this as any)
 
 		return this
 	}
 
-	resume(time: number): this {
+	resume(time: number = now()): this {
 		if (!this._isPaused || !this._isPlaying) {
 			return this
 		}
 
 		this._isPaused = false
 
-		this._startTime += (time === undefined ? now() : time) - this._pauseStart
+		this._startTime += time - this._pauseStart
 
 		this._pauseStart = 0
 
 		// eslint-disable-next-line
-		// @ts-ignore FIXME?
-		this._group.add(this)
+		this._group && this._group.add(this as any)
 
 		return this
 	}
@@ -326,7 +322,14 @@ export class Tween<T extends UnknownProps> {
 
 	private _goToEnd = false
 
-	update(time = now(), preserve = false): boolean {
+	/**
+	 * @returns true if the tween is still playing after the update, false
+	 * otherwise (calling update on a paused tween still returns true because
+	 * it is still playing, just paused).
+	 */
+	update(time = now(), autoStart = true): boolean {
+		if (this._isPaused) return true
+
 		let property
 		let elapsed
 
@@ -334,7 +337,7 @@ export class Tween<T extends UnknownProps> {
 
 		if (!this._goToEnd && !this._isPlaying) {
 			if (time > endTime) return false
-			if (!preserve) this.start(time)
+			if (autoStart) this.start(time)
 		}
 
 		this._goToEnd = false
