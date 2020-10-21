@@ -59,9 +59,11 @@ export class Tween<T extends UnknownProps> {
 	}
 
 	to(properties: UnknownProps, duration?: number): this {
-		for (const prop in properties) {
-			this._valuesEnd[prop] = properties[prop]
-		}
+		// TODO? restore this, then update the 07_dynamic_to example to set fox
+		// tween's to on each update. That way the behavior is opt-in (there's
+		// currently no opt-out).
+		// for (const prop in properties) this._valuesEnd[prop] = properties[prop]
+		this._valuesEnd = Object.create(properties)
 
 		if (duration !== undefined) {
 			this._duration = duration
