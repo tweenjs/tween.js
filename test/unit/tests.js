@@ -536,6 +536,45 @@
 				test.done()
 			},
 
+			'Test Tween.to() tweening towards a dynamic object': function (test) {
+				const rabbit = {x: 1000, y: 0}
+				const tr = new TWEEN.Tween(rabbit)
+				tr.to({y: 1000}, 1000)
+				tr.start(0)
+
+				const fox = {x: 0, y: 0}
+				const tf = new TWEEN.Tween(fox)
+				tf.to(rabbit) // fox chase rabbit!
+				tf.start(0)
+
+				tr.update(200)
+				tf.update(200)
+				test.equal(rabbit.x, 1000)
+				test.equal(rabbit.y, 200)
+				test.equal(fox.x, 200)
+				test.equal(fox.y, 40)
+				tr.update(500)
+				tf.update(500)
+				test.equal(rabbit.x, 1000)
+				test.equal(rabbit.y, 500)
+				test.equal(fox.x, 500)
+				test.equal(fox.y, 250)
+				tr.update(800)
+				tf.update(800)
+				test.equal(rabbit.x, 1000)
+				test.equal(rabbit.y, 800)
+				test.equal(fox.x, 800)
+				test.equal(fox.y, 640)
+				tr.update(1000)
+				tf.update(1000)
+				test.equal(rabbit.x, 1000)
+				test.equal(rabbit.y, 1000)
+				test.equal(fox.x, 1000)
+				test.equal(fox.y, 1000)
+
+				test.done()
+			},
+
 			'Test TWEEN.Tween.stop()': function (test) {
 				var obj = {},
 					t = new TWEEN.Tween(obj)
