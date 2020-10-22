@@ -5,28 +5,34 @@ export default [
 		input: '.tmp/Index.js',
 		// https://github.com/rollup/rollup/wiki/Troubleshooting#this-is-undefined
 		context: 'this',
+		watch: {clearScreen: false},
 		output: [
 			{
 				file: 'dist/tween.umd.js',
 				name: 'TWEEN',
 				format: 'umd',
+				exports: 'named',
 			},
 			{
 				file: 'dist/tween.amd.js',
 				format: 'amd',
+				exports: 'named',
 			},
 			{
 				file: 'dist/tween.cjs.js',
 				format: 'cjs',
+				exports: 'named',
 			},
 			{
 				file: 'dist/tween.esm.js',
 				format: 'es',
+				exports: 'named',
 			},
 		],
 	},
 	{
 		input: './.tmp/Index.d.ts',
+		watch: {clearScreen: false},
 		output: [{file: 'dist/tween.d.ts', format: 'es'}],
 		plugins: [dts()],
 	},
