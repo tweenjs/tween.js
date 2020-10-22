@@ -25,6 +25,7 @@
 	],
 	"dependencies": {},
 	"scripts": {
+		"dev": "(npm run tsc-watch -- --preserveWatchOutput & p1=$!; npm run rollup-build -- --watch & p2=$!; wait $p1 $p2)",
 		"build": "rimraf dist .tmp && node scripts/write-version.js && npm run tsc && npm run rollup-build",
 		"rollup-build": "rollup -c ./rollup.config.js",
 		"tsc": "tsc",
@@ -37,9 +38,10 @@
 		"prettier": "prettier './**/*.{js,ts,md,json,html,css}'",
 		"prepare": "npm run build",
 		"version": "npm test && git add .",
-		"release:patch": "npm version patch --message 'v%s' && npm publish && git push --follow-tags",
-		"release:minor": "npm version minor --message 'v%s' && npm publish && git push --follow-tags",
-		"release:major": "npm version major --message 'v%s' && npm publish && git push --follow-tags"
+		"release:patch": "npm version patch --message 'v%s' && npm publish && npm run _release:push-branch",
+		"release:minor": "npm version minor --message 'v%s' && npm publish && npm run _release:push-branch",
+		"release:major": "npm version major --message 'v%s' && npm publish && npm run _release:push-branch",
+		"_release:push-branch": "git push --follow-tags --set-upstream origin `git rev-parse --abbrev-ref HEAD`"
 	},
 	"author": "tween.js contributors (https://github.com/tweenjs/tween.js/graphs/contributors)",
 	"devDependencies": {
