@@ -3,14 +3,11 @@
 JavaScript tweening engine for easy animations, incorporating optimised Robert Penner's equations.
 
 [![NPM Version][npm-image]][npm-url]
-[![NPM Downloads][downloads-image]][downloads-url]
-[![Travis tests][travis-image]][travis-url]
-[![Flattr this][flattr-image]][flattr-url]
 [![CDNJS][cdnjs-image]][cdnjs-url]
+[![NPM Downloads][downloads-image]][downloads-url]
+[![Build and Tests][ci-image]][ci-url]
 
-Do you use tween.js? If you have some time, please fill out [this short survey](https://docs.google.com/forms/d/e/1FAIpQLScJ0xnsS1m4mdXGRmGFPVd_CYi0Ah224lLYc4UP-fmakQjNHw/viewform?usp=sf_link).
-
-**Update Note** In v18 the script you should include has moved from `src/Tween.js` to `dist/tween.umd.js`. See the [installation section](#Installation) below. v18 is not yet available on CDNJS.
+**Update Note** In v18 the script you should include has moved from `src/Tween.js` to `dist/tween.umd.js`. See the [installation section](#Installation) below.
 
 ---
 
@@ -254,7 +251,7 @@ If you want to add any feature or change existing features, you _must_ run the t
 
 ## People
 
-Maintainers: [mikebolt](https://github.com/mikebolt), [sole](https://github.com/sole).
+Maintainers: [mikebolt](https://github.com/mikebolt), [sole](https://github.com/sole), [Joe Pea (@trusktr)](https://github.com/trusktr).
 
 [All contributors](http://github.com/tweenjs/tween.js/contributors).
 
@@ -275,9 +272,7 @@ Maintainers: [mikebolt](https://github.com/mikebolt), [sole](https://github.com/
 [npm-url]: https://npmjs.org/package/@tweenjs/tween.js
 [downloads-image]: https://img.shields.io/npm/dm/@tweenjs/tween.js.svg
 [downloads-url]: https://npmjs.org/package/@tweenjs/tween.js
-[travis-image]: https://travis-ci.org/tweenjs/tween.js.svg?branch=master
-[travis-url]: https://travis-ci.org/tweenjs/tween.js
-[flattr-image]: https://api.flattr.com/button/flattr-badge-large.png
-[flattr-url]: https://flattr.com/thing/45014/tween-js
+[ci-image]: https://github.com/tweenjs/tween.js/workflows/build%20and%20tests/badge.svg?branch=master
+[ci-url]: https://github.com/tweenjs/tween.js/actions
 [cdnjs-image]: https://img.shields.io/cdnjs/v/tween.js.svg
 [cdnjs-url]: https://cdnjs.com/libraries/tween.js

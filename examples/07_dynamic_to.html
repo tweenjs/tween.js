@@ -47,6 +47,7 @@
 
 				new TWEEN.Tween(rabbit)
 					.to({x: width - 50, y: height - 50}, 3000)
+					.easing(TWEEN.Easing.Exponential.InOut)
 					.onUpdate(function (object) {
 						// draw background
 						context.fillStyle = 'rgb(240,250,240)'
@@ -78,6 +79,7 @@
 
 				new TWEEN.Tween(fox)
 					.to(rabbit, 3000)
+					.easing(TWEEN.Easing.Exponential.InOut)
 					.onUpdate(function (object) {
 						// draw fox
 						context.fillStyle = 'rgb(200,80,80)'

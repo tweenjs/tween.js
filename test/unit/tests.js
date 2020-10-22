@@ -153,6 +153,9 @@
 				t1.start(0)
 				t2.start(0)
 
+				// To be able to make a tween go backward in time, it must be
+				// updated with preserve set to true. Otherwise, the
+				// backward-in-time feature does not apply.
 				TWEEN.update(200, true)
 				TWEEN.update(2500, true)
 				TWEEN.update(500, true)
@@ -508,6 +511,67 @@
 
 				test.equal(TWEEN.getAll().length, 1) // TODO ditto
 				test.equal(TWEEN.getAll()[0], t)
+				test.done()
+			},
+
+			'Ensure tweens start without calling start() method.': function (test) {
+				var obj = {x: 0},
+					t = new TWEEN.Tween(obj)
+
+				t.to({x: 1000}, 1000)
+				let started = false
+				t.onStart(() => (started = true))
+				t.onComplete(() => (started = false))
+
+				t.update(0)
+				test.deepEqual(started, true)
+				test.deepEqual(obj.x, 0)
+				t.update(500)
+				test.deepEqual(started, true)
+				test.deepEqual(obj.x, 500)
+				t.update(1000)
+				test.deepEqual(obj.x, 1000)
+				test.deepEqual(started, false)
+
+				test.done()
+			},
+
+			'Test Tween.to() tweening towards a dynamic object': function (test) {
+				const rabbit = {x: 1000, y: 0}
+				const tr = new TWEEN.Tween(rabbit)
+				tr.to({y: 1000}, 1000)
+				tr.start(0)
+
+				const fox = {x: 0, y: 0}
+				const tf = new TWEEN.Tween(fox)
+				tf.to(rabbit) // fox chase rabbit!
+				tf.start(0)
+
+				tr.update(200)
+				tf.update(200)
+				test.equal(rabbit.x, 1000)
+				test.equal(rabbit.y, 200)
+				test.equal(fox.x, 200)
+				test.equal(fox.y, 40)
+				tr.update(500)
+				tf.update(500)
+				test.equal(rabbit.x, 1000)
+				test.equal(rabbit.y, 500)
+				test.equal(fox.x, 500)
+				test.equal(fox.y, 250)
+				tr.update(800)
+				tf.update(800)
+				test.equal(rabbit.x, 1000)
+				test.equal(rabbit.y, 800)
+				test.equal(fox.x, 800)
+				test.equal(fox.y, 640)
+				tr.update(1000)
+				tf.update(1000)
+				test.equal(rabbit.x, 1000)
+				test.equal(rabbit.y, 1000)
+				test.equal(fox.x, 1000)
+				test.equal(fox.y, 1000)
+
 				test.done()
 			},
 
@@ -1197,6 +1261,24 @@
 				test.done()
 			},
 
+			'Ensure Tween.end() works after stopping a tween.': function (test) {
+				var object = {x: 0, y: -50, z: 1000}
+				var target = {x: 50, y: 123, z: '+234'}
+
+				var tween = new TWEEN.Tween(object).to(target, 1000)
+
+				tween.start(300)
+				tween.update(500)
+				tween.stop()
+				tween.end()
+
+				test.equal(object.x, 50)
+				test.equal(object.y, 123)
+				test.equal(object.z, 1234)
+
+				test.done()
+			},
+
 			'Test delay adds delay before each repeat': function (test) {
 				// If repeatDelay isn't specified then delay is used since
 				// that's the way it worked before repeatDelay was added.
@@ -1524,6 +1606,32 @@
 				test.done()
 			},
 
+			'Ensure tweens work without any group': function (test) {
+				var obj = {x: 0},
+					t = new TWEEN.Tween(obj, false)
+
+				t.to({x: 1000}, 1000)
+
+				t.start(0)
+				test.equal(obj.x, 0)
+				t.update(500)
+				test.equal(obj.x, 500)
+				t.pause(600)
+				test.equal(obj.x, 500)
+				t.update(750)
+				test.equal(obj.x, 500)
+				t.resume(800)
+				test.equal(obj.x, 500)
+				t.update(1000)
+				test.equal(obj.x, 800)
+				t.update(1001)
+				test.equal(obj.x, 801)
+				t.stop().end()
+				test.equal(obj.x, 1000)
+
+				test.done()
+			},
+
 			'Stopping a tween within an update callback will not cause an error.': function (test) {
 				TWEEN.removeAll()
 
@@ -1580,48 +1688,72 @@
 				t.to({x: 1.0}, 1000)
 
 				TWEEN.removeAll()
-
 				test.equal(TWEEN.getAll().length, 0)
 
 				t.start(0)
-
 				test.equal(TWEEN.getAll().length, 1)
 				test.equal(t.isPaused(), false)
 
 				TWEEN.update(400)
-
 				test.equal(obj.x, 0.4)
 
 				t.pause(450)
-
 				test.equal(t.isPaused(), true)
 				test.equal(TWEEN.getAll().length, 0)
 				test.equal(obj.x, 0.4)
 
 				TWEEN.update(900)
-
 				test.equal(obj.x, 0.4)
 
 				TWEEN.update(3000)
-
 				test.equal(obj.x, 0.4)
 
 				t.resume(3200)
-
 				// values do not change until an update
 				test.equal(obj.x, 0.4)
-
 				test.equal(TWEEN.getAll().length, 1)
 				test.equal(t.isPaused(), false)
 
 				TWEEN.update(3500)
-
 				test.equal(obj.x, 0.75)
 
 				TWEEN.update(5000)
-
 				test.equal(obj.x, 1.0)
+				test.done()
+			},
 
+			'Test TWEEN.Tween.pause() and TWEEN.Tween.resume(), without groups': function (test) {
+				var obj = {x: 0.0},
+					t = new TWEEN.Tween(obj, false)
+
+				t.to({x: 1.0}, 1000)
+
+				t.start(0)
+				test.equal(t.isPaused(), false)
+
+				t.update(400)
+				test.equal(obj.x, 0.4)
+
+				t.pause(450)
+				test.equal(t.isPaused(), true)
+				test.equal(obj.x, 0.4)
+
+				t.update(900)
+				test.equal(obj.x, 0.4)
+
+				t.update(3000)
+				test.equal(obj.x, 0.4)
+
+				t.resume(3200)
+				// values do not change until an update
+				test.equal(obj.x, 0.4)
+				test.equal(t.isPaused(), false)
+
+				t.update(3500)
+				test.equal(obj.x, 0.75)
+
+				t.update(5000)
+				test.equal(obj.x, 1.0)
 				test.done()
 			},
 

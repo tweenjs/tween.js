@@ -7,10 +7,15 @@
  * Thank you all, you're awesome!
  */
 
+import Easing from './Easing'
+import Interpolation from './Interpolation'
+import {mainGroup} from './mainGroup'
+import Sequence from './Sequence'
+import now from './Now'
+
 import type {EasingFunction} from './Easing'
 import type {InterpolationFunction} from './Interpolation'
 import type Group from './Group'
-import TWEEN from './Index'
 
 export class Tween<T extends UnknownProps> {
 	private _isPaused = false
@@ -27,8 +32,8 @@ export class Tween<T extends UnknownProps> {
 	private _reversed = false
 	private _delayTime = 0
 	private _startTime = 0
-	private _easingFunction: EasingFunction = TWEEN.Easing.Linear.None
-	private _interpolationFunction: InterpolationFunction = TWEEN.Interpolation.Linear
+	private _easingFunction: EasingFunction = Easing.Linear.None
+	private _interpolationFunction: InterpolationFunction = Interpolation.Linear
 	private _chainedTweens: Array<Tween<UnknownProps>> = []
 	private _onStartCallback?: (object: T) => void
 	private _onStartCallbackFired = false
@@ -36,10 +41,10 @@ export class Tween<T extends UnknownProps> {
 	private _onRepeatCallback?: (object: T) => void
 	private _onCompleteCallback?: (object: T) => void
 	private _onStopCallback?: (object: T) => void
-	private _id = TWEEN.nextId()
+	private _id = Sequence.nextId()
 	private _isChainStopped = false
 
-	constructor(private _object: T, private _group: Group = TWEEN) {}
+	constructor(private _object: T, private _group: Group | false = mainGroup) {}
 
 	getId(): number {
 		return this._id
@@ -54,9 +59,11 @@ export class Tween<T extends UnknownProps> {
 	}
 
 	to(properties: UnknownProps, duration?: number): this {
-		for (const prop in properties) {
-			this._valuesEnd[prop] = properties[prop]
-		}
+		// TODO? restore this, then update the 07_dynamic_to example to set fox
+		// tween's to on each update. That way the behavior is opt-in (there's
+		// currently no opt-out).
+		// for (const prop in properties) this._valuesEnd[prop] = properties[prop]
+		this._valuesEnd = Object.create(properties)
 
 		if (duration !== undefined) {
 			this._duration = duration
@@ -76,8 +83,7 @@ export class Tween<T extends UnknownProps> {
 		}
 
 		// eslint-disable-next-line
-		// @ts-ignore FIXME?
-		this._group.add(this)
+		this._group && this._group.add(this as any)
 
 		this._repeat = this._initialRepeat
 
@@ -101,8 +107,7 @@ export class Tween<T extends UnknownProps> {
 
 		this._isChainStopped = false
 
-		this._startTime =
-			time !== undefined ? (typeof time === 'string' ? TWEEN.now() + parseFloat(time) : time) : TWEEN.now()
+		this._startTime = time !== undefined ? (typeof time === 'string' ? now() + parseFloat(time) : time) : now()
 		this._startTime += this._delayTime
 
 		this._setupProperties(this._object, this._valuesStart, this._valuesEnd, this._valuesStartRepeat)
@@ -193,8 +198,7 @@ export class Tween<T extends UnknownProps> {
 		}
 
 		// eslint-disable-next-line
-		// @ts-ignore FIXME?
-		this._group.remove(this)
+		this._group && this._group.remove(this as any)
 
 		this._isPlaying = false
 
@@ -208,40 +212,39 @@ export class Tween<T extends UnknownProps> {
 	}
 
 	end(): this {
+		this._goToEnd = true
 		this.update(Infinity)
 		return this
 	}
 
-	pause(time: number): this {
+	pause(time: number = now()): this {
 		if (this._isPaused || !this._isPlaying) {
 			return this
 		}
 
 		this._isPaused = true
 
-		this._pauseStart = time === undefined ? TWEEN.now() : time
+		this._pauseStart = time
 
 		// eslint-disable-next-line
-		// @ts-ignore FIXME?
-		this._group.remove(this)
+		this._group && this._group.remove(this as any)
 
 		return this
 	}
 
-	resume(time: number): this {
+	resume(time: number = now()): this {
 		if (!this._isPaused || !this._isPlaying) {
 			return this
 		}
 
 		this._isPaused = false
 
-		this._startTime += (time === undefined ? TWEEN.now() : time) - this._pauseStart
+		this._startTime += time - this._pauseStart
 
 		this._pauseStart = 0
 
 		// eslint-disable-next-line
-		// @ts-ignore FIXME?
-		this._group.add(this)
+		this._group && this._group.add(this as any)
 
 		return this
 	}
@@ -319,22 +322,27 @@ export class Tween<T extends UnknownProps> {
 		return this
 	}
 
-	update(time?: number): boolean {
+	private _goToEnd = false
+
+	/**
+	 * @returns true if the tween is still playing after the update, false
+	 * otherwise (calling update on a paused tween still returns true because
+	 * it is still playing, just paused).
+	 */
+	update(time = now(), autoStart = true): boolean {
+		if (this._isPaused) return true
+
 		let property
 		let elapsed
 
-		time = time !== undefined ? time : TWEEN.now()
-
 		const endTime = this._startTime + this._duration
 
-		if (time > endTime && !this._isPlaying) {
-			return false
+		if (!this._goToEnd && !this._isPlaying) {
+			if (time > endTime) return false
+			if (autoStart) this.start(time)
 		}
 
-		// If the tween was already finished,
-		if (!this.isPlaying) {
-			this.start(time)
-		}
+		this._goToEnd = false
 
 		if (time < this._startTime) {
 			return true

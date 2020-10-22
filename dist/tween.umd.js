@@ -1,94 +1,8 @@
 (function (global, factory) {
-    typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
-    typeof define === 'function' && define.amd ? define(factory) :
-    (global.TWEEN = factory());
-}(this, (function () { 'use strict';
-
-    var NOW;
-    // Include a performance.now polyfill.
-    // In node.js, use process.hrtime.
-    // eslint-disable-next-line
-    // @ts-ignore
-    if (typeof self === 'undefined' && typeof process !== 'undefined' && process.hrtime) {
-        NOW = function () {
-            // eslint-disable-next-line
-            // @ts-ignore
-            var time = process.hrtime();
-            // Convert [seconds, nanoseconds] to milliseconds.
-            return time[0] * 1000 + time[1] / 1000000;
-        };
-    }
-    // In a browser, use self.performance.now if it is available.
-    else if (typeof self !== 'undefined' && self.performance !== undefined && self.performance.now !== undefined) {
-        // This must be bound, because directly assigning this function
-        // leads to an invocation exception in Chrome.
-        NOW = self.performance.now.bind(self.performance);
-    }
-    // Use Date.now if it is available.
-    else if (Date.now !== undefined) {
-        NOW = Date.now;
-    }
-    // Otherwise, use 'new Date().getTime()'.
-    else {
-        NOW = function () {
-            return new Date().getTime();
-        };
-    }
-    var NOW$1 = NOW;
-
-    /**
-     * Controlling groups of tweens
-     *
-     * Using the TWEEN singleton to manage your tweens can cause issues in large apps with many components.
-     * In these cases, you may want to create your own smaller groups of tween
-     */
-    var Group = /** @class */ (function () {
-        function Group() {
-            this._tweens = {};
-            this._tweensAddedDuringUpdate = {};
-        }
-        Group.prototype.getAll = function () {
-            var _this = this;
-            return Object.keys(this._tweens).map(function (tweenId) {
-                return _this._tweens[tweenId];
-            });
-        };
-        Group.prototype.removeAll = function () {
-            this._tweens = {};
-        };
-        Group.prototype.add = function (tween) {
-            this._tweens[tween.getId()] = tween;
-            this._tweensAddedDuringUpdate[tween.getId()] = tween;
-        };
-        Group.prototype.remove = function (tween) {
-            delete this._tweens[tween.getId()];
-            delete this._tweensAddedDuringUpdate[tween.getId()];
-        };
-        Group.prototype.update = function (time, preserve) {
-            var tweenIds = Object.keys(this._tweens);
-            if (tweenIds.length === 0) {
-                return false;
-            }
-            time = time !== undefined ? time : NOW$1();
-            // Tweens are updated in "batches". If you add a new tween during an
-            // update, then the new tween will be updated in the next batch.
-            // If you remove a tween during an update, it may or may not be updated.
-            // However, if the removed tween was added during the current batch,
-            // then it will not be updated.
-            while (tweenIds.length > 0) {
-                this._tweensAddedDuringUpdate = {};
-                for (var i = 0; i < tweenIds.length; i++) {
-                    var tween = this._tweens[tweenIds[i]];
-                    if (tween && tween.update(time) === false && !preserve) {
-                        delete this._tweens[tweenIds[i]];
-                    }
-                }
-                tweenIds = Object.keys(this._tweensAddedDuringUpdate);
-            }
-            return true;
-        };
-        return Group;
-    }());
+    typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
+    typeof define === 'function' && define.amd ? define(['exports'], factory) :
+    (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.TWEEN = {}));
+}(this, (function (exports) { 'use strict';
 
     /**
      * The Ease class provides a collection of easing functions for use with tween.js.
@@ -277,6 +191,92 @@
         },
     };
 
+    var now;
+    // Include a performance.now polyfill.
+    // In node.js, use process.hrtime.
+    // eslint-disable-next-line
+    // @ts-ignore
+    if (typeof self === 'undefined' && typeof process !== 'undefined' && process.hrtime) {
+        now = function () {
+            // eslint-disable-next-line
+            // @ts-ignore
+            var time = process.hrtime();
+            // Convert [seconds, nanoseconds] to milliseconds.
+            return time[0] * 1000 + time[1] / 1000000;
+        };
+    }
+    // In a browser, use self.performance.now if it is available.
+    else if (typeof self !== 'undefined' && self.performance !== undefined && self.performance.now !== undefined) {
+        // This must be bound, because directly assigning this function
+        // leads to an invocation exception in Chrome.
+        now = self.performance.now.bind(self.performance);
+    }
+    // Use Date.now if it is available.
+    else if (Date.now !== undefined) {
+        now = Date.now;
+    }
+    // Otherwise, use 'new Date().getTime()'.
+    else {
+        now = function () {
+            return new Date().getTime();
+        };
+    }
+    var now$1 = now;
+
+    /**
+     * Controlling groups of tweens
+     *
+     * Using the TWEEN singleton to manage your tweens can cause issues in large apps with many components.
+     * In these cases, you may want to create your own smaller groups of tween
+     */
+    var Group = /** @class */ (function () {
+        function Group() {
+            this._tweens = {};
+            this._tweensAddedDuringUpdate = {};
+        }
+        Group.prototype.getAll = function () {
+            var _this = this;
+            return Object.keys(this._tweens).map(function (tweenId) {
+                return _this._tweens[tweenId];
+            });
+        };
+        Group.prototype.removeAll = function () {
+            this._tweens = {};
+        };
+        Group.prototype.add = function (tween) {
+            this._tweens[tween.getId()] = tween;
+            this._tweensAddedDuringUpdate[tween.getId()] = tween;
+        };
+        Group.prototype.remove = function (tween) {
+            delete this._tweens[tween.getId()];
+            delete this._tweensAddedDuringUpdate[tween.getId()];
+        };
+        Group.prototype.update = function (time, preserve) {
+            var tweenIds = Object.keys(this._tweens);
+            if (tweenIds.length === 0) {
+                return false;
+            }
+            time = time !== undefined ? time : now$1();
+            // Tweens are updated in "batches". If you add a new tween during an
+            // update, then the new tween will be updated in the next batch.
+            // If you remove a tween during an update, it may or may not be updated.
+            // However, if the removed tween was added during the current batch,
+            // then it will not be updated.
+            while (tweenIds.length > 0) {
+                this._tweensAddedDuringUpdate = {};
+                for (var i = 0; i < tweenIds.length; i++) {
+                    var tween = this._tweens[tweenIds[i]];
+                    if (tween && tween.update(time, preserve) === false && !preserve) {
+                        delete this._tweens[tweenIds[i]];
+                    }
+                }
+                tweenIds = Object.keys(this._tweensAddedDuringUpdate);
+            }
+            return true;
+        };
+        return Group;
+    }());
+
     /**
      *
      */
@@ -370,6 +370,8 @@
         return Sequence;
     }());
 
+    var mainGroup = new Group();
+
     /**
      * Tween.js - Licensed under the MIT license
      * https://github.com/tweenjs/tween.js
@@ -380,7 +382,7 @@
      */
     var Tween = /** @class */ (function () {
         function Tween(_object, _group) {
-            if (_group === void 0) { _group = TWEEN; }
+            if (_group === void 0) { _group = mainGroup; }
             this._object = _object;
             this._group = _group;
             this._isPaused = false;
@@ -396,12 +398,13 @@
             this._reversed = false;
             this._delayTime = 0;
             this._startTime = 0;
-            this._easingFunction = TWEEN.Easing.Linear.None;
-            this._interpolationFunction = TWEEN.Interpolation.Linear;
+            this._easingFunction = Easing.Linear.None;
+            this._interpolationFunction = Interpolation.Linear;
             this._chainedTweens = [];
             this._onStartCallbackFired = false;
-            this._id = TWEEN.nextId();
+            this._id = Sequence.nextId();
             this._isChainStopped = false;
+            this._goToEnd = false;
         }
         Tween.prototype.getId = function () {
             return this._id;
@@ -413,7 +416,6 @@
             return this._isPaused;
         };
         Tween.prototype.to = function (properties, duration) {
-            // to (properties, duration) {
             for (var prop in properties) {
                 this._valuesEnd[prop] = properties[prop];
             }
@@ -447,8 +449,7 @@
             this._isPaused = false;
             this._onStartCallbackFired = false;
             this._isChainStopped = false;
-            this._startTime =
-                time !== undefined ? (typeof time === 'string' ? TWEEN.now() + parseFloat(time) : time) : TWEEN.now();
+            this._startTime = time !== undefined ? (typeof time === 'string' ? now$1() + parseFloat(time) : time) : now$1();
             this._startTime += this._delayTime;
             this._setupProperties(this._object, this._valuesStart, this._valuesEnd, this._valuesStartRepeat);
             return this;
@@ -529,6 +530,7 @@
             return this;
         };
         Tween.prototype.end = function () {
+            this._goToEnd = true;
             this.update(Infinity);
             return this;
         };
@@ -537,7 +539,7 @@
                 return this;
             }
             this._isPaused = true;
-            this._pauseStart = time === undefined ? TWEEN.now() : time;
+            this._pauseStart = time === undefined ? now$1() : time;
             // eslint-disable-next-line
             // @ts-ignore FIXME?
             this._group.remove(this);
@@ -548,7 +550,7 @@
                 return this;
             }
             this._isPaused = false;
-            this._startTime += (time === undefined ? TWEEN.now() : time) - this._pauseStart;
+            this._startTime += (time === undefined ? now$1() : time) - this._pauseStart;
             this._pauseStart = 0;
             // eslint-disable-next-line
             // @ts-ignore FIXME?
@@ -618,17 +620,19 @@
             this._onStopCallback = callback;
             return this;
         };
-        Tween.prototype.update = function (time) {
+        Tween.prototype.update = function (time, preserve) {
+            if (time === void 0) { time = now$1(); }
+            if (preserve === void 0) { preserve = false; }
             var property;
             var elapsed;
             var endTime = this._startTime + this._duration;
-            if (time > endTime && !this._isPlaying) {
-                return false;
+            if (!this._goToEnd && !this._isPlaying) {
+                if (time > endTime)
+                    return false;
+                if (!preserve)
+                    this.start(time);
             }
-            // If the tween was already finished,
-            if (!this.isPlaying) {
-                this.start(time);
-            }
+            this._goToEnd = false;
             if (time < this._startTime) {
                 return true;
             }
@@ -750,7 +754,7 @@
         return Tween;
     }());
 
-    var VERSION = '18.5.0';
+    var VERSION = '18.6.2';
 
     /**
      * Tween.js - Licensed under the MIT license
@@ -760,42 +764,54 @@
      * See https://github.com/tweenjs/tween.js/graphs/contributors for the full list of contributors.
      * Thank you all, you're awesome!
      */
-    var __extends = (this && this.__extends) || (function () {
-        var extendStatics = function (d, b) {
-            extendStatics = Object.setPrototypeOf ||
-                ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-                function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-            return extendStatics(d, b);
-        };
-        return function (d, b) {
-            extendStatics(d, b);
-            function __() { this.constructor = d; }
-            d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-        };
-    })();
+    var nextId = Sequence.nextId;
     /**
      * Controlling groups of tweens
      *
      * Using the TWEEN singleton to manage your tweens can cause issues in large apps with many components.
-     * In these cases, you may want to create your own smaller groups of tween
+     * In these cases, you may want to create your own smaller groups of tweens.
      */
-    var Main = /** @class */ (function (_super) {
-        __extends(Main, _super);
-        function Main() {
-            var _this = _super !== null && _super.apply(this, arguments) || this;
-            _this.version = VERSION;
-            _this.now = NOW$1;
-            _this.Group = Group;
-            _this.Easing = Easing;
-            _this.Interpolation = Interpolation;
-            _this.nextId = Sequence.nextId;
-            _this.Tween = Tween;
-            return _this;
-        }
-        return Main;
-    }(Group));
-    var TWEEN = new Main();
+    var TWEEN = mainGroup;
+    // This is the best way to export things in a way that's compatible with both ES
+    // Modules and CommonJS, without build hacks, and so as not to break the
+    // existing API.
+    // https://github.com/rollup/rollup/issues/1961#issuecomment-423037881
+    var getAll = TWEEN.getAll.bind(TWEEN);
+    var removeAll = TWEEN.removeAll.bind(TWEEN);
+    var add = TWEEN.add.bind(TWEEN);
+    var remove = TWEEN.remove.bind(TWEEN);
+    var update = TWEEN.update.bind(TWEEN);
+    var exports$1 = {
+        Easing: Easing,
+        Group: Group,
+        Interpolation: Interpolation,
+        now: now$1,
+        Sequence: Sequence,
+        nextId: nextId,
+        Tween: Tween,
+        VERSION: VERSION,
+        getAll: getAll,
+        removeAll: removeAll,
+        add: add,
+        remove: remove,
+        update: update,
+    };
 
-    return TWEEN;
+    exports.Easing = Easing;
+    exports.Group = Group;
+    exports.Interpolation = Interpolation;
+    exports.Sequence = Sequence;
+    exports.Tween = Tween;
+    exports.VERSION = VERSION;
+    exports.add = add;
+    exports.default = exports$1;
+    exports.getAll = getAll;
+    exports.nextId = nextId;
+    exports.now = now$1;
+    exports.remove = remove;
+    exports.removeAll = removeAll;
+    exports.update = update;
+
+    Object.defineProperty(exports, '__esModule', { value: true });
 
 })));
