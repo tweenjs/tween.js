@@ -142,7 +142,7 @@ declare class Tween<T extends UnknownProps> {
     private _handleRelativeValue;
     private _swapEndStartRepeatValues;
 }
-declare type UnknownProps = Record<string, unknown>;
+declare type UnknownProps = Record<string, any>;
 
 /**
  * Controlling groups of tweens
@@ -170,13 +170,13 @@ declare class Sequence {
     static nextId(): number;
 }
 
-declare const VERSION = "18.6.3";
+declare const VERSION = "18.6.4";
 
 declare const nextId: typeof Sequence.nextId;
-declare const getAll: () => Tween<Record<string, unknown>>[];
+declare const getAll: () => Tween<Record<string, any>>[];
 declare const removeAll: () => void;
-declare const add: (tween: Tween<Record<string, unknown>>) => void;
-declare const remove: (tween: Tween<Record<string, unknown>>) => void;
+declare const add: (tween: Tween<Record<string, any>>) => void;
+declare const remove: (tween: Tween<Record<string, any>>) => void;
 declare const update: (time?: number, preserve?: boolean) => boolean;
 declare const exports: {
     Easing: {
@@ -251,10 +251,10 @@ declare const exports: {
     nextId: typeof Sequence.nextId;
     Tween: typeof Tween;
     VERSION: string;
-    getAll: () => Tween<Record<string, unknown>>[];
+    getAll: () => Tween<Record<string, any>>[];
     removeAll: () => void;
-    add: (tween: Tween<Record<string, unknown>>) => void;
-    remove: (tween: Tween<Record<string, unknown>>) => void;
+    add: (tween: Tween<Record<string, any>>) => void;
+    remove: (tween: Tween<Record<string, any>>) => void;
     update: (time?: number, preserve?: boolean) => boolean;
 };
 
