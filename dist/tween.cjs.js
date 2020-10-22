@@ -748,10 +748,9 @@ var Tween = /** @class */ (function () {
     };
     Tween.prototype._swapEndStartRepeatValues = function (property) {
         var tmp = this._valuesStartRepeat[property];
-        if (typeof this._valuesEnd[property] === 'string') {
-            // eslint-disable-next-line
-            // @ts-ignore FIXME?
-            this._valuesStartRepeat[property] = this._valuesStartRepeat[property] + parseFloat(this._valuesEnd[property]);
+        var endValue = this._valuesEnd[property];
+        if (typeof endValue === 'string') {
+            this._valuesStartRepeat[property] = this._valuesStartRepeat[property] + parseFloat(endValue);
         }
         else {
             this._valuesStartRepeat[property] = this._valuesEnd[property];
@@ -761,7 +760,7 @@ var Tween = /** @class */ (function () {
     return Tween;
 }());
 
-var VERSION = '18.6.3';
+var VERSION = '18.6.4';
 
 /**
  * Tween.js - Licensed under the MIT license
