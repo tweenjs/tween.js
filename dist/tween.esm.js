@@ -246,11 +246,12 @@ var Group = /** @class */ (function () {
         delete this._tweensAddedDuringUpdate[tween.getId()];
     };
     Group.prototype.update = function (time, preserve) {
+        if (time === void 0) { time = now$1(); }
+        if (preserve === void 0) { preserve = false; }
         var tweenIds = Object.keys(this._tweens);
         if (tweenIds.length === 0) {
             return false;
         }
-        time = time !== undefined ? time : now$1();
         // Tweens are updated in "batches". If you add a new tween during an
         // update, then the new tween will be updated in the next batch.
         // If you remove a tween during an update, it may or may not be updated.
@@ -260,7 +261,8 @@ var Group = /** @class */ (function () {
             this._tweensAddedDuringUpdate = {};
             for (var i = 0; i < tweenIds.length; i++) {
                 var tween = this._tweens[tweenIds[i]];
-                if (tween && tween.update(time, preserve) === false && !preserve) {
+                var autoStart = !preserve;
+                if (tween && tween.update(time, autoStart) === false && !preserve) {
                     delete this._tweens[tweenIds[i]];
                 }
             }
@@ -410,9 +412,11 @@ var Tween = /** @class */ (function () {
         return this._isPaused;
     };
     Tween.prototype.to = function (properties, duration) {
-        for (var prop in properties) {
-            this._valuesEnd[prop] = properties[prop];
-        }
+        // TODO? restore this, then update the 07_dynamic_to example to set fox
+        // tween's to on each update. That way the behavior is opt-in (there's
+        // currently no opt-out).
+        // for (const prop in properties) this._valuesEnd[prop] = properties[prop]
+        this._valuesEnd = Object.create(properties);
         if (duration !== undefined) {
             this._duration = duration;
         }
@@ -427,8 +431,7 @@ var Tween = /** @class */ (function () {
             return this;
         }
         // eslint-disable-next-line
-        // @ts-ignore FIXME?
-        this._group.add(this);
+        this._group && this._group.add(this);
         this._repeat = this._initialRepeat;
         if (this._reversed) {
             // If we were reversed (f.e. using the yoyo feature) then we need to
@@ -514,8 +517,7 @@ var Tween = /** @class */ (function () {
             return this;
         }
         // eslint-disable-next-line
-        // @ts-ignore FIXME?
-        this._group.remove(this);
+        this._group && this._group.remove(this);
         this._isPlaying = false;
         this._isPaused = false;
         if (this._onStopCallback) {
@@ -529,26 +531,26 @@ var Tween = /** @class */ (function () {
         return this;
     };
     Tween.prototype.pause = function (time) {
+        if (time === void 0) { time = now$1(); }
         if (this._isPaused || !this._isPlaying) {
             return this;
         }
         this._isPaused = true;
-        this._pauseStart = time === undefined ? now$1() : time;
+        this._pauseStart = time;
         // eslint-disable-next-line
-        // @ts-ignore FIXME?
-        this._group.remove(this);
+        this._group && this._group.remove(this);
         return this;
     };
     Tween.prototype.resume = function (time) {
+        if (time === void 0) { time = now$1(); }
         if (!this._isPaused || !this._isPlaying) {
             return this;
         }
         this._isPaused = false;
-        this._startTime += (time === undefined ? now$1() : time) - this._pauseStart;
+        this._startTime += time - this._pauseStart;
         this._pauseStart = 0;
         // eslint-disable-next-line
-        // @ts-ignore FIXME?
-        this._group.add(this);
+        this._group && this._group.add(this);
         return this;
     };
     Tween.prototype.stopChainedTweens = function () {
@@ -614,16 +616,23 @@ var Tween = /** @class */ (function () {
         this._onStopCallback = callback;
         return this;
     };
-    Tween.prototype.update = function (time, preserve) {
+    /**
+     * @returns true if the tween is still playing after the update, false
+     * otherwise (calling update on a paused tween still returns true because
+     * it is still playing, just paused).
+     */
+    Tween.prototype.update = function (time, autoStart) {
         if (time === void 0) { time = now$1(); }
-        if (preserve === void 0) { preserve = false; }
+        if (autoStart === void 0) { autoStart = true; }
+        if (this._isPaused)
+            return true;
         var property;
         var elapsed;
         var endTime = this._startTime + this._duration;
         if (!this._goToEnd && !this._isPlaying) {
             if (time > endTime)
                 return false;
-            if (!preserve)
+            if (autoStart)
                 this.start(time);
         }
         this._goToEnd = false;
@@ -748,7 +757,7 @@ var Tween = /** @class */ (function () {
     return Tween;
 }());
 
-var VERSION = '18.6.2';
+var VERSION = '18.6.3';
 
 /**
  * Tween.js - Licensed under the MIT license

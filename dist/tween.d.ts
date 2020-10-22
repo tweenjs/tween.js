@@ -105,7 +105,7 @@ declare class Tween<T extends UnknownProps> {
     private _onStopCallback?;
     private _id;
     private _isChainStopped;
-    constructor(_object: T, _group?: Group);
+    constructor(_object: T, _group?: Group | false);
     getId(): number;
     isPlaying(): boolean;
     isPaused(): boolean;
@@ -115,8 +115,8 @@ declare class Tween<T extends UnknownProps> {
     private _setupProperties;
     stop(): this;
     end(): this;
-    pause(time: number): this;
-    resume(time: number): this;
+    pause(time?: number): this;
+    resume(time?: number): this;
     stopChainedTweens(): this;
     group(group: Group): this;
     delay(amount: number): this;
@@ -132,7 +132,12 @@ declare class Tween<T extends UnknownProps> {
     onComplete(callback: (object: T) => void): this;
     onStop(callback: (object: T) => void): this;
     private _goToEnd;
-    update(time?: number, preserve?: boolean): boolean;
+    /**
+     * @returns true if the tween is still playing after the update, false
+     * otherwise (calling update on a paused tween still returns true because
+     * it is still playing, just paused).
+     */
+    update(time?: number, autoStart?: boolean): boolean;
     private _updateProperties;
     private _handleRelativeValue;
     private _swapEndStartRepeatValues;
@@ -152,7 +157,7 @@ declare class Group {
     removeAll(): void;
     add(tween: Tween<UnknownProps>): void;
     remove(tween: Tween<UnknownProps>): void;
-    update(time: number, preserve?: boolean): boolean;
+    update(time?: number, preserve?: boolean): boolean;
 }
 
 declare let now: () => number;
@@ -165,14 +170,14 @@ declare class Sequence {
     static nextId(): number;
 }
 
-declare const VERSION = "18.6.2";
+declare const VERSION = "18.6.3";
 
 declare const nextId: typeof Sequence.nextId;
 declare const getAll: () => Tween<Record<string, unknown>>[];
 declare const removeAll: () => void;
 declare const add: (tween: Tween<Record<string, unknown>>) => void;
 declare const remove: (tween: Tween<Record<string, unknown>>) => void;
-declare const update: (time: number, preserve?: boolean | undefined) => boolean;
+declare const update: (time?: number, preserve?: boolean) => boolean;
 declare const exports: {
     Easing: {
         Linear: {
@@ -250,7 +255,7 @@ declare const exports: {
     removeAll: () => void;
     add: (tween: Tween<Record<string, unknown>>) => void;
     remove: (tween: Tween<Record<string, unknown>>) => void;
-    update: (time: number, preserve?: boolean | undefined) => boolean;
+    update: (time?: number, preserve?: boolean) => boolean;
 };
 
 export default exports;
