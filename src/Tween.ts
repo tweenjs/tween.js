@@ -21,7 +21,7 @@ export class Tween<T extends UnknownProps> {
 	private _isPaused = false
 	private _pauseStart = 0
 	private _valuesStart: UnknownProps = {}
-	private _valuesEnd: UnknownProps = {}
+	private _valuesEnd: Record<string, number | string> = {}
 	private _valuesStartRepeat: UnknownProps = {}
 	private _duration = 1000
 	private _initialRepeat = 0
@@ -477,11 +477,10 @@ export class Tween<T extends UnknownProps> {
 
 	private _swapEndStartRepeatValues(property: string): void {
 		const tmp = this._valuesStartRepeat[property]
+		const endValue = this._valuesEnd[property]
 
-		if (typeof this._valuesEnd[property] === 'string') {
-			// eslint-disable-next-line
-			// @ts-ignore FIXME?
-			this._valuesStartRepeat[property] = this._valuesStartRepeat[property] + parseFloat(this._valuesEnd[property])
+		if (typeof endValue === 'string') {
+			this._valuesStartRepeat[property] = this._valuesStartRepeat[property] + parseFloat(endValue)
 		} else {
 			this._valuesStartRepeat[property] = this._valuesEnd[property]
 		}
@@ -490,6 +489,7 @@ export class Tween<T extends UnknownProps> {
 	}
 }
 
-export type UnknownProps = Record<string, unknown>
+// eslint-disable-next-line
+export type UnknownProps = Record<string, any>
 
 export default Tween
