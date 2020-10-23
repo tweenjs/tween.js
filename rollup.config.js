@@ -31,6 +31,12 @@ export default [
 		],
 	},
 	{
+		input: '.tmp/tests.js',
+		context: 'this',
+		watch: {clearScreen: false},
+		output: [{file: '.tmp/tests.cjs.js', format: 'cjs', exports: 'named'}],
+	},
+	{
 		input: './.tmp/Index.d.ts',
 		watch: {clearScreen: false},
 		output: [{file: 'dist/tween.d.ts', format: 'es'}],
