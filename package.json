@@ -31,7 +31,7 @@
 		"tsc": "tsc",
 		"tsc-watch": "tsc --watch",
 		"examples": "npx serve .",
-		"test": "npm run build && npm run test-unit && npm run test-lint",
+		"test": "npm run build && npm run test-lint && npm run test-unit",
 		"test-unit": "nodeunit test/unit/nodeunitheadless.js",
 		"test-lint": "npm run prettier -- --check && eslint 'src/**/*.ts'",
 		"lint": "npm run prettier -- --write && eslint 'src/**/*.ts' --fix",

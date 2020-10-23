@@ -34,7 +34,8 @@ export class Tween<T extends UnknownProps> {
 	private _startTime = 0
 	private _easingFunction: EasingFunction = Easing.Linear.None
 	private _interpolationFunction: InterpolationFunction = Interpolation.Linear
-	private _chainedTweens: Array<Tween<UnknownProps>> = []
+	// eslint-disable-next-line
+	private _chainedTweens: Array<Tween<any>> = []
 	private _onStartCallback?: (object: T) => void
 	private _onStartCallbackFired = false
 	private _onUpdateCallback?: (object: T, elapsed: number) => void
@@ -72,7 +73,7 @@ export class Tween<T extends UnknownProps> {
 		return this
 	}
 
-	duration(d: number): this {
+	duration(d = 1000): this {
 		this._duration = d
 		return this
 	}
@@ -256,68 +257,69 @@ export class Tween<T extends UnknownProps> {
 		return this
 	}
 
-	group(group: Group): this {
+	group(group = mainGroup): this {
 		this._group = group
 		return this
 	}
 
-	delay(amount: number): this {
+	delay(amount = 0): this {
 		this._delayTime = amount
 		return this
 	}
 
-	repeat(times: number): this {
+	repeat(times = 0): this {
 		this._initialRepeat = times
 		this._repeat = times
 		return this
 	}
 
-	repeatDelay(amount: number): this {
+	repeatDelay(amount?: number): this {
 		this._repeatDelayTime = amount
 		return this
 	}
 
-	yoyo(yoyo: boolean): this {
+	yoyo(yoyo = false): this {
 		this._yoyo = yoyo
 		return this
 	}
 
-	easing(easingFunction: EasingFunction): this {
+	easing(easingFunction: EasingFunction = Easing.Linear.None): this {
 		this._easingFunction = easingFunction
 		return this
 	}
 
-	interpolation(interpolationFunction: InterpolationFunction): this {
+	interpolation(interpolationFunction: InterpolationFunction = Interpolation.Linear): this {
 		this._interpolationFunction = interpolationFunction
 		return this
 	}
 
-	chain(...tweens: Array<Tween<UnknownProps>>): this {
+	// eslint-disable-next-line
+	chain(...tweens: Array<Tween<any>>): this {
 		this._chainedTweens = tweens
 		return this
 	}
 
-	onStart(callback: (object: T) => void): this {
+	onStart(callback?: (object: T) => void): this {
 		this._onStartCallback = callback
 		return this
 	}
 
-	onUpdate(callback: (object: T, elapsed: number) => void): this {
+	onUpdate(callback?: (object: T, elapsed: number) => void): this {
 		this._onUpdateCallback = callback
 		return this
 	}
 
-	onRepeat(callback: (object: T) => void): this {
+	onRepeat(callback?: (object: T) => void): this {
 		this._onRepeatCallback = callback
 		return this
 	}
 
-	onComplete(callback: (object: T) => void): this {
+	onComplete(callback?: (object: T) => void): this {
 		this._onCompleteCallback = callback
 		return this
 	}
 
-	onStop(callback: (object: T) => void): this {
+	onStop(callback?: (object: T) => void): this {
 		this._onStopCallback = callback
 		return this
 	}

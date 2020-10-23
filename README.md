@@ -239,15 +239,13 @@ You need to install `npm` first--this comes with node.js, so install that one fi
 npm install
 ```
 
-if running the tests for the first time, to install additional dependencies for running tests, and then run
+To run the tests run:
 
 ```bash
 npm test
 ```
 
-every time you want to run the tests.
-
-If you want to add any feature or change existing features, you _must_ run the tests to make sure you didn't break anything else. If you send a pull request (PR) to add something new and it doesn't have tests, or the tests don't pass, the PR won't be accepted. See [contributing](CONTRIBUTING.md) for more information.
+If you want to add any feature or change existing features, you _must_ run the tests to make sure you didn't break anything else. Any pull request (PR) needs to have updated passing tests for feature changes (or new passing tests for new features) in `src/tests.ts`, otherwise the PR won't be accepted. See [contributing](CONTRIBUTING.md) for more information.
 
 ## People
 
