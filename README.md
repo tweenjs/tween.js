@@ -245,7 +245,7 @@ To run the tests run:
 npm test
 ```
 
-If you want to add any feature or change existing features, you _must_ run the tests to make sure you didn't break anything else. Any pull request (PR) needs to have updated passing tests for feature changes (or new passing tests for new features), otherwise the PR won't be accepted. See [contributing](CONTRIBUTING.md) for more information.
+If you want to add any feature or change existing features, you _must_ run the tests to make sure you didn't break anything else. Any pull request (PR) needs to have updated passing tests for feature changes (or new passing tests for new features) in `src/tests.ts`, otherwise the PR won't be accepted. See [contributing](CONTRIBUTING.md) for more information.
 
 ## People
 
