@@ -1380,20 +1380,27 @@
 
 			},
 
-			'Arrays in the object passed to to() are not modified by start().':
-			function(test) {
+            /* 
+             * This test covered a feature that was a breaking change from
+             * v17.3.0 to v17.3.2 (v17.3.1 was never released). It has been
+             * reverted and published in v17.6.0 so that v17 can be considered
+             * fixed. v18 contains the new behavior. v19 will provide a new
+             * `dynamic` option to `to()` for choosing the desired behavior.
+             */
+			// 'Arrays in the object passed to to() are not modified by start().':
+			// function(test) {
 
-				var start = {x: 10, y: 20};
-				var end = {x: 100, y: 200, values: ['a', 'b']};
-				var valuesArray = end.values;
-				new TWEEN.Tween(start).to(end).start();
-				test.equal(valuesArray, end.values);
-				test.equal(end.values.length, 2);
-				test.equal(end.values[0], 'a');
-				test.equal(end.values[1], 'b');
-				test.done();
+			// 	var start = {x: 10, y: 20};
+			// 	var end = {x: 100, y: 200, values: ['a', 'b']};
+			// 	var valuesArray = end.values;
+			// 	new TWEEN.Tween(start).to(end).start();
+			// 	test.equal(valuesArray, end.values);
+			// 	test.equal(end.values.length, 2);
+			// 	test.equal(end.values[0], 'a');
+			// 	test.equal(end.values[1], 'b');
+			// 	test.done();
 
-			},
+			// },
 
 
 		};
