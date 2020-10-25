@@ -180,6 +180,26 @@ const TWEEN = require('@tweenjs/tween.js')
 	</tr>
 	<tr>
 		<td>
+			<a href="http://tweenjs.github.io/tween.js/examples/07a_dynamic_to.html">
+				<img src="https://tweenjs.github.io/tween.js/assets/examples/07a_dynamic_to.png" alt="Dynamic to" />
+			</a>
+		</td>
+		<td>
+			Dynamic to<br />
+			(<a href="examples/07a_dynamic_to.html">source</a>)
+		</td>
+		<td>
+			<a href="http://tweenjs.github.io/tween.js/examples/07b_dynamic_to.html">
+				<img src="https://tweenjs.github.io/tween.js/assets/examples/07b_dynamic_to.png" alt="Dynamic to" />
+			</a>
+		</td>
+		<td>
+			Dynamic to<br />
+			(<a href="examples/07b_dynamic_to.html">source</a>)
+		</td>
+	</tr>
+	<tr>
+		<td>
 			<a href="http://tweenjs.github.io/tween.js/examples/08_repeat.html">
 				<img src="https://tweenjs.github.io/tween.js/assets/examples/08_repeat.png" alt="Repeat" />
 			</a>
@@ -227,6 +247,46 @@ const TWEEN = require('@tweenjs/tween.js')
 		<td>
 			Custom functions<br />
 			(<a href="examples/12_graphs_custom_functions.html">source</a>)
+		</td>
+		<td>
+			<a href="http://tweenjs.github.io/tween.js/examples/13_relative_start_time.html">
+				<img src="https://tweenjs.github.io/tween.js/assets/examples/13_relative_start_time.png" alt="Custom functions" />
+			</a>
+		</td>
+		<td>
+			Custom functions<br />
+			(<a href="examples/13_relative_start_time.html">source</a>)
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<a href="http://tweenjs.github.io/tween.js/examples/14_pause_tween.html">
+				<img src="https://tweenjs.github.io/tween.js/assets/examples/14_pause_tween.png" alt="Custom functions" />
+			</a>
+		</td>
+		<td>
+			Custom functions<br />
+			(<a href="examples/14_pause_tween.html">source</a>)
+		</td>
+		<td>
+			<a href="http://tweenjs.github.io/tween.js/examples/15_complex_properties.html">
+				<img src="https://tweenjs.github.io/tween.js/assets/examples/15_complex_properties.png" alt="Custom functions" />
+			</a>
+		</td>
+		<td>
+			Custom functions<br />
+			(<a href="examples/15_complex_properties.html">source</a>)
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<a href="http://tweenjs.github.io/tween.js/examples/16_animate_an_array_of_values.html">
+				<img src="https://tweenjs.github.io/tween.js/assets/examples/16_animate_an_array_of_values.png" alt="Custom functions" />
+			</a>
+		</td>
+		<td>
+			Custom functions<br />
+			(<a href="examples/16_animate_an_array_of_values.html">source</a>)
 		</td>
 	</tr>
 </table>
