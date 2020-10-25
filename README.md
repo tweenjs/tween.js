@@ -101,7 +101,7 @@ const TWEEN = require('@tweenjs/tween.js')
 	<tr>
 		<td>
 			<a href="http://tweenjs.github.io/tween.js/examples/00_hello_world.html">
-				<img src="https://tweenjs.github.io/tween.js/assets/examples/00_hello_world.png" alt="hello world" />
+				<img width="100" height="50" src="https://tweenjs.github.io/tween.js/assets/examples/00_hello_world.png" alt="hello world" />
 			</a>
 		</td>
 		<td>
@@ -110,7 +110,7 @@ const TWEEN = require('@tweenjs/tween.js')
 		</td>
 		<td>
 			<a href="http://tweenjs.github.io/tween.js/examples/01_bars.html">
-				<img src="https://tweenjs.github.io/tween.js/assets/examples/01_bars.png" alt="Bars" />
+				<img width="100" height="50" src="https://tweenjs.github.io/tween.js/assets/examples/01_bars.png" alt="Bars" />
 			</a>
 		</td>
 		<td>
@@ -121,7 +121,7 @@ const TWEEN = require('@tweenjs/tween.js')
 	</tr>
 		<td>
 			<a href="http://tweenjs.github.io/tween.js/examples/02_black_and_red.html">
-				<img src="https://tweenjs.github.io/tween.js/assets/examples/02_black_and_red.png" alt="Black and red" />
+				<img width="100" height="50" src="https://tweenjs.github.io/tween.js/assets/examples/02_black_and_red.png" alt="Black and red" />
 			</a>
 		</td>
 		<td>
@@ -130,7 +130,7 @@ const TWEEN = require('@tweenjs/tween.js')
 		</td>
 		<td>
 			<a href="http://tweenjs.github.io/tween.js/examples/03_graphs.html">
-				<img src="https://tweenjs.github.io/tween.js/assets/examples/03_graphs.png" alt="Graphs" />
+				<img width="100" height="50" src="https://tweenjs.github.io/tween.js/assets/examples/03_graphs.png" alt="Graphs" />
 			</a>
 		</td>
 		<td>
@@ -141,7 +141,7 @@ const TWEEN = require('@tweenjs/tween.js')
 	<tr>
 		<td>
 			<a href="http://tweenjs.github.io/tween.js/examples/04_simplest.html">
-				<img src="https://tweenjs.github.io/tween.js/assets/examples/04_simplest.png" alt="Simplest possible example" />
+				<img width="100" height="50" src="https://tweenjs.github.io/tween.js/assets/examples/04_simplest.png" alt="Simplest possible example" />
 			</a>
 		</td>
 		<td>
@@ -150,7 +150,7 @@ const TWEEN = require('@tweenjs/tween.js')
 		</td>
 		<td>
 			<a href="http://tweenjs.github.io/tween.js/examples/05_video_and_time.html">
-				<img src="https://tweenjs.github.io/tween.js/assets/examples/06_video_and_time.png" alt="Video and time" />
+				<img width="100" height="50" src="https://tweenjs.github.io/tween.js/assets/examples/06_video_and_time.png" alt="Video and time" />
 			</a>
 		</td>
 		<td>
@@ -161,7 +161,7 @@ const TWEEN = require('@tweenjs/tween.js')
 	<tr>
 		<td>
 			<a href="http://tweenjs.github.io/tween.js/examples/06_array_interpolation.html">
-				<img src="https://tweenjs.github.io/tween.js/assets/examples/03_graphs.png" alt="Array interpolation" />
+				<img width="100" height="50" src="https://tweenjs.github.io/tween.js/assets/examples/03_graphs.png" alt="Array interpolation" />
 			</a>
 		</td>
 		<td>
@@ -170,18 +170,38 @@ const TWEEN = require('@tweenjs/tween.js')
 		</td>
 		<td>
 			<a href="http://tweenjs.github.io/tween.js/examples/07_dynamic_to.html">
-				<img src="https://tweenjs.github.io/tween.js/assets/examples/07_dynamic_to.png" alt="Dynamic to" />
+				<img width="100" height="50" src="https://tweenjs.github.io/tween.js/assets/examples/07_dynamic_to.png" alt="Dynamic to, object" />
 			</a>
 		</td>
 		<td>
-			Dynamic to<br />
+			Dynamic to, object<br />
 			(<a href="examples/07_dynamic_to.html">source</a>)
 		</td>
 	</tr>
 	<tr>
 		<td>
+			<a href="http://tweenjs.github.io/tween.js/examples/07a_dynamic_to_two_array_values.html">
+				<img width="100" height="50" src="https://tweenjs.github.io/tween.js/assets/examples/07a_dynamic_to.png" alt="Dynamic to, interpolation array" />
+			</a>
+		</td>
+		<td>
+			Dynamic to, interpolation array<br />
+			(<a href="examples/07a_dynamic_to_two_array_values.html">source</a>)
+		</td>
+		<td>
+			<a href="http://tweenjs.github.io/tween.js/examples/07b_dynamic_to_an_array_of_values.html">
+				<img width="100" height="50" src="https://tweenjs.github.io/tween.js/assets/examples/07b_dynamic_to.png" alt="Dynamic to, large interpolation array" />
+			</a>
+		</td>
+		<td>
+			Dynamic to, large interpolation array<br />
+			(<a href="examples/07b_dynamic_to_an_array_of_values.html">source</a>)
+		</td>
+	</tr>
+	<tr>
+		<td>
 			<a href="http://tweenjs.github.io/tween.js/examples/08_repeat.html">
-				<img src="https://tweenjs.github.io/tween.js/assets/examples/08_repeat.png" alt="Repeat" />
+				<img width="100" height="50" src="https://tweenjs.github.io/tween.js/assets/examples/08_repeat.png" alt="Repeat" />
 			</a>
 		</td>
 		<td>
@@ -190,7 +210,7 @@ const TWEEN = require('@tweenjs/tween.js')
 		</td>
 		<td>
 			<a href="http://tweenjs.github.io/tween.js/examples/09_relative_values.html">
-				<img src="https://tweenjs.github.io/tween.js/assets/examples/09_relative.png" alt="Relative values" />
+				<img width="100" height="50" src="https://tweenjs.github.io/tween.js/assets/examples/09_relative.png" alt="Relative values" />
 			</a>
 		</td>
 		<td>
@@ -201,7 +221,7 @@ const TWEEN = require('@tweenjs/tween.js')
 	<tr>
 		<td>
 			<a href="http://tweenjs.github.io/tween.js/examples/10_yoyo.html">
-				<img src="https://tweenjs.github.io/tween.js/assets/examples/10_yoyo.png" alt="Yoyo" />
+				<img width="100" height="50" src="https://tweenjs.github.io/tween.js/assets/examples/10_yoyo.png" alt="Yoyo" />
 			</a>
 		</td>
 		<td>
@@ -210,7 +230,7 @@ const TWEEN = require('@tweenjs/tween.js')
 		</td>
 		<td>
 			<a href="http://tweenjs.github.io/tween.js/examples/11_stop_all_chained_tweens.html">
-				<img src="https://tweenjs.github.io/tween.js/assets/examples/11_stop_all_chained_tweens.png" alt="Stop all chained tweens" />
+				<img width="100" height="50" src="https://tweenjs.github.io/tween.js/assets/examples/11_stop_all_chained_tweens.png" alt="Stop all chained tweens" />
 			</a>
 		</td>
 		<td>
@@ -221,12 +241,52 @@ const TWEEN = require('@tweenjs/tween.js')
 	<tr>
 		<td>
 			<a href="http://tweenjs.github.io/tween.js/examples/12_graphs_custom_functions.html">
-				<img src="https://tweenjs.github.io/tween.js/assets/examples/03_graphs.png" alt="Custom functions" />
+				<img width="100" height="50" src="https://tweenjs.github.io/tween.js/assets/examples/03_graphs.png" alt="Custom functions" />
 			</a>
 		</td>
 		<td>
 			Custom functions<br />
 			(<a href="examples/12_graphs_custom_functions.html">source</a>)
+		</td>
+		<td>
+			<a href="http://tweenjs.github.io/tween.js/examples/13_relative_start_time.html">
+				<img width="100" height="50" src="https://tweenjs.github.io/tween.js/assets/examples/13_relative_start_time.png" alt="Relative start time" />
+			</a>
+		</td>
+		<td>
+			Relative start time<br />
+			(<a href="examples/13_relative_start_time.html">source</a>)
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<a href="http://tweenjs.github.io/tween.js/examples/14_pause_tween.html">
+				<img width="100" height="50" src="https://tweenjs.github.io/tween.js/assets/examples/14_pause_tween.png" alt="Pause tween" />
+			</a>
+		</td>
+		<td>
+			Pause tween<br />
+			(<a href="examples/14_pause_tween.html">source</a>)
+		</td>
+		<td>
+			<a href="http://tweenjs.github.io/tween.js/examples/15_complex_properties.html">
+				<img width="100" height="50" src="https://tweenjs.github.io/tween.js/assets/examples/15_complex_properties.png" alt="Complex properties" />
+			</a>
+		</td>
+		<td>
+			Complex properties<br />
+			(<a href="examples/15_complex_properties.html">source</a>)
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<a href="http://tweenjs.github.io/tween.js/examples/16_animate_an_array_of_values.html">
+				<img width="100" height="50" src="https://tweenjs.github.io/tween.js/assets/examples/16_animate_an_array_of_values.png" alt="Animate an array of values" />
+			</a>
+		</td>
+		<td>
+			Animate an array of values<br />
+			(<a href="examples/16_animate_an_array_of_values.html">source</a>)
 		</td>
 	</tr>
 </table>
