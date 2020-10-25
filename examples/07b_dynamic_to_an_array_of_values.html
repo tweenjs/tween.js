@@ -8,9 +8,11 @@
 				margin: 0px;
 			}
 
-			#target {
+			#scene1,
+			#scene2 {
+				display: inline-block;
 				font-size: 13px;
-				padding: 0px 32px;
+				padding-right: 32px;
 			}
 		</style>
 		<link href="css/style.css" media="screen" rel="stylesheet" type="text/css" />
@@ -19,156 +21,143 @@
 		<div id="info" style="position: relative;">
 			<h1><a href="http://github.com/tweenjs/tween.js">tween.js</a></h1>
 			<h2>07b _ dynamic to an array of values</h2>
-			<p>tweening towards moving targets</p>
-		</div>
+			<p>tweening towards many random moving targets</p>
 
-		<div id="target"></div>
+			<div id="scene1">
+				<p><code>.dynamic(false)</code></p>
+			</div>
+			<div id="scene2">
+				<p><code>.dynamic(true)</code></p>
+			</div>
+		</div>
 
 		<script src="../dist/tween.umd.js"></script>
 		<script src="js/RequestAnimationFrame.js"></script>
-		<script>
-			init()
-			animate()
+		<script type="module">
+			import {drawRabbit, drawFox} from './js/drawings.js'
 
-			function init() {
-				var width = 480
-				var height = 320
-				var duration = 4000
+			var width = 480
+			var height = 320
+			var rabbitValues = {x: [], y: [], eatenCounter: []}
 
-				var target = document.getElementById('target')
+			// generate random rabbits
+			const rabbitCount = 20
+			for (var i = 0; i < rabbitCount; i++) {
+				rabbitValues.x.push(50 + getRandomInt(width - 100))
+				rabbitValues.y.push(50 + getRandomInt(height - 100))
+				rabbitValues.eatenCounter.push(i + 1)
+			}
 
-				var canvas = document.createElement('canvas')
-				canvas.width = width
-				canvas.height = height
-				target.appendChild(canvas)
+			// or use static population
+			// const rabbitCount = 2
+			// rabbitValues.x = [Math.random() * width, width - 50]
+			// rabbitValues.y = [height - 50, Math.random() * height]
+			// rabbitValues.eatenCounter = [1, 2]
 
-				var context = canvas.getContext('2d')
+			var bunnyDestinations = []
 
-				var rabbitsEaten = 0
+			for (var i = 0; i < rabbitCount; i++) {
+				bunnyDestinations.push({x: Math.random() * width, y: Math.random() * height})
+			}
 
-				const createRabbitTween = function (index, rabbit, fillStyle) {
-					return new TWEEN.Tween(rabbit)
-						.to({x: width - 50, y: height - 50}, duration - 1000)
+			var bunnyColors = []
+			const maxColor = 200 // avoiding pale colors
+
+			for (var i = 0; i < rabbitCount; i++) {
+				bunnyColors.push(`rgb(${getRandomInt(maxColor)}, ${getRandomInt(maxColor)}, ${getRandomInt(maxColor)})`)
+			}
+
+			startScene('scene1', false)
+			startScene('scene2', true)
+
+			function startScene(id, dynamic) {
+				var context
+				var rabbits
+				var fox
+
+				init()
+				animate()
+
+				function init() {
+					var duration = 8000
+
+					var scene = document.getElementById(id)
+
+					var canvas = document.createElement('canvas')
+					canvas.width = width
+					canvas.height = height
+					scene.appendChild(canvas)
+
+					context = canvas.getContext('2d')
+
+					var rabbitTweens = []
+					rabbits = []
+
+					// clone rabbitValues so it won't be modified (that way it will be unique for each scene)
+					const _rabbitValues = {
+						x: [...rabbitValues.x],
+						y: [...rabbitValues.y],
+						eatenCounter: [...rabbitValues.eatenCounter],
+					}
+
+					for (var i = 0; i < rabbitCount; i++) {
+						var rabbit = {
+							x: _rabbitValues.x[i],
+							y: _rabbitValues.y[i],
+							color: bunnyColors[i],
+							alive: true,
+						}
+						rabbits.push(rabbit)
+						rabbitTweens.push(createRabbitTween(i, rabbit))
+					}
+
+					function createRabbitTween(index, rabbit) {
+						return new TWEEN.Tween(rabbit)
+							.to(bunnyDestinations[index], duration)
+							.onUpdate(function (object) {
+								// We need `index + 1` because Tween modifies the arrays and adds the fox start values to it.
+								// TODO this is confusing. Better if Tween simply never modified the input object.
+								_rabbitValues.x[index + 1] = object.x
+								_rabbitValues.y[index + 1] = object.y
+							})
+							.start()
+					}
+
+					fox = {x: 50, y: 50, eatenCounter: 0}
+					var rabbitsEaten = 0
+
+					new TWEEN.Tween(fox)
+						.to(_rabbitValues, duration)
+						.dynamic(dynamic)
 						.onUpdate(function (object) {
-							rabbits.x[index] = object.x
-							rabbits.y[index] = object.y
-
-							drawRabbit(object, context, fillStyle)
+							rabbitsEaten = Math.floor(object.eatenCounter)
+							if (rabbitsEaten > 0) {
+								// A dead rabbit stops moving.
+								rabbitTweens[rabbitsEaten - 1].stop()
+								rabbits[rabbitsEaten - 1].alive = false
+							}
 						})
 						.start()
 				}
 
-				// an extra tween that redraws background
-				new TWEEN.Tween({})
-					.to({}, duration)
-					.onUpdate(function (object) {
-						// draw background
-						context.fillStyle = 'rgb(240,250,240)'
-						context.fillRect(0, 0, width, height)
-					})
-					.start()
+				function animate(time) {
+					const stillRunning = TWEEN.update(time)
 
-				function getRandomInt(max) {
-					return Math.floor(Math.random() * Math.floor(max))
+					// draw background
+					context.fillStyle = 'rgb(240,250,240)'
+					context.fillRect(0, 0, width, height)
+
+					for (const rabbit of rabbits) drawRabbit(context, rabbit.x, rabbit.y, rabbit.color, rabbit.alive ? 1 : 0.1)
+					drawFox(context, fox.x, fox.y, 'rgb(200,80,80)')
+
+					if (stillRunning) requestAnimationFrame(animate)
+					else console.log('Done with animation, stopped rendering.')
 				}
-
-				var rabbits = {x: [], y: [], colors: [], eatenCounter: []}
-
-				// generate random rabbits
-				const rabbitCount = 20
-				const maxColor = 200 // avoiding pale colors
-				for (var i = 0; i < rabbitCount; i++) {
-					rabbits.x.push(50 + getRandomInt(width - 100))
-					rabbits.y.push(50 + getRandomInt(height - 100))
-
-					rabbits.colors.push(`rgb(${getRandomInt(maxColor)}, ${getRandomInt(maxColor)}, ${getRandomInt(maxColor)})`)
-					rabbits.eatenCounter.push(i + 1)
-				}
-
-				// or use static population
-				//
-				// rabbits.x = [50, width - 50];
-				// rabbits.y = [height - 50, 50];
-				// rabbits.colors = ['rgb(0,0,150)', 'rgb(0,150,0)'];
-				// rabbits.eatenCounter = [1,2];
-
-				var rabbitTweens = []
-				for (var i = 0; i < rabbits.x.length; i++) {
-					var rabbit = {x: rabbits.x[i], y: rabbits.y[i]}
-					rabbitTweens.push(createRabbitTween(i, rabbit, rabbits.colors[i]))
-				}
-
-				var fox = {x: 50, y: 50, eatenCounter: 0}
-
-				new TWEEN.Tween(fox)
-					.to(rabbits, duration)
-					.onUpdate(function (object) {
-						rabbitsEaten = Math.floor(object.eatenCounter)
-						if (rabbitsEaten > 0) {
-							rabbitTweens[rabbitsEaten - 1].stop()
-						}
-
-						drawFox(object, context)
-					})
-					.start()
 			}
 
-			function drawRabbit(object, context, fillStyle) {
-				context.fillStyle = fillStyle
-
-				context.save()
-				context.translate(object.x, object.y)
-
-				context.beginPath()
-				context.moveTo(0, 0)
-				context.bezierCurveTo(15, 0, 15, -40, 5, -30)
-				context.lineTo(0, 0)
-				context.bezierCurveTo(-15, 0, -15, -40, -5, -30)
-				context.lineTo(0, 0)
-				context.closePath()
-				context.fill()
-
-				context.beginPath()
-				context.arc(0, 0, 15, 0, Math.PI * 2, true)
-				context.closePath()
-				context.fill()
-
-				context.restore()
+			function getRandomInt(max) {
+				return Math.floor(Math.random() * Math.floor(max + 1))
 			}
-
-			function drawFox(object, context) {
-				context.fillStyle = 'rgb(200,80,80)'
-
-				context.save()
-				context.translate(object.x, object.y - 13)
-				context.scale(1.2, 1.2)
-
-				context.beginPath()
-				context.moveTo(4, 24)
-				context.lineTo(8, 16)
-				context.lineTo(14, 10)
-				context.lineTo(15, 0)
-				context.lineTo(9, -10)
-				context.lineTo(2, 0)
-				context.lineTo(-2, 0)
-				context.lineTo(-9, -10)
-				context.lineTo(-15, 0)
-				context.lineTo(-14, 10)
-				context.lineTo(-8, 16)
-				context.lineTo(-4, 24)
-				context.closePath()
-				context.fill()
-
-				context.restore()
-			}
-
-			function animate(time) {
-				requestAnimationFrame(animate)
-
-				TWEEN.update(time)
-			}
-
-			animate()
 		</script>
 	</body>
 </html>

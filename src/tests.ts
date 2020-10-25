@@ -548,6 +548,7 @@ export const tests = {
 		const fox = {x: 0, y: 0}
 		const tf = new TWEEN.Tween(fox)
 		tf.to(rabbit, 1000) // fox chase rabbit!
+		tf.dynamic(true)
 		tf.start(0)
 
 		tr.update(200)
@@ -1752,15 +1753,51 @@ export const tests = {
 		test.done()
 	},
 
-	'Arrays in the object passed to to() are not modified by start().'(test: Test): void {
-		const start = {x: 10, y: 20}
-		const end = {x: 100, y: 200, values: ['a', 'b']}
-		const valuesArray = end.values
+	'Arrays in the object passed to to() are not modified by start() if dynamic is false.'(test: Test): void {
+		const start = {x: 10, y: 20, z: 30}
+		const end = {x: 100, y: 200, z: ['+10', '-10']}
+		const valuesArray = end.z
 		new TWEEN.Tween(start).to(end).start()
-		test.equal(valuesArray, end.values)
-		test.equal(end.values.length, 2)
-		test.equal(end.values[0], 'a')
-		test.equal(end.values[1], 'b')
+		test.equal(valuesArray, end.z)
+		test.equal(end.z.length, 2)
+		test.equal(end.z[0], '+10')
+		test.equal(end.z[1], '-10')
+		test.done()
+	},
+
+	'Arrays in the object passed to to() are modified by start() if dynamic is true.'(test: Test): void {
+		const start = {x: 10, y: 20, z: 30}
+		const end = {x: 100, y: 200, z: ['+10', '-10']}
+		const valuesArray = end.z
+		test.equal(end.z.length, 2)
+		new TWEEN.Tween(start).to(end).dynamic(true).start()
+		test.notEqual(valuesArray, end.z)
+		test.equal(end.z.length, 3)
+		test.equal(end.z[0], 30)
+		test.equal(end.z[1], 40)
+		test.equal(end.z[2], 20)
+		test.done()
+	},
+
+	'Arrays in the object passed to to() are not modified by start() if they are not interpolation arrays, regardless of dynamic.'(
+		test: Test,
+	): void {
+		// eslint-disable-next-line
+		function testWithDynamic(start: any, end: any, dynamic: boolean): void {
+			// const start = {x: 10, y: 20, z: [1, 2]}
+			// const end = {x: 100, y: 200, z: ['a', 'b']}
+			const valuesArray = end.z
+			new TWEEN.Tween(start).to(end).dynamic(dynamic).start()
+			test.equal(valuesArray, end.z)
+			test.equal(end.z.length, 2)
+			test.equal(end.z[0], 'a')
+			test.equal(end.z[1], 'b')
+		}
+
+		testWithDynamic({x: 10, y: 20, z: [1, 2]}, {x: 100, y: 200, z: ['a', 'b']}, true)
+		testWithDynamic({x: 10, y: 20, z: [1, 2]}, {x: 100, y: 200, z: ['a', 'b']}, false)
+		testWithDynamic({x: 10, y: 20, z: 30}, {x: 100, y: 200, z: ['a', 'b']}, true)
+		testWithDynamic({x: 10, y: 20, z: 30}, {x: 100, y: 200, z: ['a', 'b']}, false)
 		test.done()
 	},
 
@@ -1925,7 +1962,7 @@ export const tests = {
 		const chasingValue = {x: 0}
 		const duration = 1000 // must be even
 		const t1 = new TWEEN.Tween(dynamicTargetValue).to({x: 10}, duration),
-			t2 = new TWEEN.Tween(chasingValue).to(dynamicTargetValue, duration)
+			t2 = new TWEEN.Tween(chasingValue).to(dynamicTargetValue, duration).dynamic(true)
 
 		test.equal(TWEEN.getAll().length, 0)
 
@@ -1949,7 +1986,7 @@ export const tests = {
 		const chasingValue = [0]
 		const duration = 1000 // must be even
 		const t1 = new TWEEN.Tween(dynamicTargetValue).to([10], duration),
-			t2 = new TWEEN.Tween(chasingValue).to(dynamicTargetValue, duration)
+			t2 = new TWEEN.Tween(chasingValue).to(dynamicTargetValue, duration).dynamic(true)
 
 		test.equal(TWEEN.getAll().length, 0)
 
@@ -1969,22 +2006,27 @@ export const tests = {
 	'Test TWEEN.Tween.to() with multiple dynamic targets provided as array': function (test: Test): void {
 		TWEEN.removeAll()
 
-		const dynamicTargetValues = {x: [5, 10, 15, 20]}
+		const dynamicTargetValues = {x: [4, 10, 12, 20]}
 		const chasingValue = {x: 0}
 		const duration = 1000 // must be even
 		const tweens = []
 
 		const observedValues = []
 		for (let i = 0; i < dynamicTargetValues.x.length; i++) {
-			const initialValue = {x: 2}
+			const initialValue = {x: 0}
 			observedValues.push(initialValue)
 			tweens.push(
 				new TWEEN.Tween(initialValue).to({x: dynamicTargetValues.x[i]}, duration).onUpdate(function (object) {
-					dynamicTargetValues.x[i] = object.x
+					// TODO the fact that we need `index + 1` instead of just
+					// `index` here is confusing. It is because Tween adds an
+					// axtra start value at the beginning of the array. Update
+					// Tween so it does not add the start value to the array,
+					// and instead reads it from _valuesStart.
+					dynamicTargetValues.x[i + 1] = object.x
 				}),
 			)
 		}
-		const t = new TWEEN.Tween(chasingValue).to(dynamicTargetValues, duration)
+		const t = new TWEEN.Tween(chasingValue).to(dynamicTargetValues, duration).dynamic(true)
 
 		test.equal(TWEEN.getAll().length, 0)
 
@@ -1993,10 +2035,10 @@ export const tests = {
 
 		test.equal(TWEEN.getAll().length, tweens.length + 1)
 
-		for (let intermediateStop = 0; intermediateStop < dynamicTargetValues.x.length; intermediateStop++) {
-			const progress = ((intermediateStop + 1) * duration) / dynamicTargetValues.x.length
+		for (let i = 0; i < tweens.length; i++) {
+			const progress = ((i + 1) * duration) / tweens.length
 			TWEEN.update(progress, true)
-			test.deepEqual(chasingValue, observedValues[intermediateStop])
+			test.equal(chasingValue.x, observedValues[i].x)
 		}
 
 		test.done()
@@ -2006,8 +2048,16 @@ export const tests = {
 type Test = {
 	ok(a: unknown, failMessage?: string): void
 	equal(a: unknown, b: unknown, failMessage?: string): void
+	notEqual(a: unknown, b: unknown, failMessage?: string): void
 	deepEqual(a: unknown, b: unknown, failMessage?: string): void
 	notDeepEqual(a: unknown, b: unknown, failMessage?: string): void
 	expect(n: number): void
 	done(): void
 }
+
+// TODO test that starting and stopping a tween multiple times doesn't cause
+// interpolation arrays to modified yet again (and similar with other
+// initialization items). Initialization should happen only once, on first
+// start.
+
+// TODO test onRepeat

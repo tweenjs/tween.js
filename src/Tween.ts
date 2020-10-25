@@ -24,6 +24,7 @@ export class Tween<T extends UnknownProps> {
 	private _valuesEnd: Record<string, number | string> = {}
 	private _valuesStartRepeat: UnknownProps = {}
 	private _duration = 1000
+	private _isDynamic = false
 	private _initialRepeat = 0
 	private _repeat = 0
 	private _repeatDelayTime?: number
@@ -44,6 +45,7 @@ export class Tween<T extends UnknownProps> {
 	private _onStopCallback?: (object: T) => void
 	private _id = Sequence.nextId()
 	private _isChainStopped = false
+	private _propertiesAreSetUp = false
 
 	constructor(private _object: T, private _group: Group | false = mainGroup) {}
 
@@ -59,22 +61,24 @@ export class Tween<T extends UnknownProps> {
 		return this._isPaused
 	}
 
-	to(properties: UnknownProps, duration?: number): this {
-		// TODO? restore this, then update the 07_dynamic_to example to set fox
-		// tween's to on each update. That way the behavior is opt-in (there's
-		// currently no opt-out).
-		// for (const prop in properties) this._valuesEnd[prop] = properties[prop]
-		this._valuesEnd = Object.create(properties)
+	to(target: UnknownProps, duration = 1000): this {
+		if (this._isPlaying)
+			throw new Error('Can not call Tween.to() while Tween is already started or paused. Stop the Tween first.')
 
-		if (duration !== undefined) {
-			this._duration = duration
-		}
+		this._valuesEnd = target
+		this._propertiesAreSetUp = false
+		this._duration = duration
 
 		return this
 	}
 
-	duration(d = 1000): this {
-		this._duration = d
+	duration(duration = 1000): this {
+		this._duration = duration
+		return this
+	}
+
+	dynamic(dynamic = false): this {
+		this._isDynamic = dynamic
 		return this
 	}
 
@@ -111,7 +115,17 @@ export class Tween<T extends UnknownProps> {
 		this._startTime = time !== undefined ? (typeof time === 'string' ? now() + parseFloat(time) : time) : now()
 		this._startTime += this._delayTime
 
-		this._setupProperties(this._object, this._valuesStart, this._valuesEnd, this._valuesStartRepeat)
+		if (!this._propertiesAreSetUp) {
+			this._propertiesAreSetUp = true
+
+			if (!this._isDynamic) {
+				const tmp: Record<PropertyKey, string | number> = {}
+				for (const prop in this._valuesEnd) tmp[prop] = this._valuesEnd[prop]
+				this._valuesEnd = tmp
+			}
+
+			this._setupProperties(this._object, this._valuesStart, this._valuesEnd, this._valuesStartRepeat)
+		}
 
 		return this
 	}
@@ -123,10 +137,10 @@ export class Tween<T extends UnknownProps> {
 		_valuesStartRepeat: UnknownProps,
 	): void {
 		for (const property in _valuesEnd) {
-			const startValue = _object[property]
+			const startValue = _object[property] as number | Record<string, unknown>
 			const startValueIsArray = Array.isArray(startValue)
 			const propType = startValueIsArray ? 'array' : typeof startValue
-			const isInterpolationList = !startValueIsArray && Array.isArray(_valuesEnd[property])
+			let isInterpolationList = !startValueIsArray && Array.isArray(_valuesEnd[property])
 
 			// If `to()` specifies a property that doesn't exist in the source object,
 			// we should not set that property in the object
@@ -136,35 +150,53 @@ export class Tween<T extends UnknownProps> {
 
 			// Check if an Array was provided as property value
 			if (isInterpolationList) {
-				let endValues = _valuesEnd[property] as Array<number | string>
+				const endValues = _valuesEnd[property] as Array<number | string>
 
 				if (endValues.length === 0) {
 					continue
 				}
 
-				// handle an array of relative values
-				endValues = endValues.map(this._handleRelativeValue.bind(this, startValue as number))
+				// Handle an array of relative values.
+				// Creates a local copy of the Array with the start value at the front
+				// endValues = endValues.map(this._handleRelativeValue.bind(this, startValue))
+				const temp = [startValue as number]
+				for (let i = 0, l = endValues.length; i < l; i += 1) {
+					const value = this._handleRelativeValue(startValue as number, endValues[i])
+					if (isNaN(value)) {
+						isInterpolationList = false
+						console.warn('Found invalid interpolation list. Skipping.')
+						break
+					}
+					temp.push(value)
+				}
 
-				// Create a local copy of the Array with the start value at the front
-				_valuesEnd[property] = [startValue].concat(endValues)
+				if (isInterpolationList) {
+					// _valuesEnd[property] = [startValue].concat(endValues)
+					_valuesEnd[property] = temp
+				}
 			}
 
 			// handle the deepness of the values
 			if ((propType === 'object' || startValueIsArray) && startValue && !isInterpolationList) {
 				_valuesStart[property] = startValueIsArray ? [] : {}
+				const nestedObject = startValue as Record<string, unknown>
 
-				// eslint-disable-next-line
-				for (const prop in startValue as object) {
-					// eslint-disable-next-line
-					// @ts-ignore FIXME?
-					_valuesStart[property][prop] = startValue[prop]
+				for (const prop in nestedObject) {
+					_valuesStart[property][prop] = nestedObject[prop]
 				}
 
-				_valuesStartRepeat[property] = startValueIsArray ? [] : {} // TODO? repeat nested values? And yoyo? And array values?
+				// TODO? repeat nested values? And yoyo? And array values?
+				_valuesStartRepeat[property] = startValueIsArray ? [] : {}
 
-				// eslint-disable-next-line
-				// @ts-ignore FIXME?
-				this._setupProperties(startValue, _valuesStart[property], _valuesEnd[property], _valuesStartRepeat[property])
+				let endValues = _valuesEnd[property]
+
+				if (!this._isDynamic) {
+					const tmp: Record<PropertyKey, unknown> = {}
+					for (const prop in endValues) tmp[prop] = endValues[prop]
+					_valuesEnd[property] = endValues = tmp
+				}
+
+				this._setupProperties(nestedObject, _valuesStart[property], endValues, _valuesStartRepeat[property])
 			} else {
 				// Save the starting value, but only once.
 				if (typeof _valuesStart[property] === 'undefined') {
@@ -472,9 +504,9 @@ export class Tween<T extends UnknownProps> {
 
 		if (end.charAt(0) === '+' || end.charAt(0) === '-') {
 			return start + parseFloat(end)
-		} else {
-			return parseFloat(end)
 		}
+
+		return parseFloat(end)
 	}
 
 	private _swapEndStartRepeatValues(property: string): void {

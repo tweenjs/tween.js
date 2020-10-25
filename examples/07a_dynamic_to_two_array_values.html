@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
-		<title>Tween.js / dynamic to</title>
+		<title>Tween.js / dynamic to, two objects</title>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 		<style>
 			body {
@@ -20,8 +20,8 @@
 	<body>
 		<div id="info" style="position: relative;">
 			<h1><a href="http://github.com/tweenjs/tween.js">tween.js</a></h1>
-			<h2>07 _ dynamic to</h2>
-			<p>tweening towards a moving target</p>
+			<h2>07a _ dynamic to, two rabbits</h2>
+			<p>tweening towards two moving targets</p>
 
 			<div id="scene1">
 				<p><code>.dynamic(false)</code></p>
@@ -40,10 +40,11 @@
 			startScene('scene2', true)
 
 			function startScene(id, dynamic) {
+				var context
 				var width
 				var height
-				var context
-				var rabbit
+				var rabbit1
+				var rabbit2
 				var fox
 
 				init()
@@ -62,31 +63,55 @@
 
 					context = canvas.getContext('2d')
 
-					rabbit = {x: width - 50, y: 50}
+					rabbit1 = {
+						x: width * 0.8,
+						y: 50,
+					}
 
-					new TWEEN.Tween(rabbit)
-						.to({x: width - 50, y: height - 50}, 3000)
-						.easing(TWEEN.Easing.Exponential.InOut)
+					new TWEEN.Tween(rabbit1)
+						.to({x: width / 2, y: height - 50}, 2000)
+						.easing(TWEEN.Easing.Cubic.InOut)
+						.onUpdate(function ({x, y}) {
+							rabbits.x[1] = x
+							rabbits.y[1] = y
+						})
 						.start()
 
-					fox = {x: 50, y: 50}
+					rabbit2 = {
+						x: width - 50,
+						y: height - 50,
+					}
 
-					new TWEEN.Tween(fox)
-						.to(rabbit, 3000)
-						.dynamic(dynamic)
-						.duration(3000)
-						.easing(TWEEN.Easing.Exponential.InOut)
+					new TWEEN.Tween(rabbit2)
+						.to({x: width / 3, y: 50}, 3000)
+						.easing(TWEEN.Easing.Cubic.InOut)
+						.onUpdate(function ({x, y}) {
+							rabbits.x[2] = x
+							rabbits.y[2] = y
+						})
 						.start()
+
+					var rabbits = {
+						x: [rabbit1.x, rabbit2.x],
+						y: [rabbit1.y, rabbit2.y],
+					}
+
+					fox = {
+						x: 50,
+						y: 50,
+					}
+
+					new TWEEN.Tween(fox).to(rabbits, 3000).dynamic(dynamic).interpolation(TWEEN.Interpolation.CatmullRom).start()
 				}
 
 				function animate(time) {
 					TWEEN.update(time)
 
-					// draw background
 					context.fillStyle = 'rgb(240,250,240)'
 					context.fillRect(0, 0, width, height)
 
-					drawRabbit(context, rabbit.x, rabbit.y, 'rgb(150,150,150)')
+					drawRabbit(context, rabbit1.x, rabbit1.y, 'rgb(0,0,150)')
+					drawRabbit(context, rabbit2.x, rabbit2.y, 'rgb(0,80,80)')
 					drawFox(context, fox.x, fox.y, 'rgb(200,80,80)')
 
 					requestAnimationFrame(animate)
