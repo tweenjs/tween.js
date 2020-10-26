@@ -393,6 +393,7 @@
             this._valuesEnd = {};
             this._valuesStartRepeat = {};
             this._duration = 1000;
+            this._isDynamic = false;
             this._initialRepeat = 0;
             this._repeat = 0;
             this._yoyo = false;
@@ -402,10 +403,12 @@
             this._startTime = 0;
             this._easingFunction = Easing.Linear.None;
             this._interpolationFunction = Interpolation.Linear;
+            // eslint-disable-next-line
             this._chainedTweens = [];
             this._onStartCallbackFired = false;
             this._id = Sequence.nextId();
             this._isChainStopped = false;
+            this._propertiesAreSetUp = false;
             this._goToEnd = false;
         }
         Tween.prototype.getId = function () {
@@ -417,19 +420,23 @@
         Tween.prototype.isPaused = function () {
             return this._isPaused;
         };
-        Tween.prototype.to = function (properties, duration) {
-            // TODO? restore this, then update the 07_dynamic_to example to set fox
-            // tween's to on each update. That way the behavior is opt-in (there's
-            // currently no opt-out).
-            // for (const prop in properties) this._valuesEnd[prop] = properties[prop]
-            this._valuesEnd = Object.create(properties);
-            if (duration !== undefined) {
-                this._duration = duration;
-            }
+        Tween.prototype.to = function (target, duration) {
+            if (duration === void 0) { duration = 1000; }
+            if (this._isPlaying)
+                throw new Error('Can not call Tween.to() while Tween is already started or paused. Stop the Tween first.');
+            this._valuesEnd = target;
+            this._propertiesAreSetUp = false;
+            this._duration = duration;
             return this;
         };
-        Tween.prototype.duration = function (d) {
-            this._duration = d;
+        Tween.prototype.duration = function (duration) {
+            if (duration === void 0) { duration = 1000; }
+            this._duration = duration;
+            return this;
+        };
+        Tween.prototype.dynamic = function (dynamic) {
+            if (dynamic === void 0) { dynamic = false; }
+            this._isDynamic = dynamic;
             return this;
         };
         Tween.prototype.start = function (time) {
@@ -454,7 +461,16 @@
             this._isChainStopped = false;
             this._startTime = time !== undefined ? (typeof time === 'string' ? now$1() + parseFloat(time) : time) : now$1();
             this._startTime += this._delayTime;
-            this._setupProperties(this._object, this._valuesStart, this._valuesEnd, this._valuesStartRepeat);
+            if (!this._propertiesAreSetUp) {
+                this._propertiesAreSetUp = true;
+                if (!this._isDynamic) {
+                    var tmp = {};
+                    for (var prop in this._valuesEnd)
+                        tmp[prop] = this._valuesEnd[prop];
+                    this._valuesEnd = tmp;
+                }
+                this._setupProperties(this._object, this._valuesStart, this._valuesEnd, this._valuesStartRepeat);
+            }
             return this;
         };
         Tween.prototype._setupProperties = function (_object, _valuesStart, _valuesEnd, _valuesStartRepeat) {
@@ -474,24 +490,41 @@
                     if (endValues.length === 0) {
                         continue;
                     }
-                    // handle an array of relative values
-                    endValues = endValues.map(this._handleRelativeValue.bind(this, startValue));
-                    // Create a local copy of the Array with the start value at the front
-                    _valuesEnd[property] = [startValue].concat(endValues);
+                    // Handle an array of relative values.
+                    // Creates a local copy of the Array with the start value at the front
+                    // endValues = endValues.map(this._handleRelativeValue.bind(this, startValue))
+                    var temp = [startValue];
+                    for (var i = 0, l = endValues.length; i < l; i += 1) {
+                        var value = this._handleRelativeValue(startValue, endValues[i]);
+                        if (isNaN(value)) {
+                            isInterpolationList = false;
+                            console.warn('Found invalid interpolation list. Skipping.');
+                            break;
+                        }
+                        temp.push(value);
+                    }
+                    if (isInterpolationList) {
+                        // _valuesEnd[property] = [startValue].concat(endValues)
+                        _valuesEnd[property] = temp;
+                    }
                 }
                 // handle the deepness of the values
                 if ((propType === 'object' || startValueIsArray) && startValue && !isInterpolationList) {
                     _valuesStart[property] = startValueIsArray ? [] : {};
-                    // eslint-disable-next-line
-                    for (var prop in startValue) {
-                        // eslint-disable-next-line
-                        // @ts-ignore FIXME?
-                        _valuesStart[property][prop] = startValue[prop];
+                    var nestedObject = startValue;
+                    for (var prop in nestedObject) {
+                        _valuesStart[property][prop] = nestedObject[prop];
                     }
-                    _valuesStartRepeat[property] = startValueIsArray ? [] : {}; // TODO? repeat nested values? And yoyo? And array values?
-                    // eslint-disable-next-line
-                    // @ts-ignore FIXME?
-                    this._setupProperties(startValue, _valuesStart[property], _valuesEnd[property], _valuesStartRepeat[property]);
+                    // TODO? repeat nested values? And yoyo? And array values?
+                    _valuesStartRepeat[property] = startValueIsArray ? [] : {};
+                    var endValues = _valuesEnd[property];
+                    if (!this._isDynamic) {
+                        var tmp = {};
+                        for (var prop in endValues)
+                            tmp[prop] = endValues[prop];
+                        _valuesEnd[property] = endValues = tmp;
+                    }
+                    this._setupProperties(nestedObject, _valuesStart[property], endValues, _valuesStartRepeat[property]);
                 }
                 else {
                     // Save the starting value, but only once.
@@ -566,14 +599,17 @@
             return this;
         };
         Tween.prototype.group = function (group) {
+            if (group === void 0) { group = mainGroup; }
             this._group = group;
             return this;
         };
         Tween.prototype.delay = function (amount) {
+            if (amount === void 0) { amount = 0; }
             this._delayTime = amount;
             return this;
         };
         Tween.prototype.repeat = function (times) {
+            if (times === void 0) { times = 0; }
             this._initialRepeat = times;
             this._repeat = times;
             return this;
@@ -583,17 +619,21 @@
             return this;
         };
         Tween.prototype.yoyo = function (yoyo) {
+            if (yoyo === void 0) { yoyo = false; }
             this._yoyo = yoyo;
             return this;
         };
         Tween.prototype.easing = function (easingFunction) {
+            if (easingFunction === void 0) { easingFunction = Easing.Linear.None; }
             this._easingFunction = easingFunction;
             return this;
         };
         Tween.prototype.interpolation = function (interpolationFunction) {
+            if (interpolationFunction === void 0) { interpolationFunction = Interpolation.Linear; }
             this._interpolationFunction = interpolationFunction;
             return this;
         };
+        // eslint-disable-next-line
         Tween.prototype.chain = function () {
             var tweens = [];
             for (var _i = 0; _i < arguments.length; _i++) {
@@ -744,9 +784,7 @@
             if (end.charAt(0) === '+' || end.charAt(0) === '-') {
                 return start + parseFloat(end);
             }
-            else {
-                return parseFloat(end);
-            }
+            return parseFloat(end);
         };
         Tween.prototype._swapEndStartRepeatValues = function (property) {
             var tmp = this._valuesStartRepeat[property];
