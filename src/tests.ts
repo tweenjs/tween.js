@@ -630,8 +630,6 @@ export const tests = {
 		test.done()
 	},
 
-	// TODO test interpolation()
-
 	'Test TWEEN.Tween.chain --with one tween'(test: Test): void {
 		const t = new TWEEN.Tween({}),
 			t2 = new TWEEN.Tween({})
@@ -2061,3 +2059,8 @@ type Test = {
 // start.
 
 // TODO test onRepeat
+
+// TODO test that sub objects are also not dynamic and are not modified by
+// default after being passed into `to()`, and ensure that they can be
+// dynamically modified to affect animations when dynamic is true and show how
+// their interpolation arrays (if any) will be modified.
