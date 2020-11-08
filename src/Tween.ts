@@ -45,6 +45,10 @@ export class Tween<T extends UnknownProps> {
 		return this._id
 	}
 
+	getDuration(): number {
+		return this._duration;
+	}
+
 	isPlaying(): boolean {
 		return this._isPlaying
 	}

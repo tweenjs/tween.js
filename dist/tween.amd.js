@@ -402,6 +402,9 @@ define(function () { 'use strict';
         Tween.prototype.getId = function () {
             return this._id;
         };
+        Tween.prototype.getDuration = function () {
+            return this._duration;
+        };
         Tween.prototype.isPlaying = function () {
             return this._isPlaying;
         };
@@ -409,7 +412,6 @@ define(function () { 'use strict';
             return this._isPaused;
         };
         Tween.prototype.to = function (properties, duration) {
-            // to (properties, duration) {
             for (var prop in properties) {
                 this._valuesEnd[prop] = properties[prop];
             }
@@ -746,7 +748,7 @@ define(function () { 'use strict';
         return Tween;
     }());
 
-    var VERSION = '18.5.0';
+    var VERSION = '18.6.0';
 
     /**
      * Tween.js - Licensed under the MIT license

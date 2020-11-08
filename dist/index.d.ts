@@ -91,7 +91,7 @@ declare module "TWEEN" {
         static nextId(): number;
     }
 
-    const VERSION = "18.5.0";
+    const VERSION = "18.6.0";
 
     /**
      * Controlling groups of tweens
@@ -216,6 +216,7 @@ declare module "TWEEN" {
         private _isChainStopped;
         constructor(_object: T, _group?: Group);
         getId(): number;
+        getDuration(): number;
         isPlaying(): boolean;
         isPaused(): boolean;
         to(properties: UnknownProps, duration?: number): this;

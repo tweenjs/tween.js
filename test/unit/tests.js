@@ -1562,6 +1562,12 @@
 				test.done()
 			},
 
+			'Get the duration with .getDuration': function (test) {
+				var t = new TWEEN.Tween({}).to({}).duration(500).start();
+				test.equal(t.getDuration(), 500);
+				test.done();
+			},
+
 			"Tween.group sets the tween's group.": function (test) {
 				var group = new TWEEN.Group()
 

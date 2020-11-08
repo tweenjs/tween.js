@@ -400,6 +400,9 @@ var Tween = /** @class */ (function () {
     Tween.prototype.getId = function () {
         return this._id;
     };
+    Tween.prototype.getDuration = function () {
+        return this._duration;
+    };
     Tween.prototype.isPlaying = function () {
         return this._isPlaying;
     };
@@ -407,7 +410,6 @@ var Tween = /** @class */ (function () {
         return this._isPaused;
     };
     Tween.prototype.to = function (properties, duration) {
-        // to (properties, duration) {
         for (var prop in properties) {
             this._valuesEnd[prop] = properties[prop];
         }
@@ -744,7 +746,7 @@ var Tween = /** @class */ (function () {
     return Tween;
 }());
 
-var VERSION = '18.5.0';
+var VERSION = '18.6.0';
 
 /**
  * Tween.js - Licensed under the MIT license
