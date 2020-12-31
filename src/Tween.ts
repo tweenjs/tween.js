@@ -365,6 +365,7 @@ export class Tween<T extends UnknownProps> {
 	 */
 	update(time = now(), autoStart = true): boolean {
 		if (this._isPaused) return true
+		if (!autoStart && !this._isPlaying) return false
 
 		let property
 		let elapsed
