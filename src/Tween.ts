@@ -130,7 +130,7 @@ export class Tween<T extends UnknownProps> {
 		_valuesStart: UnknownProps,
 		_valuesEnd: UnknownProps,
 		_valuesStartRepeat: UnknownProps,
-		_overrideStartingValues: boolean,
+		overrideStartingValues: boolean,
 	): void {
 		for (const property in _valuesEnd) {
 			const startValue = _object[property]
@@ -179,11 +179,11 @@ export class Tween<T extends UnknownProps> {
 					_valuesStart[property],
 					_valuesEnd[property],
 					_valuesStartRepeat[property],
-					_overrideStartingValues,
+					overrideStartingValues,
 				)
 			} else {
 				// Save the starting value, but only once unless override is requested.
-				if (typeof _valuesStart[property] === 'undefined' || _overrideStartingValues) {
+				if (typeof _valuesStart[property] === 'undefined' || overrideStartingValues) {
 					_valuesStart[property] = startValue
 				}
 
