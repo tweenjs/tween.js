@@ -78,7 +78,7 @@ export class Tween<T extends UnknownProps> {
 		return this
 	}
 
-	start(time?: number): this {
+	start(time?: number, overrideStartingValues?: boolean): this {
 		if (this._isPlaying) {
 			return this
 		}
@@ -111,9 +111,18 @@ export class Tween<T extends UnknownProps> {
 		this._startTime = time !== undefined ? (typeof time === 'string' ? now() + parseFloat(time) : time) : now()
 		this._startTime += this._delayTime
 
-		this._setupProperties(this._object, this._valuesStart, this._valuesEnd, this._valuesStartRepeat)
-
+		this._setupProperties(
+			this._object,
+			this._valuesStart,
+			this._valuesEnd,
+			this._valuesStartRepeat,
+			overrideStartingValues === true,
+		)
 		return this
+	}
+
+	startFromCurrentValues(time?: number): this {
+		return this.start(time, true)
 	}
 
 	private _setupProperties(
@@ -121,6 +130,7 @@ export class Tween<T extends UnknownProps> {
 		_valuesStart: UnknownProps,
 		_valuesEnd: UnknownProps,
 		_valuesStartRepeat: UnknownProps,
+		_overrideStartingValues: boolean,
 	): void {
 		for (const property in _valuesEnd) {
 			const startValue = _object[property]
@@ -164,10 +174,16 @@ export class Tween<T extends UnknownProps> {
 
 				// eslint-disable-next-line
 				// @ts-ignore FIXME?
-				this._setupProperties(startValue, _valuesStart[property], _valuesEnd[property], _valuesStartRepeat[property])
+				this._setupProperties(
+					startValue,
+					_valuesStart[property],
+					_valuesEnd[property],
+					_valuesStartRepeat[property],
+					_overrideStartingValues,
+				)
 			} else {
-				// Save the starting value, but only once.
-				if (typeof _valuesStart[property] === 'undefined') {
+				// Save the starting value, but only once unless override is requested.
+				if (typeof _valuesStart[property] === 'undefined' || _overrideStartingValues) {
 					_valuesStart[property] = startValue
 				}
 
@@ -341,7 +357,7 @@ export class Tween<T extends UnknownProps> {
 
 		if (!this._goToEnd && !this._isPlaying) {
 			if (time > endTime) return false
-			if (autoStart) this.start(time)
+			if (autoStart) this.start(time, true)
 		}
 
 		this._goToEnd = false
@@ -415,7 +431,7 @@ export class Tween<T extends UnknownProps> {
 				for (let i = 0, numChainedTweens = this._chainedTweens.length; i < numChainedTweens; i++) {
 					// Make the chained tweens start exactly at the time they should,
 					// even if the `update()` method was called way past the duration of the tween
-					this._chainedTweens[i].start(this._startTime + this._duration)
+					this._chainedTweens[i].start(this._startTime + this._duration, false)
 				}
 
 				this._isPlaying = false

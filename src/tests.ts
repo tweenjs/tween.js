@@ -801,6 +801,39 @@ export const tests = {
 		test.done()
 	},
 
+	'Test TWEEN.Tween.startFromCurrentValues'(test: Test): void {
+		const obj = {x: 0},
+			t = new TWEEN.Tween(obj).to({x: 100})
+
+		TWEEN.removeAll()
+
+		test.equal(obj.x, 0)
+
+		// x == 0
+		t.start(0)
+		TWEEN.update(0)
+
+		test.equal(obj.x, 0)
+
+		TWEEN.update(1500)
+		test.equal(obj.x, 100)
+
+		obj.x = 200
+
+		t.startFromCurrentValues(0)
+
+		TWEEN.update(0)
+		test.equal(obj.x, 200)
+
+		TWEEN.update(500)
+		test.equal(obj.x, 150)
+
+		TWEEN.update(1000)
+		test.equal(obj.x, 100)
+
+		test.done()
+	},
+
 	'Test TWEEN.Tween.onStart'(test: Test): void {
 		const obj = {},
 			t = new TWEEN.Tween(obj)
