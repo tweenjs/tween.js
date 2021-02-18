@@ -418,6 +418,9 @@ export class Tween<T extends UnknownProps> {
 					this._chainedTweens[i].start(this._startTime + this._duration)
 				}
 
+				// eslint-disable-next-line
+				this._group && this._group.remove(this as any)
+
 				this._isPlaying = false
 
 				return false
