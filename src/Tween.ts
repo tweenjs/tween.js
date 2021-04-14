@@ -44,6 +44,7 @@ export class Tween<T extends UnknownProps> {
 	private _onStopCallback?: (object: T) => void
 	private _id = Sequence.nextId()
 	private _isChainStopped = false
+	private _hasSetupProperty = false
 
 	constructor(private _object: T, private _group: Group | false = mainGroup) {}
 
@@ -65,6 +66,7 @@ export class Tween<T extends UnknownProps> {
 		// currently no opt-out).
 		// for (const prop in properties) this._valuesEnd[prop] = properties[prop]
 		this._valuesEnd = Object.create(properties)
+		this._hasSetupProperty = false
 
 		if (duration !== undefined) {
 			this._duration = duration
@@ -146,7 +148,9 @@ export class Tween<T extends UnknownProps> {
 				endValues = endValues.map(this._handleRelativeValue.bind(this, startValue as number))
 
 				// Create a local copy of the Array with the start value at the front
-				_valuesEnd[property] = [startValue].concat(endValues)
+				if (!this._hasSetupProperty) {
+					_valuesEnd[property] = [_valuesStart[property] ?? startValue].concat(endValues)
+				}
 			}
 
 			// handle the deepness of the values
@@ -186,6 +190,7 @@ export class Tween<T extends UnknownProps> {
 				}
 			}
 		}
+		this._hasSetupProperty = true
 	}
 
 	stop(): this {
