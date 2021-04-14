@@ -1917,6 +1917,52 @@ export const tests = {
 
 		test.done()
 	},
+
+	'Tween.to(value:[number]) and Tween.to(value:number) return the same result after multiple .start()'(
+		test: Test,
+	): void {
+		const toNumber = {x: 1.0}
+		const toArray = {x: [1.0]}
+		const targetNumber = {x: 0.0}
+		const targetArray = {x: 0.0}
+		const tweenNumber = new TWEEN.Tween(targetNumber).to(toNumber, 100)
+		const tweenArray = new TWEEN.Tween(targetArray).to(toArray, 100)
+
+		tweenNumber.start(0)
+		tweenArray.start(0)
+		test.equal(targetNumber.x, targetArray.x)
+		TWEEN.update(37)
+		test.equal(targetNumber.x, targetArray.x)
+		TWEEN.update(50)
+		test.equal(targetNumber.x, targetArray.x)
+		TWEEN.update(100)
+		test.equal(targetNumber.x, targetArray.x)
+
+		tweenNumber.start(100)
+		tweenArray.start(100)
+		test.equal(targetNumber.x, targetArray.x)
+		TWEEN.update(137)
+		test.equal(targetNumber.x, targetArray.x)
+		TWEEN.update(150)
+		test.equal(targetNumber.x, targetArray.x)
+		TWEEN.update(200)
+		test.equal(targetNumber.x, targetArray.x)
+
+		//should keep _valuesStart after .to() function
+		tweenNumber.to({x: 2.0})
+		tweenArray.to({x: [2.0]})
+		tweenNumber.start(200)
+		tweenArray.start(200)
+		test.equal(targetNumber.x, targetArray.x)
+		TWEEN.update(237)
+		test.equal(targetNumber.x, targetArray.x)
+		TWEEN.update(250)
+		test.equal(targetNumber.x, targetArray.x)
+		TWEEN.update(300)
+		test.equal(targetNumber.x, targetArray.x)
+
+		test.done()
+	},
 }
 
 type Test = {
