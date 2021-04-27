@@ -1,4 +1,5 @@
 import * as TWEEN from './Index'
+import * as FakeTimers from '@sinonjs/fake-timers'
 
 export const tests = {
 	hello(test: Test): void {
@@ -2026,6 +2027,7 @@ export const tests = {
 				}),
 			)
 		}
+
 		const t = new TWEEN.Tween(chasingValue).to(dynamicTargetValues, duration).dynamic(true)
 
 		test.equal(TWEEN.getAll().length, 0)
@@ -2040,7 +2042,34 @@ export const tests = {
 			TWEEN.update(progress, true)
 			test.equal(chasingValue.x, observedValues[i].x)
 		}
+    
+		test.done()
+	},
 
+	'Test TWEEN.Tween.update() with no arguments'(test: Test): void {
+		const clock = FakeTimers.install()
+		const targetNow = {x: 0.0}
+		const targetTime = {x: 0.0}
+
+		const tweenNow = new TWEEN.Tween(targetNow).to({x: 1.0}).start()
+		const tweenTime = new TWEEN.Tween(targetTime).to({x: 1.0}).start(0)
+
+		let currentTime = 0
+		const tick = (time: number) => {
+			currentTime += time
+			clock.tick(time)
+			tweenNow.update()
+			tweenTime.update(currentTime)
+			test.equal(targetNow.x, targetTime.x)
+		}
+
+		tick(0)
+		tick(16)
+		tick(16.66)
+		tick(100)
+		tick(20000)
+
+		clock.uninstall()
 		test.done()
 	},
 }
