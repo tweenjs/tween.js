@@ -78,7 +78,7 @@ export class Tween<T extends UnknownProps> {
 		return this
 	}
 
-	start(time: number = now(), overrideStartingValues: boolean = false): this {
+	start(time: number = now(), overrideStartingValues = false): this {
 		if (this._isPlaying) {
 			return this
 		}
