@@ -78,7 +78,7 @@ export class Tween<T extends UnknownProps> {
 		return this
 	}
 
-	start(time?: number, overrideStartingValues?: boolean): this {
+	start(time: number = now(), overrideStartingValues: boolean = false): this {
 		if (this._isPlaying) {
 			return this
 		}
@@ -108,7 +108,7 @@ export class Tween<T extends UnknownProps> {
 
 		this._isChainStopped = false
 
-		this._startTime = time !== undefined ? (typeof time === 'string' ? now() + parseFloat(time) : time) : now()
+		this._startTime = time
 		this._startTime += this._delayTime
 
 		this._setupProperties(
@@ -116,7 +116,7 @@ export class Tween<T extends UnknownProps> {
 			this._valuesStart,
 			this._valuesEnd,
 			this._valuesStartRepeat,
-			overrideStartingValues === true,
+			overrideStartingValues,
 		)
 		return this
 	}
