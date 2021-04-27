@@ -1968,6 +1968,9 @@ export const tests = {
 		checkEdgeValue(TWEEN.Easing.generatePow(6))
 		checkEdgeValue(TWEEN.Easing.generatePow(Number.POSITIVE_INFINITY))
 
+		test.done()
+	},
+
 	'Test TWEEN.Tween.update() with no arguments'(test: Test): void {
 		const clock = FakeTimers.install()
 		const targetNow = {x: 0.0}
