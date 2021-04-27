@@ -78,7 +78,7 @@ export class Tween<T extends UnknownProps> {
 		return this
 	}
 
-	start(time?: number): this {
+	start(time: number = now()): this {
 		if (this._isPlaying) {
 			return this
 		}
@@ -108,7 +108,7 @@ export class Tween<T extends UnknownProps> {
 
 		this._isChainStopped = false
 
-		this._startTime = time !== undefined ? (typeof time === 'string' ? now() + parseFloat(time) : time) : now()
+		this._startTime = time
 		this._startTime += this._delayTime
 
 		this._setupProperties(this._object, this._valuesStart, this._valuesEnd, this._valuesStartRepeat)
