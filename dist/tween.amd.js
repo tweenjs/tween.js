@@ -398,6 +398,7 @@ define(['exports'], function (exports) { 'use strict';
             this._startTime = 0;
             this._easingFunction = Easing.Linear.None;
             this._interpolationFunction = Interpolation.Linear;
+            // eslint-disable-next-line
             this._chainedTweens = [];
             this._onStartCallbackFired = false;
             this._id = Sequence.nextId();
@@ -425,10 +426,12 @@ define(['exports'], function (exports) { 'use strict';
             return this;
         };
         Tween.prototype.duration = function (d) {
+            if (d === void 0) { d = 1000; }
             this._duration = d;
             return this;
         };
         Tween.prototype.start = function (time) {
+            if (time === void 0) { time = now$1(); }
             if (this._isPlaying) {
                 return this;
             }
@@ -448,7 +451,7 @@ define(['exports'], function (exports) { 'use strict';
             this._isPaused = false;
             this._onStartCallbackFired = false;
             this._isChainStopped = false;
-            this._startTime = time !== undefined ? (typeof time === 'string' ? now$1() + parseFloat(time) : time) : now$1();
+            this._startTime = time;
             this._startTime += this._delayTime;
             this._setupProperties(this._object, this._valuesStart, this._valuesEnd, this._valuesStartRepeat);
             return this;
@@ -555,6 +558,21 @@ define(['exports'], function (exports) { 'use strict';
             this._group && this._group.add(this);
             return this;
         };
+        Tween.prototype.setProgress = function (elapsed, update) {
+            if (update === void 0) { update = true; }
+            this._pauseStart = now$1();
+            this._startTime = this._pauseStart - elapsed;
+            if (!update)
+                return this;
+            var elapsedRatio = elapsed / this._duration;
+            elapsedRatio = this._duration === 0 || elapsedRatio > 1 ? 1 : elapsedRatio;
+            var value = this._easingFunction(elapsedRatio);
+            this._updateProperties(this._object, this._valuesStart, this._valuesEnd, value);
+            if (this._onUpdateCallback) {
+                this._onUpdateCallback(this._object, elapsedRatio);
+            }
+            return this;
+        };
         Tween.prototype.stopChainedTweens = function () {
             for (var i = 0, numChainedTweens = this._chainedTweens.length; i < numChainedTweens; i++) {
                 this._chainedTweens[i].stop();
@@ -562,14 +580,17 @@ define(['exports'], function (exports) { 'use strict';
             return this;
         };
         Tween.prototype.group = function (group) {
+            if (group === void 0) { group = mainGroup; }
             this._group = group;
             return this;
         };
         Tween.prototype.delay = function (amount) {
+            if (amount === void 0) { amount = 0; }
             this._delayTime = amount;
             return this;
         };
         Tween.prototype.repeat = function (times) {
+            if (times === void 0) { times = 0; }
             this._initialRepeat = times;
             this._repeat = times;
             return this;
@@ -579,17 +600,21 @@ define(['exports'], function (exports) { 'use strict';
             return this;
         };
         Tween.prototype.yoyo = function (yoyo) {
+            if (yoyo === void 0) { yoyo = false; }
             this._yoyo = yoyo;
             return this;
         };
         Tween.prototype.easing = function (easingFunction) {
+            if (easingFunction === void 0) { easingFunction = Easing.Linear.None; }
             this._easingFunction = easingFunction;
             return this;
         };
         Tween.prototype.interpolation = function (interpolationFunction) {
+            if (interpolationFunction === void 0) { interpolationFunction = Interpolation.Linear; }
             this._interpolationFunction = interpolationFunction;
             return this;
         };
+        // eslint-disable-next-line
         Tween.prototype.chain = function () {
             var tweens = [];
             for (var _i = 0; _i < arguments.length; _i++) {

@@ -9,12 +9,12 @@
 
 import Easing from './Easing'
 import Interpolation from './Interpolation'
-import {mainGroup} from './mainGroup'
+import { mainGroup } from './mainGroup'
 import Sequence from './Sequence'
 import now from './Now'
 
-import type {EasingFunction} from './Easing'
-import type {InterpolationFunction} from './Interpolation'
+import type { EasingFunction } from './Easing'
+import type { InterpolationFunction } from './Interpolation'
 import type Group from './Group'
 
 export class Tween<T extends UnknownProps> {
@@ -45,7 +45,7 @@ export class Tween<T extends UnknownProps> {
 	private _id = Sequence.nextId()
 	private _isChainStopped = false
 
-	constructor(private _object: T, private _group: Group | false = mainGroup) {}
+	constructor(private _object: T, private _group: Group | false = mainGroup) { }
 
 	getId(): number {
 		return this._id
@@ -246,6 +246,25 @@ export class Tween<T extends UnknownProps> {
 
 		// eslint-disable-next-line
 		this._group && this._group.add(this as any)
+
+		return this
+	}
+
+	setProgress(elapsed: number, update: boolean = true): this {
+		this._pauseStart = now();
+		this._startTime = this._pauseStart - elapsed;
+		if (!update) return this;
+
+		let elapsedRatio = elapsed / this._duration
+		elapsedRatio = this._duration === 0 || elapsedRatio > 1 ? 1 : elapsedRatio
+
+		const value = this._easingFunction(elapsedRatio)
+
+		this._updateProperties(this._object, this._valuesStart, this._valuesEnd, value)
+
+		if (this._onUpdateCallback) {
+			this._onUpdateCallback(this._object, elapsedRatio)
+		}
 
 		return this
 	}
