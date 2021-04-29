@@ -630,6 +630,34 @@ export const tests = {
 		test.done()
 	},
 
+	'Test TWEEN.Easing should starts at 0.0, ends at 1.0. TWEEN.Easing.InOut() should be 0.5 at midpoint'(
+		test: Test,
+	): void {
+		const checkEdgeValue = (ease: EasingFunctionGroup) => {
+			test.equal(ease.In(0.0), 0.0)
+			test.equal(ease.Out(0.0), 0.0)
+			test.equal(ease.InOut(0.0), 0.0)
+
+			test.equal(ease.In(1.0), 1.0)
+			test.equal(ease.Out(1.0), 1.0)
+			test.equal(ease.InOut(1.0), 1.0)
+
+			test.equal(ease.InOut(0.5), 0.5)
+		}
+
+		checkEdgeValue(TWEEN.Easing.Quadratic)
+		checkEdgeValue(TWEEN.Easing.Cubic)
+		checkEdgeValue(TWEEN.Easing.Quartic)
+		checkEdgeValue(TWEEN.Easing.Quintic)
+		checkEdgeValue(TWEEN.Easing.Sinusoidal)
+		checkEdgeValue(TWEEN.Easing.Exponential)
+		checkEdgeValue(TWEEN.Easing.Circular)
+		checkEdgeValue(TWEEN.Easing.Elastic)
+		checkEdgeValue(TWEEN.Easing.Back)
+		checkEdgeValue(TWEEN.Easing.Bounce)
+		test.done()
+	},
+
 	// TODO test interpolation()
 
 	'Test TWEEN.Tween.chain --with one tween'(test: Test): void {
