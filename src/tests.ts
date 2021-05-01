@@ -630,6 +630,106 @@ export const tests = {
 		test.done()
 	},
 
+	'Test TWEEN.Easing should starts at 0.0, ends at 1.0. TWEEN.Easing.InOut() should be 0.5 at midpoint'(
+		test: Test,
+	): void {
+		const checkEdgeValue = (ease: EasingFunctionGroup) => {
+			test.equal(ease.In(0.0), 0.0)
+			test.equal(ease.Out(0.0), 0.0)
+			test.equal(ease.InOut(0.0), 0.0)
+
+			test.equal(ease.In(1.0), 1.0)
+			test.equal(ease.Out(1.0), 1.0)
+			test.equal(ease.InOut(1.0), 1.0)
+
+			test.equal(ease.InOut(0.5), 0.5)
+		}
+
+		checkEdgeValue(TWEEN.Easing.Quadratic)
+		checkEdgeValue(TWEEN.Easing.Cubic)
+		checkEdgeValue(TWEEN.Easing.Quartic)
+		checkEdgeValue(TWEEN.Easing.Quintic)
+		checkEdgeValue(TWEEN.Easing.Sinusoidal)
+		checkEdgeValue(TWEEN.Easing.Exponential)
+		checkEdgeValue(TWEEN.Easing.Circular)
+		checkEdgeValue(TWEEN.Easing.Elastic)
+		checkEdgeValue(TWEEN.Easing.Back)
+		checkEdgeValue(TWEEN.Easing.Bounce)
+		test.done()
+	},
+
+	'Test TWEEN.Easing should pass a specific value'(test: Test): void {
+		const checkEasingGroupPassPoints = (
+			easingGroup: EasingFunctionGroup,
+			expects: {In: number; Out: number; InOut: number},
+		) => {
+			checkPassPoint(easingGroup.In, expects.In)
+			checkPassPoint(easingGroup.Out, expects.Out)
+			checkPassPoint(easingGroup.InOut, expects.InOut)
+		}
+		const checkPassPoint = (
+			easeFunc: (amount: number) => number,
+			expect: number,
+			numDigits = 14,
+			amount = Math.LOG10E,
+		) => {
+			toBeCloseTo(test, easeFunc(amount), expect, numDigits)
+		}
+
+		checkEasingGroupPassPoints(TWEEN.Easing.Quadratic, {
+			In: 0.18861169701161393,
+			Out: 0.6799772667948897,
+			InOut: 0.37722339402322785,
+		})
+		checkEasingGroupPassPoints(TWEEN.Easing.Cubic, {
+			In: 0.08191301923455198,
+			Out: 0.8189613739094657,
+			InOut: 0.3276520769382079,
+		})
+		checkEasingGroupPassPoints(TWEEN.Easing.Quartic, {
+			In: 0.035574372249600854,
+			Out: 0.8975854502319308,
+			InOut: 0.28459497799680683,
+		})
+		checkEasingGroupPassPoints(TWEEN.Easing.Quintic, {
+			In: 0.015449753565173821,
+			Out: 0.9420635240628092,
+			InOut: 0.24719605704278114,
+		})
+		checkEasingGroupPassPoints(TWEEN.Easing.Sinusoidal, {
+			In: 0.22380505208857682,
+			Out: 0.630492983971101,
+			InOut: 0.397521402836783,
+		})
+		checkEasingGroupPassPoints(TWEEN.Easing.Exponential, {
+			In: 0.01981785759600918,
+			Out: 0.9507231043886069,
+			InOut: 0.2010867096041978,
+		})
+		checkEasingGroupPassPoints(TWEEN.Easing.Circular, {
+			In: 0.09922905076352173,
+			Out: 0.8246073409780499,
+			InOut: 0.2522333699054974,
+		})
+		checkEasingGroupPassPoints(TWEEN.Easing.Elastic, {
+			In: -0.01701121590548648,
+			Out: 0.9577017895937282,
+			InOut: -0.09523991217687242,
+		})
+		checkEasingGroupPassPoints(TWEEN.Easing.Back, {
+			In: -0.09964331689734113,
+			Out: 1.055453950893486,
+			InOut: 0.19901899530677744,
+		})
+
+		checkEasingGroupPassPoints(TWEEN.Easing.Bounce, {
+			In: 0.24689860443452594,
+			Out: 0.8434464829485027,
+			InOut: 0.43470212148602316,
+		})
+		test.done()
+	},
+
 	// TODO test interpolation()
 
 	'Test TWEEN.Tween.chain --with one tween'(test: Test): void {
@@ -1953,4 +2053,21 @@ type Test = {
 	deepEqual(a: unknown, b: unknown, failMessage?: string): void
 	expect(n: number): void
 	done(): void
+}
+
+type EasingFunctionGroup = {
+	In(amount: number): number
+	Out(amount: number): number
+	InOut(amount: number): number
+}
+
+function toBeCloseTo(test: Test, numberA: number, numberB: number, numDigits = 2): void {
+	const diff = Math.abs(numberA - numberB)
+	test.ok(
+		diff < 10 ** -numDigits / 2,
+		`
+actual : ${numberA}
+expect : ${numberB}
+diff : ${diff}`,
+	)
 }

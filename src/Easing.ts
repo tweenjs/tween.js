@@ -70,13 +70,13 @@ const Easing = {
 	},
 	Sinusoidal: {
 		In: function (amount: number): number {
-			return 1 - Math.cos((amount * Math.PI) / 2)
+			return 1 - Math.sin(((1.0 - amount) * Math.PI) / 2)
 		},
 		Out: function (amount: number): number {
 			return Math.sin((amount * Math.PI) / 2)
 		},
 		InOut: function (amount: number): number {
-			return 0.5 * (1 - Math.cos(Math.PI * amount))
+			return 0.5 * (1 - Math.sin(Math.PI * (0.5 - amount)))
 		},
 	},
 	Exponential: {
@@ -159,11 +159,11 @@ const Easing = {
 	Back: {
 		In: function (amount: number): number {
 			const s = 1.70158
-			return amount * amount * ((s + 1) * amount - s)
+			return amount === 1 ? 1 : amount * amount * ((s + 1) * amount - s)
 		},
 		Out: function (amount: number): number {
 			const s = 1.70158
-			return --amount * amount * ((s + 1) * amount + s) + 1
+			return amount === 0 ? 0 : --amount * amount * ((s + 1) * amount + s) + 1
 		},
 		InOut: function (amount: number): number {
 			const s = 1.70158 * 1.525
