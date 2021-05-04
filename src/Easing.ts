@@ -202,7 +202,7 @@ const Easing = {
 		Out(amount: number): number
 		InOut(amount: number): number
 	} {
-		power = power < 1.0 ? 1.0 : power
+		power = power < Number.EPSILON ? Number.EPSILON : power
 		power = power > 10000 ? 10000 : power
 		return {
 			In: function (amount: number): number {

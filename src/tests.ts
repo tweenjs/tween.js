@@ -2021,7 +2021,6 @@ export const tests = {
 
 	'Test TWEEN.Easing.generatePow(1) equals Linear'(test: Test): void {
 		const ease1 = TWEEN.Easing.generatePow(1)
-		const easeMinus = TWEEN.Easing.generatePow(-1)
 
 		const compareWithLinear = (ease: EasingFunctionGroup, amount: number) => {
 			const linearResult = TWEEN.Easing.Linear.None(amount)
@@ -2030,20 +2029,12 @@ export const tests = {
 			test.equal(linearResult, ease.InOut(amount))
 		}
 		compareWithLinear(ease1, 0)
-		compareWithLinear(easeMinus, 0)
 		compareWithLinear(ease1, 0.25)
-		compareWithLinear(easeMinus, 0.25)
 		compareWithLinear(ease1, 0.5)
-		compareWithLinear(easeMinus, 0.5)
 		compareWithLinear(ease1, 0.75)
-		compareWithLinear(easeMinus, 0.75)
 		compareWithLinear(ease1, 1)
-		compareWithLinear(easeMinus, 1)
-
 		compareWithLinear(ease1, -1)
-		compareWithLinear(easeMinus, -1)
 		compareWithLinear(ease1, Infinity)
-		compareWithLinear(easeMinus, Infinity)
 
 		test.done()
 	},
@@ -2061,6 +2052,7 @@ export const tests = {
 			test.equal(ease.Out(1.0), 1.0)
 		}
 		checkEdgeValue(TWEEN.Easing.generatePow(Number.NEGATIVE_INFINITY))
+		checkEdgeValue(TWEEN.Easing.generatePow(-1.0))
 		checkEdgeValue(TWEEN.Easing.generatePow(1))
 		checkEdgeValue(TWEEN.Easing.generatePow(Math.LOG2E))
 		checkEdgeValue(TWEEN.Easing.generatePow(Math.PI))
