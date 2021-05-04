@@ -195,6 +195,30 @@ const Easing = {
 			return Easing.Bounce.Out(amount * 2 - 1) * 0.5 + 0.5
 		},
 	},
+	generatePow: function (
+		power = 4,
+	): {
+		In(amount: number): number
+		Out(amount: number): number
+		InOut(amount: number): number
+	} {
+		power = power < Number.EPSILON ? Number.EPSILON : power
+		power = power > 10000 ? 10000 : power
+		return {
+			In: function (amount: number): number {
+				return amount ** power
+			},
+			Out: function (amount: number): number {
+				return 1 - (1 - amount) ** power
+			},
+			InOut: function (amount: number): number {
+				if (amount < 0.5) {
+					return (amount * 2) ** power / 2
+				}
+				return (1 - (2 - amount * 2) ** power) / 2 + 0.5
+			},
+		}
+	},
 }
 
 export default Easing
