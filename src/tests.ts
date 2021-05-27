@@ -652,17 +652,19 @@ export const tests = {
 			test.equal(easingGroup.InOut(1.0), 1.0)
 		}
 
-		// eslint-disable-next-line
-		const implementsEasingFunctionGroup = (arg: any): arg is TWEEN.Easing.EasingFunctionGroup => {
-			return (
-				arg !== null &&
-				typeof arg === 'object' &&
-				typeof arg.In === 'function' &&
-				typeof arg.Out === 'function' &&
-				typeof arg.InOut === 'function'
-			)
-		}
-		const easingGroups = Object.values(TWEEN.Easing).filter(implementsEasingFunctionGroup)
+		const Easing = TWEEN.Easing
+		const easingGroups = [
+			Easing.Quadratic,
+			Easing.Cubic,
+			Easing.Quartic,
+			Easing.Quintic,
+			Easing.Sinusoidal,
+			Easing.Exponential,
+			Easing.Circular,
+			Easing.Elastic,
+			Easing.Back,
+			Easing.Bounce,
+		]
 		easingGroups.forEach(replaceEasingFunction)
 
 		test.done()
