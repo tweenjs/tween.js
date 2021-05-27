@@ -630,10 +630,48 @@ export const tests = {
 		test.done()
 	},
 
+	'Test TWEEN.Tween.EasingFunctionGroup should be frozen'(test: Test): void {
+		const replaceEasingFunction = (easingGroup: TWEEN.Easing.EasingFunctionGroup) => {
+			const throwsWithReassigned = () => {
+				easingGroup.In = (amount: number) => {
+					return 1.0 + amount
+				}
+				easingGroup.Out = (amount: number) => {
+					return 1.0 + amount
+				}
+				easingGroup.InOut = (amount: number) => {
+					return 1.0 + amount
+				}
+			}
+			test.throws(throwsWithReassigned)
+			test.equal(easingGroup.In(0.0), 0.0)
+			test.equal(easingGroup.Out(0.0), 0.0)
+			test.equal(easingGroup.InOut(0.0), 0.0)
+			test.equal(easingGroup.In(1.0), 1.0)
+			test.equal(easingGroup.Out(1.0), 1.0)
+			test.equal(easingGroup.InOut(1.0), 1.0)
+		}
+
+		// eslint-disable-next-line
+		const implementsEasingFunctionGroup = (arg: any): arg is TWEEN.Easing.EasingFunctionGroup => {
+			return (
+				arg !== null &&
+				typeof arg === 'object' &&
+				typeof arg.In === 'function' &&
+				typeof arg.Out === 'function' &&
+				typeof arg.InOut === 'function'
+			)
+		}
+		const easingGroups = Object.values(TWEEN.Easing).filter(implementsEasingFunctionGroup)
+		easingGroups.forEach(replaceEasingFunction)
+
+		test.done()
+	},
+
 	'Test TWEEN.Easing should starts at 0.0, ends at 1.0. TWEEN.Easing.InOut() should be 0.5 at midpoint'(
 		test: Test,
 	): void {
-		const checkEdgeValue = (ease: EasingFunctionGroup) => {
+		const checkEdgeValue = (ease: TWEEN.Easing.EasingFunctionGroup) => {
 			test.equal(ease.In(0.0), 0.0)
 			test.equal(ease.Out(0.0), 0.0)
 			test.equal(ease.InOut(0.0), 0.0)
@@ -660,7 +698,7 @@ export const tests = {
 
 	'Test TWEEN.Easing should pass a specific value'(test: Test): void {
 		const checkEasingGroupPassPoints = (
-			easingGroup: EasingFunctionGroup,
+			easingGroup: TWEEN.Easing.EasingFunctionGroup,
 			expects: {In: number; Out: number; InOut: number},
 		) => {
 			checkPassPoint(easingGroup.In, expects.In)
@@ -2022,7 +2060,7 @@ export const tests = {
 	'Test TWEEN.Easing.generatePow(1) equals Linear'(test: Test): void {
 		const ease1 = TWEEN.Easing.generatePow(1)
 
-		const compareWithLinear = (ease: EasingFunctionGroup, amount: number) => {
+		const compareWithLinear = (ease: TWEEN.Easing.EasingFunctionGroup, amount: number) => {
 			const linearResult = TWEEN.Easing.Linear.None(amount)
 			test.equal(linearResult, ease.In(amount))
 			test.equal(linearResult, ease.Out(amount))
@@ -2040,7 +2078,7 @@ export const tests = {
 	},
 
 	'Test TWEEN.Easing.generatePow(n) should pass 0.0, 0.5, 1.0'(test: Test): void {
-		const checkEdgeValue = (ease: EasingFunctionGroup) => {
+		const checkEdgeValue = (ease: TWEEN.Easing.EasingFunctionGroup) => {
 			test.equal(ease.InOut(0.0), 0.0)
 			test.equal(ease.In(0.0), 0.0)
 			test.equal(ease.Out(0.0), 0.0)
@@ -2096,13 +2134,8 @@ type Test = {
 	equal(a: unknown, b: unknown, failMessage?: string): void
 	deepEqual(a: unknown, b: unknown, failMessage?: string): void
 	expect(n: number): void
+	throws(block: unknown, error?: unknown, message?: string): void
 	done(): void
-}
-
-type EasingFunctionGroup = {
-	In(amount: number): number
-	Out(amount: number): number
-	InOut(amount: number): number
 }
 
 function toBeCloseTo(test: Test, numberA: number, numberB: number, numDigits = 2): void {
