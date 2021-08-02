@@ -76,7 +76,7 @@ npm test
 
 ### 单元测试
 
-测试用例在`test/unit/tests.js`文件中.
+测试用例在`src/tests.ts`文件中.
 
 测试使用[nodeunit](https://www.npmjs.com/package/nodeunit)执行.
 
