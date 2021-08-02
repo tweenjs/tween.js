@@ -117,7 +117,7 @@ var currentTime = player.currentTime
 TWEEN.update(currentTime)
 ```
 
-We use explicit time values for the unit tests. You can have a look at [tests.js](../test/unit/tests.js) to see how we call TWEEN.update() with different values in order to simulate time passing.
+We use explicit time values for the unit tests. You can have a look at [tests.ts](../src/tests.ts) to see how we call TWEEN.update() with different values in order to simulate time passing.
 
 ## Controlling a tween
 
@@ -276,6 +276,8 @@ This will result in the tween slowly starting to change towards the final value,
 There are a few existing easing functions provided with tween.js. They are grouped by the type of equation they represent: Linear, Quadratic, Cubic, Quartic, Quintic, Sinusoidal, Exponential, Circular, Elastic, Back and Bounce, and then by the easing type: In, Out and InOut.
 
 Probably the names won't be saying anything to you unless you're familiar with these concepts already, so it is probably the time to check the [Graphs](../examples/03_graphs.html) example, which graphs all the curves in one page so you can compare how they look at a glance.
+
+TWEEN.Easing also has a function called generatePow(). This function generates easing functions for different curves depending on arguments. You can check the relevance of the arguments to curves in the [example of pow easing](../examples/17_generate_pow.html) page.
 
 _Credit where credit is due:_ these functions are derived from the original set of equations that Robert Penner graciously made available as free software a few years ago, but have been optimised to play nicely with JavaScript.
 
