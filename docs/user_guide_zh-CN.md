@@ -117,7 +117,7 @@ var currentTime = player.currentTime
 TWEEN.update(currentTime)
 ```
 
-我们使用明确的时间值进行单元测试。你可以看下 [tests.js](https://github.com/tweenjs/tween.js/blob/master/test/unit/tests.js) 这个例子，看看我们如何用不同的值调用`TWEEN.update()` 来模拟时间传递。
+我们使用明确的时间值进行单元测试。你可以看下 [tests.ts](../src/tests.ts) 这个例子，看看我们如何用不同的值调用`TWEEN.update()` 来模拟时间传递。
 
 ## 控制一个补间
 
