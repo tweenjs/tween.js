@@ -770,7 +770,57 @@ export const tests = {
 		test.done()
 	},
 
-	// TODO test interpolation()
+	'Test TWEEN.interpolation should starts at values[0], ends at values[values.length-1].'(test: Test): void {
+		const generateArray = (): number[] => {
+			return [0, Math.PI, Math.SQRT2, Math.E]
+		}
+
+		const checkStartAndEnd = (interpolation: (v: number[], k: number) => number, values: number[]) => {
+			const originalValue = values.concat()
+			test.equal(interpolation(values, 0.0), originalValue[0])
+			test.equal(interpolation(values, 1.0), originalValue[originalValue.length - 1])
+			test.deepEqual(originalValue, values)
+		}
+
+		const Interpolations = [TWEEN.Interpolation.Linear, TWEEN.Interpolation.Bezier, TWEEN.Interpolation.CatmullRom]
+		Interpolations.forEach(func => {
+			checkStartAndEnd(func, generateArray())
+		})
+		test.done()
+	},
+
+	'Test TWEEN.interpolation.Bezier should return a value equal to Linear if there are two values.'(test: Test): void {
+		const compareToLinear = (k: number) => {
+			const Interpolation = TWEEN.Interpolation
+			const values = [0, Math.E]
+			test.equal(Interpolation.Bezier(values, k), Interpolation.Linear(values, k))
+		}
+
+		compareToLinear(0.0)
+		compareToLinear(0.5)
+		compareToLinear(1.0)
+		compareToLinear(Math.LOG10E)
+		compareToLinear(Math.LN2)
+		test.done()
+	},
+
+	'Test TWEEN.interpolation should pass a specific value.'(test: Test): void {
+		const generateArray = (): number[] => {
+			return [0, Math.PI, Math.SQRT2, Math.E]
+		}
+
+		const testInterpolationPath = (
+			interpolation: (v: number[], k: number) => number,
+			values: number[],
+			result: number,
+		) => {
+			toBeCloseTo(test, interpolation(values, Math.LOG10E), result, 14)
+		}
+		testInterpolationPath(TWEEN.Interpolation.Linear, generateArray(), 2.618398122395094)
+		testInterpolationPath(TWEEN.Interpolation.Bezier, generateArray(), 1.985241172928958)
+		testInterpolationPath(TWEEN.Interpolation.CatmullRom, generateArray(), 2.879802635590904)
+		test.done()
+	},
 
 	'Test TWEEN.Tween.chain --with one tween'(test: Test): void {
 		const t = new TWEEN.Tween({}),
