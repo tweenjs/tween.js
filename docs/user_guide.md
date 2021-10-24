@@ -351,6 +351,12 @@ It is great for synchronising to other events or triggering actions you want to 
 
 The tweened object is passed in as the first parameter.
 
+### onStartEvery
+
+As per `onStart`, except that it _will_ be run on every repeat of the tween.
+
+The tweened object is passed in as the first parameter.
+
 ### onStop
 
 Executed when a tween is explicitly stopped via `stop()`, but not when it is completed normally, and before stopping any possible chained tween.
@@ -374,6 +380,115 @@ The tweened object is passed in as the first parameter.
 Executed whenever a tween has just finished one repetition and will begin another.
 
 The tweened object is passed in as the first parameter.
+
+To clarify when `onStart`, `onStartEvery` and `onRepeat` are called, consider:
+
+```javascript
+const obj = {x: 0}
+
+const t = new TWEEN.Tween(obj)
+	.to({x: 5}, 5)
+	.repeat(Infinity)
+	.onStart(() => {
+		console.log('onStart')
+	})
+	.onRepeat(() => {
+		console.log('onRepeat')
+	})
+	.onStartEvery(() => {
+		console.log('onStartEvery')
+	})
+	.start(0)
+
+for (let ticks = 0; ticks < 22; ticks += 1) {
+	console.log('Tick', ticks)
+	TWEEN.update(ticks)
+
+	console.log(obj)
+	console.log()
+}
+```
+
+The output would look like this, on the left as above, and on the right with `.delay(5)`:
+
+```
+Tick 0           Tick 0
+onStart          { x: 0 }
+onStartEvery
+{ x: 0 }
+
+Tick 1           Tick 1
+{ x: 1 }         { x: 0 }
+
+Tick 2           Tick 2
+{ x: 2 }         { x: 0 }
+
+Tick 3           Tick 3
+{ x: 3 }         { x: 0 }
+
+Tick 4           Tick 4
+{ x: 4 }         { x: 0 }
+
+Tick 5           Tick 5
+onRepeat         onStart
+{ x: 5 }         onStartEvery
+                 { x: 0 }
+
+Tick 6           Tick 6
+onStartEvery     { x: 1 }
+{ x: 1 }
+
+Tick 7           Tick 7
+{ x: 2 }         { x: 2 }
+
+Tick 8           Tick 8
+{ x: 3 }         { x: 3 }
+
+Tick 9           Tick 9
+{ x: 4 }         { x: 4 }
+
+Tick 10          Tick 10
+onRepeat         onRepeat
+{ x: 5 }         { x: 5 }
+
+Tick 11          Tick 11
+onStartEvery     { x: 5 }
+{ x: 1 }
+
+Tick 12          Tick 12
+{ x: 2 }         { x: 5 }
+
+Tick 13          Tick 13
+{ x: 3 }         { x: 5 }
+
+Tick 14          Tick 14
+{ x: 4 }         { x: 5 }
+
+Tick 15          Tick 15
+onRepeat         onStartEvery
+{ x: 5 }         { x: 0 }
+
+Tick 16          Tick 16
+onStartEvery     { x: 1 }
+{ x: 1 }
+
+Tick 17          Tick 17
+{ x: 2 }         { x: 2 }
+
+Tick 18          Tick 18
+{ x: 3 }         { x: 3 }
+
+Tick 19          Tick 19
+{ x: 4 }         { x: 4 }
+
+Tick 20          Tick 20
+onRepeat         onRepeat
+{ x: 5 }         { x: 5 }
+
+Tick 21          Tick 21
+onStartEvery     { x: 5 }
+{ x: 1 }
+```
 
 ## Advanced tweening
 
