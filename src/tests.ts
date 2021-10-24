@@ -203,8 +203,8 @@ export const tests = {
 		test.ok(t.onStart() instanceof TWEEN.Tween)
 		test.equal(t.onStart(), t)
 
-		test.ok(t.onStartEvery() instanceof TWEEN.Tween)
-		test.equal(t.onStartEvery(), t)
+		test.ok(t.onEveryStart() instanceof TWEEN.Tween)
+		test.equal(t.onEveryStart(), t)
 
 		test.ok(t.onStop() instanceof TWEEN.Tween)
 		test.equal(t.onStop(), t)
@@ -979,7 +979,7 @@ export const tests = {
 		test.done()
 	},
 
-	'Test TWEEN.Tween.onStartEvery'(test: Test): void {
+	'Test TWEEN.Tween.onEveryStart'(test: Test): void {
 		const obj = {},
 			t = new TWEEN.Tween(obj)
 		let counter = 0
@@ -987,7 +987,7 @@ export const tests = {
 		t.to({x: 2}, 500)
 		t.delay(500)
 		t.repeat(Infinity)
-		t.onStartEvery(function (): void {
+		t.onEveryStart(function (): void {
 			counter++
 		})
 
@@ -995,16 +995,16 @@ export const tests = {
 
 		t.start(0)
 		TWEEN.update(0)
-		test.deepEqual(counter, 0, 'onStartEvery callback not called before delayed start')
+		test.deepEqual(counter, 0, 'onEveryStart callback not called before delayed start')
 
 		TWEEN.update(500)
-		test.deepEqual(counter, 1, 'onStartEvery callback called at delayed start')
+		test.deepEqual(counter, 1, 'onEveryStart callback called at delayed start')
 
 		TWEEN.update(1000)
-		test.deepEqual(counter, 1, 'onStartEvery callback not called before delayed repeat start')
+		test.deepEqual(counter, 1, 'onEveryStart callback not called before delayed repeat start')
 
 		TWEEN.update(1500)
-		test.deepEqual(counter, 2, 'onStartEvery callback called at delayed repeat start')
+		test.deepEqual(counter, 2, 'onEveryStart callback called at delayed repeat start')
 
 		test.done()
 	},

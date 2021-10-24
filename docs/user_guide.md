@@ -351,7 +351,7 @@ It is great for synchronising to other events or triggering actions you want to 
 
 The tweened object is passed in as the first parameter.
 
-### onStartEvery
+### onEveryStart
 
 As per `onStart`, except that it _will_ be run on every repeat of the tween.
 
@@ -381,7 +381,7 @@ Executed whenever a tween has just finished one repetition and will begin anothe
 
 The tweened object is passed in as the first parameter.
 
-To clarify when `onStart`, `onStartEvery` and `onRepeat` are called, consider:
+To clarify when `onStart`, `onEveryStart` and `onRepeat` are called, consider:
 
 ```javascript
 const obj = {x: 0}
@@ -395,8 +395,8 @@ const t = new TWEEN.Tween(obj)
 	.onRepeat(() => {
 		console.log('onRepeat')
 	})
-	.onStartEvery(() => {
-		console.log('onStartEvery')
+	.onEveryStart(() => {
+		console.log('onEveryStart')
 	})
 	.start(0)
 
@@ -414,7 +414,7 @@ The output would look like this, on the left as above, and on the right with `.d
 ```
 Tick 0           Tick 0
 onStart          { x: 0 }
-onStartEvery
+onEveryStart
 { x: 0 }
 
 Tick 1           Tick 1
@@ -431,11 +431,11 @@ Tick 4           Tick 4
 
 Tick 5           Tick 5
 onRepeat         onStart
-{ x: 5 }         onStartEvery
+{ x: 5 }         onEveryStart
                  { x: 0 }
 
 Tick 6           Tick 6
-onStartEvery     { x: 1 }
+onEveryStart     { x: 1 }
 { x: 1 }
 
 Tick 7           Tick 7
@@ -452,7 +452,7 @@ onRepeat         onRepeat
 { x: 5 }         { x: 5 }
 
 Tick 11          Tick 11
-onStartEvery     { x: 5 }
+onEveryStart     { x: 5 }
 { x: 1 }
 
 Tick 12          Tick 12
@@ -465,11 +465,11 @@ Tick 14          Tick 14
 { x: 4 }         { x: 5 }
 
 Tick 15          Tick 15
-onRepeat         onStartEvery
+onRepeat         onEveryStart
 { x: 5 }         { x: 0 }
 
 Tick 16          Tick 16
-onStartEvery     { x: 1 }
+onEveryStart     { x: 1 }
 { x: 1 }
 
 Tick 17          Tick 17
@@ -486,7 +486,7 @@ onRepeat         onRepeat
 { x: 5 }         { x: 5 }
 
 Tick 21          Tick 21
-onStartEvery     { x: 5 }
+onEveryStart     { x: 5 }
 { x: 1 }
 ```
 
