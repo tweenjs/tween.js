@@ -149,7 +149,7 @@ export class Tween<T extends UnknownProps> {
 				endValues = endValues.map(this._handleRelativeValue.bind(this, startValue as number))
 
 				// Create a local copy of the Array with the start value at the front
-				if(_valuesStart[property] === undefined) {
+				if (_valuesStart[property] === undefined) {
 					_valuesEnd[property] = [startValue].concat(endValues)
 				}
 			}
