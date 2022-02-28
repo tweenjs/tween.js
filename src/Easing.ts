@@ -70,13 +70,13 @@ const Easing = {
 	},
 	Sinusoidal: {
 		In: function (amount: number): number {
-			return 1 - Math.cos((amount * Math.PI) / 2)
+			return 1 - Math.sin(((1.0 - amount) * Math.PI) / 2)
 		},
 		Out: function (amount: number): number {
 			return Math.sin((amount * Math.PI) / 2)
 		},
 		InOut: function (amount: number): number {
-			return 0.5 * (1 - Math.cos(Math.PI * amount))
+			return 0.5 * (1 - Math.sin(Math.PI * (0.5 - amount)))
 		},
 	},
 	Exponential: {
@@ -159,11 +159,11 @@ const Easing = {
 	Back: {
 		In: function (amount: number): number {
 			const s = 1.70158
-			return amount * amount * ((s + 1) * amount - s)
+			return amount === 1 ? 1 : amount * amount * ((s + 1) * amount - s)
 		},
 		Out: function (amount: number): number {
 			const s = 1.70158
-			return --amount * amount * ((s + 1) * amount + s) + 1
+			return amount === 0 ? 0 : --amount * amount * ((s + 1) * amount + s) + 1
 		},
 		InOut: function (amount: number): number {
 			const s = 1.70158 * 1.525
@@ -194,6 +194,30 @@ const Easing = {
 			}
 			return Easing.Bounce.Out(amount * 2 - 1) * 0.5 + 0.5
 		},
+	},
+	generatePow: function (
+		power = 4,
+	): {
+		In(amount: number): number
+		Out(amount: number): number
+		InOut(amount: number): number
+	} {
+		power = power < Number.EPSILON ? Number.EPSILON : power
+		power = power > 10000 ? 10000 : power
+		return {
+			In: function (amount: number): number {
+				return amount ** power
+			},
+			Out: function (amount: number): number {
+				return 1 - (1 - amount) ** power
+			},
+			InOut: function (amount: number): number {
+				if (amount < 0.5) {
+					return (amount * 2) ** power / 2
+				}
+				return (1 - (2 - amount * 2) ** power) / 2 + 0.5
+			},
+		}
 	},
 }
 

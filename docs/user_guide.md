@@ -117,7 +117,7 @@ var currentTime = player.currentTime
 TWEEN.update(currentTime)
 ```
 
-We use explicit time values for the unit tests. You can have a look at [tests.js](../test/unit/tests.js) to see how we call TWEEN.update() with different values in order to simulate time passing.
+We use explicit time values for the unit tests. You can have a look at [tests.ts](../src/tests.ts) to see how we call TWEEN.update() with different values in order to simulate time passing.
 
 ## Controlling a tween
 
@@ -277,6 +277,8 @@ There are a few existing easing functions provided with tween.js. They are group
 
 Probably the names won't be saying anything to you unless you're familiar with these concepts already, so it is probably the time to check the [Graphs](../examples/03_graphs.html) example, which graphs all the curves in one page so you can compare how they look at a glance.
 
+TWEEN.Easing also has a function called generatePow(). This function generates easing functions for different curves depending on arguments. You can check the relevance of the arguments to curves in the [example of pow easing](../examples/17_generate_pow.html) page.
+
 _Credit where credit is due:_ these functions are derived from the original set of equations that Robert Penner graciously made available as free software a few years ago, but have been optimised to play nicely with JavaScript.
 
 ### Using a custom easing function
@@ -349,6 +351,12 @@ It is great for synchronising to other events or triggering actions you want to 
 
 The tweened object is passed in as the first parameter.
 
+### onEveryStart
+
+As per `onStart`, except that it _will_ be run on every repeat of the tween.
+
+The tweened object is passed in as the first parameter.
+
 ### onStop
 
 Executed when a tween is explicitly stopped via `stop()`, but not when it is completed normally, and before stopping any possible chained tween.
@@ -372,6 +380,115 @@ The tweened object is passed in as the first parameter.
 Executed whenever a tween has just finished one repetition and will begin another.
 
 The tweened object is passed in as the first parameter.
+
+To clarify when `onStart`, `onEveryStart` and `onRepeat` are called, consider:
+
+```javascript
+const obj = {x: 0}
+
+const t = new TWEEN.Tween(obj)
+	.to({x: 5}, 5)
+	.repeat(Infinity)
+	.onStart(() => {
+		console.log('onStart')
+	})
+	.onRepeat(() => {
+		console.log('onRepeat')
+	})
+	.onEveryStart(() => {
+		console.log('onEveryStart')
+	})
+	.start(0)
+
+for (let ticks = 0; ticks < 22; ticks += 1) {
+	console.log('Tick', ticks)
+	TWEEN.update(ticks)
+
+	console.log(obj)
+	console.log()
+}
+```
+
+The output would look like this, on the left as above, and on the right with `.delay(5)`:
+
+```
+Tick 0           Tick 0
+onStart          { x: 0 }
+onEveryStart
+{ x: 0 }
+
+Tick 1           Tick 1
+{ x: 1 }         { x: 0 }
+
+Tick 2           Tick 2
+{ x: 2 }         { x: 0 }
+
+Tick 3           Tick 3
+{ x: 3 }         { x: 0 }
+
+Tick 4           Tick 4
+{ x: 4 }         { x: 0 }
+
+Tick 5           Tick 5
+onRepeat         onStart
+{ x: 5 }         onEveryStart
+                 { x: 0 }
+
+Tick 6           Tick 6
+onEveryStart     { x: 1 }
+{ x: 1 }
+
+Tick 7           Tick 7
+{ x: 2 }         { x: 2 }
+
+Tick 8           Tick 8
+{ x: 3 }         { x: 3 }
+
+Tick 9           Tick 9
+{ x: 4 }         { x: 4 }
+
+Tick 10          Tick 10
+onRepeat         onRepeat
+{ x: 5 }         { x: 5 }
+
+Tick 11          Tick 11
+onEveryStart     { x: 5 }
+{ x: 1 }
+
+Tick 12          Tick 12
+{ x: 2 }         { x: 5 }
+
+Tick 13          Tick 13
+{ x: 3 }         { x: 5 }
+
+Tick 14          Tick 14
+{ x: 4 }         { x: 5 }
+
+Tick 15          Tick 15
+onRepeat         onEveryStart
+{ x: 5 }         { x: 0 }
+
+Tick 16          Tick 16
+onEveryStart     { x: 1 }
+{ x: 1 }
+
+Tick 17          Tick 17
+{ x: 2 }         { x: 2 }
+
+Tick 18          Tick 18
+{ x: 3 }         { x: 3 }
+
+Tick 19          Tick 19
+{ x: 4 }         { x: 4 }
+
+Tick 20          Tick 20
+onRepeat         onRepeat
+{ x: 5 }         { x: 5 }
+
+Tick 21          Tick 21
+onEveryStart     { x: 5 }
+{ x: 1 }
+```
 
 ## Advanced tweening
 

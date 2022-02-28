@@ -203,6 +203,9 @@ export const tests = {
 		test.ok(t.onStart() instanceof TWEEN.Tween)
 		test.equal(t.onStart(), t)
 
+		test.ok(t.onEveryStart() instanceof TWEEN.Tween)
+		test.equal(t.onEveryStart(), t)
+
 		test.ok(t.onStop() instanceof TWEEN.Tween)
 		test.equal(t.onStop(), t)
 
@@ -630,7 +633,157 @@ export const tests = {
 		test.done()
 	},
 
-	// TODO test interpolation()
+	'Test TWEEN.Easing should starts at 0.0, ends at 1.0. TWEEN.Easing.InOut() should be 0.5 at midpoint'(
+		test: Test,
+	): void {
+		const checkEdgeValue = (ease: EasingFunctionGroup) => {
+			test.equal(ease.In(0.0), 0.0)
+			test.equal(ease.Out(0.0), 0.0)
+			test.equal(ease.InOut(0.0), 0.0)
+
+			test.equal(ease.In(1.0), 1.0)
+			test.equal(ease.Out(1.0), 1.0)
+			test.equal(ease.InOut(1.0), 1.0)
+
+			test.equal(ease.InOut(0.5), 0.5)
+		}
+
+		checkEdgeValue(TWEEN.Easing.Quadratic)
+		checkEdgeValue(TWEEN.Easing.Cubic)
+		checkEdgeValue(TWEEN.Easing.Quartic)
+		checkEdgeValue(TWEEN.Easing.Quintic)
+		checkEdgeValue(TWEEN.Easing.Sinusoidal)
+		checkEdgeValue(TWEEN.Easing.Exponential)
+		checkEdgeValue(TWEEN.Easing.Circular)
+		checkEdgeValue(TWEEN.Easing.Elastic)
+		checkEdgeValue(TWEEN.Easing.Back)
+		checkEdgeValue(TWEEN.Easing.Bounce)
+		test.done()
+	},
+
+	'Test TWEEN.Easing should pass a specific value'(test: Test): void {
+		const checkEasingGroupPassPoints = (
+			easingGroup: EasingFunctionGroup,
+			expects: {In: number; Out: number; InOut: number},
+		) => {
+			checkPassPoint(easingGroup.In, expects.In)
+			checkPassPoint(easingGroup.Out, expects.Out)
+			checkPassPoint(easingGroup.InOut, expects.InOut)
+		}
+		const checkPassPoint = (
+			easeFunc: (amount: number) => number,
+			expect: number,
+			numDigits = 14,
+			amount = Math.LOG10E,
+		) => {
+			toBeCloseTo(test, easeFunc(amount), expect, numDigits)
+		}
+
+		checkEasingGroupPassPoints(TWEEN.Easing.Quadratic, {
+			In: 0.18861169701161393,
+			Out: 0.6799772667948897,
+			InOut: 0.37722339402322785,
+		})
+		checkEasingGroupPassPoints(TWEEN.Easing.Cubic, {
+			In: 0.08191301923455198,
+			Out: 0.8189613739094657,
+			InOut: 0.3276520769382079,
+		})
+		checkEasingGroupPassPoints(TWEEN.Easing.Quartic, {
+			In: 0.035574372249600854,
+			Out: 0.8975854502319308,
+			InOut: 0.28459497799680683,
+		})
+		checkEasingGroupPassPoints(TWEEN.Easing.Quintic, {
+			In: 0.015449753565173821,
+			Out: 0.9420635240628092,
+			InOut: 0.24719605704278114,
+		})
+		checkEasingGroupPassPoints(TWEEN.Easing.Sinusoidal, {
+			In: 0.22380505208857682,
+			Out: 0.630492983971101,
+			InOut: 0.397521402836783,
+		})
+		checkEasingGroupPassPoints(TWEEN.Easing.Exponential, {
+			In: 0.01981785759600918,
+			Out: 0.9507231043886069,
+			InOut: 0.2010867096041978,
+		})
+		checkEasingGroupPassPoints(TWEEN.Easing.Circular, {
+			In: 0.09922905076352173,
+			Out: 0.8246073409780499,
+			InOut: 0.2522333699054974,
+		})
+		checkEasingGroupPassPoints(TWEEN.Easing.Elastic, {
+			In: -0.01701121590548648,
+			Out: 0.9577017895937282,
+			InOut: -0.09523991217687242,
+		})
+		checkEasingGroupPassPoints(TWEEN.Easing.Back, {
+			In: -0.09964331689734113,
+			Out: 1.055453950893486,
+			InOut: 0.19901899530677744,
+		})
+
+		checkEasingGroupPassPoints(TWEEN.Easing.Bounce, {
+			In: 0.24689860443452594,
+			Out: 0.8434464829485027,
+			InOut: 0.43470212148602316,
+		})
+		test.done()
+	},
+
+	'Test TWEEN.interpolation should starts at values[0], ends at values[values.length-1].'(test: Test): void {
+		const generateArray = (): number[] => {
+			return [0, Math.PI, Math.SQRT2, Math.E]
+		}
+
+		const checkStartAndEnd = (interpolation: (v: number[], k: number) => number, values: number[]) => {
+			const originalValue = values.concat()
+			test.equal(interpolation(values, 0.0), originalValue[0])
+			test.equal(interpolation(values, 1.0), originalValue[originalValue.length - 1])
+			test.deepEqual(originalValue, values)
+		}
+
+		const Interpolations = [TWEEN.Interpolation.Linear, TWEEN.Interpolation.Bezier, TWEEN.Interpolation.CatmullRom]
+		Interpolations.forEach(func => {
+			checkStartAndEnd(func, generateArray())
+		})
+		test.done()
+	},
+
+	'Test TWEEN.interpolation.Bezier should return a value equal to Linear if there are two values.'(test: Test): void {
+		const compareToLinear = (k: number) => {
+			const Interpolation = TWEEN.Interpolation
+			const values = [0, Math.E]
+			test.equal(Interpolation.Bezier(values, k), Interpolation.Linear(values, k))
+		}
+
+		compareToLinear(0.0)
+		compareToLinear(0.5)
+		compareToLinear(1.0)
+		compareToLinear(Math.LOG10E)
+		compareToLinear(Math.LN2)
+		test.done()
+	},
+
+	'Test TWEEN.interpolation should pass a specific value.'(test: Test): void {
+		const generateArray = (): number[] => {
+			return [0, Math.PI, Math.SQRT2, Math.E]
+		}
+
+		const testInterpolationPath = (
+			interpolation: (v: number[], k: number) => number,
+			values: number[],
+			result: number,
+		) => {
+			toBeCloseTo(test, interpolation(values, Math.LOG10E), result, 14)
+		}
+		testInterpolationPath(TWEEN.Interpolation.Linear, generateArray(), 2.618398122395094)
+		testInterpolationPath(TWEEN.Interpolation.Bezier, generateArray(), 1.985241172928958)
+		testInterpolationPath(TWEEN.Interpolation.CatmullRom, generateArray(), 2.879802635590904)
+		test.done()
+	},
 
 	'Test TWEEN.Tween.chain --with one tween'(test: Test): void {
 		const t = new TWEEN.Tween({}),
@@ -856,6 +1009,36 @@ export const tests = {
 		TWEEN.update(500)
 
 		test.deepEqual(counter, 1, 'onStart callback is not called again')
+		test.done()
+	},
+
+	'Test TWEEN.Tween.onEveryStart'(test: Test): void {
+		const obj = {},
+			t = new TWEEN.Tween(obj)
+		let counter = 0
+
+		t.to({x: 2}, 500)
+		t.delay(500)
+		t.repeat(Infinity)
+		t.onEveryStart(function (): void {
+			counter++
+		})
+
+		test.deepEqual(counter, 0)
+
+		t.start(0)
+		TWEEN.update(0)
+		test.deepEqual(counter, 0, 'onEveryStart callback not called before delayed start')
+
+		TWEEN.update(500)
+		test.deepEqual(counter, 1, 'onEveryStart callback called at delayed start')
+
+		TWEEN.update(1000)
+		test.deepEqual(counter, 1, 'onEveryStart callback not called before delayed repeat start')
+
+		TWEEN.update(1500)
+		test.deepEqual(counter, 2, 'onEveryStart callback called at delayed repeat start')
+
 		test.done()
 	},
 
@@ -1952,6 +2135,50 @@ export const tests = {
 		test.done()
 	},
 
+	'Test TWEEN.Easing.generatePow(1) equals Linear'(test: Test): void {
+		const ease1 = TWEEN.Easing.generatePow(1)
+
+		const compareWithLinear = (ease: EasingFunctionGroup, amount: number) => {
+			const linearResult = TWEEN.Easing.Linear.None(amount)
+			test.equal(linearResult, ease.In(amount))
+			test.equal(linearResult, ease.Out(amount))
+			test.equal(linearResult, ease.InOut(amount))
+		}
+		compareWithLinear(ease1, 0)
+		compareWithLinear(ease1, 0.25)
+		compareWithLinear(ease1, 0.5)
+		compareWithLinear(ease1, 0.75)
+		compareWithLinear(ease1, 1)
+		compareWithLinear(ease1, -1)
+		compareWithLinear(ease1, Infinity)
+
+		test.done()
+	},
+
+	'Test TWEEN.Easing.generatePow(n) should pass 0.0, 0.5, 1.0'(test: Test): void {
+		const checkEdgeValue = (ease: EasingFunctionGroup) => {
+			test.equal(ease.InOut(0.0), 0.0)
+			test.equal(ease.In(0.0), 0.0)
+			test.equal(ease.Out(0.0), 0.0)
+
+			test.equal(ease.InOut(0.5), 0.5)
+
+			test.equal(ease.InOut(1.0), 1.0)
+			test.equal(ease.In(1.0), 1.0)
+			test.equal(ease.Out(1.0), 1.0)
+		}
+		checkEdgeValue(TWEEN.Easing.generatePow(Number.NEGATIVE_INFINITY))
+		checkEdgeValue(TWEEN.Easing.generatePow(-1.0))
+		checkEdgeValue(TWEEN.Easing.generatePow(1))
+		checkEdgeValue(TWEEN.Easing.generatePow(Math.LOG2E))
+		checkEdgeValue(TWEEN.Easing.generatePow(Math.PI))
+		checkEdgeValue(TWEEN.Easing.generatePow())
+		checkEdgeValue(TWEEN.Easing.generatePow(6))
+		checkEdgeValue(TWEEN.Easing.generatePow(Number.POSITIVE_INFINITY))
+
+		test.done()
+	},
+
 	'Test TWEEN.Tween.update() with no arguments'(test: Test): void {
 		const clock = FakeTimers.install()
 		const targetNow = {x: 0.0}
@@ -1986,4 +2213,21 @@ type Test = {
 	deepEqual(a: unknown, b: unknown, failMessage?: string): void
 	expect(n: number): void
 	done(): void
+}
+
+type EasingFunctionGroup = {
+	In(amount: number): number
+	Out(amount: number): number
+	InOut(amount: number): number
+}
+
+function toBeCloseTo(test: Test, numberA: number, numberB: number, numDigits = 2): void {
+	const diff = Math.abs(numberA - numberB)
+	test.ok(
+		diff < 10 ** -numDigits / 2,
+		`
+actual : ${numberA}
+expect : ${numberB}
+diff : ${diff}`,
+	)
 }
