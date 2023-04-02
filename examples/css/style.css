@@ -11,6 +11,23 @@ h2 {
 	font-weight: normal;
 }
 
+button {
+	cursor: pointer;
+	color: #333;
+	background: #fff;
+	border: 2px solid #333;
+	padding: 10px;
+	border-radius: 10px;
+	font-weight: bold;
+	font-size: 20px;
+	transition: all 150ms ease-out;
+}
+
+button:hover {
+	background: #333;
+	color: #fff;
+}
+
 #info {
 	position: absolute;
 	top: 0;
