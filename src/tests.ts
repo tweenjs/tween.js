@@ -1,5 +1,6 @@
 import * as TWEEN from './Index'
 import * as FakeTimers from '@sinonjs/fake-timers'
+import type {EasingFunctionGroup} from './Easing'
 
 export const tests = {
 	hello(test: Test): void {
@@ -630,6 +631,46 @@ export const tests = {
 		t.start(0)
 		t.update(500)
 		test.equal(obj.x, TWEEN.Easing.Quadratic.In(0.5))
+		test.done()
+	},
+
+	'Test TWEEN.Tween.EasingFunctionGroup should be frozen'(test: Test): void {
+		const replaceEasingFunction = (easingGroup: EasingFunctionGroup) => {
+			const throwsWithReassigned = () => {
+				easingGroup.In = (amount: number) => {
+					return 1.0 + amount
+				}
+				easingGroup.Out = (amount: number) => {
+					return 1.0 + amount
+				}
+				easingGroup.InOut = (amount: number) => {
+					return 1.0 + amount
+				}
+			}
+			test.throws(throwsWithReassigned)
+			test.equal(easingGroup.In(0.0), 0.0)
+			test.equal(easingGroup.Out(0.0), 0.0)
+			test.equal(easingGroup.InOut(0.0), 0.0)
+			test.equal(easingGroup.In(1.0), 1.0)
+			test.equal(easingGroup.Out(1.0), 1.0)
+			test.equal(easingGroup.InOut(1.0), 1.0)
+		}
+
+		const Easing = TWEEN.Easing
+		const easingGroups = [
+			Easing.Quadratic,
+			Easing.Cubic,
+			Easing.Quartic,
+			Easing.Quintic,
+			Easing.Sinusoidal,
+			Easing.Exponential,
+			Easing.Circular,
+			Easing.Elastic,
+			Easing.Back,
+			Easing.Bounce,
+		]
+		easingGroups.forEach(replaceEasingFunction)
+
 		test.done()
 	},
 
@@ -2193,13 +2234,8 @@ type Test = {
 	equal(a: unknown, b: unknown, failMessage?: string): void
 	deepEqual(a: unknown, b: unknown, failMessage?: string): void
 	expect(n: number): void
+	throws(block: unknown, error?: unknown, message?: string): void
 	done(): void
-}
-
-type EasingFunctionGroup = {
-	In(amount: number): number
-	Out(amount: number): number
-	InOut(amount: number): number
 }
 
 function toBeCloseTo(test: Test, numberA: number, numberB: number, numDigits = 2): void {
