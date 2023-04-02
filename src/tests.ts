@@ -1,5 +1,6 @@
 import * as TWEEN from './Index'
 import * as FakeTimers from '@sinonjs/fake-timers'
+import type {EasingFunctionGroup} from './Easing'
 
 export const tests = {
 	hello(test: Test): void {
@@ -634,7 +635,7 @@ export const tests = {
 	},
 
 	'Test TWEEN.Tween.EasingFunctionGroup should be frozen'(test: Test): void {
-		const replaceEasingFunction = (easingGroup: TWEEN.Easing.EasingFunctionGroup) => {
+		const replaceEasingFunction = (easingGroup: EasingFunctionGroup) => {
 			const throwsWithReassigned = () => {
 				easingGroup.In = (amount: number) => {
 					return 1.0 + amount
@@ -676,7 +677,7 @@ export const tests = {
 	'Test TWEEN.Easing should starts at 0.0, ends at 1.0. TWEEN.Easing.InOut() should be 0.5 at midpoint'(
 		test: Test,
 	): void {
-		const checkEdgeValue = (ease: TWEEN.Easing.EasingFunctionGroup) => {
+		const checkEdgeValue = (ease: EasingFunctionGroup) => {
 			test.equal(ease.In(0.0), 0.0)
 			test.equal(ease.Out(0.0), 0.0)
 			test.equal(ease.InOut(0.0), 0.0)
@@ -703,7 +704,7 @@ export const tests = {
 
 	'Test TWEEN.Easing should pass a specific value'(test: Test): void {
 		const checkEasingGroupPassPoints = (
-			easingGroup: TWEEN.Easing.EasingFunctionGroup,
+			easingGroup: EasingFunctionGroup,
 			expects: {In: number; Out: number; InOut: number},
 		) => {
 			checkPassPoint(easingGroup.In, expects.In)
@@ -2145,7 +2146,7 @@ export const tests = {
 	'Test TWEEN.Easing.generatePow(1) equals Linear'(test: Test): void {
 		const ease1 = TWEEN.Easing.generatePow(1)
 
-		const compareWithLinear = (ease: TWEEN.Easing.EasingFunctionGroup, amount: number) => {
+		const compareWithLinear = (ease: EasingFunctionGroup, amount: number) => {
 			const linearResult = TWEEN.Easing.Linear.None(amount)
 			test.equal(linearResult, ease.In(amount))
 			test.equal(linearResult, ease.Out(amount))
@@ -2163,7 +2164,7 @@ export const tests = {
 	},
 
 	'Test TWEEN.Easing.generatePow(n) should pass 0.0, 0.5, 1.0'(test: Test): void {
-		const checkEdgeValue = (ease: TWEEN.Easing.EasingFunctionGroup) => {
+		const checkEdgeValue = (ease: EasingFunctionGroup) => {
 			test.equal(ease.InOut(0.0), 0.0)
 			test.equal(ease.In(0.0), 0.0)
 			test.equal(ease.Out(0.0), 0.0)

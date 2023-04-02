@@ -7,7 +7,7 @@
  * Thank you all, you're awesome!
  */
 
-import * as Easing from './Easing'
+import Easing from './Easing'
 import Interpolation from './Interpolation'
 import {mainGroup} from './mainGroup'
 import Sequence from './Sequence'
