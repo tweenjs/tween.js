@@ -1,62 +1,28 @@
 declare type EasingFunction = (amount: number) => number;
+declare type EasingFunctionGroup = {
+    In: EasingFunction;
+    Out: EasingFunction;
+    InOut: EasingFunction;
+};
 /**
  * The Ease class provides a collection of easing functions for use with tween.js.
  */
-declare const Easing: {
-    Linear: {
-        None: (amount: number) => number;
-    };
-    Quadratic: {
-        In: (amount: number) => number;
-        Out: (amount: number) => number;
-        InOut: (amount: number) => number;
-    };
-    Cubic: {
-        In: (amount: number) => number;
-        Out: (amount: number) => number;
-        InOut: (amount: number) => number;
-    };
-    Quartic: {
-        In: (amount: number) => number;
-        Out: (amount: number) => number;
-        InOut: (amount: number) => number;
-    };
-    Quintic: {
-        In: (amount: number) => number;
-        Out: (amount: number) => number;
-        InOut: (amount: number) => number;
-    };
-    Sinusoidal: {
-        In: (amount: number) => number;
-        Out: (amount: number) => number;
-        InOut: (amount: number) => number;
-    };
-    Exponential: {
-        In: (amount: number) => number;
-        Out: (amount: number) => number;
-        InOut: (amount: number) => number;
-    };
-    Circular: {
-        In: (amount: number) => number;
-        Out: (amount: number) => number;
-        InOut: (amount: number) => number;
-    };
-    Elastic: {
-        In: (amount: number) => number;
-        Out: (amount: number) => number;
-        InOut: (amount: number) => number;
-    };
-    Back: {
-        In: (amount: number) => number;
-        Out: (amount: number) => number;
-        InOut: (amount: number) => number;
-    };
-    Bounce: {
-        In: (amount: number) => number;
-        Out: (amount: number) => number;
-        InOut: (amount: number) => number;
-    };
-};
+declare const Easing: Readonly<{
+    Linear: Readonly<EasingFunctionGroup & {
+        None: EasingFunction;
+    }>;
+    Quadratic: Readonly<EasingFunctionGroup>;
+    Cubic: Readonly<EasingFunctionGroup>;
+    Quartic: Readonly<EasingFunctionGroup>;
+    Quintic: Readonly<EasingFunctionGroup>;
+    Sinusoidal: Readonly<EasingFunctionGroup>;
+    Exponential: Readonly<EasingFunctionGroup>;
+    Circular: Readonly<EasingFunctionGroup>;
+    Elastic: Readonly<EasingFunctionGroup>;
+    Back: Readonly<EasingFunctionGroup>;
+    Bounce: Readonly<EasingFunctionGroup>;
+    generatePow(power?: number): EasingFunctionGroup;
+}>;
 
 /**
  *
@@ -99,6 +65,8 @@ declare class Tween<T extends UnknownProps> {
     private _chainedTweens;
     private _onStartCallback?;
     private _onStartCallbackFired;
+    private _onEveryStartCallback?;
+    private _onEveryStartCallbackFired;
     private _onUpdateCallback?;
     private _onRepeatCallback?;
     private _onCompleteCallback?;
@@ -110,27 +78,29 @@ declare class Tween<T extends UnknownProps> {
     isPlaying(): boolean;
     isPaused(): boolean;
     to(properties: UnknownProps, duration?: number): this;
-    duration(d: number): this;
-    start(time?: number): this;
+    duration(d?: number): this;
+    start(time?: number, overrideStartingValues?: boolean): this;
+    startFromCurrentValues(time?: number): this;
     private _setupProperties;
     stop(): this;
     end(): this;
     pause(time?: number): this;
     resume(time?: number): this;
     stopChainedTweens(): this;
-    group(group: Group): this;
-    delay(amount: number): this;
-    repeat(times: number): this;
-    repeatDelay(amount: number): this;
-    yoyo(yoyo: boolean): this;
-    easing(easingFunction: EasingFunction): this;
-    interpolation(interpolationFunction: InterpolationFunction): this;
-    chain(...tweens: Array<Tween<UnknownProps>>): this;
-    onStart(callback: (object: T) => void): this;
-    onUpdate(callback: (object: T, elapsed: number) => void): this;
-    onRepeat(callback: (object: T) => void): this;
-    onComplete(callback: (object: T) => void): this;
-    onStop(callback: (object: T) => void): this;
+    group(group?: Group): this;
+    delay(amount?: number): this;
+    repeat(times?: number): this;
+    repeatDelay(amount?: number): this;
+    yoyo(yoyo?: boolean): this;
+    easing(easingFunction?: EasingFunction): this;
+    interpolation(interpolationFunction?: InterpolationFunction): this;
+    chain(...tweens: Array<Tween<any>>): this;
+    onStart(callback?: (object: T) => void): this;
+    onEveryStart(callback?: (object: T) => void): this;
+    onUpdate(callback?: (object: T, elapsed: number) => void): this;
+    onRepeat(callback?: (object: T) => void): this;
+    onComplete(callback?: (object: T) => void): this;
+    onStop(callback?: (object: T) => void): this;
     private _goToEnd;
     /**
      * @returns true if the tween is still playing after the update, false
@@ -170,7 +140,7 @@ declare class Sequence {
     static nextId(): number;
 }
 
-declare const VERSION = "18.6.4";
+declare const VERSION = "19.0.0";
 
 declare const nextId: typeof Sequence.nextId;
 declare const getAll: () => Tween<Record<string, any>>[];
@@ -179,61 +149,22 @@ declare const add: (tween: Tween<Record<string, any>>) => void;
 declare const remove: (tween: Tween<Record<string, any>>) => void;
 declare const update: (time?: number, preserve?: boolean) => boolean;
 declare const exports: {
-    Easing: {
-        Linear: {
-            None: (amount: number) => number;
-        };
-        Quadratic: {
-            In: (amount: number) => number;
-            Out: (amount: number) => number;
-            InOut: (amount: number) => number;
-        };
-        Cubic: {
-            In: (amount: number) => number;
-            Out: (amount: number) => number;
-            InOut: (amount: number) => number;
-        };
-        Quartic: {
-            In: (amount: number) => number;
-            Out: (amount: number) => number;
-            InOut: (amount: number) => number;
-        };
-        Quintic: {
-            In: (amount: number) => number;
-            Out: (amount: number) => number;
-            InOut: (amount: number) => number;
-        };
-        Sinusoidal: {
-            In: (amount: number) => number;
-            Out: (amount: number) => number;
-            InOut: (amount: number) => number;
-        };
-        Exponential: {
-            In: (amount: number) => number;
-            Out: (amount: number) => number;
-            InOut: (amount: number) => number;
-        };
-        Circular: {
-            In: (amount: number) => number;
-            Out: (amount: number) => number;
-            InOut: (amount: number) => number;
-        };
-        Elastic: {
-            In: (amount: number) => number;
-            Out: (amount: number) => number;
-            InOut: (amount: number) => number;
-        };
-        Back: {
-            In: (amount: number) => number;
-            Out: (amount: number) => number;
-            InOut: (amount: number) => number;
-        };
-        Bounce: {
-            In: (amount: number) => number;
-            Out: (amount: number) => number;
-            InOut: (amount: number) => number;
-        };
-    };
+    Easing: Readonly<{
+        Linear: Readonly<EasingFunctionGroup & {
+            None: EasingFunction;
+        }>;
+        Quadratic: Readonly<EasingFunctionGroup>;
+        Cubic: Readonly<EasingFunctionGroup>;
+        Quartic: Readonly<EasingFunctionGroup>;
+        Quintic: Readonly<EasingFunctionGroup>;
+        Sinusoidal: Readonly<EasingFunctionGroup>;
+        Exponential: Readonly<EasingFunctionGroup>;
+        Circular: Readonly<EasingFunctionGroup>;
+        Elastic: Readonly<EasingFunctionGroup>;
+        Back: Readonly<EasingFunctionGroup>;
+        Bounce: Readonly<EasingFunctionGroup>;
+        generatePow(power?: number): EasingFunctionGroup;
+    }>;
     Group: typeof Group;
     Interpolation: {
         Linear: (v: number[], k: number) => number;
