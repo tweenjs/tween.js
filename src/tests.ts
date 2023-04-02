@@ -203,6 +203,9 @@ export const tests = {
 		test.ok(t.onStart() instanceof TWEEN.Tween)
 		test.equal(t.onStart(), t)
 
+		test.ok(t.onEveryStart() instanceof TWEEN.Tween)
+		test.equal(t.onEveryStart(), t)
+
 		test.ok(t.onStop() instanceof TWEEN.Tween)
 		test.equal(t.onStop(), t)
 
@@ -1013,6 +1016,36 @@ export const tests = {
 		TWEEN.update(500)
 
 		test.deepEqual(counter, 1, 'onStart callback is not called again')
+		test.done()
+	},
+
+	'Test TWEEN.Tween.onEveryStart'(test: Test): void {
+		const obj = {},
+			t = new TWEEN.Tween(obj)
+		let counter = 0
+
+		t.to({x: 2}, 500)
+		t.delay(500)
+		t.repeat(Infinity)
+		t.onEveryStart(function (): void {
+			counter++
+		})
+
+		test.deepEqual(counter, 0)
+
+		t.start(0)
+		TWEEN.update(0)
+		test.deepEqual(counter, 0, 'onEveryStart callback not called before delayed start')
+
+		TWEEN.update(500)
+		test.deepEqual(counter, 1, 'onEveryStart callback called at delayed start')
+
+		TWEEN.update(1000)
+		test.deepEqual(counter, 1, 'onEveryStart callback not called before delayed repeat start')
+
+		TWEEN.update(1500)
+		test.deepEqual(counter, 2, 'onEveryStart callback called at delayed repeat start')
+
 		test.done()
 	},
 
@@ -2149,6 +2182,20 @@ export const tests = {
 		checkEdgeValue(TWEEN.Easing.generatePow())
 		checkEdgeValue(TWEEN.Easing.generatePow(6))
 		checkEdgeValue(TWEEN.Easing.generatePow(Number.POSITIVE_INFINITY))
+
+		test.done()
+	},
+
+	"Test TWEEN.to(ends) shouldn't grow endless on ends value"(test: Test): void {
+		const target = {y: 0}
+		const ends = {y: [100, 200]}
+		const tween = new TWEEN.Tween(target).to(ends, 1000)
+
+		tween.stop().start(0)
+		tween.stop().start(0)
+
+		TWEEN.update(250)
+		test.equal(target.y, 50)
 
 		test.done()
 	},
