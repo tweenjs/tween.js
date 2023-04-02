@@ -2146,6 +2146,20 @@ export const tests = {
 		test.done()
 	},
 
+	"Test TWEEN.to(ends) shouldn't grow endless on ends value"(test: Test): void {
+		const target = {y: 0}
+		const ends = {y: [100, 200]}
+		const tween = new TWEEN.Tween(target).to(ends, 1000)
+
+		tween.stop().start(0)
+		tween.stop().start(0)
+
+		TWEEN.update(250)
+		test.equal(target.y, 50)
+
+		test.done()
+	},
+
 	'Test TWEEN.Tween.update() with no arguments'(test: Test): void {
 		const clock = FakeTimers.install()
 		const targetNow = {x: 0.0}
