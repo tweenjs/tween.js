@@ -38,9 +38,9 @@
 		"prettier": "prettier './**/*.{js,ts,md,json,html,css}'",
 		"prepare": "npm run build",
 		"version": "npm test && git add .",
-		"release:patch": "npm version patch --message 'v%s' && npm publish && npm run _release:push-branch",
-		"release:minor": "npm version minor --message 'v%s' && npm publish && npm run _release:push-branch",
-		"release:major": "npm version major --message 'v%s' && npm publish && npm run _release:push-branch",
+		"release:patch": "npm run build && npm test && npm version patch --message 'v%s' && npm publish && npm run _release:push-branch",
+		"release:minor": "npm run build && npm test && npm version minor --message 'v%s' && npm publish && npm run _release:push-branch",
+		"release:major": "npm run build && npm test && npm version major --message 'v%s' && npm publish && npm run _release:push-branch",
 		"_release:push-branch": "git push --follow-tags --set-upstream origin `git rev-parse --abbrev-ref HEAD`"
 	},
 	"author": "tween.js contributors (https://github.com/tweenjs/tween.js/graphs/contributors)",
