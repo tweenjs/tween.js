@@ -23,7 +23,6 @@
 		"tween",
 		"interpolation"
 	],
-	"dependencies": {},
 	"scripts": {
 		"dev": "(npm run tsc-watch -- --preserveWatchOutput & p1=$!; npm run rollup-build -- --watch & p2=$!; wait $p1 $p2)",
 		"build": "rimraf dist .tmp && node scripts/write-version.js && npm run tsc && npm run rollup-build",

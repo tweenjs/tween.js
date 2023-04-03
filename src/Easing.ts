@@ -219,6 +219,66 @@ const Easing = {
 			},
 		}
 	},
+	generateExponential: function (
+		// A value of 300 is makes the curve very close to Exponential with its value of 1024.
+		base = 300,
+	): {
+		In(amount: number): number
+		Out(amount: number): number
+		InOut(amount: number): number
+	} {
+		// https://www.desmos.com/calculator/pioplwo3zq
+
+		if (base <= 0) {
+			console.warn(
+				'base should be larger than 0. You might like to try between 20 and 400, maybe more. Setting a default value of 300.',
+			)
+			base = 300
+		}
+
+		function In(amount: number): number {
+			// Start similar to Exponential
+			let expo = base ** (amount - 1)
+
+			// adjust so it hits 0 when amount is 0
+			expo = expo - expo * (1 - amount)
+
+			return expo
+		}
+
+		function Out(amount: number): number {
+			// translate X by 1
+			amount = amount + 1
+
+			// Similar to In, but negate power to make the graph have a negative slope instead of positive.
+			let expo = base ** -(amount - 1)
+
+			// adjust so it hits 1 when amount is 1
+			expo = expo - expo * -(1 - amount)
+
+			// Flip it upside down, move it up by 1.
+			return -expo + 1
+		}
+
+		function InOut(amount: number): number {
+			amount *= 2
+
+			if (amount < 1) return In(amount) / 2
+
+			// Similar to In, but negate power to make the graph have a negative slope instead of positive.
+			let expo = base ** -(amount - 1)
+
+			// adjust so it hits 1 when amount is 1
+			expo = expo - expo * -(1 - amount)
+
+			// Flip it upside down, move it up by 2.
+			expo = -expo + 2
+
+			return expo / 2
+		}
+
+		return {In, Out, InOut}
+	},
 }
 
 export default Easing
