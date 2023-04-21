@@ -191,7 +191,11 @@ Check the [Repeat](../examples/08_repeat.html) example.
 
 ### `yoyo`
 
-This function only has effect if used along with `repeat`. When active, the behaviour of the tween will be _like a yoyo_, i.e. it will bounce to and from the start and end values, instead of just repeating the same sequence from the beginning.
+This function only has effect if used along with `repeat`. When active, the behaviour of the tween will be _like a yoyo_, i.e. it will bounce to and from the start and end values, instead of just repeating the same sequence from the beginning. To turn it on, pass `true`:
+
+```javascript
+tween.yoyo(true)
+```
 
 ### `delay`
 
