@@ -560,7 +560,6 @@ export class Tween<T extends UnknownProps> {
 	}
 }
 
-// eslint-disable-next-line
 export type UnknownProps = Record<string, any>
 
 export default Tween
