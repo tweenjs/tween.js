@@ -135,7 +135,22 @@ The `start` method also accepts a `time` parameter. If you use it, the tween won
 
 ### `update`
 
-Individual tweens also have an `update` method---this is in fact called by `TWEEN.update`. You generally don't need to call this directly, but might be useful if you're doing _crazy hacks_.
+Individual tweens have an `update` method. This is in fact called by `TWEEN.update` for tweens that have been constructed with only one argument.
+
+In the following example, the second argument tells the new Tween not to add itself to the default group (`TWEEN` is an instance of `TWEEN.Group`). If the tween is not associated with a group (note that a group can be associated by passing it in as the second arg to the constructor), then the tween needs to be updated manually using its `updated` method like so:
+
+```js
+const tween = new TWEEN.Tween(someObject, false).to(/*...*/).start()
+
+function animate(time) {
+	tween.update(time)
+	requestAnimationFrame(animate)
+}
+```
+
+_IMPORTANT!_ You don't need to call `tween.update()` directly if you're using `TWEEN.update()` as a way to control all tweens by default, however we recommend that you either [make your own groups of tweens](#controlling-groups-of-tweens) or manually update your tweens directly as in the last example. The concept of using groups or individually-controlled tweens is much like the practice of avoiding use of global variables in your JavaScript code: it prevents one component from accidentally ruining the behavior of some other unrelated component.
+
+Using `TWEEN` to control your tweens is like using globals: and it is only good for simple cases (f.e. small demos, prototypes, etc) but it may not scale well for big apps that may have different parts that need to animate tweens on differing schedules.
 
 ### `chain`
 
@@ -208,9 +223,19 @@ tween.start()
 
 The first iteration of the tween will happen after one second, the second iteration will happen a half second after the first iteration ends, the third iteration will happen a half second after the second iteration ends, etc. If you want to delay the initial iteration but you don't want any delay between iterations, then make sure to call `tween.repeatDelay(0)`.
 
+### `dynamic`
+
+If `dynamic` is set to `true` (it defaults to `false`) objects passed to `tween.to()` can be modified on the outside of a tween while the tween is animating. This can be used to dynamically modify the outcome of a tween while it is running.
+
+See the [Dynamic to](http://tweenjs.github.io/tween.js/examples/07_dynamic_to.html) example. In that example, in both scenes, the position of the rabbit is updated during the animation. The rabbit position happens to be the object passed into the fox's `tween.to()` method. As the rabbit position is updated, in the first scene with `.dynamic(false)` the fox moves towards the initial position of the rabbit and does not chase the rabbit, and in the second scene with `.dynamic(true)` the final destination of the fox is hence also updated which makes the fox chase the rabbit.
+
+See the other `dynamic to` examples for more ideas.
+
+_IMPORTANT!_ When `dynamic` is set to `false`, Tween makes a copy of the object passed into `tween.to()` and will never modify it (hence updating the original object from the outside is not dynamic. When `dynamic` is `true`, Tween uses the original object as the source of values during animation (every update reads the values, hence they can be modified dynamicall) but note that in this mode, Tween will modify any interpolation arrays of the object passed into `tween.to()` which may cause side-effects on any external code that may also rely on the same object.
+
 ## Controlling _all_ the tweens
 
-The following methods are found in the TWEEN global object, and you generally won't need to use most of them, except for `update`.
+The following methods are found in the TWEEN global object, and you generally won't need to use most of them, except for `update`. `TWEEN` is effectively an instance of `TWEEN.Group`, and by default all new Tweens are associated to this global `Group` unless otherwise specified (see the next section on grouping tweens with your own Groups).
 
 ### `TWEEN.update(time)`
 
@@ -593,7 +618,7 @@ var tween = new TWEEN.Tween({top: 0, left: 0}).to({top: 100, left: 100}, 1000).o
 
 If you want to read more about this, have a look at [this article](http://www.paulirish.com/2012/why-moving-elements-with-translate-is-better-than-posabs-topleft/).
 
-However, if your animation needs are _that_ simple, it might be better to just use CSS animations or transitions, where applicable, so that the browser can optimise as much as possible. Tween.js is most useful when your animation needs involve complex arrangements, i.e. you need to sync several tweens together, have some start after one has finished, loop them a number of times, etc.
+However, if your animation needs are _that_ simple, it might be better to just use CSS animations or transitions, where applicable, so that the browser can optimise as much as possible. Tween.js is most useful when your animation needs involve complex arrangements, i.e. you need to sync several tweens together, have some start after one has finished, loop them a number of times, have graphics that are not rendered with CSS but with Canvas or WebGL, etc.
 
 ### Be good to the Garbage collector (alias the GC)
 
