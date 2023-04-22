@@ -148,7 +148,7 @@ function animate(time) {
 }
 ```
 
-_IMPORTANT!_ You don't need to call `tween.update()` directly if you're using `TWEEN.update()` as a way to control all tweens by default, however we recommend that you either [make your own groups of tweens](#controlling-groups-of-tweens) or manually update your tweens directly as in the last example. The concept of using groups or individually-controlled tweens is much like the practice of avoiding use of global variables in your JavaScript code: it prevents one component from accidentally ruining the behavior of some other unrelated component.
+> **Note** You don't need to call `tween.update()` directly if you're using `TWEEN.update()` as a way to control all tweens by default, however we recommend that you either [make your own groups of tweens](#controlling-groups-of-tweens) or manually update your tweens directly as in the last example. The concept of using groups or individually-controlled tweens is much like the practice of avoiding use of global variables in your JavaScript code: it prevents one component from accidentally ruining the behavior of some other unrelated component.
 
 Using `TWEEN` to control your tweens is like using globals: and it is only good for simple cases (f.e. small demos, prototypes, etc) but it may not scale well for big apps that may have different parts that need to animate tweens on differing schedules.
 
@@ -175,7 +175,7 @@ In other cases, you may want to chain multiple tweens to another tween in a way 
 tweenA.chain(tweenB, tweenC)
 ```
 
-> WARNING: Calling `tweenA.chain(tweenB)` actually modifies tweenA so that tweenB is always started when tweenA finishes. The return value of `chain` is just tweenA, not a new tween.
+> **Warning** Calling `tweenA.chain(tweenB)` actually modifies tweenA so that tweenB is always started when tweenA finishes. The return value of `chain` is just tweenA, not a new tween.
 
 ### `repeat`
 
@@ -231,7 +231,7 @@ See the [Dynamic to](http://tweenjs.github.io/tween.js/examples/07_dynamic_to.ht
 
 See the other `dynamic to` examples for more ideas.
 
-_IMPORTANT!_ When `dynamic` is set to `false`, Tween makes a copy of the object passed into `tween.to()` and will never modify it (hence updating the original object from the outside is not dynamic. When `dynamic` is `true`, Tween uses the original object as the source of values during animation (every update reads the values, hence they can be modified dynamicall) but note that in this mode, Tween will modify any interpolation arrays of the object passed into `tween.to()` which may cause side-effects on any external code that may also rely on the same object.
+> **Warning** When `dynamic` is set to `false`, Tween makes a copy of the object passed into `tween.to()` and will never modify it (hence updating the original object from the outside is not dynamic). When `dynamic` is `true`, Tween uses the original object as the source of values during animation (every update reads the values, hence they can be modified dynamically) but note that **in dynamic mode, Tween will modify any interpolation arrays of the object passed into `tween.to()` which may cause side-effects on any external code that may also rely on the same object**.
 
 ## Controlling _all_ the tweens
 
