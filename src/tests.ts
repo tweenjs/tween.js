@@ -1,5 +1,5 @@
+import {tickTime, patchPerformanceNow, restorePerformanceNow} from './test-performance-now-fake'
 import * as TWEEN from './Index'
-import * as FakeTimers from '@sinonjs/fake-timers'
 import type {EasingFunctionGroup} from './Easing'
 
 export const tests = {
@@ -2362,19 +2362,18 @@ export const tests = {
 	},
 
 	'Test TWEEN.Tween.update() with no arguments'(test: Test): void {
-		const clock = FakeTimers.install()
+		patchPerformanceNow()
+
 		const targetNow = {x: 0.0}
 		const targetTime = {x: 0.0}
 
 		const tweenNow = new TWEEN.Tween(targetNow).to({x: 1.0}).start()
 		const tweenTime = new TWEEN.Tween(targetTime).to({x: 1.0}).start(0)
 
-		let currentTime = 0
 		const tick = (time: number) => {
-			currentTime += time
-			clock.tick(time)
+			tickTime(time)
 			tweenNow.update()
-			tweenTime.update(currentTime)
+			tweenTime.update(time)
 			test.equal(targetNow.x, targetTime.x)
 		}
 
@@ -2384,7 +2383,8 @@ export const tests = {
 		tick(100)
 		tick(20000)
 
-		clock.uninstall()
+		restorePerformanceNow()
+
 		test.done()
 	},
 }
