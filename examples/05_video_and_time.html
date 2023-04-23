@@ -9,19 +9,29 @@
 		<div id="info">
 			<h1><a href="http://github.com/tweenjs/tween.js">tween.js</a></h1>
 			<h2>05 _ video and time</h2>
-			<p>Playing a video, synchronizing a tween to it</p>
+			<p>Playing a video, synchronizing a tween to it. <button id="playButton">Play</button></p>
 		</div>
 
-		<div id="target" style="position: absolute; left: 50px; top: 300px; font-size: 100px; letter-spacing: -7px;">
+		<div
+			id="target"
+			style="
+				position: absolute;
+				left: 0px;
+				top: 300px;
+				transform: translateX(50px);
+				font-size: 100px;
+				letter-spacing: -7px;
+			"
+		>
 			<video id="video" src="video/sintel.webm" width="320" height="138"></video>
 		</div>
 
 		<script src="../dist/tween.umd.js"></script>
 		<script src="js/RequestAnimationFrame.js"></script>
-		<script>
+		<script type="module">
 			var video
 
-			window.addEventListener('load', function () {
+			playButton.addEventListener('click', function () {
 				init()
 				animate()
 			})
@@ -54,11 +64,11 @@
 			}
 
 			function animate() {
-				requestAnimationFrame(animate)
-
 				if (video.readyState === video.HAVE_ENOUGH_DATA) {
 					TWEEN.update(video.currentTime)
 				}
+
+				requestAnimationFrame(animate)
 			}
 		</script>
 	</body>

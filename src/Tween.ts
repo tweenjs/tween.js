@@ -24,6 +24,7 @@ export class Tween<T extends UnknownProps> {
 	private _valuesEnd: Record<string, number | string> = {}
 	private _valuesStartRepeat: UnknownProps = {}
 	private _duration = 1000
+	private _isDynamic = false
 	private _initialRepeat = 0
 	private _repeat = 0
 	private _repeatDelayTime?: number
@@ -38,12 +39,15 @@ export class Tween<T extends UnknownProps> {
 	private _chainedTweens: Array<Tween<any>> = []
 	private _onStartCallback?: (object: T) => void
 	private _onStartCallbackFired = false
+	private _onEveryStartCallback?: (object: T) => void
+	private _onEveryStartCallbackFired = false
 	private _onUpdateCallback?: (object: T, elapsed: number) => void
 	private _onRepeatCallback?: (object: T) => void
 	private _onCompleteCallback?: (object: T) => void
 	private _onStopCallback?: (object: T) => void
 	private _id = Sequence.nextId()
 	private _isChainStopped = false
+	private _propertiesAreSetUp = false
 
 	constructor(private _object: T, private _group: Group | false = mainGroup) {}
 
@@ -59,26 +63,28 @@ export class Tween<T extends UnknownProps> {
 		return this._isPaused
 	}
 
-	to(properties: UnknownProps, duration?: number): this {
-		// TODO? restore this, then update the 07_dynamic_to example to set fox
-		// tween's to on each update. That way the behavior is opt-in (there's
-		// currently no opt-out).
-		// for (const prop in properties) this._valuesEnd[prop] = properties[prop]
-		this._valuesEnd = Object.create(properties)
+	to(target: UnknownProps, duration = 1000): this {
+		if (this._isPlaying)
+			throw new Error('Can not call Tween.to() while Tween is already started or paused. Stop the Tween first.')
 
-		if (duration !== undefined) {
-			this._duration = duration
-		}
+		this._valuesEnd = target
+		this._propertiesAreSetUp = false
+		this._duration = duration
 
 		return this
 	}
 
-	duration(d = 1000): this {
-		this._duration = d
+	duration(duration = 1000): this {
+		this._duration = duration
 		return this
 	}
 
-	start(time: number = now()): this {
+	dynamic(dynamic = false): this {
+		this._isDynamic = dynamic
+		return this
+	}
+
+	start(time: number = now(), overrideStartingValues = false): this {
 		if (this._isPlaying) {
 			return this
 		}
@@ -105,15 +111,37 @@ export class Tween<T extends UnknownProps> {
 		this._isPaused = false
 
 		this._onStartCallbackFired = false
+		this._onEveryStartCallbackFired = false
 
 		this._isChainStopped = false
 
 		this._startTime = time
 		this._startTime += this._delayTime
 
-		this._setupProperties(this._object, this._valuesStart, this._valuesEnd, this._valuesStartRepeat)
+		if (!this._propertiesAreSetUp || overrideStartingValues) {
+			this._propertiesAreSetUp = true
+
+			// If dynamic is not enabled, clone the end values instead of using the passed-in end values.
+			if (!this._isDynamic) {
+				const tmp: Record<PropertyKey, string | number> = {}
+				for (const prop in this._valuesEnd) tmp[prop] = this._valuesEnd[prop]
+				this._valuesEnd = tmp
+			}
+
+			this._setupProperties(
+				this._object,
+				this._valuesStart,
+				this._valuesEnd,
+				this._valuesStartRepeat,
+				overrideStartingValues,
+			)
+		}
 
 		return this
+	}
+
+	startFromCurrentValues(time?: number): this {
+		return this.start(time, true)
 	}
 
 	private _setupProperties(
@@ -121,12 +149,13 @@ export class Tween<T extends UnknownProps> {
 		_valuesStart: UnknownProps,
 		_valuesEnd: UnknownProps,
 		_valuesStartRepeat: UnknownProps,
+		overrideStartingValues: boolean,
 	): void {
 		for (const property in _valuesEnd) {
-			const startValue = _object[property]
+			const startValue = _object[property] as number | Record<string, unknown>
 			const startValueIsArray = Array.isArray(startValue)
 			const propType = startValueIsArray ? 'array' : typeof startValue
-			const isInterpolationList = !startValueIsArray && Array.isArray(_valuesEnd[property])
+			let isInterpolationList = !startValueIsArray && Array.isArray(_valuesEnd[property])
 
 			// If `to()` specifies a property that doesn't exist in the source object,
 			// we should not set that property in the object
@@ -136,38 +165,63 @@ export class Tween<T extends UnknownProps> {
 
 			// Check if an Array was provided as property value
 			if (isInterpolationList) {
-				let endValues = _valuesEnd[property] as Array<number | string>
+				const endValues = _valuesEnd[property] as Array<number | string>
 
 				if (endValues.length === 0) {
 					continue
 				}
 
-				// handle an array of relative values
-				endValues = endValues.map(this._handleRelativeValue.bind(this, startValue as number))
+				// Handle an array of relative values.
+				// Creates a local copy of the Array with the start value at the front
+				const temp = [startValue as number]
+				for (let i = 0, l = endValues.length; i < l; i += 1) {
+					const value = this._handleRelativeValue(startValue as number, endValues[i])
+					if (isNaN(value)) {
+						isInterpolationList = false
+						console.warn('Found invalid interpolation list. Skipping.')
+						break
+					}
+					temp.push(value)
+				}
 
-				// Create a local copy of the Array with the start value at the front
-				_valuesEnd[property] = [startValue].concat(endValues)
+				if (isInterpolationList) {
+					// if (_valuesStart[property] === undefined) { // handle end values only the first time. NOT NEEDED? setupProperties is now guarded by _propertiesAreSetUp.
+					_valuesEnd[property] = temp
+					// }
+				}
 			}
 
 			// handle the deepness of the values
 			if ((propType === 'object' || startValueIsArray) && startValue && !isInterpolationList) {
 				_valuesStart[property] = startValueIsArray ? [] : {}
+				const nestedObject = startValue as Record<string, unknown>
 
-				// eslint-disable-next-line
-				for (const prop in startValue as object) {
-					// eslint-disable-next-line
-					// @ts-ignore FIXME?
-					_valuesStart[property][prop] = startValue[prop]
+				for (const prop in nestedObject) {
+					_valuesStart[property][prop] = nestedObject[prop]
 				}
 
-				_valuesStartRepeat[property] = startValueIsArray ? [] : {} // TODO? repeat nested values? And yoyo? And array values?
+				// TODO? repeat nested values? And yoyo? And array values?
+				_valuesStartRepeat[property] = startValueIsArray ? [] : {}
 
-				// eslint-disable-next-line
-				// @ts-ignore FIXME?
-				this._setupProperties(startValue, _valuesStart[property], _valuesEnd[property], _valuesStartRepeat[property])
+				let endValues = _valuesEnd[property]
+
+				// If dynamic is not enabled, clone the end values instead of using the passed-in end values.
+				if (!this._isDynamic) {
+					const tmp: Record<PropertyKey, unknown> = {}
+					for (const prop in endValues) tmp[prop] = endValues[prop]
+					_valuesEnd[property] = endValues = tmp
+				}
+
+				this._setupProperties(
+					nestedObject,
+					_valuesStart[property],
+					endValues,
+					_valuesStartRepeat[property],
+					overrideStartingValues,
+				)
 			} else {
-				// Save the starting value, but only once.
-				if (typeof _valuesStart[property] === 'undefined') {
+				// Save the starting value, but only once unless override is requested.
+				if (typeof _valuesStart[property] === 'undefined' || overrideStartingValues) {
 					_valuesStart[property] = startValue
 				}
 
@@ -304,6 +358,11 @@ export class Tween<T extends UnknownProps> {
 		return this
 	}
 
+	onEveryStart(callback?: (object: T) => void): this {
+		this._onEveryStartCallback = callback
+		return this
+	}
+
 	onUpdate(callback?: (object: T, elapsed: number) => void): this {
 		this._onUpdateCallback = callback
 		return this
@@ -341,7 +400,7 @@ export class Tween<T extends UnknownProps> {
 
 		if (!this._goToEnd && !this._isPlaying) {
 			if (time > endTime) return false
-			if (autoStart) this.start(time)
+			if (autoStart) this.start(time, true)
 		}
 
 		this._goToEnd = false
@@ -356,6 +415,14 @@ export class Tween<T extends UnknownProps> {
 			}
 
 			this._onStartCallbackFired = true
+		}
+
+		if (this._onEveryStartCallbackFired === false) {
+			if (this._onEveryStartCallback) {
+				this._onEveryStartCallback(this._object)
+			}
+
+			this._onEveryStartCallbackFired = true
 		}
 
 		elapsed = (time - this._startTime) / this._duration
@@ -406,6 +473,8 @@ export class Tween<T extends UnknownProps> {
 					this._onRepeatCallback(this._object)
 				}
 
+				this._onEveryStartCallbackFired = false
+
 				return true
 			} else {
 				if (this._onCompleteCallback) {
@@ -415,7 +484,7 @@ export class Tween<T extends UnknownProps> {
 				for (let i = 0, numChainedTweens = this._chainedTweens.length; i < numChainedTweens; i++) {
 					// Make the chained tweens start exactly at the time they should,
 					// even if the `update()` method was called way past the duration of the tween
-					this._chainedTweens[i].start(this._startTime + this._duration)
+					this._chainedTweens[i].start(this._startTime + this._duration, false)
 				}
 
 				this._isPlaying = false
@@ -472,9 +541,9 @@ export class Tween<T extends UnknownProps> {
 
 		if (end.charAt(0) === '+' || end.charAt(0) === '-') {
 			return start + parseFloat(end)
-		} else {
-			return parseFloat(end)
 		}
+
+		return parseFloat(end)
 	}
 
 	private _swapEndStartRepeatValues(property: string): void {
@@ -491,7 +560,6 @@ export class Tween<T extends UnknownProps> {
 	}
 }
 
-// eslint-disable-next-line
 export type UnknownProps = Record<string, any>
 
 export default Tween

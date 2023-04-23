@@ -65,8 +65,8 @@
 
 				tween2 = new TWEEN.Tween(position2).to({x: 500, y: 300, rotation: -90}, 2000).onUpdate(update2)
 
-				tween1.start('+4000')
-				tween2.start('-500')
+				tween1.delay(4000).start()
+				tween2.delay(-500).start()
 			}
 
 			function animate(time) {

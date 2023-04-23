@@ -80,7 +80,7 @@ The one that happens more frequently is the first one, but the second one has ha
 
 ### Unit tests
 
-Tests are in the `test/unit/tests.js` file.
+Tests are in the `src/tests.ts` file.
 
 The tests are executed using [nodeunit](https://www.npmjs.com/package/nodeunit).
 

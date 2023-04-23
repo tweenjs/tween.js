@@ -1,5 +1,6 @@
+import {tickTime, patchPerformanceNow, restorePerformanceNow} from './test-performance-now-fake'
 import * as TWEEN from './Index'
-import * as FakeTimers from '@sinonjs/fake-timers'
+import type {EasingFunctionGroup} from './Easing'
 
 export const tests = {
 	hello(test: Test): void {
@@ -202,6 +203,9 @@ export const tests = {
 
 		test.ok(t.onStart() instanceof TWEEN.Tween)
 		test.equal(t.onStart(), t)
+
+		test.ok(t.onEveryStart() instanceof TWEEN.Tween)
+		test.equal(t.onEveryStart(), t)
 
 		test.ok(t.onStop() instanceof TWEEN.Tween)
 		test.equal(t.onStop(), t)
@@ -549,6 +553,7 @@ export const tests = {
 		const fox = {x: 0, y: 0}
 		const tf = new TWEEN.Tween(fox)
 		tf.to(rabbit, 1000) // fox chase rabbit!
+		tf.dynamic(true)
 		tf.start(0)
 
 		tr.update(200)
@@ -627,6 +632,46 @@ export const tests = {
 		t.start(0)
 		t.update(500)
 		test.equal(obj.x, TWEEN.Easing.Quadratic.In(0.5))
+		test.done()
+	},
+
+	'Test TWEEN.Tween.EasingFunctionGroup should be frozen'(test: Test): void {
+		const replaceEasingFunction = (easingGroup: EasingFunctionGroup) => {
+			const throwsWithReassigned = () => {
+				easingGroup.In = (amount: number) => {
+					return 1.0 + amount
+				}
+				easingGroup.Out = (amount: number) => {
+					return 1.0 + amount
+				}
+				easingGroup.InOut = (amount: number) => {
+					return 1.0 + amount
+				}
+			}
+			test.throws(throwsWithReassigned)
+			test.equal(easingGroup.In(0.0), 0.0)
+			test.equal(easingGroup.Out(0.0), 0.0)
+			test.equal(easingGroup.InOut(0.0), 0.0)
+			test.equal(easingGroup.In(1.0), 1.0)
+			test.equal(easingGroup.Out(1.0), 1.0)
+			test.equal(easingGroup.InOut(1.0), 1.0)
+		}
+
+		const Easing = TWEEN.Easing
+		const easingGroups = [
+			Easing.Quadratic,
+			Easing.Cubic,
+			Easing.Quartic,
+			Easing.Quintic,
+			Easing.Sinusoidal,
+			Easing.Exponential,
+			Easing.Circular,
+			Easing.Elastic,
+			Easing.Back,
+			Easing.Bounce,
+		]
+		easingGroups.forEach(replaceEasingFunction)
+
 		test.done()
 	},
 
@@ -730,7 +775,57 @@ export const tests = {
 		test.done()
 	},
 
-	// TODO test interpolation()
+	'Test TWEEN.interpolation should starts at values[0], ends at values[values.length-1].'(test: Test): void {
+		const generateArray = (): number[] => {
+			return [0, Math.PI, Math.SQRT2, Math.E]
+		}
+
+		const checkStartAndEnd = (interpolation: (v: number[], k: number) => number, values: number[]) => {
+			const originalValue = values.concat()
+			test.equal(interpolation(values, 0.0), originalValue[0])
+			test.equal(interpolation(values, 1.0), originalValue[originalValue.length - 1])
+			test.deepEqual(originalValue, values)
+		}
+
+		const Interpolations = [TWEEN.Interpolation.Linear, TWEEN.Interpolation.Bezier, TWEEN.Interpolation.CatmullRom]
+		Interpolations.forEach(func => {
+			checkStartAndEnd(func, generateArray())
+		})
+		test.done()
+	},
+
+	'Test TWEEN.interpolation.Bezier should return a value equal to Linear if there are two values.'(test: Test): void {
+		const compareToLinear = (k: number) => {
+			const Interpolation = TWEEN.Interpolation
+			const values = [0, Math.E]
+			test.equal(Interpolation.Bezier(values, k), Interpolation.Linear(values, k))
+		}
+
+		compareToLinear(0.0)
+		compareToLinear(0.5)
+		compareToLinear(1.0)
+		compareToLinear(Math.LOG10E)
+		compareToLinear(Math.LN2)
+		test.done()
+	},
+
+	'Test TWEEN.interpolation should pass a specific value.'(test: Test): void {
+		const generateArray = (): number[] => {
+			return [0, Math.PI, Math.SQRT2, Math.E]
+		}
+
+		const testInterpolationPath = (
+			interpolation: (v: number[], k: number) => number,
+			values: number[],
+			result: number,
+		) => {
+			toBeCloseTo(test, interpolation(values, Math.LOG10E), result, 14)
+		}
+		testInterpolationPath(TWEEN.Interpolation.Linear, generateArray(), 2.618398122395094)
+		testInterpolationPath(TWEEN.Interpolation.Bezier, generateArray(), 1.985241172928958)
+		testInterpolationPath(TWEEN.Interpolation.CatmullRom, generateArray(), 2.879802635590904)
+		test.done()
+	},
 
 	'Test TWEEN.Tween.chain --with one tween'(test: Test): void {
 		const t = new TWEEN.Tween({}),
@@ -902,6 +997,39 @@ export const tests = {
 		test.done()
 	},
 
+	'Test TWEEN.Tween.startFromCurrentValues'(test: Test): void {
+		const obj = {x: 0},
+			t = new TWEEN.Tween(obj).to({x: 100})
+
+		TWEEN.removeAll()
+
+		test.equal(obj.x, 0)
+
+		// x == 0
+		t.start(0)
+		TWEEN.update(0)
+
+		test.equal(obj.x, 0)
+
+		TWEEN.update(1500)
+		test.equal(obj.x, 100)
+
+		obj.x = 200
+
+		t.startFromCurrentValues(0)
+
+		TWEEN.update(0)
+		test.equal(obj.x, 200)
+
+		TWEEN.update(500)
+		test.equal(obj.x, 150)
+
+		TWEEN.update(1000)
+		test.equal(obj.x, 100)
+
+		test.done()
+	},
+
 	'Test TWEEN.Tween.onStart'(test: Test): void {
 		const obj = {},
 			t = new TWEEN.Tween(obj)
@@ -923,6 +1051,36 @@ export const tests = {
 		TWEEN.update(500)
 
 		test.deepEqual(counter, 1, 'onStart callback is not called again')
+		test.done()
+	},
+
+	'Test TWEEN.Tween.onEveryStart'(test: Test): void {
+		const obj = {},
+			t = new TWEEN.Tween(obj)
+		let counter = 0
+
+		t.to({x: 2}, 500)
+		t.delay(500)
+		t.repeat(Infinity)
+		t.onEveryStart(function (): void {
+			counter++
+		})
+
+		test.deepEqual(counter, 0)
+
+		t.start(0)
+		TWEEN.update(0)
+		test.deepEqual(counter, 0, 'onEveryStart callback not called before delayed start')
+
+		TWEEN.update(500)
+		test.deepEqual(counter, 1, 'onEveryStart callback called at delayed start')
+
+		TWEEN.update(1000)
+		test.deepEqual(counter, 1, 'onEveryStart callback not called before delayed repeat start')
+
+		TWEEN.update(1500)
+		test.deepEqual(counter, 2, 'onEveryStart callback called at delayed repeat start')
+
 		test.done()
 	},
 
@@ -2058,15 +2216,51 @@ export const tests = {
 		test.done()
 	},
 
-	'Arrays in the object passed to to() are not modified by start().'(test: Test): void {
-		const start = {x: 10, y: 20}
-		const end = {x: 100, y: 200, values: ['a', 'b']}
-		const valuesArray = end.values
+	'Arrays in the object passed to to() are not modified by start() if dynamic is false.'(test: Test): void {
+		const start = {x: 10, y: 20, z: 30}
+		const end = {x: 100, y: 200, z: ['+10', '-10']}
+		const valuesArray = end.z
 		new TWEEN.Tween(start).to(end).start()
-		test.equal(valuesArray, end.values)
-		test.equal(end.values.length, 2)
-		test.equal(end.values[0], 'a')
-		test.equal(end.values[1], 'b')
+		test.equal(valuesArray, end.z)
+		test.equal(end.z.length, 2)
+		test.equal(end.z[0], '+10')
+		test.equal(end.z[1], '-10')
+		test.done()
+	},
+
+	'Arrays in the object passed to to() are modified by start() if dynamic is true.'(test: Test): void {
+		const start = {x: 10, y: 20, z: 30}
+		const end = {x: 100, y: 200, z: ['+10', '-10']}
+		const valuesArray = end.z
+		test.equal(end.z.length, 2)
+		new TWEEN.Tween(start).to(end).dynamic(true).start()
+		test.notEqual(valuesArray, end.z)
+		test.equal(end.z.length, 3)
+		test.equal(end.z[0], 30)
+		test.equal(end.z[1], 40)
+		test.equal(end.z[2], 20)
+		test.done()
+	},
+
+	'Arrays in the object passed to to() are not modified by start() if they are not interpolation arrays, regardless of dynamic.'(
+		test: Test,
+	): void {
+		// eslint-disable-next-line
+		function testWithDynamic(start: any, end: any, dynamic: boolean): void {
+			// const start = {x: 10, y: 20, z: [1, 2]}
+			// const end = {x: 100, y: 200, z: ['a', 'b']}
+			const valuesArray = end.z
+			new TWEEN.Tween(start).to(end).dynamic(dynamic).start()
+			test.equal(valuesArray, end.z)
+			test.equal(end.z.length, 2)
+			test.equal(end.z[0], 'a')
+			test.equal(end.z[1], 'b')
+		}
+
+		testWithDynamic({x: 10, y: 20, z: [1, 2]}, {x: 100, y: 200, z: ['a', 'b']}, true)
+		testWithDynamic({x: 10, y: 20, z: [1, 2]}, {x: 100, y: 200, z: ['a', 'b']}, false)
+		testWithDynamic({x: 10, y: 20, z: 30}, {x: 100, y: 200, z: ['a', 'b']}, true)
+		testWithDynamic({x: 10, y: 20, z: 30}, {x: 100, y: 200, z: ['a', 'b']}, false)
 		test.done()
 	},
 
@@ -2224,20 +2418,167 @@ export const tests = {
 		test.done()
 	},
 
+	'Test TWEEN.Easing.generatePow(1) equals Linear'(test: Test): void {
+		const ease1 = TWEEN.Easing.generatePow(1)
+
+		const compareWithLinear = (ease: EasingFunctionGroup, amount: number) => {
+			const linearResult = TWEEN.Easing.Linear.None(amount)
+			test.equal(linearResult, ease.In(amount))
+			test.equal(linearResult, ease.Out(amount))
+			test.equal(linearResult, ease.InOut(amount))
+		}
+		compareWithLinear(ease1, 0)
+		compareWithLinear(ease1, 0.25)
+		compareWithLinear(ease1, 0.5)
+		compareWithLinear(ease1, 0.75)
+		compareWithLinear(ease1, 1)
+		compareWithLinear(ease1, -1)
+		compareWithLinear(ease1, Infinity)
+
+		test.done()
+	},
+
+	'Test TWEEN.Easing.generatePow(n) should pass 0.0, 0.5, 1.0'(test: Test): void {
+		const checkEdgeValue = (ease: EasingFunctionGroup) => {
+			test.equal(ease.InOut(0.0), 0.0)
+			test.equal(ease.In(0.0), 0.0)
+			test.equal(ease.Out(0.0), 0.0)
+
+			test.equal(ease.InOut(0.5), 0.5)
+
+			test.equal(ease.InOut(1.0), 1.0)
+			test.equal(ease.In(1.0), 1.0)
+			test.equal(ease.Out(1.0), 1.0)
+		}
+		checkEdgeValue(TWEEN.Easing.generatePow(Number.NEGATIVE_INFINITY))
+		checkEdgeValue(TWEEN.Easing.generatePow(-1.0))
+		checkEdgeValue(TWEEN.Easing.generatePow(1))
+		checkEdgeValue(TWEEN.Easing.generatePow(Math.LOG2E))
+		checkEdgeValue(TWEEN.Easing.generatePow(Math.PI))
+		checkEdgeValue(TWEEN.Easing.generatePow())
+		checkEdgeValue(TWEEN.Easing.generatePow(6))
+		checkEdgeValue(TWEEN.Easing.generatePow(Number.POSITIVE_INFINITY))
+
+		test.done()
+	},
+
+	"Test TWEEN.to(ends) shouldn't grow endless on ends value"(test: Test): void {
+		const target = {y: 0}
+		const ends = {y: [100, 200]}
+		const tween = new TWEEN.Tween(target).to(ends, 1000)
+
+		tween.stop().start(0)
+		tween.stop().start(0)
+
+		TWEEN.update(250)
+		test.equal(target.y, 50)
+
+		test.done()
+	},
+
+	'Test TWEEN.Tween.to() with a dynamic target provided as object'(test: Test): void {
+		TWEEN.removeAll()
+
+		const dynamicTargetValue = {x: 5}
+		const chasingValue = {x: 0}
+		const duration = 1000 // must be even
+		const t1 = new TWEEN.Tween(dynamicTargetValue).to({x: 10}, duration),
+			t2 = new TWEEN.Tween(chasingValue).to(dynamicTargetValue, duration).dynamic(true)
+
+		test.equal(TWEEN.getAll().length, 0)
+
+		t1.start(0)
+		t2.start(0)
+		test.notDeepEqual(chasingValue, dynamicTargetValue)
+
+		TWEEN.update(duration / 2, true)
+		test.notDeepEqual(chasingValue, dynamicTargetValue)
+
+		TWEEN.update(duration, true)
+		test.deepEqual(chasingValue, dynamicTargetValue)
+
+		test.done()
+	},
+
+	'Test TWEEN.Tween.to() with a dynamic target provided as array': function (test: Test): void {
+		TWEEN.removeAll()
+
+		const dynamicTargetValue = [5]
+		const chasingValue = [0]
+		const duration = 1000 // must be even
+		const t1 = new TWEEN.Tween(dynamicTargetValue).to([10], duration),
+			t2 = new TWEEN.Tween(chasingValue).to(dynamicTargetValue, duration).dynamic(true)
+
+		test.equal(TWEEN.getAll().length, 0)
+
+		t1.start(0)
+		t2.start(0)
+		test.notDeepEqual(chasingValue, dynamicTargetValue)
+
+		TWEEN.update(duration / 2, true)
+		test.notDeepEqual(chasingValue, dynamicTargetValue)
+
+		TWEEN.update(duration, true)
+		test.deepEqual(chasingValue, dynamicTargetValue)
+
+		test.done()
+	},
+
+	'Test TWEEN.Tween.to() with multiple dynamic targets provided as array': function (test: Test): void {
+		TWEEN.removeAll()
+
+		const dynamicTargetValues = {x: [4, 10, 12, 20]}
+		const chasingValue = {x: 0}
+		const duration = 1000 // must be even
+		const tweens = []
+
+		const observedValues = []
+		for (let i = 0; i < dynamicTargetValues.x.length; i++) {
+			const initialValue = {x: 0}
+			observedValues.push(initialValue)
+			tweens.push(
+				new TWEEN.Tween(initialValue).to({x: dynamicTargetValues.x[i]}, duration).onUpdate(function (object) {
+					// TODO the fact that we need `index + 1` instead of just
+					// `index` here is confusing. It is because Tween adds an
+					// axtra start value at the beginning of the array. Update
+					// Tween so it does not add the start value to the array,
+					// and instead reads it from _valuesStart.
+					dynamicTargetValues.x[i + 1] = object.x
+				}),
+			)
+		}
+
+		const t = new TWEEN.Tween(chasingValue).to(dynamicTargetValues, duration).dynamic(true)
+
+		test.equal(TWEEN.getAll().length, 0)
+
+		tweens.forEach(tween => tween.start(0))
+		t.start(0)
+
+		test.equal(TWEEN.getAll().length, tweens.length + 1)
+
+		for (let i = 0; i < tweens.length; i++) {
+			const progress = ((i + 1) * duration) / tweens.length
+			TWEEN.update(progress, true)
+			test.equal(chasingValue.x, observedValues[i].x)
+		}
+
+		test.done()
+	},
+
 	'Test TWEEN.Tween.update() with no arguments'(test: Test): void {
-		const clock = FakeTimers.install()
+		patchPerformanceNow()
+
 		const targetNow = {x: 0.0}
 		const targetTime = {x: 0.0}
 
 		const tweenNow = new TWEEN.Tween(targetNow).to({x: 1.0}).start()
 		const tweenTime = new TWEEN.Tween(targetTime).to({x: 1.0}).start(0)
 
-		let currentTime = 0
 		const tick = (time: number) => {
-			currentTime += time
-			clock.tick(time)
+			tickTime(time)
 			tweenNow.update()
-			tweenTime.update(currentTime)
+			tweenTime.update(time)
 			test.equal(targetNow.x, targetTime.x)
 		}
 
@@ -2247,7 +2588,8 @@ export const tests = {
 		tick(100)
 		tick(20000)
 
-		clock.uninstall()
+		restorePerformanceNow()
+
 		test.done()
 	},
 }
@@ -2255,15 +2597,12 @@ export const tests = {
 type Test = {
 	ok(a: unknown, failMessage?: string): void
 	equal(a: unknown, b: unknown, failMessage?: string): void
+	notEqual(a: unknown, b: unknown, failMessage?: string): void
 	deepEqual(a: unknown, b: unknown, failMessage?: string): void
+	notDeepEqual(a: unknown, b: unknown, failMessage?: string): void
 	expect(n: number): void
+	throws(block: unknown, error?: unknown, message?: string): void
 	done(): void
-}
-
-type EasingFunctionGroup = {
-	In(amount: number): number
-	Out(amount: number): number
-	InOut(amount: number): number
 }
 
 function toBeCloseTo(test: Test, numberA: number, numberB: number, numDigits = 2): void {
@@ -2276,3 +2615,10 @@ expect : ${numberB}
 diff : ${diff}`,
 	)
 }
+
+// TODO test that starting and stopping a tween multiple times doesn't cause
+// interpolation arrays to modified yet again (and similar with other
+// initialization items). Initialization should happen only once, on first
+// start.
+
+// TODO test onRepeat

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>Tween.js / hello world!</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+		<link href="css/style.css" media="screen" rel="stylesheet" type="text/css" />
+	</head>
+	<body>
+		<div id="info">
+			<h1><a href="http://github.com/tweenjs/tween.js">tween.js</a></h1>
+			<h2>18 _ start from current values</h2>
+			<p>Example for illustrating the startFromCurrentValues() functionality.</p>
+			<button id="start-tween">Start tween</button>
+			<button id="up">↑</button>
+			<button id="down">↓</button>
+			<button id="left">←</button>
+			<button id="right">→</button>
+		</div>
+		<div
+			id="target"
+			style="
+				position: absolute;
+				top: 200px;
+				left: 400px;
+				width: 100px;
+				height: 100px;
+				background: #a0dde9;
+				padding: 1em;
+			"
+		></div>
+
+		<script src="../dist/tween.umd.js"></script>
+		<script src="js/RequestAnimationFrame.js"></script>
+		<script>
+			var position
+			var target
+			var tween, tweenBack
+
+			init()
+			animate()
+
+			function init() {
+				position = {x: 400, y: 200}
+				target = document.getElementById('target')
+				tween = new TWEEN.Tween(position).to({x: 700, y: 200}, 2000).easing(TWEEN.Easing.Elastic.InOut).onUpdate(update)
+
+				document.getElementById('start-tween').addEventListener('click', () => {
+					tween.startFromCurrentValues() // start the tween from its current position
+					animate() // call animate as we unregister the handler if TWEEN.update(time) returns false
+				})
+
+				registerArrowButtonEventListeners()
+			}
+
+			//If we register the callback animate, but the TWEEN.update(time) returns false,
+			//cancel/unregister the handler
+			function animate(time) {
+				var id = requestAnimationFrame(animate)
+
+				var result = TWEEN.update(time)
+
+				if (!result) cancelAnimationFrame(id)
+			}
+
+			function update() {
+				target.style.left = position.x + 'px'
+				target.style.top = position.y + 'px'
+			}
+
+			//Add event listeners to each of the arrow buttons
+			function registerArrowButtonEventListeners() {
+				document.getElementById('up').addEventListener('click', moveUp)
+				document.getElementById('down').addEventListener('click', moveDown)
+				document.getElementById('left').addEventListener('click', moveLeft)
+				document.getElementById('right').addEventListener('click', moveRight)
+			}
+
+			// Arrow button callbacks
+			function moveLeft() {
+				position.x -= 20
+				update()
+			}
+
+			function moveRight() {
+				position.x += 20
+				update()
+			}
+
+			function moveUp() {
+				position.y -= 20
+				update()
+			}
+
+			function moveDown() {
+				position.y += 20
+				update()
+			}
+		</script>
+	</body>
+</html>

@@ -1,5 +1,7 @@
 ## tween 是什么？如何使用？你为什么想用它？
 
+中文用户指南最近更新为 Tween.js v18.5.0
+
 补间(动画)（来自 [in-between](https://en.wikipedia.org/wiki/Inbetweening)）是一个概念，允许你以平滑的方式更改对象的属性。你只需告诉它哪些属性要更改，当补间结束运行时它们应该具有哪些最终值，以及这需要多长时间，补间引擎将负责计算从起始点到结束点的值。
 
 例如，`position`对象拥有`x`和`y`两个坐标:
@@ -117,7 +119,7 @@ var currentTime = player.currentTime
 TWEEN.update(currentTime)
 ```
 
-我们使用明确的时间值进行单元测试。你可以看下 [tests.js](https://github.com/tweenjs/tween.js/blob/master/test/unit/tests.js) 这个例子，看看我们如何用不同的值调用`TWEEN.update()` 来模拟时间传递。
+我们使用明确的时间值进行单元测试。你可以看下 [tests.ts](../src/tests.ts) 这个例子，看看我们如何用不同的值调用`TWEEN.update()` 来模拟时间传递。
 
 ## 控制一个补间
 
