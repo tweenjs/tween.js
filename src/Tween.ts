@@ -347,25 +347,28 @@ export class Tween<T extends UnknownProps> {
 			this._onStartCallbackFired = true
 		}
 
-		const differenceTime = time - this._startTime
+		const elapsedTime = time - this._startTime
 		const durationAndDelay = this._duration + (this._repeatDelayTime ?? this._delayTime)
+		const totalTime = this._duration + this._repeat * durationAndDelay
 
-		const calculateElapsed = () => {
+		const calculateElapsedPortion = () => {
 			if (this._duration === 0) return 1
-			if (differenceTime > this._duration + this._repeat * durationAndDelay) {
+			if (elapsedTime > totalTime) {
 				return 1
 			}
 
-			const repeatTime = Math.trunc(differenceTime / durationAndDelay)
-			const elapsedTime = differenceTime - repeatTime * durationAndDelay
+			const timesRepeated = Math.trunc(elapsedTime / durationAndDelay)
+			const timeIntoCurrentRepeat = elapsedTime - timesRepeated * durationAndDelay
+			// TODO use %?
+			// const timeIntoCurrentRepeat = elapsedTime % durationAndDelay
 
-			const elapsed = Math.min(elapsedTime / this._duration, 1)
-			if (elapsed === 0 && differenceTime === this._duration) {
+			const portion = Math.min(timeIntoCurrentRepeat / this._duration, 1)
+			if (portion === 0 && elapsedTime === this._duration) {
 				return 1
 			}
-			return elapsed
+			return portion
 		}
-		const elapsed = calculateElapsed()
+		const elapsed = calculateElapsedPortion()
 		const value = this._easingFunction(elapsed)
 
 		// properties transformations
@@ -375,12 +378,9 @@ export class Tween<T extends UnknownProps> {
 			this._onUpdateCallback(this._object, elapsed)
 		}
 
-		if (this._duration === 0 || differenceTime >= this._duration) {
+		if (this._duration === 0 || elapsedTime >= this._duration) {
 			if (this._repeat > 0) {
-				const completeCount = Math.min(
-					Math.trunc((differenceTime - this._duration) / durationAndDelay) + 1,
-					this._repeat,
-				)
+				const completeCount = Math.min(Math.trunc((elapsedTime - this._duration) / durationAndDelay) + 1, this._repeat)
 				if (isFinite(this._repeat)) {
 					this._repeat -= completeCount
 				}
