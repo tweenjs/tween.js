@@ -373,7 +373,7 @@ Maintainers: [mikebolt](https://github.com/mikebolt), [sole](https://github.com/
 
 # Projects using tween.js
 
-[![Lume](./assets/projects/11_lume.jpg)](https://lume.io)
+[<img src="./assets/projects/11_lume.jpg" width="100" alt="Lume" />](https://lume.io)
 [![A-Frame VR](https://tweenjs.github.io/tween.js/assets/projects/10_aframe.png)](https://aframe.io)
 [![MOMA Inventing Abstraction 1910-1925](https://tweenjs.github.io/tween.js/assets/projects/09_moma.png)](http://www.moma.org/interactives/exhibitions/2012/inventingabstraction/)
 [![Web Lab](https://tweenjs.github.io/tween.js/assets/projects/08_web_lab.png)](http://www.chromeweblab.com/)
