@@ -1,101 +1,159 @@
 # tween.js
 
-JavaScript tweening engine for easy animations, incorporating optimised Robert Penner's equations.
+JavaScript (TypeScript) tweening engine for easy animations, incorporating optimised Robert Penner's equations.
 
 [![NPM Version][npm-image]][npm-url]
 [![CDNJS][cdnjs-image]][cdnjs-url]
 [![NPM Downloads][downloads-image]][downloads-url]
 [![Build and Tests][ci-image]][ci-url]
 
-**Update Note** In v18 the script you should include has moved from `src/Tween.js` to `dist/tween.umd.js`. See the [installation section](#Installation) below.
-
 ---
 
-```javascript
-const box = document.createElement('div')
-box.style.setProperty('background-color', '#008800')
-box.style.setProperty('width', '100px')
-box.style.setProperty('height', '100px')
-document.body.appendChild(box)
+```html
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/20.0.0/tween.umd.js"></script>
 
-// Setup the animation loop.
-function animate(time) {
+<div id="box"></div>
+
+<style>
+	#box {
+		background-color: deeppink;
+		width: 100px;
+		height: 100px;
+	}
+</style>
+
+<script>
+	const box = document.getElementById('box') // Get the element we want to animate.
+
+	const coords = {x: 0, y: 0} // Start at (0, 0)
+
+	const tween = new TWEEN.Tween(coords, false) // Create a new tween that modifies 'coords'.
+		.to({x: 300, y: 200}, 1000) // Move to (300, 200) in 1 second.
+		.easing(TWEEN.Easing.Quadratic.InOut) // Use an easing function to make the animation smooth.
+		.onUpdate(() => {
+			// Called after tween.js updates 'coords'.
+			// Move 'box' to the position described by 'coords' with a CSS translation.
+			box.style.setProperty('transform', 'translate(' + coords.x + 'px, ' + coords.y + 'px)')
+		})
+		.start() // Start the tween immediately.
+
+	// Setup the animation loop.
+	function animate(time) {
+		tween.update(time)
+		requestAnimationFrame(animate)
+	}
 	requestAnimationFrame(animate)
-	TWEEN.update(time)
-}
-requestAnimationFrame(animate)
-
-const coords = {x: 0, y: 0} // Start at (0, 0)
-const tween = new TWEEN.Tween(coords) // Create a new tween that modifies 'coords'.
-	.to({x: 300, y: 200}, 1000) // Move to (300, 200) in 1 second.
-	.easing(TWEEN.Easing.Quadratic.Out) // Use an easing function to make the animation smooth.
-	.onUpdate(() => {
-		// Called after tween.js updates 'coords'.
-		// Move 'box' to the position described by 'coords' with a CSS translation.
-		box.style.setProperty('transform', `translate(${coords.x}px, ${coords.y}px)`)
-	})
-	.start() // Start the tween immediately.
+</script>
 ```
 
-[Test it with CodePen](https://codepen.io/mikebolt/pen/zzzvZg)
+[Try this example on CodePen](https://codepen.io/trusktr/pen/KKGaBVz?editors=1000)
 
-## Installation
+# Installation
+
+## From CDN
+
+Install from a content-delivery network (CDN) like in the above example.
+
+From cdnjs:
+
+```html
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/20.0.0/tween.umd.js"></script>
+```
+
+Or from unpkg.com:
+
+```html
+<script src="https://unpkg.com/@tweenjs/tween.js@^20.0.0/dist/tween.umd.js"></script>
+```
+
+Note that unpkg.com supports a semver version in the URL, where the `^` in the URL tells unpkg to give you the latest version 20.x.x.
+
+## Build and include in your project with script tag
 
 Currently npm is required to build the project.
 
 ```bash
 git clone https://github.com/tweenjs/tween.js
 cd tween.js
-npm i .
+npm install
 npm run build
 ```
 
-This will create some builds in the `dist` directory. There are currently four different builds of the library:
+This will create some builds in the `dist` directory. There are currently two different builds of the library:
 
-- UMD : tween.umd.js
-- AMD : tween.amd.js
-- CommonJS : tween.cjs.js
-- ES6 Module : tween.es.js
+- UMD : `tween.umd.js`
+- ES6 Module : `tween.es.js`
 
 You are now able to copy tween.umd.js into your project, then include it with
-a script tag. This will add TWEEN to the global scope.
+a script tag, which will add TWEEN to the global scope,
 
 ```html
-<script src="js/tween.umd.js"></script>
+<script src="path/to/tween.umd.js"></script>
 ```
 
-### With `require('@tweenjs/tween.js')`
+or import TWEEN as a JavaScript module,
+
+```html
+<script type="module">
+	import * as TWEEN from 'path/to/tween.es.js'
+</script>
+```
+
+where `path/to` is replaced with the location where you placed the file.
+
+## With `npm install` and `import` from `node_modules`
 
 You can add tween.js as an npm dependency:
 
 ```bash
-npm i @tweenjs/tween.js@^18
+npm install @tweenjs/tween.js
 ```
 
-If you are using Node, Webpack, or Browserify, then you can now use the following to include tween.js:
+### With a build tool
+
+If you are using [Node.js](https://nodejs.org/), [Parcel](https://parceljs.org/), [Webpack](https://webpack.js.org/), [Rollup](https://rollupjs.org/), [Vite](https://vitejs.dev/), or another build tool, then you can now use the following to include tween.js:
 
 ```javascript
-const TWEEN = require('@tweenjs/tween.js')
+import * as TWEEN from '@tweenjs/tween.js'
 ```
 
-## Features
+### Without a build tool
+
+You can import from `node_modules` if you serve node_modules as part of your website, using an `importmap` script tag. First, assuming `node_modules` is at the root of your website, you can write an import map:
+
+```html
+<script type="importmap">
+	{
+		"imports": {
+			"@tweenjs/tween.js": "/node_modules/@tweenjs/tween.js/dist/tween.es.js"
+		}
+	}
+</script>
+```
+
+Now in any of your module scripts you can import it by its package name:
+
+```javascript
+import * as TWEEN from '@tweenjs/tween.js'
+```
+
+# Features
 
 - Does one thing and one thing only: tween properties
 - Doesn't take care of CSS units (e.g. appending `px`)
-- Doesn't interpolate colours
+- Doesn't interpolate colors
 - Easing functions are reusable outside of Tween
 - Can also use custom easing functions
 
-## Documentation
+# Documentation
 
 - [User guide](./docs/user_guide.md)
 - [Contributor guide](./docs/contributor_guide.md)
 - [Tutorial](http://learningthreejs.com/blog/2011/08/17/tweenjs-for-smooth-animation/) using tween.js with three.js
 - Also: [libtween](https://github.com/jsm174/libtween), a port of tween.js to C by [jsm174](https://github.com/jsm174)
-- Also: [es6-tween](https://github.com/tweenjs/es6-tween), a port of tween.js to ES6/Harmony by [dalisoft](https://github.com/dalisoft)
 - [Understanding tween.js](https://mikebolt.me/article/understanding-tweenjs.html)
 
-## Examples
+# Examples
 
 <table>
 	<tr>
@@ -291,9 +349,9 @@ const TWEEN = require('@tweenjs/tween.js')
 	</tr>
 </table>
 
-## Tests
+# Tests
 
-You need to install `npm` first--this comes with node.js, so install that one first. Then, cd to `tween.js`'s directory and run:
+You need to install `npm` first--this comes with node.js, so install that one first. Then, cd to `tween.js`'s (or wherever you cloned the repo) directory and run:
 
 ```bash
 npm install
@@ -305,16 +363,17 @@ To run the tests run:
 npm test
 ```
 
-If you want to add any feature or change existing features, you _must_ run the tests to make sure you didn't break anything else. Any pull request (PR) needs to have updated passing tests for feature changes (or new passing tests for new features) in `src/tests.ts`, otherwise the PR won't be accepted. See [contributing](CONTRIBUTING.md) for more information.
+If you want to add any feature or change existing features, you _must_ run the tests to make sure you didn't break anything else. Any pull request (PR) needs to have updated passing tests for feature changes (or new passing tests for new features or fixes) in `src/tests.ts` a PR to be accepted. See [contributing](CONTRIBUTING.md) for more information.
 
-## People
+# People
 
 Maintainers: [mikebolt](https://github.com/mikebolt), [sole](https://github.com/sole), [Joe Pea (@trusktr)](https://github.com/trusktr).
 
 [All contributors](http://github.com/tweenjs/tween.js/contributors).
 
-## Projects using tween.js
+# Projects using tween.js
 
+[![Lume](./assets/projects/11_lume.jpg)](https://lume.io)
 [![A-Frame VR](https://tweenjs.github.io/tween.js/assets/projects/10_aframe.png)](https://aframe.io)
 [![MOMA Inventing Abstraction 1910-1925](https://tweenjs.github.io/tween.js/assets/projects/09_moma.png)](http://www.moma.org/interactives/exhibitions/2012/inventingabstraction/)
 [![Web Lab](https://tweenjs.github.io/tween.js/assets/projects/08_web_lab.png)](http://www.chromeweblab.com/)
