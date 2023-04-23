@@ -1,4 +1,4 @@
-define(['exports'], function (exports) { 'use strict';
+define(['exports'], (function (exports) { 'use strict';
 
     /**
      * The Ease class provides a collection of easing functions for use with tween.js.
@@ -215,37 +215,7 @@ define(['exports'], function (exports) { 'use strict';
         },
     });
 
-    var now;
-    // Include a performance.now polyfill.
-    // In node.js, use process.hrtime.
-    // eslint-disable-next-line
-    // @ts-ignore
-    if (typeof self === 'undefined' && typeof process !== 'undefined' && process.hrtime) {
-        now = function () {
-            // eslint-disable-next-line
-            // @ts-ignore
-            var time = process.hrtime();
-            // Convert [seconds, nanoseconds] to milliseconds.
-            return time[0] * 1000 + time[1] / 1000000;
-        };
-    }
-    // In a browser, use self.performance.now if it is available.
-    else if (typeof self !== 'undefined' && self.performance !== undefined && self.performance.now !== undefined) {
-        // This must be bound, because directly assigning this function
-        // leads to an invocation exception in Chrome.
-        now = self.performance.now.bind(self.performance);
-    }
-    // Use Date.now if it is available.
-    else if (Date.now !== undefined) {
-        now = Date.now;
-    }
-    // Otherwise, use 'new Date().getTime()'.
-    else {
-        now = function () {
-            return new Date().getTime();
-        };
-    }
-    var now$1 = now;
+    var now = function () { return performance.now(); };
 
     /**
      * Controlling groups of tweens
@@ -276,7 +246,7 @@ define(['exports'], function (exports) { 'use strict';
             delete this._tweensAddedDuringUpdate[tween.getId()];
         };
         Group.prototype.update = function (time, preserve) {
-            if (time === void 0) { time = now$1(); }
+            if (time === void 0) { time = now(); }
             if (preserve === void 0) { preserve = false; }
             var tweenIds = Object.keys(this._tweens);
             if (tweenIds.length === 0) {
@@ -417,6 +387,7 @@ define(['exports'], function (exports) { 'use strict';
             this._valuesEnd = {};
             this._valuesStartRepeat = {};
             this._duration = 1000;
+            this._isDynamic = false;
             this._initialRepeat = 0;
             this._repeat = 0;
             this._yoyo = false;
@@ -432,6 +403,7 @@ define(['exports'], function (exports) { 'use strict';
             this._onEveryStartCallbackFired = false;
             this._id = Sequence.nextId();
             this._isChainStopped = false;
+            this._propertiesAreSetUp = false;
             this._goToEnd = false;
         }
         Tween.prototype.getId = function () {
@@ -443,24 +415,27 @@ define(['exports'], function (exports) { 'use strict';
         Tween.prototype.isPaused = function () {
             return this._isPaused;
         };
-        Tween.prototype.to = function (properties, duration) {
-            // TODO? restore this, then update the 07_dynamic_to example to set fox
-            // tween's to on each update. That way the behavior is opt-in (there's
-            // currently no opt-out).
-            // for (const prop in properties) this._valuesEnd[prop] = properties[prop]
-            this._valuesEnd = Object.create(properties);
-            if (duration !== undefined) {
-                this._duration = duration;
-            }
+        Tween.prototype.to = function (target, duration) {
+            if (duration === void 0) { duration = 1000; }
+            if (this._isPlaying)
+                throw new Error('Can not call Tween.to() while Tween is already started or paused. Stop the Tween first.');
+            this._valuesEnd = target;
+            this._propertiesAreSetUp = false;
+            this._duration = duration;
             return this;
         };
-        Tween.prototype.duration = function (d) {
-            if (d === void 0) { d = 1000; }
-            this._duration = d;
+        Tween.prototype.duration = function (duration) {
+            if (duration === void 0) { duration = 1000; }
+            this._duration = duration;
+            return this;
+        };
+        Tween.prototype.dynamic = function (dynamic) {
+            if (dynamic === void 0) { dynamic = false; }
+            this._isDynamic = dynamic;
             return this;
         };
         Tween.prototype.start = function (time, overrideStartingValues) {
-            if (time === void 0) { time = now$1(); }
+            if (time === void 0) { time = now(); }
             if (overrideStartingValues === void 0) { overrideStartingValues = false; }
             if (this._isPlaying) {
                 return this;
@@ -484,7 +459,17 @@ define(['exports'], function (exports) { 'use strict';
             this._isChainStopped = false;
             this._startTime = time;
             this._startTime += this._delayTime;
-            this._setupProperties(this._object, this._valuesStart, this._valuesEnd, this._valuesStartRepeat, overrideStartingValues);
+            if (!this._propertiesAreSetUp || overrideStartingValues) {
+                this._propertiesAreSetUp = true;
+                // If dynamic is not enabled, clone the end values instead of using the passed-in end values.
+                if (!this._isDynamic) {
+                    var tmp = {};
+                    for (var prop in this._valuesEnd)
+                        tmp[prop] = this._valuesEnd[prop];
+                    this._valuesEnd = tmp;
+                }
+                this._setupProperties(this._object, this._valuesStart, this._valuesEnd, this._valuesStartRepeat, overrideStartingValues);
+            }
             return this;
         };
         Tween.prototype.startFromCurrentValues = function (time) {
@@ -507,26 +492,42 @@ define(['exports'], function (exports) { 'use strict';
                     if (endValues.length === 0) {
                         continue;
                     }
-                    // handle an array of relative values
-                    endValues = endValues.map(this._handleRelativeValue.bind(this, startValue));
-                    // Create a local copy of the Array with the start value at the front
-                    if (_valuesStart[property] === undefined) {
-                        _valuesEnd[property] = [startValue].concat(endValues);
+                    // Handle an array of relative values.
+                    // Creates a local copy of the Array with the start value at the front
+                    var temp = [startValue];
+                    for (var i = 0, l = endValues.length; i < l; i += 1) {
+                        var value = this._handleRelativeValue(startValue, endValues[i]);
+                        if (isNaN(value)) {
+                            isInterpolationList = false;
+                            console.warn('Found invalid interpolation list. Skipping.');
+                            break;
+                        }
+                        temp.push(value);
+                    }
+                    if (isInterpolationList) {
+                        // if (_valuesStart[property] === undefined) { // handle end values only the first time. NOT NEEDED? setupProperties is now guarded by _propertiesAreSetUp.
+                        _valuesEnd[property] = temp;
+                        // }
                     }
                 }
                 // handle the deepness of the values
                 if ((propType === 'object' || startValueIsArray) && startValue && !isInterpolationList) {
                     _valuesStart[property] = startValueIsArray ? [] : {};
-                    // eslint-disable-next-line
-                    for (var prop in startValue) {
-                        // eslint-disable-next-line
-                        // @ts-ignore FIXME?
-                        _valuesStart[property][prop] = startValue[prop];
+                    var nestedObject = startValue;
+                    for (var prop in nestedObject) {
+                        _valuesStart[property][prop] = nestedObject[prop];
                     }
-                    _valuesStartRepeat[property] = startValueIsArray ? [] : {}; // TODO? repeat nested values? And yoyo? And array values?
-                    // eslint-disable-next-line
-                    // @ts-ignore FIXME?
-                    this._setupProperties(startValue, _valuesStart[property], _valuesEnd[property], _valuesStartRepeat[property], overrideStartingValues);
+                    // TODO? repeat nested values? And yoyo? And array values?
+                    _valuesStartRepeat[property] = startValueIsArray ? [] : {};
+                    var endValues = _valuesEnd[property];
+                    // If dynamic is not enabled, clone the end values instead of using the passed-in end values.
+                    if (!this._isDynamic) {
+                        var tmp = {};
+                        for (var prop in endValues)
+                            tmp[prop] = endValues[prop];
+                        _valuesEnd[property] = endValues = tmp;
+                    }
+                    this._setupProperties(nestedObject, _valuesStart[property], endValues, _valuesStartRepeat[property], overrideStartingValues);
                 }
                 else {
                     // Save the starting value, but only once unless override is requested.
@@ -572,7 +573,7 @@ define(['exports'], function (exports) { 'use strict';
             return this;
         };
         Tween.prototype.pause = function (time) {
-            if (time === void 0) { time = now$1(); }
+            if (time === void 0) { time = now(); }
             if (this._isPaused || !this._isPlaying) {
                 return this;
             }
@@ -583,7 +584,7 @@ define(['exports'], function (exports) { 'use strict';
             return this;
         };
         Tween.prototype.resume = function (time) {
-            if (time === void 0) { time = now$1(); }
+            if (time === void 0) { time = now(); }
             if (!this._isPaused || !this._isPlaying) {
                 return this;
             }
@@ -674,7 +675,7 @@ define(['exports'], function (exports) { 'use strict';
          * it is still playing, just paused).
          */
         Tween.prototype.update = function (time, autoStart) {
-            if (time === void 0) { time = now$1(); }
+            if (time === void 0) { time = now(); }
             if (autoStart === void 0) { autoStart = true; }
             if (this._isPaused)
                 return true;
@@ -797,9 +798,7 @@ define(['exports'], function (exports) { 'use strict';
             if (end.charAt(0) === '+' || end.charAt(0) === '-') {
                 return start + parseFloat(end);
             }
-            else {
-                return parseFloat(end);
-            }
+            return parseFloat(end);
         };
         Tween.prototype._swapEndStartRepeatValues = function (property) {
             var tmp = this._valuesStartRepeat[property];
@@ -815,7 +814,7 @@ define(['exports'], function (exports) { 'use strict';
         return Tween;
     }());
 
-    var VERSION = '19.0.0';
+    var VERSION = '20.0.0';
 
     /**
      * Tween.js - Licensed under the MIT license
@@ -846,7 +845,7 @@ define(['exports'], function (exports) { 'use strict';
         Easing: Easing,
         Group: Group,
         Interpolation: Interpolation,
-        now: now$1,
+        now: now,
         Sequence: Sequence,
         nextId: nextId,
         Tween: Tween,
@@ -868,11 +867,11 @@ define(['exports'], function (exports) { 'use strict';
     exports.default = exports$1;
     exports.getAll = getAll;
     exports.nextId = nextId;
-    exports.now = now$1;
+    exports.now = now;
     exports.remove = remove;
     exports.removeAll = removeAll;
     exports.update = update;
 
     Object.defineProperty(exports, '__esModule', { value: true });
 
-});
+}));

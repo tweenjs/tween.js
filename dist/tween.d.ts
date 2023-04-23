@@ -1,5 +1,5 @@
-declare type EasingFunction = (amount: number) => number;
-declare type EasingFunctionGroup = {
+type EasingFunction = (amount: number) => number;
+type EasingFunctionGroup = {
     In: EasingFunction;
     Out: EasingFunction;
     InOut: EasingFunction;
@@ -27,7 +27,7 @@ declare const Easing: Readonly<{
 /**
  *
  */
-declare type InterpolationFunction = (v: number[], k: number) => number;
+type InterpolationFunction = (v: number[], k: number) => number;
 /**
  *
  */
@@ -43,6 +43,31 @@ declare const Interpolation: {
     };
 };
 
+/**
+ * Controlling groups of tweens
+ *
+ * Using the TWEEN singleton to manage your tweens can cause issues in large apps with many components.
+ * In these cases, you may want to create your own smaller groups of tween
+ */
+declare class Group {
+    private _tweens;
+    private _tweensAddedDuringUpdate;
+    getAll(): Array<Tween<UnknownProps>>;
+    removeAll(): void;
+    add(tween: Tween<UnknownProps>): void;
+    remove(tween: Tween<UnknownProps>): void;
+    update(time?: number, preserve?: boolean): boolean;
+}
+
+/**
+ * Tween.js - Licensed under the MIT license
+ * https://github.com/tweenjs/tween.js
+ * ----------------------------------------------
+ *
+ * See https://github.com/tweenjs/tween.js/graphs/contributors for the full list of contributors.
+ * Thank you all, you're awesome!
+ */
+
 declare class Tween<T extends UnknownProps> {
     private _object;
     private _group;
@@ -52,6 +77,7 @@ declare class Tween<T extends UnknownProps> {
     private _valuesEnd;
     private _valuesStartRepeat;
     private _duration;
+    private _isDynamic;
     private _initialRepeat;
     private _repeat;
     private _repeatDelayTime?;
@@ -73,12 +99,14 @@ declare class Tween<T extends UnknownProps> {
     private _onStopCallback?;
     private _id;
     private _isChainStopped;
+    private _propertiesAreSetUp;
     constructor(_object: T, _group?: Group | false);
     getId(): number;
     isPlaying(): boolean;
     isPaused(): boolean;
-    to(properties: UnknownProps, duration?: number): this;
-    duration(d?: number): this;
+    to(target: UnknownProps, duration?: number): this;
+    duration(duration?: number): this;
+    dynamic(dynamic?: boolean): this;
     start(time?: number, overrideStartingValues?: boolean): this;
     startFromCurrentValues(time?: number): this;
     private _setupProperties;
@@ -112,25 +140,9 @@ declare class Tween<T extends UnknownProps> {
     private _handleRelativeValue;
     private _swapEndStartRepeatValues;
 }
-declare type UnknownProps = Record<string, any>;
+type UnknownProps = Record<string, any>;
 
-/**
- * Controlling groups of tweens
- *
- * Using the TWEEN singleton to manage your tweens can cause issues in large apps with many components.
- * In these cases, you may want to create your own smaller groups of tween
- */
-declare class Group {
-    private _tweens;
-    private _tweensAddedDuringUpdate;
-    getAll(): Array<Tween<UnknownProps>>;
-    removeAll(): void;
-    add(tween: Tween<UnknownProps>): void;
-    remove(tween: Tween<UnknownProps>): void;
-    update(time?: number, preserve?: boolean): boolean;
-}
-
-declare let now: () => number;
+declare const now: () => number;
 
 /**
  * Utils
@@ -140,14 +152,15 @@ declare class Sequence {
     static nextId(): number;
 }
 
-declare const VERSION = "19.0.0";
+declare const VERSION = "20.0.0";
 
 declare const nextId: typeof Sequence.nextId;
-declare const getAll: () => Tween<Record<string, any>>[];
+declare const getAll: () => Tween<UnknownProps>[];
 declare const removeAll: () => void;
-declare const add: (tween: Tween<Record<string, any>>) => void;
-declare const remove: (tween: Tween<Record<string, any>>) => void;
+declare const add: (tween: Tween<UnknownProps>) => void;
+declare const remove: (tween: Tween<UnknownProps>) => void;
 declare const update: (time?: number, preserve?: boolean) => boolean;
+
 declare const exports: {
     Easing: Readonly<{
         Linear: Readonly<EasingFunctionGroup & {
@@ -182,12 +195,11 @@ declare const exports: {
     nextId: typeof Sequence.nextId;
     Tween: typeof Tween;
     VERSION: string;
-    getAll: () => Tween<Record<string, any>>[];
+    getAll: () => Tween<UnknownProps>[];
     removeAll: () => void;
-    add: (tween: Tween<Record<string, any>>) => void;
-    remove: (tween: Tween<Record<string, any>>) => void;
+    add: (tween: Tween<UnknownProps>) => void;
+    remove: (tween: Tween<UnknownProps>) => void;
     update: (time?: number, preserve?: boolean) => boolean;
 };
 
-export default exports;
-export { Easing, Group, Interpolation, Sequence, Tween, VERSION, add, getAll, nextId, now, remove, removeAll, update };
+export { Easing, Group, Interpolation, Sequence, Tween, VERSION, add, exports as default, getAll, nextId, now, remove, removeAll, update };
