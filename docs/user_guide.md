@@ -131,7 +131,15 @@ tween.stop();
 
 Stopping a tween that was never started or that has already been stopped has no effect. No errors are thrown either.
 
-The `start` method also accepts a `time` parameter. If you use it, the tween won't start until that particular moment in time; otherwise it will start as soon as possible (i.e. on the next call to `TWEEN.update`).
+The `start` method also accepts a `time` argument. If you use it, the tween won't start until that particular moment in time; otherwise it will start as soon as possible (i.e. on the next call to `TWEEN.update`).
+
+The `start` method accepts a second boolean argument: when `true`, a tween that we previously used will start from the values in the target object, instead of starting from the beginning. Useful for stopping a tween, then starting another one that will continue from the current location.
+
+### `startFromCurrentValues`
+
+This is an alias for `tween.start(undefined, true)`, to make a previously-used
+tween start from the last values of the target object, instead of from the
+beginning.
 
 ### `update`
 
