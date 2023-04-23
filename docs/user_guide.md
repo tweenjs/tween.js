@@ -523,6 +523,18 @@ onEveryStart     { x: 5 }
 { x: 1 }
 ```
 
+## Tween State
+
+### `isPlaying`
+
+`true` when started (even if paused).
+
+When a tween is stopped, `isPlaying` and `isPaused` will both be `false`.
+
+### `isPaused`
+
+`true` when paused. `isPlaying` will also be `true`. If a tween is started, but not paused, `isPlaying` will be `true` and `isPaused` will be `false`.
+
 ## Advanced tweening
 
 ### Relative values
