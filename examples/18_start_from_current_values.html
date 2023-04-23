@@ -20,8 +20,7 @@
 			id="target"
 			style="
 				position: absolute;
-				top: 200px;
-				left: 400px;
+				transform: translate(400px, 200px);
 				width: 100px;
 				height: 100px;
 				background: #a0dde9;
@@ -63,8 +62,7 @@
 			}
 
 			function update() {
-				target.style.left = position.x + 'px'
-				target.style.top = position.y + 'px'
+				target.style.transform = `translate(${position.x}px, ${position.y}px)`
 			}
 
 			//Add event listeners to each of the arrow buttons

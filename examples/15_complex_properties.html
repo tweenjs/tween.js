@@ -15,8 +15,7 @@
 			id="target"
 			style="
 				position: absolute;
-				top: 100px;
-				left: 100px;
+				transform: translate(100px, 100px);
 				width: 100px;
 				height: 100px;
 				background: #a0dde9;
@@ -67,8 +66,7 @@
 
 			function update(values) {
 				target.style.opacity = values.styles.opacity
-				target.style.left = values.x + 'px'
-				target.style.top = values.y + 'px'
+				target.style.transform = `translate(${values.x}px, ${values.y}px)`
 			}
 		</script>
 	</body>

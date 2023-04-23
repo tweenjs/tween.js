@@ -15,8 +15,7 @@
 			id="target"
 			style="
 				position: absolute;
-				top: 100px;
-				left: 100px;
+				transform: translate(100px, 100px);
 				width: 100px;
 				height: 100px;
 				background: #a0dde9;
@@ -67,10 +66,9 @@
 			}
 
 			function update() {
-				target.style.left = position.x + 'px'
-				target.style.top = position.y + 'px'
-				target.style.webkitTransform = 'rotate(' + Math.floor(position.rotation) + 'deg)'
-				target.style.MozTransform = 'rotate(' + Math.floor(position.rotation) + 'deg)'
+				target.style.transform = `translate(${position.x}px, ${position.y}px) rotate(${Math.floor(
+					position.rotation,
+				)}deg)`
 			}
 		</script>
 	</body>
