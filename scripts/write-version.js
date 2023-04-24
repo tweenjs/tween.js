@@ -1,5 +1,7 @@
-const fs = require('fs')
-const {version} = require('../package.json')
+import fs from 'fs'
+import pkg from '../package.json' assert {type: 'json'}
+
+const {version} = pkg
 
 function handleError(error) {
 	if (error) {

@@ -1,7 +1,8 @@
 {
 	"name": "@tweenjs/tween.js",
 	"description": "Super simple, fast and easy to use tweening engine which incorporates optimised Robert Penner's equations.",
-	"version": "19.0.0",
+	"version": "20.0.3",
+	"type": "module",
 	"main": "dist/tween.cjs.js",
 	"types": "dist/tween.d.ts",
 	"module": "dist/tween.esm.js",
@@ -32,7 +33,7 @@
 		"tsc-watch": "tsc --watch",
 		"examples": "npx serve .",
 		"test": "npm run build && npm run test-lint && npm run test-unit",
-		"test-unit": "nodeunit test/unit/nodeunitheadless.js",
+		"test-unit": "nodeunit test/unit/nodeunitheadless.cjs",
 		"test-lint": "npm run prettier -- --check && eslint 'src/**/*.ts'",
 		"lint": "npm run prettier -- --write && eslint 'src/**/*.ts' --fix",
 		"prettier": "prettier './**/*.{js,ts,md,json,html,css}'",
@@ -45,19 +46,17 @@
 	},
 	"author": "tween.js contributors (https://github.com/tweenjs/tween.js/graphs/contributors)",
 	"devDependencies": {
-		"@sinonjs/fake-timers": "^6.0.1",
-		"@types/sinonjs__fake-timers": "^6.0.2",
 		"@typescript-eslint/eslint-plugin": "^3.1.0",
 		"@typescript-eslint/parser": "^3.1.0",
 		"eslint": "^7.1.0",
 		"eslint-config-prettier": "^6.7.0",
 		"eslint-plugin-prettier": "^3.1.1",
 		"nodeunit": "^0.11.3",
-		"prettier": "^2.0.0",
+		"prettier": "2.8.7",
 		"rimraf": "^3.0.0",
-		"rollup": "^2.0.0",
-		"rollup-plugin-dts": "1.4.10",
+		"rollup": "3.20.7",
+		"rollup-plugin-dts": "5.3.0",
 		"tslib": "^1.10.0",
-		"typescript": "^4.0.0"
+		"typescript": "5.0.4"
 	}
 }

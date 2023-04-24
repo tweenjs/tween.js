@@ -16,8 +16,7 @@
 			id="target1"
 			style="
 				position: absolute;
-				top: 100px;
-				left: 100px;
+				transform: translate(100px, 100px);
 				width: 100px;
 				height: 100px;
 				background: #a0dde9;
@@ -31,8 +30,7 @@
 			id="target2"
 			style="
 				position: absolute;
-				top: 300px;
-				left: 100px;
+				transform: translate(100px, 300px);
 				width: 100px;
 				height: 100px;
 				background: #a0dde9;
@@ -65,8 +63,8 @@
 
 				tween2 = new TWEEN.Tween(position2).to({x: 500, y: 300, rotation: -90}, 2000).onUpdate(update2)
 
-				tween1.start('+4000')
-				tween2.start('-500')
+				tween1.delay(4000).start()
+				tween2.delay(-500).start()
 			}
 
 			function animate(time) {
@@ -76,17 +74,15 @@
 			}
 
 			function update1() {
-				target1.style.left = position1.x + 'px'
-				target1.style.top = position1.y + 'px'
-				target1.style.webkitTransform = 'rotate(' + Math.floor(position1.rotation) + 'deg)'
-				target1.style.MozTransform = 'rotate(' + Math.floor(position1.rotation) + 'deg)'
+				target1.style.transform = `translate(${position1.x}px, ${position1.y}px) rotate(${Math.floor(
+					position1.rotation,
+				)}deg)`
 			}
 
 			function update2() {
-				target2.style.left = position2.x + 'px'
-				target2.style.top = position2.y + 'px'
-				target2.style.webkitTransform = 'rotate(' + Math.floor(position2.rotation) + 'deg)'
-				target2.style.MozTransform = 'rotate(' + Math.floor(position2.rotation) + 'deg)'
+				target2.style.transform = `translate(${position2.x}px, ${position2.y}px) rotate(${Math.floor(
+					position2.rotation,
+				)}deg)`
 			}
 		</script>
 	</body>

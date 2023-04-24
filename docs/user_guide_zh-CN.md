@@ -2,6 +2,8 @@
 
 我们提供更多语言: [English](./user_guide.md), [简体中文](./user_guide_zh-CN.md)
 
+中文用户指南最近更新为 Tween.js v18.5.0
+
 _**NOTE** 这是一个正在进行的工作。 如果你发现某些内容不清楚或缺少详细信息，请 [提出 issue](https://github.com/tweenjs/tween.js/issues/new) 并帮助改进本指南。 或者，如果你觉得自己也能提供帮助，请随时提交你自己的说明或改进！_
 
 ## 什么是 tween ？tween 是如何工作的？为什么要使用 tween ？

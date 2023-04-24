@@ -34,7 +34,10 @@ export default [
 		input: '.tmp/tests.js',
 		context: 'this',
 		watch: {clearScreen: false},
-		output: [{file: '.tmp/tests.cjs.js', format: 'cjs', exports: 'named'}],
+		output: [
+			{file: '.tmp/tests.cjs', format: 'cjs', exports: 'named'}, // For tests running in Node.js
+			{file: '.tmp/tests.umd.js', format: 'umd', exports: 'named', name: 'TWEEN'}, // For the nodeunit.html tests in browser
+		],
 	},
 	{
 		input: './.tmp/Index.d.ts',
