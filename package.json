@@ -7,11 +7,11 @@
 	"types": "dist/tween.d.ts",
 	"module": "dist/tween.esm.js",
 	"exports": {
-    		".": {
-      			"import": "./dist/tween.esm.js",
-      			"require": "./dist/tween.cjs.js"
-    		}
-  	},
+		".": {
+			"import": "./dist/tween.esm.js",
+			"require": "./dist/tween.cjs.js"
+		}
+	},
 	"files": [
 		"dist",
 		"README.md",
