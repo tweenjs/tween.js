@@ -7,6 +7,8 @@ JavaScript (TypeScript) tweening engine for easy animations, incorporating optim
 [![NPM Downloads][downloads-image]][downloads-url]
 [![Build and Tests][ci-image]][ci-url]
 
+More languages: [English](./README.md), [简体中文](./README_zh-CN.md)
+
 ---
 
 ```html
