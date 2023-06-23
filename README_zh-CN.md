@@ -67,6 +67,7 @@ cdnjs:
 ```html
 <script src="https://unpkg.com/@tweenjs/tween.js@^20.0.0/dist/tween.umd.js"></script>
 ```
+
 请注意，unpkg.com 支持 URL 中的 semver 版本，其中 URL 中的 `^` 告诉 unpkg 为你提供最新版本 20.x.x。
 
 ## 使用 script 标签构建并包含在你的项目中
@@ -138,6 +139,7 @@ import * as TWEEN from '@tweenjs/tween.js'
 ```
 
 # 特性
+
 - 做一件事并且只做一件事：补间属性
 - 不处理 CSS 单位（例如附加 `px`）
 - 不插值颜色
@@ -354,7 +356,7 @@ npm install
 npm test
 ```
 
-如果你想添加任何功能或更改现有功能，你 *必须* 运行测试以确保你没有破坏任何其他功能。任何拉取请求 (PR) 都需要在 `src/tests.ts` 中更新通过功能更改测试（或通过新功能或修复的新测试）才能接受 PR。 有关更多信息，请参阅 [贡献](CONTRIBUTING.md)。
+如果你想添加任何功能或更改现有功能，你 _必须_ 运行测试以确保你没有破坏任何其他功能。任何拉取请求 (PR) 都需要在 `src/tests.ts` 中更新通过功能更改测试（或通过新功能或修复的新测试）才能接受 PR。 有关更多信息，请参阅 [贡献](CONTRIBUTING.md)。
 
 # 使用 tween.js 的项目
 
