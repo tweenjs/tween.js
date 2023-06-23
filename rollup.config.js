@@ -19,7 +19,7 @@ export default [
 				exports: 'named',
 			},
 			{
-				file: 'dist/tween.cjs.js',
+				file: 'dist/tween.cjs',
 				format: 'cjs',
 				exports: 'named',
 			},
