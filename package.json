@@ -8,8 +8,14 @@
 	"module": "dist/tween.esm.js",
 	"exports": {
 		".": {
-			"import": "./dist/tween.esm.js",
-			"require": "./dist/tween.cjs.js"
+			"import": {
+				"types": "./dist/tween.d.ts",
+				"default": "./dist/tween.esm.js"
+			},
+			"require": {
+				"types": "./dist/tween.d.ts",
+				"default": "./dist/tween.cjs.js"
+			}
 		}
 	},
 	"files": [
