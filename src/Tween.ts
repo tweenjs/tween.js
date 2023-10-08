@@ -69,13 +69,13 @@ export class Tween<T extends UnknownProps> {
 
 		this._valuesEnd = target
 		this._propertiesAreSetUp = false
-		this._duration = duration
+		this._duration = duration < 0 ? 0 : duration
 
 		return this
 	}
 
 	duration(duration = 1000): this {
-		this._duration = duration
+		this._duration = duration < 0 ? 0 : duration
 		return this
 	}
 
@@ -424,9 +424,13 @@ export class Tween<T extends UnknownProps> {
 
 			this._onEveryStartCallbackFired = true
 		}
-
-		elapsed = (time - this._startTime) / this._duration
-		elapsed = this._duration === 0 || elapsed > 1 ? 1 : elapsed
+		
+		if (this._duration === 0) {
+	            elapsed = 1
+	        } else {
+	            elapsed = (time - this._startTime) / this._duration
+	            elapsed = elapsed > 1 ? 1 : elapsed
+	        }
 
 		const value = this._easingFunction(elapsed)
 
