@@ -8,7 +8,6 @@
 	"module": "dist/tween.esm.js",
 	"exports": {
 		".": {
-			"types": "./dist/tween.d.ts",
 			"import": "./dist/tween.esm.js",
 			"require": "./dist/tween.cjs.js",
 			"types": "./dist/tween.d.ts"
