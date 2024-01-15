@@ -827,7 +827,7 @@ var Tween = /** @class */ (function () {
     return Tween;
 }());
 
-var VERSION = '22.0.0';
+var VERSION = '23.0.0';
 
 /**
  * Tween.js - Licensed under the MIT license
