@@ -1,0 +1,13 @@
+{
+	"description": "Plain JS modules in a browser.",
+	"scripts": {
+		"start": "npm run serve",
+		"serve": "five-server ."
+	},
+	"dependencies": {
+		"@tweenjs/tween.js": "file:../../../"
+	},
+	"devDependencies": {
+		"five-server": "^0.3.2"
+	}
+}

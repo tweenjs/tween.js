@@ -1,0 +1,16 @@
+{
+	"description": "Plain JS modules in a browser.",
+	"scripts": {
+		"start": "npm run build && npm run serve",
+		"build": "tsc",
+		"dev": "tsc --watch",
+		"serve": "five-server ."
+	},
+	"dependencies": {
+		"@tweenjs/tween.js": "file:../../../"
+	},
+	"devDependencies": {
+		"five-server": "^0.3.2",
+		"typescript": "^5.3.3"
+	}
+}
