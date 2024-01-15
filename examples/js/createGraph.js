@@ -1,51 +1,55 @@
-function createGraph(t, f, c) {
+const toPhysicalPx = cssPx => cssPx * devicePixelRatio
+
+function createGraph(text, easingFn, width = 180, height = 100) {
 	var div = document.createElement('div')
 	div.style.display = 'inline-block'
-	div.style.width = '200px'
-	div.style.height = '120px'
+	// +20 for padding
+	div.style.width = width + 20 + 'px'
+	div.style.height = height + 20 + 'px'
 
 	var canvas = document.createElement('canvas')
-	canvas.width = 180
-	canvas.height = 100
+	canvas.style.width = width + 'px'
+	canvas.style.height = height + 'px'
+	canvas.width = toPhysicalPx(width)
+	canvas.height = toPhysicalPx(height)
 
 	var context = canvas.getContext('2d')
 	context.fillStyle = 'rgb(250,250,250)'
-	context.fillRect(0, 0, 180, 100)
+	context.fillRect(0, 0, toPhysicalPx(width), toPhysicalPx(height))
 
-	context.lineWidth = 0.5
+	context.lineWidth = toPhysicalPx(1)
 	context.strokeStyle = 'rgb(230,230,230)'
 
 	context.beginPath()
-	context.moveTo(0, 20)
-	context.lineTo(180, 20)
-	context.moveTo(0, 80)
-	context.lineTo(180, 80)
+	context.moveTo(0, toPhysicalPx(20))
+	context.lineTo(toPhysicalPx(width), toPhysicalPx(20))
+	context.moveTo(0, toPhysicalPx(80))
+	context.lineTo(toPhysicalPx(width), toPhysicalPx(80))
 	context.closePath()
 	context.stroke()
 
-	context.lineWidth = 2
-	context.strokeStyle = 'rgb(255,127,127)'
+	context.lineWidth = toPhysicalPx(2)
+	context.strokeStyle = 'rgba(255,127,127,0.9)'
+	context.beginPath()
+	context.moveTo(toPhysicalPx(5), toPhysicalPx(80))
+	context.lineCap = 'round'
 
-	var position = {x: 5, y: 80}
-	var position_old = {x: 5, y: 80}
+	var position = {x: toPhysicalPx(5), y: toPhysicalPx(80)}
 
-	new TWEEN.Tween(position).to({x: 175}, 2000).easing(TWEEN.Easing.Linear.None).start()
 	new TWEEN.Tween(position)
-		.to({y: 20}, 2000)
-		.easing(f)
+		.to({x: toPhysicalPx(175)}, 2000)
+		.easing(TWEEN.Easing.Linear.None)
+		.start()
+	new TWEEN.Tween(position)
+		.to({y: toPhysicalPx(20)}, 2000)
+		.easing(easingFn)
 		.onUpdate(function () {
-			context.beginPath()
-			context.moveTo(position_old.x, position_old.y)
 			context.lineTo(position.x, position.y)
-			context.closePath()
 			context.stroke()
-
-			position_old.x = position.x
-			position_old.y = position.y
 		})
 		.start()
 
-	div.appendChild(document.createTextNode(t))
+	div.appendChild(document.createTextNode(text))
 	div.appendChild(document.createElement('br'))
 	div.appendChild(canvas)
 

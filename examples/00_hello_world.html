@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 	<head>
 		<title>Tween.js / hello world!</title>
@@ -26,34 +26,26 @@
 		</div>
 
 		<script src="../dist/tween.umd.js"></script>
-		<script src="js/RequestAnimationFrame.js"></script>
 		<script>
-			var position
-			var target
-			var tween, tweenBack
+			const position = {x: 100, y: 100, rotation: 10}
+			const target = document.getElementById('target')
+			const tween = new TWEEN.Tween(position)
+				.to({x: 700, y: 200, rotation: 359}, 2000)
+				.delay(1000)
+				.easing(TWEEN.Easing.Elastic.InOut)
+				.onUpdate(update)
 
-			init()
-			animate()
+			const tweenBack = new TWEEN.Tween(position)
+				.to({x: 100, y: 100, rotation: 10}, 3000)
+				.easing(TWEEN.Easing.Elastic.InOut)
+				.onUpdate(update)
 
-			function init() {
-				position = {x: 100, y: 100, rotation: 0}
-				target = document.getElementById('target')
-				tween = new TWEEN.Tween(position)
-					.to({x: 700, y: 200, rotation: 359}, 2000)
-					.delay(1000)
-					.easing(TWEEN.Easing.Elastic.InOut)
-					.onUpdate(update)
+			tween.chain(tweenBack)
+			tweenBack.chain(tween)
 
-				tweenBack = new TWEEN.Tween(position)
-					.to({x: 100, y: 100, rotation: 0}, 3000)
-					.easing(TWEEN.Easing.Elastic.InOut)
-					.onUpdate(update)
+			tween.start()
 
-				tween.chain(tweenBack)
-				tweenBack.chain(tween)
-
-				tween.start()
-			}
+			animate(performance.now())
 
 			//If we register the callback animate, but the TWEEN.update(time) returns false,
 			//cancel/unregister the handler
@@ -66,7 +58,7 @@
 			}
 
 			function update() {
-				target.style.transform = `translate(${position.x}px, ${position.y}px) rotate(${Math.floor(
+				target.style.transform = `translate3d(${position.x}px, ${position.y}px, 0.0001px) rotateY(${Math.floor(
 					position.rotation,
 				)}deg)`
 			}

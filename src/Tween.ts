@@ -49,7 +49,10 @@ export class Tween<T extends UnknownProps> {
 	private _isChainStopped = false
 	private _propertiesAreSetUp = false
 
-	constructor(private _object: T, private _group: Group | false = mainGroup) {}
+	constructor(
+		private _object: T,
+		private _group: Group | false = mainGroup,
+	) {}
 
 	getId(): number {
 		return this._id
@@ -398,7 +401,6 @@ export class Tween<T extends UnknownProps> {
 		if (this._isPaused) return true
 
 		let property
-		let elapsed
 
 		const endTime = this._startTime + this._duration
 
@@ -429,9 +431,28 @@ export class Tween<T extends UnknownProps> {
 			this._onEveryStartCallbackFired = true
 		}
 
-		elapsed = (time - this._startTime) / this._duration
-		elapsed = this._duration === 0 || elapsed > 1 ? 1 : elapsed
+		const elapsedTime = time - this._startTime
+		const durationAndDelay = this._duration + (this._repeatDelayTime ?? this._delayTime)
+		const totalTime = this._duration + this._repeat * durationAndDelay
 
+		const calculateElapsedPortion = () => {
+			if (this._duration === 0) return 1
+			if (elapsedTime > totalTime) {
+				return 1
+			}
+
+			const timesRepeated = Math.trunc(elapsedTime / durationAndDelay)
+			const timeIntoCurrentRepeat = elapsedTime - timesRepeated * durationAndDelay
+			// TODO use %?
+			// const timeIntoCurrentRepeat = elapsedTime % durationAndDelay
+
+			const portion = Math.min(timeIntoCurrentRepeat / this._duration, 1)
+			if (portion === 0 && elapsedTime === this._duration) {
+				return 1
+			}
+			return portion
+		}
+		const elapsed = calculateElapsedPortion()
 		const value = this._easingFunction(elapsed)
 
 		// properties transformations
@@ -441,10 +462,11 @@ export class Tween<T extends UnknownProps> {
 			this._onUpdateCallback(this._object, elapsed)
 		}
 
-		if (elapsed === 1) {
+		if (this._duration === 0 || elapsedTime >= this._duration) {
 			if (this._repeat > 0) {
+				const completeCount = Math.min(Math.trunc((elapsedTime - this._duration) / durationAndDelay) + 1, this._repeat)
 				if (isFinite(this._repeat)) {
-					this._repeat--
+					this._repeat -= completeCount
 				}
 
 				// Reassign starting values, restart by making startTime = now
@@ -467,11 +489,7 @@ export class Tween<T extends UnknownProps> {
 					this._reversed = !this._reversed
 				}
 
-				if (this._repeatDelayTime !== undefined) {
-					this._startTime = time + this._repeatDelayTime
-				} else {
-					this._startTime = time + this._delayTime
-				}
+				this._startTime += durationAndDelay * completeCount
 
 				if (this._onRepeatCallback) {
 					this._onRepeatCallback(this._object)
