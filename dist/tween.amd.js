@@ -424,12 +424,12 @@ define(['exports'], (function (exports) { 'use strict';
                 throw new Error('Can not call Tween.to() while Tween is already started or paused. Stop the Tween first.');
             this._valuesEnd = target;
             this._propertiesAreSetUp = false;
-            this._duration = duration;
+            this._duration = duration < 0 ? 0 : duration;
             return this;
         };
         Tween.prototype.duration = function (duration) {
             if (duration === void 0) { duration = 1000; }
-            this._duration = duration;
+            this._duration = duration < 0 ? 0 : duration;
             return this;
         };
         Tween.prototype.dynamic = function (dynamic) {
@@ -832,7 +832,7 @@ define(['exports'], (function (exports) { 'use strict';
         return Tween;
     }());
 
-    var VERSION = '23.1.0';
+    var VERSION = '23.1.1';
 
     /**
      * Tween.js - Licensed under the MIT license
