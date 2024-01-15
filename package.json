@@ -3,13 +3,13 @@
 	"description": "Simple and fast tweening engine with optimised Robert Penner's equations.",
 	"version": "21.1.1",
 	"type": "module",
-	"main": "dist/tween.cjs.js",
+	"main": "dist/tween.cjs",
 	"types": "dist/tween.d.ts",
 	"module": "dist/tween.esm.js",
 	"exports": {
 		".": {
 			"import": "./dist/tween.esm.js",
-			"require": "./dist/tween.cjs.js",
+			"require": "./dist/tween.cjs",
 			"types": "./dist/tween.d.ts"
 		}
 	},
