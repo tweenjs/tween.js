@@ -76,13 +76,13 @@ export class Tween<T extends UnknownProps> {
 
 		this._valuesEnd = target
 		this._propertiesAreSetUp = false
-		this._duration = duration
+		this._duration = duration < 0 ? 0 : duration
 
 		return this
 	}
 
 	duration(duration = 1000): this {
-		this._duration = duration
+		this._duration = duration < 0 ? 0 : duration
 		return this
 	}
 
