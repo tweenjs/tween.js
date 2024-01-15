@@ -1632,6 +1632,211 @@ export const tests = {
 		test.done()
 	},
 
+	'TWEEN.Tween.onRepeat should not be called if repeat = 0 or default'(test: Test): void {
+		const obj = {x: 0}
+		let callbackCounter = 0
+
+		const t = new TWEEN.Tween(obj).to({x: 100}, 100).start(0)
+		t.onRepeat(() => {
+			callbackCounter++
+		})
+
+		TWEEN.update(0)
+		test.equal(callbackCounter, 0)
+		TWEEN.update(50)
+		test.equal(callbackCounter, 0)
+		TWEEN.update(100)
+		test.equal(callbackCounter, 0)
+		TWEEN.update(150)
+		test.equal(callbackCounter, 0)
+		test.ok(!t.isPlaying())
+
+		test.done()
+	},
+
+	'TWEEN.Tween.onRepeat should be called once if repeat = 1'(test: Test): void {
+		const obj = {x: 0}
+		let callbackCounter = 0
+
+		const t = new TWEEN.Tween(obj).to({x: 100}, 100).repeat(1).start(0)
+		t.onRepeat(() => {
+			callbackCounter++
+		})
+
+		TWEEN.update(0)
+		test.equal(callbackCounter, 0)
+		TWEEN.update(50)
+		test.equal(callbackCounter, 0)
+		TWEEN.update(99.99999999)
+		test.equal(callbackCounter, 0)
+		TWEEN.update(100)
+		test.equal(callbackCounter, 1)
+		test.ok(t.isPlaying())
+
+		TWEEN.update(150)
+		test.equal(callbackCounter, 1)
+		TWEEN.update(200)
+		test.equal(callbackCounter, 1)
+		test.ok(!t.isPlaying())
+
+		test.done()
+	},
+
+	'TWEEN.Tween.onRepeat should be called every time if repeat = Infinity'(test: Test): void {
+		const obj = {x: 0}
+		let callbackCounter = 0
+
+		const t = new TWEEN.Tween(obj).to({x: 100}, 100).repeat(Infinity).start(0)
+		t.onRepeat(() => {
+			callbackCounter++
+		})
+
+		const repeatTween = (repeatCount: number): void => {
+			TWEEN.update(repeatCount * 100)
+			test.equal(callbackCounter, repeatCount)
+			TWEEN.update(50 + repeatCount * 100)
+			test.equal(callbackCounter, repeatCount)
+			TWEEN.update(99.99999999 + repeatCount * 100)
+			test.equal(callbackCounter, repeatCount)
+			TWEEN.update(100 + repeatCount * 100)
+			test.equal(callbackCounter, repeatCount + 1)
+			test.ok(t.isPlaying())
+		}
+
+		for (let i = 0; i < 10; i++) {
+			repeatTween(i)
+		}
+
+		test.done()
+	},
+
+	'TWEEN.Tween.onRepeat should not be called if Tween.pause() or Tween.stop(), and should be called after Tween.resume() or restart'(
+		test: Test,
+	): void {
+		const generateTween = () => {
+			const obj = {x: 0}
+			const counter = {count: 0}
+			const tween = new TWEEN.Tween(obj).to({x: 100}, 100).repeat(Infinity).start(0)
+			tween.onRepeat(() => {
+				counter.count++
+			})
+			return {
+				tween,
+				counter,
+			}
+		}
+
+		const tweenPause = generateTween()
+		const tweenStop = generateTween()
+
+		TWEEN.update(100)
+		test.equal(tweenPause.counter.count, 1)
+		test.equal(tweenStop.counter.count, 1)
+
+		TWEEN.update(200)
+		test.equal(tweenPause.counter.count, 2)
+		test.equal(tweenStop.counter.count, 2)
+		tweenPause.tween.pause(200)
+
+		TWEEN.update(300)
+		test.equal(tweenPause.counter.count, 2)
+		test.equal(tweenStop.counter.count, 3)
+		tweenPause.tween.resume(300)
+		tweenStop.tween.stop()
+
+		TWEEN.update(400)
+		test.equal(tweenPause.counter.count, 3)
+		test.equal(tweenStop.counter.count, 3)
+		tweenStop.tween.start(400)
+
+		TWEEN.update(500)
+		test.equal(tweenPause.counter.count, 4)
+		test.equal(tweenStop.counter.count, 4)
+
+		test.done()
+	},
+
+	'If Tween.delay is set, TWEEN.Tween.onRepeat should be called when repeat section finished'(test: Test): void {
+		const obj = {x: 0}
+		let callbackCounter = 0
+
+		const t = new TWEEN.Tween(obj).to({x: 100}, 100).delay(50).repeat(1).start(0)
+		t.onRepeat(() => {
+			callbackCounter++
+		})
+
+		TWEEN.update(0)
+		test.equal(callbackCounter, 0)
+
+		TWEEN.update(50) //start first section
+		test.equal(obj.x, 0)
+		test.equal(callbackCounter, 0)
+
+		TWEEN.update(100)
+		test.equal(obj.x, 50)
+		test.equal(callbackCounter, 0)
+
+		TWEEN.update(150) //first section is finished
+		test.equal(obj.x, 100)
+		test.equal(callbackCounter, 1)
+
+		TWEEN.update(200) //restart
+		test.equal(obj.x, 0)
+		test.equal(callbackCounter, 1)
+
+		TWEEN.update(250)
+		test.equal(obj.x, 50)
+		test.equal(callbackCounter, 1)
+
+		TWEEN.update(300) //second section is finished
+		test.equal(obj.x, 100)
+		test.equal(callbackCounter, 1)
+		test.ok(!t.isPlaying())
+
+		TWEEN.update(400)
+		test.equal(obj.x, 100)
+		test.equal(callbackCounter, 1)
+
+		test.done()
+	},
+
+	'If Tween.repeatDelay is set, TWEEN.Tween.onRepeat should be called when repeat section finished'(test: Test): void {
+		const obj = {x: 0}
+		let callbackCounter = 0
+
+		const t = new TWEEN.Tween(obj).to({x: 100}, 100).repeatDelay(100).repeat(1).start(0)
+		t.onRepeat(() => {
+			callbackCounter++
+		})
+
+		TWEEN.update(0)
+		test.equal(callbackCounter, 0)
+
+		TWEEN.update(50)
+		test.equal(callbackCounter, 0)
+
+		TWEEN.update(99.99999999)
+		test.equal(callbackCounter, 0)
+
+		TWEEN.update(100) //first section is finished
+		test.equal(callbackCounter, 1)
+
+		TWEEN.update(150) //delay
+		test.equal(callbackCounter, 1)
+
+		TWEEN.update(200) //restart
+		test.equal(callbackCounter, 1)
+
+		TWEEN.update(300) //second section is finished
+		test.equal(callbackCounter, 1)
+		test.ok(!t.isPlaying())
+
+		TWEEN.update(400)
+		test.equal(callbackCounter, 1)
+
+		test.done()
+	},
+
 	'Tween.js compatible with Object.defineProperty getter / setters'(test: Test): void {
 		const obj = {_x: 0, x: 0}
 
