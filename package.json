@@ -1,7 +1,7 @@
 {
 	"name": "@tweenjs/tween.js",
 	"description": "Simple and fast tweening engine with optimised Robert Penner's equations.",
-	"version": "21.0.0",
+	"version": "21.1.1",
 	"type": "module",
 	"main": "dist/tween.cjs",
 	"types": "dist/tween.d.ts",
@@ -9,7 +9,8 @@
 	"exports": {
 		".": {
 			"import": "./dist/tween.esm.js",
-			"require": "./dist/tween.cjs"
+			"require": "./dist/tween.cjs",
+			"types": "./dist/tween.d.ts"
 		}
 	},
 	"files": [
@@ -40,9 +41,9 @@
 		"examples": "npx serve .",
 		"test": "npm run build && npm run test-lint && npm run test-unit",
 		"test-unit": "nodeunit test/unit/nodeunitheadless.cjs",
-		"test-lint": "npm run prettier -- --check && eslint 'src/**/*.ts'",
-		"lint": "npm run prettier -- --write && eslint 'src/**/*.ts' --fix",
-		"prettier": "prettier './**/*.{js,ts,md,json,html,css}'",
+		"test-lint": "npm run prettier -- --check",
+		"lint": "npm run prettier -- --write",
+		"prettier": "prettier .",
 		"prepare": "npm run build",
 		"version": "npm test && git add .",
 		"release:patch": "npm version patch --message 'v%s' && npm publish && npm run _release:push-branch",
@@ -52,13 +53,8 @@
 	},
 	"author": "tween.js contributors (https://github.com/tweenjs/tween.js/graphs/contributors)",
 	"devDependencies": {
-		"@typescript-eslint/eslint-plugin": "^3.1.0",
-		"@typescript-eslint/parser": "^3.1.0",
-		"eslint": "^7.1.0",
-		"eslint-config-prettier": "^6.7.0",
-		"eslint-plugin-prettier": "^3.1.1",
 		"nodeunit": "^0.11.3",
-		"prettier": "2.8.7",
+		"prettier": "^3.0.0",
 		"rimraf": "^3.0.0",
 		"rollup": "3.20.7",
 		"rollup-plugin-dts": "5.3.0",
