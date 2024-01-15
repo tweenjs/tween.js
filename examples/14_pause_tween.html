@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 	<head>
 		<title>Tween.js / pause tween</title>
@@ -46,7 +46,6 @@
 		</div>
 
 		<script src="../dist/tween.umd.js"></script>
-		<script src="js/RequestAnimationFrame.js"></script>
 		<script>
 			var progress
 			var fill
@@ -64,7 +63,8 @@
 					.onUpdate(update1)
 					.yoyo(true)
 					.repeat(Infinity)
-					.start('+500')
+					.delay(500)
+					.start()
 			}
 
 			function animate(time) {

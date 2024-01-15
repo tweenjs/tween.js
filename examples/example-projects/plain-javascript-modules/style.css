@@ -1,0 +1,62 @@
+html {
+	transform-style: preserve-3d;
+	perspective: 800px;
+}
+body {
+	background: #fff;
+	font-family: Helvetica, Arial, sans;
+	transform-style: preserve-3d;
+}
+
+a {
+	color: #333;
+}
+
+h2 {
+	font-weight: normal;
+}
+
+button {
+	cursor: pointer;
+	color: #333;
+	background: #fff;
+	border: 2px solid #333;
+	padding: 10px;
+	border-radius: 10px;
+	font-weight: bold;
+	font-size: 20px;
+	transition: all 150ms ease-out;
+}
+
+button:hover {
+	background: #333;
+	color: #fff;
+}
+
+#info {
+	position: absolute;
+	top: 0;
+	left: 0;
+	padding: 1.5em 2em;
+}
+
+#info h1 {
+	font-size: 3em;
+	color: #333;
+	margin-top: 0;
+	letter-spacing: -0.05em;
+}
+
+#info h2 {
+	font-size: 2.5em;
+	text-transform: uppercase;
+	color: #666;
+	margin-top: 0;
+}
+
+#info p {
+	font-size: 2em;
+	line-height: 1em;
+	color: #aaa;
+	max-width: 10em;
+}

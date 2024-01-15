@@ -14,5 +14,5 @@
 		"ignoreDeprecations": "5.0",
 		"importsNotUsedAsValues": "error"
 	},
-	"exclude": ["node_modules"]
+	"exclude": ["node_modules", "examples"]
 }

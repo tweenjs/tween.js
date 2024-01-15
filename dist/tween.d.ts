@@ -104,6 +104,7 @@ declare class Tween<T extends UnknownProps> {
     getId(): number;
     isPlaying(): boolean;
     isPaused(): boolean;
+    getDuration(): number;
     to(target: UnknownProps, duration?: number): this;
     duration(duration?: number): this;
     dynamic(dynamic?: boolean): this;
@@ -152,7 +153,7 @@ declare class Sequence {
     static nextId(): number;
 }
 
-declare const VERSION = "21.0.0";
+declare const VERSION = "23.1.0";
 
 declare const nextId: typeof Sequence.nextId;
 declare const getAll: () => Tween<UnknownProps>[];
