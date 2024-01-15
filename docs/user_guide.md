@@ -1,5 +1,7 @@
 # tween.js user guide
 
+More languages: [English](./user_guide.md), [简体中文](./user_guide_zh-CN.md)
+
 _**NOTE** This is a work in progress. If you find that something is unclear or missing details, please [file an issue](https://github.com/tweenjs/tween.js/issues/new) and help make this guide better. Or feel free to submit clarifications or improvements of your own if you feel you can help too!_
 
 ## What is a tween? How do they work? Why do you want to use them?
@@ -522,6 +524,18 @@ Tick 21          Tick 21
 onEveryStart     { x: 5 }
 { x: 1 }
 ```
+
+## Tween State
+
+### `isPlaying`
+
+`true` when started (even if paused).
+
+When a tween is stopped, `isPlaying` and `isPaused` will both be `false`.
+
+### `isPaused`
+
+`true` when paused. `isPlaying` will also be `true`. If a tween is started, but not paused, `isPlaying` will be `true` and `isPaused` will be `false`.
 
 ## Advanced tweening
 

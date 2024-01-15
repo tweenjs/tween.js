@@ -1,5 +1,7 @@
 # tween.js contributor guide
 
+More languages: [English](./contributor_guide.md), [简体中文](./contributor_guide_zh-CN.md)
+
 This guide is for people who want to _contribute_ to the library or are curious to learn what's behind the scenes: how is it tested? what do we automate? how do we do releases? etc.
 
 If you are looking for documentation on _how to use_ the library, the [user guide](./user_guide.md) is for you.
