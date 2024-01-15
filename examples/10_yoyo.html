@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 	<head>
 		<title>Tween.js / yoyo</title>
@@ -16,23 +16,20 @@
 			<button onclick="pause()">pause</button>
 			<button onclick="resume()">resume</button>
 		</div>
-		<div style="position: absolute; top: 100px; left: 400px;">
-			<div id="target1" data-rotation="0" data-y="0" class="box" style="left: 0px; top: 0px;">
-				yoyo with repeat once
-			</div>
-			<div id="target2" data-rotation="0" data-y="0" class="box" style="left: 200px; top: 0px;">
+		<div style="position: absolute; top: 100px; left: 400px">
+			<div id="target1" data-rotation="0" data-y="0" class="box" style="left: 0px; top: 0px">yoyo with repeat once</div>
+			<div id="target2" data-rotation="0" data-y="0" class="box" style="left: 200px; top: 0px">
 				yoyo with repeat forever
 			</div>
-			<div id="target3" data-rotation="0" data-y="0" class="box" style="left: 400px; top: 0px;">
+			<div id="target3" data-rotation="0" data-y="0" class="box" style="left: 400px; top: 0px">
 				yoyo with repeat once, relative values
 			</div>
-			<div id="target4" data-rotation="0" data-y="0" class="box" style="left: 600px; top: 0px;">
+			<div id="target4" data-rotation="0" data-y="0" class="box" style="left: 600px; top: 0px">
 				yoyo with repeat forever, relative values
 			</div>
 		</div>
 
 		<script src="../dist/tween.umd.js"></script>
-		<script src="js/RequestAnimationFrame.js"></script>
 		<script>
 			init()
 			animate()

@@ -1,9 +1,18 @@
-const fs = require('fs')
-const {version} = require('../package.json')
+import fs from 'fs'
+import pkg from '../package.json' assert {type: 'json'}
+
+const {version} = pkg
+
+function handleError(error) {
+	if (error) {
+		console.error(error)
+		process.exit(1)
+	}
+}
 
 fs.open('./src/Version.ts', 'w', (error, fd) => {
-	if (error) process.exit(1)
+	handleError(error)
 	fs.write(fd, [`const VERSION = '${version}'`, 'export default VERSION', ''].join('\n'), error => {
-		if (error) process.exit(1)
+		handleError(error)
 	})
 })

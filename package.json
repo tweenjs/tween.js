@@ -1,10 +1,18 @@
 {
 	"name": "@tweenjs/tween.js",
-	"description": "Super simple, fast and easy to use tweening engine which incorporates optimised Robert Penner's equations.",
-	"version": "18.6.0",
-	"main": "dist/tween.cjs.js",
-	"types": "dist/index.d.ts",
+	"description": "Simple and fast tweening engine with optimised Robert Penner's equations.",
+	"version": "22.0.0",
+	"type": "module",
+	"main": "dist/tween.cjs",
+	"types": "dist/tween.d.ts",
 	"module": "dist/tween.esm.js",
+	"exports": {
+		".": {
+			"import": "./dist/tween.esm.js",
+			"require": "./dist/tween.cjs",
+			"types": "./dist/tween.d.ts"
+		}
+	},
 	"files": [
 		"dist",
 		"README.md",
@@ -25,32 +33,32 @@
 	],
 	"dependencies": {},
 	"scripts": {
-		"build": "rimraf dist && node scripts/write-version.js && npm run tsc && npm run rollup-build && npm run tsc-d.ts && npm run adjust-d.ts",
+		"dev": "(npm run tsc-watch -- --preserveWatchOutput & p1=$!; npm run rollup-build -- --watch & p2=$!; wait $p1 $p2)",
+		"build": "rimraf dist .tmp && node scripts/write-version.js && npm run tsc && npm run rollup-build",
 		"rollup-build": "rollup -c ./rollup.config.js",
 		"tsc": "tsc",
 		"tsc-watch": "tsc --watch",
-		"tsc-d.ts": "tsc --declaration --emitDeclarationOnly --esModuleInterop --outFile dist/index.d.ts",
-		"adjust-d.ts": "node scripts/adjust-d.ts.js",
-		"test": "npm run build && npm run test-unit && npm run test-lint",
-		"test-unit": "nodeunit test/unit/nodeunitheadless.js",
-		"test-lint": "npm run prettier -- --check && eslint 'src/**/*.ts'",
-		"lint": "npm run prettier -- --write && eslint 'src/**/*.ts' --fix",
-		"prettier": "prettier './**/*.{js,ts,md,json,html,css}'",
-		"prepare": "npm run build"
+		"examples": "npx serve .",
+		"test": "npm run build && npm run test-lint && npm run test-unit",
+		"test-unit": "nodeunit test/unit/nodeunitheadless.cjs",
+		"test-lint": "npm run prettier -- --check",
+		"lint": "npm run prettier -- --write",
+		"prettier": "prettier .",
+		"prepare": "npm run build",
+		"version": "npm test && git add .",
+		"release:patch": "npm version patch --message 'v%s' && npm publish && npm run _release:push-branch",
+		"release:minor": "npm version minor --message 'v%s' && npm publish && npm run _release:push-branch",
+		"release:major": "npm version major --message 'v%s' && npm publish && npm run _release:push-branch",
+		"_release:push-branch": "git push --follow-tags --set-upstream origin `git rev-parse --abbrev-ref HEAD`"
 	},
 	"author": "tween.js contributors (https://github.com/tweenjs/tween.js/graphs/contributors)",
 	"devDependencies": {
-		"@typescript-eslint/eslint-plugin": "^3.1.0",
-		"@typescript-eslint/parser": "^3.1.0",
-		"eslint": "^7.1.0",
-		"eslint-config-prettier": "^6.7.0",
-		"eslint-plugin-prettier": "^3.1.1",
 		"nodeunit": "^0.11.3",
-		"prettier": "^2.0.0",
+		"prettier": "^3.0.0",
 		"rimraf": "^3.0.0",
-		"rollup": "^0.57.1",
-		"rollup-plugin-typescript": "^1.0.1",
+		"rollup": "3.20.7",
+		"rollup-plugin-dts": "5.3.0",
 		"tslib": "^1.10.0",
-		"typescript": "^3.9.0"
+		"typescript": "5.0.4"
 	}
 }

@@ -2,13 +2,17 @@
 	"compilerOptions": {
 		"baseUrl": ".",
 		"outDir": "./.tmp",
+		"declaration": true,
 		"strict": true,
-		"importsNotUsedAsValues": "error",
 		"sourceMap": true,
 		"module": "es2015",
 		"target": "es5",
 		"moduleResolution": "node",
-		"lib": ["dom", "es2015"]
+		"lib": ["dom", "es2015"],
+
+		// TODO will be removed in TS 5.5
+		"ignoreDeprecations": "5.0",
+		"importsNotUsedAsValues": "error"
 	},
-	"exclude": ["node_modules"]
+	"exclude": ["node_modules", "examples"]
 }

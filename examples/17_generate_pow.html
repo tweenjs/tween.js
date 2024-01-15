@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<title>Tween.js / easing with a power of number</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+		<style>
+			body {
+				margin: 0px;
+			}
+
+			#target {
+				font-size: 13px;
+				padding: 0px 32px;
+			}
+		</style>
+		<link href="css/style.css" media="screen" rel="stylesheet" type="text/css" />
+	</head>
+	<body>
+		<div id="info" style="position: relative">
+			<h1><a href="http://github.com/tweenjs/tween.js">tween.js</a></h1>
+			<h2>17 _ Easing with Pow</h2>
+			<p>TWEEN.Easing.generatePow() provides easing with a power of number.</p>
+		</div>
+
+		<div id="target"></div>
+
+		<script src="../dist/tween.umd.js"></script>
+		<script src="js/createGraph.js"></script>
+		<script>
+			window.addEventListener('load', function () {
+				init()
+				animate()
+			})
+
+			function init() {
+				var target = document.getElementById('target')
+
+				const addGraph = pow => {
+					target.appendChild(createGraph(`Power"${pow}".In`, TWEEN.Easing.generatePow(pow).In))
+					target.appendChild(createGraph(`Power"${pow}".Out`, TWEEN.Easing.generatePow(pow).Out))
+					target.appendChild(createGraph(`Power"${pow}".InOut`, TWEEN.Easing.generatePow(pow).InOut))
+				}
+				target.appendChild(createGraph('Power1', TWEEN.Easing.generatePow(1).In))
+
+				target.appendChild(document.createElement('br'))
+
+				addGraph(2)
+				addGraph(3)
+
+				target.appendChild(document.createElement('br'))
+
+				addGraph(4)
+				addGraph(5)
+
+				target.appendChild(document.createElement('br'))
+
+				addGraph(5.8)
+				target.appendChild(createGraph(`Exponential.In`, TWEEN.Easing.Exponential.In))
+				target.appendChild(createGraph(`Exponential.Out`, TWEEN.Easing.Exponential.Out))
+				target.appendChild(createGraph(`Exponential.InOut`, TWEEN.Easing.Exponential.InOut))
+			}
+
+			function animate(time) {
+				requestAnimationFrame(animate)
+
+				TWEEN.update(time)
+			}
+		</script>
+	</body>
+</html>

@@ -1,0 +1,10 @@
+{
+	"description": "Node.js project in CommonJS format, importing Tween in CommonJS format.",
+	"type": "commonjs",
+	"scripts": {
+		"start": "node ./index.js"
+	},
+	"dependencies": {
+		"@tweenjs/tween.js": "file:../../../"
+	}
+}

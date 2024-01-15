@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 	<head>
 		<title>Tween.js / bars</title>
@@ -15,7 +15,6 @@
 
 		<script src="../dist/tween.umd.js"></script>
 		<script src="js/stats.min.js"></script>
-		<script src="js/RequestAnimationFrame.js"></script>
 		<script>
 			var stats
 			var elems = []
@@ -39,16 +38,16 @@
 					var domElement = document.createElement('div')
 					var bg = (Math.random() * 0xffffff) >> 0
 					domElement.style.position = 'absolute'
-					domElement.style.top = Math.random() * window.innerHeight + 'px'
-					domElement.style.left = startValue + 'px'
+					const y = Math.random() * window.innerHeight
+					domElement.style.translate = startValue + 'px ' + y + 'px'
 					domElement.style.background = '#' + bg.toString(16)
 					domElement.style.width = '100px'
 					domElement.style.height = '2px'
 
-					var elem = {x: startValue, domElement: domElement}
+					var elem = {x: startValue, domElement: domElement, y}
 
 					var updateCallback = function (object) {
-						object.domElement.style.left = object.x + 'px'
+						object.domElement.style.translate = object.x + 'px ' + object.y + 'px'
 					}
 
 					var tween = new TWEEN.Tween(elem)
@@ -58,7 +57,7 @@
 						.easing(TWEEN.Easing.Back.Out)
 						.start()
 
-					var tweenBack = new TWEEN.Tween(elem, false)
+					var tweenBack = new TWEEN.Tween(elem)
 						.to({x: startValue}, 4000)
 						.delay(Math.random() * 1000)
 						.onUpdate(updateCallback)
