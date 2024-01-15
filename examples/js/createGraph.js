@@ -1,8 +1,6 @@
-function createGraph(t, f, c) {
-	const width = 180
-	const height = 100
-	const toPhysicalPx = cssPx => cssPx * devicePixelRatio
+const toPhysicalPx = cssPx => cssPx * devicePixelRatio
 
+function createGraph(text, easingFn, width = 180, height = 100) {
 	var div = document.createElement('div')
 	div.style.display = 'inline-block'
 	// +20 for padding
@@ -31,7 +29,7 @@ function createGraph(t, f, c) {
 	context.stroke()
 
 	context.lineWidth = toPhysicalPx(2)
-	context.strokeStyle = 'rgb(255,127,127)'
+	context.strokeStyle = 'rgba(255,127,127,0.9)'
 	context.beginPath()
 	context.moveTo(toPhysicalPx(5), toPhysicalPx(80))
 	context.lineCap = 'round'
@@ -44,14 +42,14 @@ function createGraph(t, f, c) {
 		.start()
 	new TWEEN.Tween(position)
 		.to({y: toPhysicalPx(20)}, 2000)
-		.easing(f)
+		.easing(easingFn)
 		.onUpdate(function () {
 			context.lineTo(position.x, position.y)
 			context.stroke()
 		})
 		.start()
 
-	div.appendChild(document.createTextNode(t))
+	div.appendChild(document.createTextNode(text))
 	div.appendChild(document.createElement('br'))
 	div.appendChild(canvas)
 
