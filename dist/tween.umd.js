@@ -419,6 +419,9 @@
         Tween.prototype.isPaused = function () {
             return this._isPaused;
         };
+        Tween.prototype.getDuration = function () {
+            return this._duration;
+        };
         Tween.prototype.to = function (target, duration) {
             if (duration === void 0) { duration = 1000; }
             if (this._isPlaying)
@@ -833,7 +836,7 @@
         return Tween;
     }());
 
-    var VERSION = '23.0.0';
+    var VERSION = '23.1.0';
 
     /**
      * Tween.js - Licensed under the MIT license

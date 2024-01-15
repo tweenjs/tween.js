@@ -1,7 +1,7 @@
 {
 	"name": "@tweenjs/tween.js",
 	"description": "Simple and fast tweening engine with optimised Robert Penner's equations.",
-	"version": "23.0.0",
+	"version": "23.1.0",
 	"type": "module",
 	"main": "dist/tween.cjs",
 	"types": "dist/tween.d.ts",
