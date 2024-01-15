@@ -2240,6 +2240,14 @@ export const tests = {
 		test.done()
 	},
 
+	'Get the duration with .getDuration'(test: Test): void {
+		const obj = {x: 1}
+		const t = new TWEEN.Tween(obj).to({x: 2}).duration(100)
+
+		test.deepEqual(t.getDuration(), 100)
+		test.done()
+	},
+
 	"Tween.group sets the tween's group."(test: Test): void {
 		const group = new TWEEN.Group()
 

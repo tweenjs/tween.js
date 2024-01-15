@@ -66,6 +66,10 @@ export class Tween<T extends UnknownProps> {
 		return this._isPaused
 	}
 
+	getDuration(): number {
+		return this._duration
+	}
+
 	to(target: UnknownProps, duration = 1000): this {
 		if (this._isPlaying)
 			throw new Error('Can not call Tween.to() while Tween is already started or paused. Stop the Tween first.')
