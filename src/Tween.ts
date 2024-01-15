@@ -49,7 +49,10 @@ export class Tween<T extends UnknownProps> {
 	private _isChainStopped = false
 	private _propertiesAreSetUp = false
 
-	constructor(private _object: T, private _group: Group | false = mainGroup) {}
+	constructor(
+		private _object: T,
+		private _group: Group | false = mainGroup,
+	) {}
 
 	getId(): number {
 		return this._id
