@@ -1434,6 +1434,44 @@ export const tests = {
 		test.done();
 	},
 
+	'Test yoyo callbacks happen on right order'(test: Test): void {
+		TWEEN.removeAll();
+
+		let events: string[] = [];
+		const obj = { x: 0 }
+
+		new TWEEN.Tween(obj)
+			.to({ x: 100 }, 100)
+			.repeat(1)
+			.yoyo(true)
+			.easing(TWEEN.Easing.Linear.None)
+			.onUpdate(() => events.push('update'))
+			.onStart(() => events.push('start'))
+			.onEveryStart(() => events.push('everystart'))
+			.onRepeat(() => events.push('repeat'))
+			.onComplete(() => events.push('complete'))
+			.start(0);
+
+		function testAndReset(expected: string[]) {
+			test.deepEqual(events, expected);
+			events = [];
+		}
+
+		testAndReset([]);
+		TWEEN.update(99);
+		testAndReset(['start', 'everystart', 'update']);
+		TWEEN.update(101);
+		testAndReset(['update', 'repeat']);
+		TWEEN.update(150);
+		testAndReset(['everystart', 'update']);
+		TWEEN.update(199);
+		testAndReset(['update']);
+		TWEEN.update(201);
+		testAndReset(['update', 'complete']);
+
+		test.done();
+	},
+
 	'Test TWEEN.Tween.stopChainedTweens()'(test: Test): void {
 		const t = new TWEEN.Tween({}),
 			t2 = new TWEEN.Tween({})

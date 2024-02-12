@@ -453,7 +453,10 @@ export class Tween<T extends UnknownProps> {
 			return portion
 		}
 
-		const checkStillPlaying = () => {
+		let repeated = false;
+		let completed = false;
+
+		const checkStillPlayingAndReverse = () => {
 			if (this._duration === 0 || elapsedTime >= this._duration) {
 				if (this._repeat > 0) {
 					const completeCount = Math.min(Math.trunc((elapsedTime - this._duration) / durationAndDelay) + 1, this._repeat)
@@ -482,27 +485,11 @@ export class Tween<T extends UnknownProps> {
 					}
 
 					this._startTime += durationAndDelay * completeCount
-
-					if (this._onRepeatCallback) {
-						this._onRepeatCallback(this._object)
-					}
-
-					this._onEveryStartCallbackFired = false
+					repeated = true;
 
 					return true
 				} else {
-					if (this._onCompleteCallback) {
-						this._onCompleteCallback(this._object)
-					}
-
-					for (let i = 0, numChainedTweens = this._chainedTweens.length; i < numChainedTweens; i++) {
-						// Make the chained tweens start exactly at the time they should,
-						// even if the `update()` method was called way past the duration of the tween
-						this._chainedTweens[i].start(this._startTime + this._duration, false)
-					}
-
-					this._isPlaying = false
-
+					completed = true;
 					return false
 				}
 			}
@@ -526,10 +513,33 @@ export class Tween<T extends UnknownProps> {
 
 		if (elapsedTime <= this._duration) {
 			doUpdates();
-			stillPlaying = checkStillPlaying();
+			stillPlaying = checkStillPlayingAndReverse();
 		} else {
-			stillPlaying = checkStillPlaying();
+			stillPlaying = checkStillPlayingAndReverse();
 			doUpdates();
+		}
+
+		if (repeated) {
+			if (this._onRepeatCallback) {
+				this._onRepeatCallback(this._object)
+			}
+
+			this._onEveryStartCallbackFired = false
+		}
+
+		if (completed) {
+			completed = true;
+			if (this._onCompleteCallback) {
+				this._onCompleteCallback(this._object)
+			}
+
+			for (let i = 0, numChainedTweens = this._chainedTweens.length; i < numChainedTweens; i++) {
+				// Make the chained tweens start exactly at the time they should,
+				// even if the `update()` method was called way past the duration of the tween
+				this._chainedTweens[i].start(this._startTime + this._duration, false)
+			}
+
+			this._isPlaying = false
 		}
 
 		return stillPlaying;
