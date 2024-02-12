@@ -452,70 +452,87 @@ export class Tween<T extends UnknownProps> {
 			}
 			return portion
 		}
-		const elapsed = calculateElapsedPortion()
-		const value = this._easingFunction(elapsed)
 
-		// properties transformations
-		this._updateProperties(this._object, this._valuesStart, this._valuesEnd, value)
+		const checkStillPlaying = () => {
+			if (this._duration === 0 || elapsedTime >= this._duration) {
+				if (this._repeat > 0) {
+					const completeCount = Math.min(Math.trunc((elapsedTime - this._duration) / durationAndDelay) + 1, this._repeat)
+					if (isFinite(this._repeat)) {
+						this._repeat -= completeCount
+					}
 
-		if (this._onUpdateCallback) {
-			this._onUpdateCallback(this._object, elapsed)
-		}
+					// Reassign starting values, restart by making startTime = now
+					for (property in this._valuesStartRepeat) {
+						if (!this._yoyo && typeof this._valuesEnd[property] === 'string') {
+							this._valuesStartRepeat[property] =
+								// eslint-disable-next-line
+								// @ts-ignore FIXME?
+								this._valuesStartRepeat[property] + parseFloat(this._valuesEnd[property])
+						}
 
-		if (this._duration === 0 || elapsedTime >= this._duration) {
-			if (this._repeat > 0) {
-				const completeCount = Math.min(Math.trunc((elapsedTime - this._duration) / durationAndDelay) + 1, this._repeat)
-				if (isFinite(this._repeat)) {
-					this._repeat -= completeCount
-				}
+						if (this._yoyo) {
+							this._swapEndStartRepeatValues(property)
+						}
 
-				// Reassign starting values, restart by making startTime = now
-				for (property in this._valuesStartRepeat) {
-					if (!this._yoyo && typeof this._valuesEnd[property] === 'string') {
-						this._valuesStartRepeat[property] =
-							// eslint-disable-next-line
-							// @ts-ignore FIXME?
-							this._valuesStartRepeat[property] + parseFloat(this._valuesEnd[property])
+						this._valuesStart[property] = this._valuesStartRepeat[property]
 					}
 
 					if (this._yoyo) {
-						this._swapEndStartRepeatValues(property)
+						this._reversed = !this._reversed
 					}
 
-					this._valuesStart[property] = this._valuesStartRepeat[property]
+					this._startTime += durationAndDelay * completeCount
+
+					if (this._onRepeatCallback) {
+						this._onRepeatCallback(this._object)
+					}
+
+					this._onEveryStartCallbackFired = false
+
+					return true
+				} else {
+					if (this._onCompleteCallback) {
+						this._onCompleteCallback(this._object)
+					}
+
+					for (let i = 0, numChainedTweens = this._chainedTweens.length; i < numChainedTweens; i++) {
+						// Make the chained tweens start exactly at the time they should,
+						// even if the `update()` method was called way past the duration of the tween
+						this._chainedTweens[i].start(this._startTime + this._duration, false)
+					}
+
+					this._isPlaying = false
+
+					return false
 				}
-
-				if (this._yoyo) {
-					this._reversed = !this._reversed
-				}
-
-				this._startTime += durationAndDelay * completeCount
-
-				if (this._onRepeatCallback) {
-					this._onRepeatCallback(this._object)
-				}
-
-				this._onEveryStartCallbackFired = false
-
-				return true
-			} else {
-				if (this._onCompleteCallback) {
-					this._onCompleteCallback(this._object)
-				}
-
-				for (let i = 0, numChainedTweens = this._chainedTweens.length; i < numChainedTweens; i++) {
-					// Make the chained tweens start exactly at the time they should,
-					// even if the `update()` method was called way past the duration of the tween
-					this._chainedTweens[i].start(this._startTime + this._duration, false)
-				}
-
-				this._isPlaying = false
-
-				return false
 			}
+
+			return true
 		}
 
-		return true
+		const doUpdates = () => {
+			const elapsed = calculateElapsedPortion()
+			const value = this._easingFunction(elapsed)
+
+			// properties transformations
+			this._updateProperties(this._object, this._valuesStart, this._valuesEnd, value)
+
+			if (this._onUpdateCallback) {
+				this._onUpdateCallback(this._object, elapsed)
+			}
+		};
+
+		let stillPlaying;
+
+		if (elapsedTime <= this._duration) {
+			doUpdates();
+			stillPlaying = checkStillPlaying();
+		} else {
+			stillPlaying = checkStillPlaying();
+			doUpdates();
+		}
+
+		return stillPlaying;
 	}
 
 	private _updateProperties(

@@ -1409,6 +1409,31 @@ export const tests = {
 		test.done()
 	},
 
+	'Test yoyo reverses at right instant'(test: Test): void {
+		TWEEN.removeAll();
+
+		const obj = { x: 0 };
+		new TWEEN.Tween(obj).to({ x: 100 }, 100).repeat(1).yoyo(true).start(0);
+
+		TWEEN.update(98);
+		test.equal(obj.x, 98);
+
+		TWEEN.update(99);
+		test.equal(obj.x, 99);
+
+		// Previously this would fail, the first update after 100 would happen as if yoyo=false
+		TWEEN.update(101);
+		test.equal(obj.x, 99);
+
+		TWEEN.update(101);
+		test.equal(obj.x, 99);
+
+		TWEEN.update(102);
+		test.equal(obj.x, 98);
+
+		test.done();
+	},
+
 	'Test TWEEN.Tween.stopChainedTweens()'(test: Test): void {
 		const t = new TWEEN.Tween({}),
 			t2 = new TWEEN.Tween({})

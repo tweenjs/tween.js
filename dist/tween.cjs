@@ -729,56 +729,71 @@ var Tween = /** @class */ (function () {
             }
             return portion;
         };
-        var elapsed = calculateElapsedPortion();
-        var value = this._easingFunction(elapsed);
-        // properties transformations
-        this._updateProperties(this._object, this._valuesStart, this._valuesEnd, value);
-        if (this._onUpdateCallback) {
-            this._onUpdateCallback(this._object, elapsed);
-        }
-        if (this._duration === 0 || elapsedTime >= this._duration) {
-            if (this._repeat > 0) {
-                var completeCount = Math.min(Math.trunc((elapsedTime - this._duration) / durationAndDelay) + 1, this._repeat);
-                if (isFinite(this._repeat)) {
-                    this._repeat -= completeCount;
-                }
-                // Reassign starting values, restart by making startTime = now
-                for (property in this._valuesStartRepeat) {
-                    if (!this._yoyo && typeof this._valuesEnd[property] === 'string') {
-                        this._valuesStartRepeat[property] =
-                            // eslint-disable-next-line
-                            // @ts-ignore FIXME?
-                            this._valuesStartRepeat[property] + parseFloat(this._valuesEnd[property]);
+        var checkStillPlaying = function () {
+            if (_this._duration === 0 || elapsedTime >= _this._duration) {
+                if (_this._repeat > 0) {
+                    var completeCount = Math.min(Math.trunc((elapsedTime - _this._duration) / durationAndDelay) + 1, _this._repeat);
+                    if (isFinite(_this._repeat)) {
+                        _this._repeat -= completeCount;
                     }
-                    if (this._yoyo) {
-                        this._swapEndStartRepeatValues(property);
+                    // Reassign starting values, restart by making startTime = now
+                    for (property in _this._valuesStartRepeat) {
+                        if (!_this._yoyo && typeof _this._valuesEnd[property] === 'string') {
+                            _this._valuesStartRepeat[property] =
+                                // eslint-disable-next-line
+                                // @ts-ignore FIXME?
+                                _this._valuesStartRepeat[property] + parseFloat(_this._valuesEnd[property]);
+                        }
+                        if (_this._yoyo) {
+                            _this._swapEndStartRepeatValues(property);
+                        }
+                        _this._valuesStart[property] = _this._valuesStartRepeat[property];
                     }
-                    this._valuesStart[property] = this._valuesStartRepeat[property];
+                    if (_this._yoyo) {
+                        _this._reversed = !_this._reversed;
+                    }
+                    _this._startTime += durationAndDelay * completeCount;
+                    if (_this._onRepeatCallback) {
+                        _this._onRepeatCallback(_this._object);
+                    }
+                    _this._onEveryStartCallbackFired = false;
+                    return true;
                 }
-                if (this._yoyo) {
-                    this._reversed = !this._reversed;
+                else {
+                    if (_this._onCompleteCallback) {
+                        _this._onCompleteCallback(_this._object);
+                    }
+                    for (var i = 0, numChainedTweens = _this._chainedTweens.length; i < numChainedTweens; i++) {
+                        // Make the chained tweens start exactly at the time they should,
+                        // even if the `update()` method was called way past the duration of the tween
+                        _this._chainedTweens[i].start(_this._startTime + _this._duration, false);
+                    }
+                    _this._isPlaying = false;
+                    return false;
                 }
-                this._startTime += durationAndDelay * completeCount;
-                if (this._onRepeatCallback) {
-                    this._onRepeatCallback(this._object);
-                }
-                this._onEveryStartCallbackFired = false;
-                return true;
             }
-            else {
-                if (this._onCompleteCallback) {
-                    this._onCompleteCallback(this._object);
-                }
-                for (var i = 0, numChainedTweens = this._chainedTweens.length; i < numChainedTweens; i++) {
-                    // Make the chained tweens start exactly at the time they should,
-                    // even if the `update()` method was called way past the duration of the tween
-                    this._chainedTweens[i].start(this._startTime + this._duration, false);
-                }
-                this._isPlaying = false;
-                return false;
+            return true;
+        };
+        var doUpdates = function () {
+            var elapsed = calculateElapsedPortion();
+            var value = _this._easingFunction(elapsed);
+            // properties transformations
+            _this._updateProperties(_this._object, _this._valuesStart, _this._valuesEnd, value);
+            if (_this._onUpdateCallback) {
+                _this._onUpdateCallback(_this._object, elapsed);
             }
+        };
+        var stillPlaying;
+        // if (true) {
+        if (elapsedTime <= this._duration) {
+            doUpdates();
+            stillPlaying = checkStillPlaying();
         }
-        return true;
+        else {
+            stillPlaying = checkStillPlaying();
+            doUpdates();
+        }
+        return stillPlaying;
     };
     Tween.prototype._updateProperties = function (_object, _valuesStart, _valuesEnd, value) {
         for (var property in _valuesEnd) {
