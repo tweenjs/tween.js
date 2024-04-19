@@ -400,8 +400,6 @@ export class Tween<T extends UnknownProps> {
 	update(time = now(), autoStart = true): boolean {
 		if (this._isPaused) return true
 
-		let property
-
 		const endTime = this._startTime + this._duration
 
 		if (!this._goToEnd && !this._isPlaying) {
@@ -435,100 +433,38 @@ export class Tween<T extends UnknownProps> {
 		const durationAndDelay = this._duration + (this._repeatDelayTime ?? this._delayTime)
 		const totalTime = this._duration + this._repeat * durationAndDelay
 
-		const calculateElapsedPortion = () => {
-			if (this._duration === 0) return 1
-			if (elapsedTime > totalTime) {
-				return 1
-			}
+		const elapsed = this._calculateElapsedPortion(elapsedTime, durationAndDelay, totalTime)
+		const value = this._easingFunction(elapsed)
 
-			const timesRepeated = Math.trunc(elapsedTime / durationAndDelay)
-			const timeIntoCurrentRepeat = elapsedTime - timesRepeated * durationAndDelay
-			// TODO use %?
-			// const timeIntoCurrentRepeat = elapsedTime % durationAndDelay
+		const status = this._calculateCompletionStatus(elapsedTime, durationAndDelay);
 
-			const portion = Math.min(timeIntoCurrentRepeat / this._duration, 1)
-			if (portion === 0 && elapsedTime === this._duration) {
-				return 1
-			}
-			return portion
+		if (status === 'repeat') {
+			// the current update is happening after the instant the tween repeated
+			this._processRepetition(elapsedTime, durationAndDelay)
 		}
 
-		let repeated = false;
-		let completed = false;
+		this._updateProperties(this._object, this._valuesStart, this._valuesEnd, value)
 
-		const checkStillPlayingAndReverse = () => {
-			if (this._duration === 0 || elapsedTime >= this._duration) {
-				if (this._repeat > 0) {
-					const completeCount = Math.min(Math.trunc((elapsedTime - this._duration) / durationAndDelay) + 1, this._repeat)
-					if (isFinite(this._repeat)) {
-						this._repeat -= completeCount
-					}
-
-					// Reassign starting values, restart by making startTime = now
-					for (property in this._valuesStartRepeat) {
-						if (!this._yoyo && typeof this._valuesEnd[property] === 'string') {
-							this._valuesStartRepeat[property] =
-								// eslint-disable-next-line
-								// @ts-ignore FIXME?
-								this._valuesStartRepeat[property] + parseFloat(this._valuesEnd[property])
-						}
-
-						if (this._yoyo) {
-							this._swapEndStartRepeatValues(property)
-						}
-
-						this._valuesStart[property] = this._valuesStartRepeat[property]
-					}
-
-					if (this._yoyo) {
-						this._reversed = !this._reversed
-					}
-
-					this._startTime += durationAndDelay * completeCount
-					repeated = true;
-
-					return true
-				} else {
-					completed = true;
-					return false
-				}
-			}
-
-			return true
+		if (status === 'about-to-repeat') {
+			// the current update is happening at the exact instant the tween is going to repeat
+			// the values should match the end of the tween, not the beginning,
+			// that's why _processRepetition happens after _updateProperties
+			this._processRepetition(elapsedTime, durationAndDelay)
 		}
 
-		const doUpdates = () => {
-			const elapsed = calculateElapsedPortion()
-			const value = this._easingFunction(elapsed)
-
-			// properties transformations
-			this._updateProperties(this._object, this._valuesStart, this._valuesEnd, value)
-
-			if (this._onUpdateCallback) {
-				this._onUpdateCallback(this._object, elapsed)
-			}
-		};
-
-		let stillPlaying;
-
-		if (elapsedTime <= this._duration) {
-			doUpdates();
-			stillPlaying = checkStillPlayingAndReverse();
-		} else {
-			stillPlaying = checkStillPlayingAndReverse();
-			doUpdates();
+		if (this._onUpdateCallback) {
+			this._onUpdateCallback(this._object, elapsed)
 		}
 
-		if (repeated) {
+		if (status === 'repeat' || status === 'about-to-repeat') {
 			if (this._onRepeatCallback) {
 				this._onRepeatCallback(this._object)
 			}
 
 			this._onEveryStartCallbackFired = false
-		}
+		} else if (status === 'completed') {
+			this._isPlaying = false;
 
-		if (completed) {
-			completed = true;
 			if (this._onCompleteCallback) {
 				this._onCompleteCallback(this._object)
 			}
@@ -538,11 +474,65 @@ export class Tween<T extends UnknownProps> {
 				// even if the `update()` method was called way past the duration of the tween
 				this._chainedTweens[i].start(this._startTime + this._duration, false)
 			}
+		}
+		return status !== 'completed'
+	}
 
-			this._isPlaying = false
+	private _calculateElapsedPortion(elapsedTime: number, durationAndDelay: number, totalTime: number) {
+		if (this._duration === 0 || elapsedTime > totalTime) {
+			return 1
 		}
 
-		return stillPlaying;
+		const timeIntoCurrentRepeat = elapsedTime % durationAndDelay
+
+		const portion = Math.min(timeIntoCurrentRepeat / this._duration, 1)
+		if (portion === 0 && elapsedTime !== 0 && elapsedTime % this._duration === 0) {
+			return 1
+		}
+		return portion
+	}
+
+	private _calculateCompletionStatus(elapsedTime: number, durationAndDelay: number) {
+		if (this._duration !== 0 && elapsedTime < this._duration) {
+			return 'playing'
+		}
+
+		if (this._repeat <= 0) {
+			return 'completed'
+		}
+
+		if (elapsedTime === this._duration) {
+			return 'about-to-repeat'
+		}
+
+		return 'repeat'
+	}
+
+	private _processRepetition(elapsedTime: number, durationAndDelay: number) {
+		const completeCount = Math.min(Math.trunc((elapsedTime - this._duration) / durationAndDelay) + 1, this._repeat)
+		if (isFinite(this._repeat)) {
+			this._repeat -= completeCount
+		}
+
+		// Reassign starting values, restart by making startTime = now
+		for (const property in this._valuesStartRepeat) {
+			const valueEnd = this._valuesEnd[property]
+			if (!this._yoyo && typeof valueEnd === 'string') {
+				this._valuesStartRepeat[property] = this._valuesStartRepeat[property] + parseFloat(valueEnd)
+			}
+
+			if (this._yoyo) {
+				this._swapEndStartRepeatValues(property)
+			}
+
+			this._valuesStart[property] = this._valuesStartRepeat[property]
+		}
+
+		if (this._yoyo) {
+			this._reversed = !this._reversed
+		}
+
+		this._startTime += durationAndDelay * completeCount
 	}
 
 	private _updateProperties(

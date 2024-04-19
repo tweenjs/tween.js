@@ -1283,6 +1283,55 @@ export const tests = {
 		test.done()
 	},
 
+	'Test repeat behaves the same with quick and slow updates'(test: Test): void {
+		TWEEN.removeAll()
+
+		const makeTween = (obj: { x: number }) =>
+			new TWEEN.Tween(obj)
+				.to({x: 100}, 100)
+				.repeat(20)
+				.start(0);
+
+		const obj1 = {x: 0};
+		const tween1 = makeTween(obj1);
+
+		for (let t = 0; t <= 300; t += 25) {
+			tween1.update(t);
+
+			const obj2 = {x: 0};
+			const tween2 = makeTween(obj2);
+			tween2.update(t);
+			test.equal(obj1.x, obj2.x, `t=${t}: ${obj1.x} === ${obj2.x}`);
+		}
+
+		test.done()
+	},
+
+	'Test repeat+delay behaves the same with quick and slow updates'(test: Test): void {
+		TWEEN.removeAll()
+
+		const makeTween = (obj: { x: number }) =>
+			new TWEEN.Tween(obj)
+				.to({x: 100}, 100)
+				.delay(50)
+				.repeat(20)
+				.start(0);
+
+		const obj1 = {x: 0};
+		const tween1 = makeTween(obj1);
+
+		for (let t = 0; t <= 300; t += 25) {
+			tween1.update(t);
+
+			const obj2 = {x: 0};
+			const tween2 = makeTween(obj2);
+			tween2.update(t);
+			test.equal(obj1.x, obj2.x, `t=${t}: ${obj1.x} === ${obj2.x}`);
+		}
+
+		test.done()
+	},
+
 	'Test yoyo with repeat Infinity happens forever'(test: Test): void {
 		TWEEN.removeAll()
 
