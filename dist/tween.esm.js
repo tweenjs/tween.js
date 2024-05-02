@@ -7,13 +7,13 @@ var Easing = Object.freeze({
             return amount;
         },
         In: function (amount) {
-            return this.None(amount);
+            return amount;
         },
         Out: function (amount) {
-            return this.None(amount);
+            return amount;
         },
         InOut: function (amount) {
-            return this.None(amount);
+            return amount;
         },
     }),
     Quadratic: Object.freeze({
