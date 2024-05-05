@@ -16,13 +16,13 @@ export const Easing = Object.freeze({
 			return amount
 		},
 		In(amount: number): number {
-			return this.None(amount)
+			return amount
 		},
 		Out(amount: number): number {
-			return this.None(amount)
+			return amount
 		},
 		InOut(amount: number): number {
-			return this.None(amount)
+			return amount
 		},
 	}),
 
