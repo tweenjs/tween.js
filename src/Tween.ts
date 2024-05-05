@@ -436,7 +436,7 @@ export class Tween<T extends UnknownProps> {
 		const elapsed = this._calculateElapsedPortion(elapsedTime, durationAndDelay, totalTime)
 		const value = this._easingFunction(elapsed)
 
-		const status = this._calculateCompletionStatus(elapsedTime, durationAndDelay);
+		const status = this._calculateCompletionStatus(elapsedTime, durationAndDelay)
 
 		if (status === 'repeat') {
 			// the current update is happening after the instant the tween repeated
@@ -463,7 +463,7 @@ export class Tween<T extends UnknownProps> {
 
 			this._onEveryStartCallbackFired = false
 		} else if (status === 'completed') {
-			this._isPlaying = false;
+			this._isPlaying = false
 
 			if (this._onCompleteCallback) {
 				this._onCompleteCallback(this._object)
