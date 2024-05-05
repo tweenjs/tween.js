@@ -847,7 +847,7 @@
         return Tween;
     }());
 
-    var VERSION = '23.1.1';
+    var VERSION = '23.1.2';
 
     /**
      * Tween.js - Licensed under the MIT license

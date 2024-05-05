@@ -156,7 +156,7 @@ declare class Sequence {
     static nextId(): number;
 }
 
-declare const VERSION = "23.1.1";
+declare const VERSION = "23.1.2";
 
 declare const nextId: typeof Sequence.nextId;
 declare const getAll: () => Tween<UnknownProps>[];
