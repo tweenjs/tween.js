@@ -9,7 +9,7 @@ JavaScript (TypeScript) tweening engine for easy animations, incorporating optim
 
 More languages: [English](./README.md), [简体中文](./README_zh-CN.md)
 
-# Example
+---
 
 ```html
 <script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/20.0.0/tween.umd.js"></script>
@@ -48,10 +48,7 @@ More languages: [English](./README.md), [简体中文](./README_zh-CN.md)
 </script>
 ```
 
-[Try the above example on CodePen](https://codepen.io/trusktr/pen/KKGaBVz?editors=1000)
-
-Animate numbers in any JavaScript object. For example, [rotate a 3D box made
-with Three.js](https://codepen.io/trusktr/pen/ExJqvgZ):
+[Try this example on CodePen](https://codepen.io/trusktr/pen/KKGaBVz?editors=1000)
 
 # Installation
 

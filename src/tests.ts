@@ -1283,46 +1283,6 @@ export const tests = {
 		test.done()
 	},
 
-	'Test repeat behaves the same with quick and slow updates'(test: Test): void {
-		TWEEN.removeAll()
-
-		const makeTween = (obj: {x: number}) => new TWEEN.Tween(obj).to({x: 100}, 100).repeat(20).start(0)
-
-		const obj1 = {x: 0}
-		const tween1 = makeTween(obj1)
-
-		for (let t = 0; t <= 300; t += 25) {
-			tween1.update(t)
-
-			const obj2 = {x: 0}
-			const tween2 = makeTween(obj2)
-			tween2.update(t)
-			test.equal(obj1.x, obj2.x, `t=${t}: ${obj1.x} === ${obj2.x}`)
-		}
-
-		test.done()
-	},
-
-	'Test repeat+delay behaves the same with quick and slow updates'(test: Test): void {
-		TWEEN.removeAll()
-
-		const makeTween = (obj: {x: number}) => new TWEEN.Tween(obj).to({x: 100}, 100).delay(50).repeat(20).start(0)
-
-		const obj1 = {x: 0}
-		const tween1 = makeTween(obj1)
-
-		for (let t = 0; t <= 300; t += 25) {
-			tween1.update(t)
-
-			const obj2 = {x: 0}
-			const tween2 = makeTween(obj2)
-			tween2.update(t)
-			test.equal(obj1.x, obj2.x, `t=${t}: ${obj1.x} === ${obj2.x}`)
-		}
-
-		test.done()
-	},
-
 	'Test yoyo with repeat Infinity happens forever'(test: Test): void {
 		TWEEN.removeAll()
 
@@ -1445,69 +1405,6 @@ export const tests = {
 
 		TWEEN.update(225)
 		test.equal(obj.x, 0)
-
-		test.done()
-	},
-
-	'Test yoyo reverses at right instant'(test: Test): void {
-		TWEEN.removeAll()
-
-		const obj = {x: 0}
-		new TWEEN.Tween(obj).to({x: 100}, 100).repeat(1).yoyo(true).start(0)
-
-		TWEEN.update(98)
-		test.equal(obj.x, 98)
-
-		TWEEN.update(99)
-		test.equal(obj.x, 99)
-
-		// Previously this would fail, the first update after 100 would happen as if yoyo=false
-		TWEEN.update(101)
-		test.equal(obj.x, 99)
-
-		TWEEN.update(101)
-		test.equal(obj.x, 99)
-
-		TWEEN.update(102)
-		test.equal(obj.x, 98)
-
-		test.done()
-	},
-
-	'Test yoyo callbacks happen on right order'(test: Test): void {
-		TWEEN.removeAll()
-
-		let events: string[] = []
-		const obj = {x: 0}
-
-		new TWEEN.Tween(obj)
-			.to({x: 100}, 100)
-			.repeat(1)
-			.yoyo(true)
-			.easing(TWEEN.Easing.Linear.None)
-			.onUpdate(() => events.push('update'))
-			.onStart(() => events.push('start'))
-			.onEveryStart(() => events.push('everystart'))
-			.onRepeat(() => events.push('repeat'))
-			.onComplete(() => events.push('complete'))
-			.start(0)
-
-		function testAndReset(expected: string[]) {
-			test.deepEqual(events, expected)
-			events = []
-		}
-
-		testAndReset([])
-		TWEEN.update(99)
-		testAndReset(['start', 'everystart', 'update'])
-		TWEEN.update(101)
-		testAndReset(['update', 'repeat'])
-		TWEEN.update(150)
-		testAndReset(['everystart', 'update'])
-		TWEEN.update(199)
-		testAndReset(['update'])
-		TWEEN.update(201)
-		testAndReset(['update', 'complete'])
 
 		test.done()
 	},

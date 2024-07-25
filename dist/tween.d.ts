@@ -137,9 +137,6 @@ declare class Tween<T extends UnknownProps> {
      * it is still playing, just paused).
      */
     update(time?: number, autoStart?: boolean): boolean;
-    private _calculateElapsedPortion;
-    private _calculateCompletionStatus;
-    private _processRepetition;
     private _updateProperties;
     private _handleRelativeValue;
     private _swapEndStartRepeatValues;
