@@ -127,7 +127,7 @@ You can import from `node_modules` if you serve node_modules as part of your web
 <script type="importmap">
 	{
 		"imports": {
-			"@tweenjs/tween.js": "/node_modules/@tweenjs/tween.js/dist/tween.es.js"
+			"@tweenjs/tween.js": "./node_modules/@tweenjs/tween.js/dist/tween.esm.js"
 		}
 	}
 </script>
