@@ -12,54 +12,61 @@
 			<p>Demonstrating the repeat() feature.</p>
 		</div>
 		<div style="position: absolute; top: 100px; left: 400px">
-			<div id="target1" data-rotation="0" class="box">repeat once</div>
-			<div id="target2" data-rotation="0" class="box">repeat five times</div>
+			<div id="target1" data-rotation="0" class="box">no repeat</div>
+			<div id="target2" data-rotation="0" class="box">repeat twice</div>
 			<div id="target3" data-rotation="0" class="box">repeat forever</div>
 		</div>
 
-		<script src="../dist/tween.umd.js"></script>
-		<script>
+		<script type="module">
+			import {Tween, Group, Easing} from '../dist/tween.esm.js'
+
+			const group = new Group()
+
 			init()
 			animate()
 
 			function init() {
-				var target1 = document.getElementById('target1'),
-					tween1 = new TWEEN.Tween(target1.dataset)
-						.to({rotation: 360}, 2000)
-						.repeat(1)
-						.delay(1000)
+				const target1 = document.getElementById('target1'),
+					tween1 = new Tween(target1.dataset)
+						.to({rotation: 360}, 1000)
+						.easing(Easing.Exponential.InOut)
+						.delay(100)
 						.onUpdate(function (object) {
 							updateBox(target1, object)
 						})
 						.start(),
 					target2 = document.getElementById('target2'),
-					tween2 = new TWEEN.Tween(target2.dataset)
-						.to({rotation: 360}, 2000)
-						.repeat(5)
-						.delay(1000)
+					tween2 = new Tween(target2.dataset)
+						.to({rotation: 360}, 1000)
+						.easing(Easing.Exponential.InOut)
+						.repeat(2)
+						.delay(100)
 						.onUpdate(function (object) {
 							updateBox(target2, object)
 						})
 						.start(),
 					target3 = document.getElementById('target3'),
-					tween3 = new TWEEN.Tween(target3.dataset)
-						.to({rotation: 360}, 2000)
+					tween3 = new Tween(target3.dataset)
+						.to({rotation: 360}, 1000)
+						.easing(Easing.Exponential.InOut)
 						.repeat(Infinity)
-						.delay(1000)
+						.delay(100)
 						.onUpdate(function (object) {
 							updateBox(target3, object)
 						})
 						.start()
+
+				group.add(tween1, tween2, tween3)
 			}
 
 			function animate(time) {
 				requestAnimationFrame(animate)
 
-				TWEEN.update(time)
+				group.update(time)
 			}
 
 			function updateBox(box, params) {
-				var s = box.style,
+				const s = box.style,
 					transform = 'rotate(' + Math.floor(params.rotation) + 'deg)'
 				s.webkitTransform = transform
 				s.mozTransform = transform

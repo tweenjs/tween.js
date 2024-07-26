@@ -16,7 +16,7 @@ export const tests = {
 
 	'TWEEN object stores tweens automatically on start'(test: Test): void {
 		const numTweensBefore = TWEEN.getAll().length,
-			t = new TWEEN.Tween({})
+			t = new TWEEN.Tween({}, true)
 
 		t.start()
 
@@ -27,7 +27,7 @@ export const tests = {
 	},
 
 	'TWEEN.removeAll()'(test: Test): void {
-		const t = new TWEEN.Tween({})
+		const t = new TWEEN.Tween({}, true)
 
 		TWEEN.removeAll()
 
@@ -35,7 +35,11 @@ export const tests = {
 
 		t.start()
 
-		test.equal(TWEEN.getAll().length, 1, 'A tween has been added')
+		test.equal(TWEEN.getAll().length, 0, 'Tweens are not automatically added/removed')
+
+		TWEEN.add(t)
+
+		test.equal(TWEEN.getAll().length, 1, 'A tween has to be manually added')
 
 		TWEEN.removeAll()
 
@@ -46,7 +50,7 @@ export const tests = {
 	'TWEEN.add()'(test: Test): void {
 		const all = TWEEN.getAll(),
 			numTweens = all.length,
-			t = new TWEEN.Tween({})
+			t = new TWEEN.Tween({}, true)
 
 		TWEEN.add(t)
 
@@ -58,7 +62,7 @@ export const tests = {
 	'TWEEN.remove()'(test: Test): void {
 		const all = TWEEN.getAll(),
 			numTweens = all.length,
-			t = new TWEEN.Tween({})
+			t = new TWEEN.Tween({}, true)
 
 		TWEEN.add(t)
 
@@ -71,30 +75,38 @@ export const tests = {
 		test.done()
 	},
 
-	'TWEEN.update() returns false when done (no tweens to animate)'(test: Test): void {
+	'TWEEN.update() removes tweens when they are finished only if preserve is set to false'(test: Test): void {
 		TWEEN.removeAll()
 
-		test.deepEqual(TWEEN.update(), false)
+		const t1 = new TWEEN.Tween({}, true).to({}, 1000),
+			t2 = new TWEEN.Tween({}, true).to({}, 2000)
+
+		test.equal(TWEEN.getAll().length, 2)
+
+		t1.start(0)
+		t2.start(0)
+
+		test.equal(TWEEN.getAll().length, 2)
+
+		TWEEN.update(0, false)
+		test.equal(TWEEN.getAll().length, 2)
+
+		TWEEN.update(999, false)
+		test.equal(TWEEN.getAll().length, 2)
+
+		TWEEN.update(1000, false)
+		test.equal(TWEEN.getAll().length, 1)
+		test.equal(TWEEN.getAll().indexOf(t1), -1)
+		test.ok(TWEEN.getAll().indexOf(t2) != -1)
 		test.done()
 	},
-
-	'TWEEN.update() returns true when there are active tweens'(test: Test): void {
+	'TWEEN.update() does not remove tweens when they are finished with preserve true (default)'(test: Test): void {
 		TWEEN.removeAll()
 
-		const t = new TWEEN.Tween({})
-		t.start()
+		const t1 = new TWEEN.Tween({}, true).to({}, 1000),
+			t2 = new TWEEN.Tween({}, true).to({}, 2000)
 
-		test.deepEqual(TWEEN.update(), true)
-		test.done()
-	},
-
-	'TWEEN.update() removes tweens when they are finished'(test: Test): void {
-		TWEEN.removeAll()
-
-		const t1 = new TWEEN.Tween({}).to({}, 1000),
-			t2 = new TWEEN.Tween({}).to({}, 2000)
-
-		test.equal(TWEEN.getAll().length, 0)
+		test.equal(TWEEN.getAll().length, 2)
 
 		t1.start(0)
 		t2.start(0)
@@ -108,34 +120,9 @@ export const tests = {
 		test.equal(TWEEN.getAll().length, 2)
 
 		TWEEN.update(1000)
-		test.equal(TWEEN.getAll().length, 1)
-		test.equal(TWEEN.getAll().indexOf(t1), -1)
-		test.ok(TWEEN.getAll().indexOf(t2) != -1)
-		test.done()
-	},
-	'TWEEN.update() does not remove tweens when they are finished with preserve flag'(test: Test): void {
-		TWEEN.removeAll()
-
-		const t1 = new TWEEN.Tween({}).to({}, 1000),
-			t2 = new TWEEN.Tween({}).to({}, 2000)
-
-		test.equal(TWEEN.getAll().length, 0)
-
-		t1.start(0)
-		t2.start(0)
-
 		test.equal(TWEEN.getAll().length, 2)
 
-		TWEEN.update(0, true)
-		test.equal(TWEEN.getAll().length, 2)
-
-		TWEEN.update(999, true)
-		test.equal(TWEEN.getAll().length, 2)
-
-		TWEEN.update(1000, true)
-		test.equal(TWEEN.getAll().length, 2)
-
-		TWEEN.update(1001, true)
+		TWEEN.update(1001)
 		test.equal(TWEEN.getAll().length, 2)
 		test.ok(TWEEN.getAll().indexOf(t1) != -1)
 		test.ok(TWEEN.getAll().indexOf(t2) != -1)
@@ -148,20 +135,30 @@ export const tests = {
 		const target1 = {a: 0}
 		const target2 = {b: 0}
 
-		const t1 = new TWEEN.Tween(target1).to({a: 1}, 1000),
-			t2 = new TWEEN.Tween(target2).to({b: 1}, 2000)
+		const t1 = new TWEEN.Tween(target1, true).to({a: 1}, 1000),
+			t2 = new TWEEN.Tween(target2, true).to({b: 1}, 2000)
 
 		t1.start(0)
 		t2.start(0)
 
 		// To be able to make a tween go backward in time, it must be
-		// updated with preserve set to true. Otherwise, the
+		// updated with preserve set to true (default). Otherwise, the
 		// backward-in-time feature does not apply.
 		TWEEN.update(200, true)
 		TWEEN.update(2500, true)
-		TWEEN.update(500, true)
 
 		test.equal(TWEEN.getAll().length, 2)
+
+		// If you want to go backward in time, start back at the beginning
+		// first, then go to any time between the start and end time.
+		t1.start(0)
+		t2.start(0)
+
+		TWEEN.update(750, true)
+		test.equal(target1.a, 0.75)
+		test.equal(target2.b, 0.375)
+
+		TWEEN.update(500)
 		test.equal(target1.a, 0.5)
 		test.equal(target2.b, 0.25)
 
@@ -507,18 +504,18 @@ export const tests = {
 	},
 
 	'Test TWEEN.Tween.start()'(test: Test): void {
+		TWEEN.removeAll()
+
 		const obj = {},
-			t = new TWEEN.Tween(obj)
+			t = new TWEEN.Tween(obj, true)
 
 		t.to({}, 1000)
 
-		TWEEN.removeAll()
-		test.equal(TWEEN.getAll().length, 0) // TODO move to TWEEN test
+		test.equal(TWEEN.getAll().length, 1)
 
 		t.start(0)
 
-		test.equal(TWEEN.getAll().length, 1) // TODO ditto
-		test.equal(TWEEN.getAll()[0], t)
+		test.equal(TWEEN.getAll().length, 1)
 		test.done()
 	},
 
@@ -585,17 +582,18 @@ export const tests = {
 	},
 
 	'Test TWEEN.Tween.stop()'(test: Test): void {
+		TWEEN.removeAll()
+
 		const obj = {},
-			t = new TWEEN.Tween(obj)
+			t = new TWEEN.Tween(obj, true)
 
 		t.to({x: 2}, 1000)
 
-		TWEEN.removeAll()
-
 		t.start()
-		t.stop()
+		test.equal(TWEEN.getAll().length, 1)
 
-		test.equal(TWEEN.getAll().length, 0)
+		t.stop()
+		test.equal(TWEEN.getAll().length, 1)
 		test.done()
 	},
 
@@ -828,13 +826,13 @@ export const tests = {
 	},
 
 	'Test TWEEN.Tween.chain --with one tween'(test: Test): void {
-		const t = new TWEEN.Tween({}),
-			t2 = new TWEEN.Tween({})
+		TWEEN.removeAll()
+
+		const t = new TWEEN.Tween({}, true),
+			t2 = new TWEEN.Tween({}, true)
 		let tStarted = false,
 			tCompleted = false,
 			t2Started = false
-
-		TWEEN.removeAll()
 
 		t.to({}, 1000)
 		t2.to({}, 1000)
@@ -876,12 +874,12 @@ export const tests = {
 	},
 
 	'Test TWEEN.Tween.chain --with several tweens in an array'(test: Test): void {
-		const t = new TWEEN.Tween({}),
+		TWEEN.removeAll()
+
+		const t = new TWEEN.Tween({}, true),
 			chainedTweens: TWEEN.Tween<any>[] = [],
 			numChained = 3
 		let numChainedStarted = 0
-
-		TWEEN.removeAll()
 
 		t.to({}, 1000)
 
@@ -890,7 +888,7 @@ export const tests = {
 		}
 
 		for (let i = 0; i < numChained; i++) {
-			const chained = new TWEEN.Tween({})
+			const chained = new TWEEN.Tween({}, true)
 			chained.to({}, 1000)
 
 			chainedTweens.push(chained)
@@ -912,11 +910,11 @@ export const tests = {
 	},
 
 	'Test TWEEN.Tween.chain allows endless loops'(test: Test): void {
-		const obj = {x: 0},
-			t1 = new TWEEN.Tween(obj).to({x: 100}, 1000),
-			t2 = new TWEEN.Tween(obj).to({x: 0}, 1000)
-
 		TWEEN.removeAll()
+
+		const obj = {x: 0},
+			t1 = new TWEEN.Tween(obj, true).to({x: 100}, 1000),
+			t2 = new TWEEN.Tween(obj, true).to({x: 0}, 1000)
 
 		t1.chain(t2)
 		t2.chain(t1)
@@ -954,8 +952,8 @@ export const tests = {
 		// Repeat the same test but with the tweens added in the
 		// opposite order.
 		const obj2 = {x: 0}
-		const t3 = new TWEEN.Tween(obj2).to({x: 200}, 1000)
-		const t4 = new TWEEN.Tween(obj2).to({x: 100}, 1000)
+		const t3 = new TWEEN.Tween(obj2, true).to({x: 200}, 1000)
+		const t4 = new TWEEN.Tween(obj2, true).to({x: 100}, 1000)
 
 		t4.chain(t3)
 		t3.chain(t4)
@@ -998,10 +996,10 @@ export const tests = {
 	},
 
 	'Test TWEEN.Tween.startFromCurrentValues'(test: Test): void {
-		const obj = {x: 0},
-			t = new TWEEN.Tween(obj).to({x: 100})
-
 		TWEEN.removeAll()
+
+		const obj = {x: 0},
+			t = new TWEEN.Tween(obj, true).to({x: 100})
 
 		test.equal(obj.x, 0)
 
@@ -1031,8 +1029,10 @@ export const tests = {
 	},
 
 	'Test TWEEN.Tween.onStart'(test: Test): void {
+		TWEEN.removeAll()
+
 		const obj = {},
-			t = new TWEEN.Tween(obj)
+			t = new TWEEN.Tween(obj, true)
 		let counter = 0
 
 		t.to({x: 2}, 1000)
@@ -1055,8 +1055,10 @@ export const tests = {
 	},
 
 	'Test TWEEN.Tween.onEveryStart'(test: Test): void {
+		TWEEN.removeAll()
+
 		const obj = {},
-			t = new TWEEN.Tween(obj)
+			t = new TWEEN.Tween(obj, true)
 		let counter = 0
 
 		t.to({x: 2}, 500)
@@ -1085,8 +1087,10 @@ export const tests = {
 	},
 
 	'Test TWEEN.Tween.onStop'(test: Test): void {
+		TWEEN.removeAll()
+
 		const obj = {},
-			t = new TWEEN.Tween(obj)
+			t = new TWEEN.Tween(obj, true)
 		let counter = 0
 
 		t.to({x: 2}, 1000)
@@ -1116,8 +1120,10 @@ export const tests = {
 	},
 
 	'Test TWEEN.Tween.onUpdate'(test: Test): void {
+		TWEEN.removeAll()
+
 		const obj = {},
-			t = new TWEEN.Tween(obj)
+			t = new TWEEN.Tween(obj, true)
 		let counter = 0
 
 		t.to({x: 2}, 1000)
@@ -1148,8 +1154,10 @@ export const tests = {
 	},
 
 	'Test TWEEN.Tween.onComplete'(test: Test): void {
+		TWEEN.removeAll()
+
 		const obj = {},
-			t = new TWEEN.Tween(obj)
+			t = new TWEEN.Tween(obj, true)
 		let counter = 0
 
 		t.to({x: 2}, 1000)
@@ -1182,7 +1190,7 @@ export const tests = {
 		TWEEN.removeAll()
 
 		const obj = {x: 0},
-			t = new TWEEN.Tween(obj).to({x: 100}, 100)
+			t = new TWEEN.Tween(obj, true).to({x: 100}, 100)
 
 		t.start(0)
 
@@ -1204,7 +1212,7 @@ export const tests = {
 		TWEEN.removeAll()
 
 		const obj = {x: 0},
-			t = new TWEEN.Tween(obj).to({x: 100}, 100).repeat(1)
+			t = new TWEEN.Tween(obj, true).to({x: 100}, 100).repeat(1)
 
 		t.start(0)
 
@@ -1229,7 +1237,7 @@ export const tests = {
 		TWEEN.removeAll()
 
 		const obj = {x: 0},
-			t = new TWEEN.Tween(obj).to({x: 100}, 100).repeat(Infinity)
+			t = new TWEEN.Tween(obj, true).to({x: 100}, 100).repeat(Infinity)
 
 		t.start(0)
 
@@ -1257,7 +1265,7 @@ export const tests = {
 		TWEEN.removeAll()
 
 		const obj = {x: 0, y: 0},
-			t = new TWEEN.Tween(obj).to({x: '+100', y: '-100'}, 100).repeat(1)
+			t = new TWEEN.Tween(obj, true).to({x: '+100', y: '-100'}, 100).repeat(1)
 
 		t.start(0)
 
@@ -1287,7 +1295,7 @@ export const tests = {
 		TWEEN.removeAll()
 
 		const obj = {x: 0},
-			t = new TWEEN.Tween(obj).to({x: 100}, 100).repeat(Infinity).yoyo(true)
+			t = new TWEEN.Tween(obj, true).to({x: 100}, 100).repeat(Infinity).yoyo(true)
 
 		t.start(0)
 
@@ -1315,7 +1323,7 @@ export const tests = {
 		TWEEN.removeAll()
 
 		const obj = {x: 0},
-			t = new TWEEN.Tween(obj).to({x: 100}, 100).repeat(1).yoyo(true)
+			t = new TWEEN.Tween(obj, true).to({x: 100}, 100).repeat(1).yoyo(true)
 
 		t.start(0)
 
@@ -1343,7 +1351,7 @@ export const tests = {
 		TWEEN.removeAll()
 
 		const obj = {x: 0},
-			t = new TWEEN.Tween(obj)
+			t = new TWEEN.Tween(obj, true)
 				.to({x: [100, 200]}, 100)
 				.repeat(1)
 				.yoyo(true)
@@ -1369,7 +1377,7 @@ export const tests = {
 		TWEEN.removeAll()
 
 		const obj = {x: 0},
-			t = new TWEEN.Tween(obj).to({x: 100}, 100).repeat(1).yoyo(true)
+			t = new TWEEN.Tween(obj, true).to({x: 100}, 100).repeat(1).yoyo(true)
 
 		t.start(0)
 
@@ -1410,13 +1418,13 @@ export const tests = {
 	},
 
 	'Test TWEEN.Tween.stopChainedTweens()'(test: Test): void {
-		const t = new TWEEN.Tween({}),
-			t2 = new TWEEN.Tween({})
+		TWEEN.removeAll()
+
+		const t = new TWEEN.Tween({}, true),
+			t2 = new TWEEN.Tween({}, true)
 		let tStarted = false,
 			tCompleted = false,
 			t2Started = false
-
-		TWEEN.removeAll()
 
 		t.to({}, 1000)
 		t2.delay(500).to({}, 1000)
@@ -1448,19 +1456,25 @@ export const tests = {
 
 		test.equal(tStarted, true)
 		test.equal(t2Started, false)
-		test.equal(TWEEN.getAll().length, 0)
+		test.equal(TWEEN.getAll().length, 2)
+
+		TWEEN.update(1501)
+
+		test.equal(t2Started, false)
 
 		test.done()
 	},
 
 	'Test TWEEN.Tween.chain progressess into chained tweens'(test: Test): void {
+		TWEEN.removeAll()
+
 		const obj = {t: 1000}
 
 		// 1000 of nothing
-		const blank = new TWEEN.Tween({}).to({}, 1000)
+		const blank = new TWEEN.Tween({}, true).to({}, 1000)
 
 		// tween obj.t from 1000 -> 2000 (in time with update time)
-		const next = new TWEEN.Tween(obj).to({t: 2000}, 1000)
+		const next = new TWEEN.Tween(obj, true).to({t: 2000}, 1000)
 
 		blank.chain(next).start(0)
 
@@ -1540,7 +1554,7 @@ export const tests = {
 		TWEEN.removeAll()
 
 		const obj = {x: 0},
-			t = new TWEEN.Tween(obj).to({x: 100}, 100).repeat(1).delay(100)
+			t = new TWEEN.Tween(obj, true).to({x: 100}, 100).repeat(1).delay(100)
 
 		t.start(0)
 
@@ -1572,7 +1586,7 @@ export const tests = {
 		TWEEN.removeAll()
 
 		const obj = {x: 0},
-			t = new TWEEN.Tween(obj).to({x: 100}, 100).repeat(1).repeatDelay(200)
+			t = new TWEEN.Tween(obj, true).to({x: 100}, 100).repeat(1).repeatDelay(200)
 
 		t.start(0)
 
@@ -1604,7 +1618,7 @@ export const tests = {
 		TWEEN.removeAll()
 
 		const obj = {x: 0},
-			t = new TWEEN.Tween(obj).to({x: 100}, 100).delay(100).repeat(1).repeatDelay(200)
+			t = new TWEEN.Tween(obj, true).to({x: 100}, 100).delay(100).repeat(1).repeatDelay(200)
 
 		t.start(0)
 
@@ -1633,10 +1647,12 @@ export const tests = {
 	},
 
 	'TWEEN.Tween.onRepeat should not be called if repeat = 0 or default'(test: Test): void {
+		TWEEN.removeAll()
+
 		const obj = {x: 0}
 		let callbackCounter = 0
 
-		const t = new TWEEN.Tween(obj).to({x: 100}, 100).start(0)
+		const t = new TWEEN.Tween(obj, true).to({x: 100}, 100).start(0)
 		t.onRepeat(() => {
 			callbackCounter++
 		})
@@ -1655,10 +1671,12 @@ export const tests = {
 	},
 
 	'TWEEN.Tween.onRepeat should be called once if repeat = 1'(test: Test): void {
+		TWEEN.removeAll()
+
 		const obj = {x: 0}
 		let callbackCounter = 0
 
-		const t = new TWEEN.Tween(obj).to({x: 100}, 100).repeat(1).start(0)
+		const t = new TWEEN.Tween(obj, true).to({x: 100}, 100).repeat(1).start(0)
 		t.onRepeat(() => {
 			callbackCounter++
 		})
@@ -1683,10 +1701,12 @@ export const tests = {
 	},
 
 	'TWEEN.Tween.onRepeat should be called every time if repeat = Infinity'(test: Test): void {
+		TWEEN.removeAll()
+
 		const obj = {x: 0}
 		let callbackCounter = 0
 
-		const t = new TWEEN.Tween(obj).to({x: 100}, 100).repeat(Infinity).start(0)
+		const t = new TWEEN.Tween(obj, true).to({x: 100}, 100).repeat(Infinity).start(0)
 		t.onRepeat(() => {
 			callbackCounter++
 		})
@@ -1713,10 +1733,12 @@ export const tests = {
 	'TWEEN.Tween.onRepeat should not be called if Tween.pause() or Tween.stop(), and should be called after Tween.resume() or restart'(
 		test: Test,
 	): void {
+		TWEEN.removeAll()
+
 		const generateTween = () => {
 			const obj = {x: 0}
 			const counter = {count: 0}
-			const tween = new TWEEN.Tween(obj).to({x: 100}, 100).repeat(Infinity).start(0)
+			const tween = new TWEEN.Tween(obj, true).to({x: 100}, 100).repeat(Infinity).start(0)
 			tween.onRepeat(() => {
 				counter.count++
 			})
@@ -1730,37 +1752,39 @@ export const tests = {
 		const tweenStop = generateTween()
 
 		TWEEN.update(100)
-		test.equal(tweenPause.counter.count, 1)
-		test.equal(tweenStop.counter.count, 1)
+		test.equal(tweenPause.counter.count, 1, 'repeats after first completion')
+		test.equal(tweenStop.counter.count, 1, 'repeats after first completion')
 
 		TWEEN.update(200)
-		test.equal(tweenPause.counter.count, 2)
-		test.equal(tweenStop.counter.count, 2)
-		tweenPause.tween.pause(200)
+		test.equal(tweenPause.counter.count, 2, 'repeats after second completion')
+		test.equal(tweenStop.counter.count, 2, 'repeats after second completion')
 
+		tweenPause.tween.pause(200)
 		TWEEN.update(300)
-		test.equal(tweenPause.counter.count, 2)
-		test.equal(tweenStop.counter.count, 3)
+		test.equal(tweenPause.counter.count, 2, 'tween is paused hence it did not repeat')
+		test.equal(tweenStop.counter.count, 3, 'tween is not stopped hence it repeated')
+
 		tweenPause.tween.resume(300)
 		tweenStop.tween.stop()
-
 		TWEEN.update(400)
-		test.equal(tweenPause.counter.count, 3)
-		test.equal(tweenStop.counter.count, 3)
-		tweenStop.tween.start(400)
+		test.equal(tweenPause.counter.count, 3, 'tween is resumed so it repeated')
+		test.equal(tweenStop.counter.count, 3, 'tween was stopped hence it did not repeat')
 
+		tweenStop.tween.start(400)
 		TWEEN.update(500)
-		test.equal(tweenPause.counter.count, 4)
-		test.equal(tweenStop.counter.count, 4)
+		test.equal(tweenPause.counter.count, 4, 'tween is not paused hence it repeated')
+		test.equal(tweenStop.counter.count, 4, 'tween is not stopped hence it repeated')
 
 		test.done()
 	},
 
 	'If Tween.delay is set, TWEEN.Tween.onRepeat should be called when repeat section finished'(test: Test): void {
+		TWEEN.removeAll()
+
 		const obj = {x: 0}
 		let callbackCounter = 0
 
-		const t = new TWEEN.Tween(obj).to({x: 100}, 100).delay(50).repeat(1).start(0)
+		const t = new TWEEN.Tween(obj, true).to({x: 100}, 100).delay(50).repeat(1).start(0)
 		t.onRepeat(() => {
 			callbackCounter++
 		})
@@ -1801,10 +1825,12 @@ export const tests = {
 	},
 
 	'If Tween.repeatDelay is set, TWEEN.Tween.onRepeat should be called when repeat section finished'(test: Test): void {
+		TWEEN.removeAll()
+
 		const obj = {x: 0}
 		let callbackCounter = 0
 
-		const t = new TWEEN.Tween(obj).to({x: 100}, 100).repeatDelay(100).repeat(1).start(0)
+		const t = new TWEEN.Tween(obj, true).to({x: 100}, 100).repeatDelay(100).repeat(1).start(0)
 		t.onRepeat(() => {
 			callbackCounter++
 		})
@@ -1841,7 +1867,7 @@ export const tests = {
 		TWEEN.removeAll()
 
 		const obj = {x: 0},
-			t = new TWEEN.Tween(obj).to({x: 100}, 100).repeat(5).delay(100)
+			t = new TWEEN.Tween(obj, true).to({x: 100}, 100).repeat(5).delay(100)
 
 		t.start(0)
 
@@ -1880,7 +1906,7 @@ export const tests = {
 		TWEEN.removeAll()
 
 		const obj = {x: 0},
-			t = new TWEEN.Tween(obj).to({x: 100}, 100).repeat(5).delay(100)
+			t = new TWEEN.Tween(obj, true).to({x: 100}, 100).repeat(5).delay(100)
 
 		t.start(0)
 
@@ -1894,8 +1920,8 @@ export const tests = {
 	'Test browser tab sleep with delay'(test: Test) {
 		TWEEN.removeAll()
 
-		var obj = {x: 0},
-			t = new TWEEN.Tween(obj).to({x: 100}, 100).repeat(Infinity).delay(100)
+		const obj = {x: 0},
+			t = new TWEEN.Tween(obj, true).to({x: 100}, 100).repeat(Infinity).delay(100)
 
 		t.start(0)
 
@@ -1911,8 +1937,8 @@ export const tests = {
 	'Test browser tab sleep with repeatDelay'(test: Test) {
 		TWEEN.removeAll()
 
-		var obj = {x: 0},
-			t = new TWEEN.Tween(obj).to({x: 100}, 100).repeat(1).repeatDelay(200)
+		const obj = {x: 0},
+			t = new TWEEN.Tween(obj, true).to({x: 100}, 100).repeat(1).repeatDelay(200)
 
 		t.start(0)
 
@@ -1931,8 +1957,8 @@ export const tests = {
 	'Test browser tab sleep with repeatDelay and delay'(test: Test) {
 		TWEEN.removeAll()
 
-		var obj = {x: 0},
-			t = new TWEEN.Tween(obj).to({x: 100}, 100).delay(100).repeat(1).repeatDelay(200)
+		const obj = {x: 0},
+			t = new TWEEN.Tween(obj, true).to({x: 100}, 100).delay(100).repeat(1).repeatDelay(200)
 
 		t.start(0)
 
@@ -1949,6 +1975,8 @@ export const tests = {
 	},
 
 	'Tween.js compatible with Object.defineProperty getter / setters'(test: Test): void {
+		TWEEN.removeAll()
+
 		const obj = {_x: 0, x: 0}
 
 		Object.defineProperty(obj, 'x', {
@@ -1962,7 +1990,7 @@ export const tests = {
 
 		test.equal(obj.x, 0)
 
-		const t = new TWEEN.Tween(obj).to({x: 100}, 100)
+		const t = new TWEEN.Tween(obj, true).to({x: 100}, 100)
 
 		t.start(0)
 
@@ -1981,8 +2009,6 @@ export const tests = {
 	},
 
 	'tween.isPlaying() is false before the tween starts'(test: Test): void {
-		TWEEN.removeAll()
-
 		const t = new TWEEN.Tween({x: 0}).to({x: 1}, 100)
 
 		test.equal(t.isPlaying(), false)
@@ -1991,8 +2017,6 @@ export const tests = {
 	},
 
 	'tween.isPlaying() is true when a tween is started and before it ends'(test: Test): void {
-		TWEEN.removeAll()
-
 		const t = new TWEEN.Tween({x: 0}).to({x: 1}, 100)
 		t.start(0)
 		test.equal(t.isPlaying(), true)
@@ -2003,7 +2027,7 @@ export const tests = {
 	'tween.isPlaying() is false after a tween ends'(test: Test): void {
 		TWEEN.removeAll()
 
-		const t = new TWEEN.Tween({x: 0}).to({x: 1}, 100)
+		const t = new TWEEN.Tween({x: 0}, true).to({x: 1}, 100)
 		t.start(0)
 		TWEEN.update(150)
 		test.equal(t.isPlaying(), false)
@@ -2015,7 +2039,7 @@ export const tests = {
 		TWEEN.removeAll()
 
 		const object = {x: 0}
-		const t = new TWEEN.Tween(object).to({x: 1}, 0)
+		const t = new TWEEN.Tween(object, true).to({x: 1}, 0)
 		t.start(0)
 		TWEEN.update(0)
 
@@ -2039,7 +2063,7 @@ export const tests = {
 		const numGlobalTweensBefore = TWEEN.getAll().length
 		const numGroupTweensBefore = group.getAll().length
 
-		const globalTween = new TWEEN.Tween({})
+		const globalTween = new TWEEN.Tween({}, true)
 		const groupTweenA = new TWEEN.Tween({}, group)
 		const groupTweenB = new TWEEN.Tween({}, group)
 
@@ -2061,7 +2085,7 @@ export const tests = {
 		test.equal(TWEEN.getAll().length, 0, 'No global tweens left')
 		test.equal(group.getAll().length, 0, 'No group tweens left')
 
-		const globalTween = new TWEEN.Tween({})
+		const globalTween = new TWEEN.Tween({}, true)
 		const groupTweenA = new TWEEN.Tween({}, group)
 		const groupTweenB = new TWEEN.Tween({}, group)
 
@@ -2093,7 +2117,7 @@ export const tests = {
 		test.equal(TWEEN.getAll().length, 0, 'No global tweens left')
 		test.equal(group.getAll().length, 0, 'No group tweens left')
 
-		const globalTween = new TWEEN.Tween({})
+		const globalTween = new TWEEN.Tween({}, true)
 		const groupTweenA = new TWEEN.Tween({}, group)
 		const groupTweenB = new TWEEN.Tween({}, group)
 
@@ -2119,19 +2143,16 @@ export const tests = {
 	"Custom group.add() doesn't conflict with global TWEEN group, or vice versa"(test: Test): void {
 		const group = new TWEEN.Group()
 
-		const globalTween = new TWEEN.Tween({})
+		const globalTween = new TWEEN.Tween({}, true)
 		const groupTweenA = new TWEEN.Tween({}, group)
 		const groupTweenB = new TWEEN.Tween({}, group)
-
-		const numGlobalTweens = TWEEN.getAll().length
-		const numGroupTweens = group.getAll().length
 
 		TWEEN.add(globalTween)
 		group.add(groupTweenA)
 		group.add(groupTweenB)
 
-		test.equal(numGlobalTweens + 1, TWEEN.getAll().length)
-		test.equal(numGroupTweens + 2, group.getAll().length)
+		test.equal(TWEEN.getAll().length, 1)
+		test.equal(group.getAll().length, 2)
 
 		test.done()
 	},
@@ -2144,7 +2165,7 @@ export const tests = {
 		const duration = 1000
 
 		const globalObj = {x: 1}
-		new TWEEN.Tween(globalObj).to(endObj, duration).start(0)
+		new TWEEN.Tween(globalObj, true).to(endObj, duration).start(0)
 
 		const groupObj = {x: 1}
 		new TWEEN.Tween(groupObj, group).to(endObj, duration).start(0)
@@ -2164,7 +2185,7 @@ export const tests = {
 		const duration = 1000
 
 		const globalObj = {x: 1}
-		new TWEEN.Tween(globalObj).to(endObj, duration).start(0)
+		new TWEEN.Tween(globalObj, true).to(endObj, duration).start(0)
 
 		const groupObj = {x: 1}
 		new TWEEN.Tween(groupObj, group).to(endObj, duration).start(0)
@@ -2178,7 +2199,7 @@ export const tests = {
 
 	'Ensure tweens work without any group'(test: Test): void {
 		const obj = {x: 0},
-			t = new TWEEN.Tween(obj, false)
+			t = new TWEEN.Tween(obj)
 
 		t.to({x: 1000}, 1000)
 
@@ -2205,13 +2226,13 @@ export const tests = {
 	'Stopping a tween within an update callback will not cause an error.'(test: Test): void {
 		TWEEN.removeAll()
 
-		const tweenA = new TWEEN.Tween({x: 1, y: 2})
+		const tweenA = new TWEEN.Tween({x: 1, y: 2}, true)
 			.to({x: 3, y: 4}, 1000)
 			.onUpdate(function (): void {
 				tweenB.stop()
 			})
 			.start(0)
-		const tweenB = new TWEEN.Tween({x: 5, y: 6})
+		const tweenB = new TWEEN.Tween({x: 5, y: 6}, true)
 			.to({x: 7, y: 8})
 			.onUpdate(function (): void {
 				tweenA.stop()
@@ -2260,16 +2281,16 @@ export const tests = {
 	},
 
 	'Test TWEEN.Tween.pause() and TWEEN.Tween.resume()'(test: Test): void {
+		TWEEN.removeAll()
+
 		const obj = {x: 0.0},
-			t = new TWEEN.Tween(obj)
+			t = new TWEEN.Tween(obj, true)
 
 		t.to({x: 1.0}, 1000)
 
-		TWEEN.removeAll()
-		test.equal(TWEEN.getAll().length, 0)
+		test.equal(TWEEN.getAll().length, 1)
 
 		t.start(0)
-		test.equal(TWEEN.getAll().length, 1)
 		test.equal(t.isPaused(), false)
 
 		TWEEN.update(400)
@@ -2277,7 +2298,7 @@ export const tests = {
 
 		t.pause(450)
 		test.equal(t.isPaused(), true)
-		test.equal(TWEEN.getAll().length, 0)
+		test.equal(TWEEN.getAll().length, 1)
 		test.equal(obj.x, 0.4)
 
 		TWEEN.update(900)
@@ -2302,7 +2323,7 @@ export const tests = {
 
 	'Test TWEEN.Tween.pause() and TWEEN.Tween.resume(), without groups'(test: Test): void {
 		const obj = {x: 0.0},
-			t = new TWEEN.Tween(obj, false)
+			t = new TWEEN.Tween(obj)
 
 		t.to({x: 1.0}, 1000)
 
@@ -2384,9 +2405,11 @@ export const tests = {
 	},
 
 	'Tween.js animate nested object'(test: Test): void {
+		TWEEN.removeAll()
+
 		const obj = {scale: {x: 0}, alpha: 0}
 
-		const t = new TWEEN.Tween(obj).to({scale: {x: 100}, alpha: 100}, 100)
+		const t = new TWEEN.Tween(obj, true).to({scale: {x: 100}, alpha: 100}, 100)
 		t.start(0)
 
 		test.equal(obj.scale.x, 0)
@@ -2407,9 +2430,11 @@ export const tests = {
 	},
 
 	'Tween.js animate nested object including relative value'(test: Test): void {
+		TWEEN.removeAll()
+
 		const obj = {world: {hero: {scale: {x: 0}, x: 100}}, time: 0}
 
-		const t = new TWEEN.Tween(obj).to({world: {hero: {scale: {x: 100}, x: '+100'}}, time: 100}, 100)
+		const t = new TWEEN.Tween(obj, true).to({world: {hero: {scale: {x: 100}, x: '+100'}}, time: 100}, 100)
 		t.start(0)
 
 		test.equal(obj.world.hero.scale.x, 0)
@@ -2433,14 +2458,14 @@ export const tests = {
 	},
 
 	'Test TWEEN.Tween with nested objects'(test: Test): void {
+		TWEEN.removeAll()
+
 		const obj = {x: 0.0, y: 100, some: {value: 0.0, style: {opacity: 1.0}}},
-			t = new TWEEN.Tween(obj)
+			t = new TWEEN.Tween(obj, true)
 
 		t.to({x: 1.0, y: 200, some: {value: 1.0, style: {opacity: 0.5}}}, 1000)
 
-		TWEEN.removeAll()
-
-		test.equal(TWEEN.getAll().length, 0)
+		test.equal(TWEEN.getAll().length, 1)
 
 		t.start(0)
 
@@ -2472,14 +2497,14 @@ export const tests = {
 	},
 
 	'Test TWEEN.Tween.pause() and .resume() with nested objects'(test: Test): void {
+		TWEEN.removeAll()
+
 		const obj = {x: 0.0, y: 100, some: {value: 0.0}},
-			t = new TWEEN.Tween(obj)
+			t = new TWEEN.Tween(obj, true)
 
 		t.to({x: 1.0, y: 200, some: {value: 1.0}}, 1000)
 
-		TWEEN.removeAll()
-
-		test.equal(TWEEN.getAll().length, 0)
+		test.equal(TWEEN.getAll().length, 1)
 
 		t.start(0)
 
@@ -2495,7 +2520,7 @@ export const tests = {
 		t.pause(450)
 
 		test.equal(t.isPaused(), true)
-		test.equal(TWEEN.getAll().length, 0)
+		test.equal(TWEEN.getAll().length, 1)
 		test.equal(obj.x, 0.4)
 		test.equal(obj.y, 140)
 		test.equal(obj.some.value, 0.4)
@@ -2582,9 +2607,11 @@ export const tests = {
 	},
 
 	"Test TWEEN.to(ends) shouldn't grow endless on ends value"(test: Test): void {
+		TWEEN.removeAll()
+
 		const target = {y: 0}
 		const ends = {y: [100, 200]}
-		const tween = new TWEEN.Tween(target).to(ends, 1000)
+		const tween = new TWEEN.Tween(target, true).to(ends, 1000)
 
 		tween.stop().start(0)
 		tween.stop().start(0)
@@ -2601,10 +2628,10 @@ export const tests = {
 		const dynamicTargetValue = {x: 5}
 		const chasingValue = {x: 0}
 		const duration = 1000 // must be even
-		const t1 = new TWEEN.Tween(dynamicTargetValue).to({x: 10}, duration),
-			t2 = new TWEEN.Tween(chasingValue).to(dynamicTargetValue, duration).dynamic(true)
+		const t1 = new TWEEN.Tween(dynamicTargetValue, true).to({x: 10}, duration),
+			t2 = new TWEEN.Tween(chasingValue, true).to(dynamicTargetValue, duration).dynamic(true)
 
-		test.equal(TWEEN.getAll().length, 0)
+		test.equal(TWEEN.getAll().length, 2)
 
 		t1.start(0)
 		t2.start(0)
@@ -2625,10 +2652,10 @@ export const tests = {
 		const dynamicTargetValue = [5]
 		const chasingValue = [0]
 		const duration = 1000 // must be even
-		const t1 = new TWEEN.Tween(dynamicTargetValue).to([10], duration),
-			t2 = new TWEEN.Tween(chasingValue).to(dynamicTargetValue, duration).dynamic(true)
+		const t1 = new TWEEN.Tween(dynamicTargetValue, true).to([10], duration),
+			t2 = new TWEEN.Tween(chasingValue, true).to(dynamicTargetValue, duration).dynamic(true)
 
-		test.equal(TWEEN.getAll().length, 0)
+		test.equal(TWEEN.getAll().length, 2)
 
 		t1.start(0)
 		t2.start(0)
@@ -2656,7 +2683,7 @@ export const tests = {
 			const initialValue = {x: 0}
 			observedValues.push(initialValue)
 			tweens.push(
-				new TWEEN.Tween(initialValue).to({x: dynamicTargetValues.x[i]}, duration).onUpdate(function (object) {
+				new TWEEN.Tween(initialValue, true).to({x: dynamicTargetValues.x[i]}, duration).onUpdate(function (object) {
 					// TODO the fact that we need `index + 1` instead of just
 					// `index` here is confusing. It is because Tween adds an
 					// axtra start value at the beginning of the array. Update
@@ -2667,9 +2694,9 @@ export const tests = {
 			)
 		}
 
-		const t = new TWEEN.Tween(chasingValue).to(dynamicTargetValues, duration).dynamic(true)
+		const t = new TWEEN.Tween(chasingValue, true).to(dynamicTargetValues, duration).dynamic(true)
 
-		test.equal(TWEEN.getAll().length, 0)
+		test.equal(TWEEN.getAll().length, 5)
 
 		tweens.forEach(tween => tween.start(0))
 		t.start(0)

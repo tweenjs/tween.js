@@ -31,80 +31,76 @@
 			</div>
 		</div>
 
-		<script src="../dist/tween.umd.js"></script>
 		<script type="module">
+			import * as TWEEN from '../dist/tween.esm.js'
 			import {drawRabbit, drawFox} from './js/drawings.js'
 
 			startScene('scene1', false)
 			startScene('scene2', true)
 
 			function startScene(id, dynamic) {
-				var context
-				var width
-				var height
-				var rabbit1
-				var rabbit2
-				var fox
+				const group = new TWEEN.Group()
 
-				init()
-				animate()
+				const width = 480
+				const height = 320
 
-				function init() {
-					width = 480
-					height = 320
+				const scene = document.getElementById(id)
 
-					var scene = document.getElementById(id)
+				const canvas = document.createElement('canvas')
+				canvas.width = width
+				canvas.height = height
+				scene.appendChild(canvas)
 
-					var canvas = document.createElement('canvas')
-					canvas.width = width
-					canvas.height = height
-					scene.appendChild(canvas)
+				const context = canvas.getContext('2d')
 
-					context = canvas.getContext('2d')
-
-					rabbit1 = {
-						x: width * 0.8,
-						y: 50,
-					}
-
-					new TWEEN.Tween(rabbit1)
-						.to({x: width / 2, y: height - 50}, 2000)
-						.easing(TWEEN.Easing.Cubic.InOut)
-						.onUpdate(function ({x, y}) {
-							rabbits.x[1] = x
-							rabbits.y[1] = y
-						})
-						.start()
-
-					rabbit2 = {
-						x: width - 50,
-						y: height - 50,
-					}
-
-					new TWEEN.Tween(rabbit2)
-						.to({x: width / 3, y: 50}, 3000)
-						.easing(TWEEN.Easing.Cubic.InOut)
-						.onUpdate(function ({x, y}) {
-							rabbits.x[2] = x
-							rabbits.y[2] = y
-						})
-						.start()
-
-					var rabbits = {
-						x: [rabbit1.x, rabbit2.x],
-						y: [rabbit1.y, rabbit2.y],
-					}
-
-					fox = {
-						x: 50,
-						y: 50,
-					}
-
-					new TWEEN.Tween(fox).to(rabbits, 3000).dynamic(dynamic).interpolation(TWEEN.Interpolation.CatmullRom).start()
+				const rabbit1 = {
+					x: width * 0.8,
+					y: 50,
 				}
 
+				new TWEEN.Tween(rabbit1, group)
+					.to({x: width / 2, y: height - 50}, 2000)
+					.easing(TWEEN.Easing.Cubic.InOut)
+					.onUpdate(function ({x, y}) {
+						rabbits.x[1] = x
+						rabbits.y[1] = y
+					})
+					.start()
+
+				const rabbit2 = {
+					x: width - 50,
+					y: height - 50,
+				}
+
+				new TWEEN.Tween(rabbit2, group)
+					.to({x: width / 3, y: 50}, 3000)
+					.easing(TWEEN.Easing.Cubic.InOut)
+					.onUpdate(function ({x, y}) {
+						rabbits.x[2] = x
+						rabbits.y[2] = y
+					})
+					.start()
+
+				const rabbits = {
+					x: [rabbit1.x, rabbit2.x],
+					y: [rabbit1.y, rabbit2.y],
+				}
+
+				const fox = {
+					x: 50,
+					y: 50,
+				}
+
+				new TWEEN.Tween(fox, group)
+					.to(rabbits, 3000)
+					.dynamic(dynamic)
+					.interpolation(TWEEN.Interpolation.CatmullRom)
+					.start()
+
+				animate()
+
 				function animate(time) {
-					TWEEN.update(time)
+					group.update(time)
 
 					context.fillStyle = 'rgb(240,250,240)'
 					context.fillRect(0, 0, width, height)

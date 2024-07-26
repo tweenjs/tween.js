@@ -13,14 +13,14 @@ _**NOTE** 这是一个正在进行的工作。 如果你发现某些内容不清
 例如，`position` 对象拥有 `x` 和 `y` 两个坐标：
 
 ```js
-var position = {x: 100, y: 0}
+const position = {x: 100, y: 0}
 ```
 
 如果你想将 `x` 坐标的值从 `100` 变成 `200` ，你应该这么做：
 
 ```js
 // 首先为位置创建一个补间(tween)
-var tween = new TWEEN.Tween(position)
+const tween = new TWEEN.Tween(position)
 
 // 然后告诉 tween 我们想要在1000毫秒内以动画的形式移动 x 的位置
 tween.to({x: 200}, 1000)
@@ -61,7 +61,7 @@ tween.onUpdate(function (object) {
 到目前为止，我们只使用 tweens 将值打印到控制台，但你可以将它用于 three.js 对象的动画位置之类的事情：
 
 ```js
-var tween = new TWEEN.Tween(cube.position).to({x: 100, y: 100, z: 100}, 10000).start()
+const tween = new TWEEN.Tween(cube.position).to({x: 100, y: 100, z: 100}, 10000).start()
 
 animate()
 
@@ -78,7 +78,7 @@ function animate() {
 你可能也注意到了一些不同的地方：tween.js 可以链式调用！ 每个 tween 函数都会返回 tween 实例，所以你可以重写下面的代码：
 
 ```js
-var tween = new TWEEN.Tween(position)
+const tween = new TWEEN.Tween(position)
 tween.to({x: 200}, 1000)
 tween.start()
 ```
@@ -86,7 +86,7 @@ tween.start()
 改成这样：
 
 ```js
-var tween = new TWEEN.Tween(position).to({x: 200}, 1000).start()
+const tween = new TWEEN.Tween(position).to({x: 200}, 1000).start()
 ```
 
 在将会看到很多例子，所以熟悉它是很好的！比如 [04-simplest](../examples/04_simplest.html) 这个例子。
@@ -119,7 +119,7 @@ TWEEN.update(100)
 意思是“更新时间 = 100 毫秒”。你可以使用它来确保代码中的所有时间相关函数都使用相同的时间值。例如，假设你有一个播放器，并希望同步运行补间。 你的 `animate` 函数可能看起来像这样：
 
 ```js
-var currentTime = player.currentTime
+const currentTime = player.currentTime
 TWEEN.update(currentTime)
 ```
 
@@ -272,14 +272,14 @@ tween.start()
 为了解决这个问题，每个组件都可以创建自己的 `TWEEN.Group` 实例（这是全局 `TWEEN` 对象在内部使用的实例）。 在实例化新补间时，这些组可以作为第二个可选参数传入：
 
 ```js
-var groupA = new TWEEN.Group()
-var groupB = new TWEEN.Group()
+const groupA = new TWEEN.Group()
+const groupB = new TWEEN.Group()
 
-var tweenA = new TWEEN.Tween({x: 1}, groupA).to({x: 10}, 100).start()
+const tweenA = new TWEEN.Tween({x: 1}, groupA).to({x: 10}, 100).start()
 
-var tweenB = new TWEEN.Tween({x: 1}, groupB).to({x: 10}, 100).start()
+const tweenB = new TWEEN.Tween({x: 1}, groupB).to({x: 10}, 100).start()
 
-var tweenC = new TWEEN.Tween({x: 1}).to({x: 10}, 100).start()
+const tweenC = new TWEEN.Tween({x: 1}).to({x: 10}, 100).start()
 
 groupA.update() // 只更新tweenA
 groupB.update() // 只更新tweenB
@@ -351,7 +351,7 @@ tween.easing(tenStepEasing)
 例如，假设你正在试图给一些不能直接访问属性的对象设置动画，但是需要你调用 setter。 你可以使用 `update` 回调来读取新的更新值，然后手动调用 setters。 所有的回调函数都将补间对象作为唯一的参数。
 
 ```js
-var trickyObjTween = new TWEEN.Tween({
+const trickyObjTween = new TWEEN.Tween({
 	propertyA: trickyObj.getPropertyA(),
 	propertyB: trickyObj.getPropertyB(),
 })
@@ -365,7 +365,7 @@ var trickyObjTween = new TWEEN.Tween({
 或者假设你想在开始补间时播放声音。 你可以使用 `start` 回调：
 
 ```js
-var tween = new TWEEN.Tween(obj).to({x: 100}).onStart(function () {
+const tween = new TWEEN.Tween(obj).to({x: 100}).onStart(function () {
 	sound.play()
 })
 ```
@@ -540,7 +540,7 @@ onEveryStart     { x: 5 }
 
 ```js
 // 这将使 `x` 属性始终为 100
-var absoluteTween = new TWEEN.Tween(absoluteObj).to({x: 100})
+const absoluteTween = new TWEEN.Tween(absoluteObj).to({x: 100})
 
 // 假设 absoluteObj.x 现在为 0
 absoluteTween.start() // 使 x 变为 100
@@ -551,7 +551,7 @@ absoluteTween.start() // 使 x 变为 100
 // 相比之下...
 
 // 这将使 `x` 属性相对于开始时的实际值多 100 个单位
-var relativeTween = new TWEEN.Tween(relativeObj).to({x: '+100'})
+const relativeTween = new TWEEN.Tween(relativeObj).to({x: '+100'})
 
 // 假设 relativeObj.x 现在是 0
 relativeTween.start() // 使 x 变为 0 +100 = 100
@@ -567,8 +567,8 @@ relativeTween.start() // 使 x 变为 -100 +100 = 0
 Tween.js 还可以跨嵌套对象更改属性。 例如：
 
 ```js
-var nestedObject = {scale: {x: 0, y: 0}, alpha: 0}
-var tween = new TWEEN.Tween(nestedObject).to({scale: {x: 100, y: 100}, alpha: 1})
+const nestedObject = {scale: {x: 0, y: 0}, alpha: 0}
+const tween = new TWEEN.Tween(nestedObject).to({scale: {x: 100, y: 100}, alpha: 1})
 ```
 
 ### 补间值的数组
@@ -576,7 +576,7 @@ var tween = new TWEEN.Tween(nestedObject).to({scale: {x: 100, y: 100}, alpha: 1}
 除了补间到绝对值或相对值之外，你还可以让 Tween.js 更改一系列值的属性。 为此，你只需为属性指定一个值数组而不是单个值。 例如：
 
 ```js
-var tween = new TWEEN.Tween(relativeObj).to({x: [0, -100, 100]})
+const tween = new TWEEN.Tween(relativeObj).to({x: [0, -100, 100]})
 ```
 
 将使 `x` 从初始值变为 0，-100 和 100。
@@ -617,8 +617,8 @@ tween.interpolation(TWEEN.Interpolation.Bezier)
 当你尝试为页面中元素的位置设置动画时，最简单的解决方案是为 `top` 和 `left` 样式属性设置动画，如下所示：
 
 ```js
-var element = document.getElementById('myElement')
-var tween = new TWEEN.Tween({top: 0, left: 0}).to({top: 100, left: 100}, 1000).onUpdate(function (object) {
+const element = document.getElementById('myElement')
+const tween = new TWEEN.Tween({top: 0, left: 0}).to({top: 100, left: 100}, 1000).onUpdate(function (object) {
 	element.style.top = object.top + 'px'
 	element.style.left = object.left + 'px'
 })
@@ -627,8 +627,8 @@ var tween = new TWEEN.Tween({top: 0, left: 0}).to({top: 100, left: 100}, 1000).o
 但这确实效率低下，因为更改这些属性会强制浏览器在每次更新时重新计算布局，这是一项非常消耗性能的操作。你应该使用 `transform`，它不会使布局无效，并且在可能的情况下也会进行硬件加速，如下所示：
 
 ```js
-var element = document.getElementById('myElement')
-var tween = new TWEEN.Tween({top: 0, left: 0}).to({top: 100, left: 100}, 1000).onUpdate(function (object) {
+const element = document.getElementById('myElement')
+const tween = new TWEEN.Tween({top: 0, left: 0}).to({top: 100, left: 100}, 1000).onUpdate(function (object) {
 	element.style.transform = 'translate(' + object.left + 'px, ' + object.top + 'px);'
 })
 ```

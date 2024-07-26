@@ -12,7 +12,7 @@
 ---
 
 ```html
-<script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/20.0.0/tween.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/23.1.3/tween.umd.js"></script>
 
 <div id="box"></div>
 
@@ -59,13 +59,13 @@
 cdnjs:
 
 ```html
-<script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/20.0.0/tween.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/23.1.3/tween.umd.js"></script>
 ```
 
 或者 unpkg.com:
 
 ```html
-<script src="https://unpkg.com/@tweenjs/tween.js@^20.0.0/dist/tween.umd.js"></script>
+<script src="https://unpkg.com/@tweenjs/tween.js@^23.1.3/dist/tween.umd.js"></script>
 ```
 
 请注意，unpkg.com 支持 URL 中的 semver 版本，其中 URL 中的 `^` 告诉 unpkg 为你提供最新版本 20.x.x。
@@ -84,7 +84,7 @@ npm run build
 这将在 `dist` 目录中创建一些构建。 目前有两种不同的库版本：
 
 - UMD : `tween.umd.js`
-- ES6 Module : `tween.es.js`
+- ES6 Module : `tween.esm.js`
 
 你现在可以将 tween.umd.js 复制到你的项目中，然后将其包含在一个 script 标签，它将 TWEEN 添加到全局范围，
 
@@ -96,7 +96,7 @@ npm run build
 
 ```html
 <script type="module">
-	import * as TWEEN from 'path/to/tween.es.js'
+	import * as TWEEN from 'path/to/tween.esm.js'
 </script>
 ```
 
@@ -126,7 +126,7 @@ import * as TWEEN from '@tweenjs/tween.js'
 <script type="importmap">
 	{
 		"imports": {
-			"@tweenjs/tween.js": "/node_modules/@tweenjs/tween.js/dist/tween.es.js"
+			"@tweenjs/tween.js": "/node_modules/@tweenjs/tween.js/dist/tween.esm.js"
 		}
 	}
 </script>

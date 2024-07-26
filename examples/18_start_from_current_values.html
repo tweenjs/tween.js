@@ -28,36 +28,27 @@
 			"
 		></div>
 
-		<script src="../dist/tween.umd.js"></script>
-		<script>
-			var position
-			var target
-			var tween, tweenBack
+		<script type="module">
+			import * as TWEEN from '../dist/tween.esm.js'
 
-			init()
+			const position = {x: 400, y: 200}
+			const target = document.getElementById('target')
+			const tween = new TWEEN.Tween(position)
+				.to({x: 700, y: 200}, 2000)
+				.easing(TWEEN.Easing.Elastic.InOut)
+				.onUpdate(update)
+
+			document.getElementById('start-tween').addEventListener('click', () => {
+				tween.startFromCurrentValues() // start the tween from its current position
+				animate() // call animate as we unregister the handler if TWEEN.update(time) returns false
+			})
+
+			registerArrowButtonEventListeners()
+
 			animate()
 
-			function init() {
-				position = {x: 400, y: 200}
-				target = document.getElementById('target')
-				tween = new TWEEN.Tween(position).to({x: 700, y: 200}, 2000).easing(TWEEN.Easing.Elastic.InOut).onUpdate(update)
-
-				document.getElementById('start-tween').addEventListener('click', () => {
-					tween.startFromCurrentValues() // start the tween from its current position
-					animate() // call animate as we unregister the handler if TWEEN.update(time) returns false
-				})
-
-				registerArrowButtonEventListeners()
-			}
-
-			//If we register the callback animate, but the TWEEN.update(time) returns false,
-			//cancel/unregister the handler
 			function animate(time) {
-				var id = requestAnimationFrame(animate)
-
-				var result = TWEEN.update(time)
-
-				if (!result) cancelAnimationFrame(id)
+				if (tween.update(time)) requestAnimationFrame(animate)
 			}
 
 			function update() {

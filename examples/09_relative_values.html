@@ -17,41 +17,16 @@
 				background: #fcc;
 			}
 		</style>
-		<script src="../dist/tween.umd.js"></script>
-		<script>
-			window.onload = function () {
-				init()
-				animate()
-			}
 
-			function init() {
-				var target1 = document.getElementById('target1'),
-					tween1 = new TWEEN.Tween(target1.dataset)
-						.to({top: '+20', left: '-20'}, 500)
-						.repeat(5)
-						.delay(500)
-						.easing(TWEEN.Easing.Exponential.In)
-						.onUpdate(function (object) {
-							object.top = Math.round(object.top)
-							object.left = Math.round(object.left)
-							updateBox(target1, object)
-						})
-						.start()
-
-				updateBox(target1, target1.dataset)
-			}
-
-			function animate(time) {
-				requestAnimationFrame(animate)
-				TWEEN.update(time)
-			}
-
-			function updateBox(box, params) {
-				var s = box.style
-				var transform = 'translate(' + params.left + 'px, ' + params.top + 'px)'
-				s.transform = transform
+		<script type="importmap">
+			{
+				"imports": {
+					"@tweenjs/tween.js": "../dist/tween.esm.js"
+				}
 			}
 		</script>
+
+		<script type="module" src="./09_relative_values.js"></script>
 	</head>
 	<body>
 		<div id="info">

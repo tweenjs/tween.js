@@ -1,19 +1,23 @@
-const toPhysicalPx = cssPx => cssPx * devicePixelRatio
+// @ts-check
+import {Tween, Easing} from '../../dist/tween.esm.js'
+import {toPhysicalPx} from './toPhysicalPx.js'
 
-function createGraph(text, easingFn, width = 180, height = 100) {
-	var div = document.createElement('div')
+export function createGraph(group, text, easingFn, width = 180, height = 100) {
+	const div = document.createElement('div')
 	div.style.display = 'inline-block'
 	// +20 for padding
 	div.style.width = width + 20 + 'px'
 	div.style.height = height + 20 + 'px'
 
-	var canvas = document.createElement('canvas')
+	const canvas = document.createElement('canvas')
 	canvas.style.width = width + 'px'
 	canvas.style.height = height + 'px'
 	canvas.width = toPhysicalPx(width)
 	canvas.height = toPhysicalPx(height)
 
-	var context = canvas.getContext('2d')
+	const context = canvas.getContext('2d')
+	if (!context) throw 'impossible'
+
 	context.fillStyle = 'rgb(250,250,250)'
 	context.fillRect(0, 0, toPhysicalPx(width), toPhysicalPx(height))
 
@@ -34,13 +38,14 @@ function createGraph(text, easingFn, width = 180, height = 100) {
 	context.moveTo(toPhysicalPx(5), toPhysicalPx(80))
 	context.lineCap = 'round'
 
-	var position = {x: toPhysicalPx(5), y: toPhysicalPx(80)}
+	const position = {x: toPhysicalPx(5), y: toPhysicalPx(80)}
 
-	new TWEEN.Tween(position)
+	new Tween(position, group)
 		.to({x: toPhysicalPx(175)}, 2000)
-		.easing(TWEEN.Easing.Linear.None)
+		.easing(Easing.Linear.None)
 		.start()
-	new TWEEN.Tween(position)
+
+	new Tween(position, group)
 		.to({y: toPhysicalPx(20)}, 2000)
 		.easing(easingFn)
 		.onUpdate(function () {

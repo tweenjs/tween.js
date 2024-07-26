@@ -40,36 +40,31 @@
 			Two
 		</div>
 
-		<script src="../dist/tween.umd.js"></script>
-		<script>
-			var position
-			var target
-			var tween1, tween2
+		<script type="module">
+			import * as TWEEN from '../dist/tween.esm.js'
 
-			init()
+			const position1 = {x: 100, y: 100, rotation: 0}
+			const position2 = {x: 100, y: 300, rotation: 0}
+			const target1 = document.getElementById('target1')
+			const target2 = document.getElementById('target2')
+
+			const tween1 = new TWEEN.Tween(position1)
+				.to({x: 700, y: 200, rotation: 359}, 2000)
+				.easing(TWEEN.Easing.Elastic.InOut)
+				.onUpdate(update1)
+
+			const tween2 = new TWEEN.Tween(position2).to({x: 500, y: 300, rotation: -90}, 2000).onUpdate(update2)
+
+			tween1.delay(2000).start()
+			tween2.delay(100).start()
+
 			animate()
-
-			function init() {
-				position1 = {x: 100, y: 100, rotation: 0}
-				position2 = {x: 100, y: 300, rotation: 0}
-				target1 = document.getElementById('target1')
-				target2 = document.getElementById('target2')
-
-				tween1 = new TWEEN.Tween(position1)
-					.to({x: 700, y: 200, rotation: 359}, 2000)
-					.easing(TWEEN.Easing.Elastic.InOut)
-					.onUpdate(update1)
-
-				tween2 = new TWEEN.Tween(position2).to({x: 500, y: 300, rotation: -90}, 2000).onUpdate(update2)
-
-				tween1.delay(2000).start()
-				tween2.delay(100).start()
-			}
 
 			function animate(time) {
 				requestAnimationFrame(animate)
 
-				TWEEN.update(time)
+				tween1.update(time)
+				tween2.update(time)
 			}
 
 			function update1() {

@@ -24,46 +24,44 @@
 
 		<div id="target"></div>
 
-		<script src="../dist/tween.umd.js"></script>
-		<script src="js/createGraph.js"></script>
-		<script>
-			window.addEventListener('load', function () {
-				init()
-				animate()
-			})
+		<script type="module">
+			import {createGraph} from './js/createGraph.js'
+			import * as TWEEN from '../dist/tween.esm.js'
 
-			function init() {
-				var target = document.getElementById('target')
+			const group = new TWEEN.Group()
 
-				const addGraph = pow => {
-					target.appendChild(createGraph(`Power"${pow}".In`, TWEEN.Easing.generatePow(pow).In))
-					target.appendChild(createGraph(`Power"${pow}".Out`, TWEEN.Easing.generatePow(pow).Out))
-					target.appendChild(createGraph(`Power"${pow}".InOut`, TWEEN.Easing.generatePow(pow).InOut))
-				}
-				target.appendChild(createGraph('Power1', TWEEN.Easing.generatePow(1).In))
+			const target = document.getElementById('target')
 
-				target.appendChild(document.createElement('br'))
-
-				addGraph(2)
-				addGraph(3)
-
-				target.appendChild(document.createElement('br'))
-
-				addGraph(4)
-				addGraph(5)
-
-				target.appendChild(document.createElement('br'))
-
-				addGraph(5.8)
-				target.appendChild(createGraph(`Exponential.In`, TWEEN.Easing.Exponential.In))
-				target.appendChild(createGraph(`Exponential.Out`, TWEEN.Easing.Exponential.Out))
-				target.appendChild(createGraph(`Exponential.InOut`, TWEEN.Easing.Exponential.InOut))
+			const addGraph = pow => {
+				target.appendChild(createGraph(group, `Power"${pow}".In`, TWEEN.Easing.generatePow(pow).In))
+				target.appendChild(createGraph(group, `Power"${pow}".Out`, TWEEN.Easing.generatePow(pow).Out))
+				target.appendChild(createGraph(group, `Power"${pow}".InOut`, TWEEN.Easing.generatePow(pow).InOut))
 			}
+			target.appendChild(createGraph(group, 'Power1', TWEEN.Easing.generatePow(1).In))
+
+			target.appendChild(document.createElement('br'))
+
+			addGraph(2)
+			addGraph(3)
+
+			target.appendChild(document.createElement('br'))
+
+			addGraph(4)
+			addGraph(5)
+
+			target.appendChild(document.createElement('br'))
+
+			addGraph(5.8)
+			target.appendChild(createGraph(group, `Exponential.In`, TWEEN.Easing.Exponential.In))
+			target.appendChild(createGraph(group, `Exponential.Out`, TWEEN.Easing.Exponential.Out))
+			target.appendChild(createGraph(group, `Exponential.InOut`, TWEEN.Easing.Exponential.InOut))
+
+			animate()
 
 			function animate(time) {
 				requestAnimationFrame(animate)
 
-				TWEEN.update(time)
+				group.update(time)
 			}
 		</script>
 	</body>

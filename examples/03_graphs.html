@@ -24,74 +24,77 @@
 
 		<div id="target"></div>
 
-		<script src="../dist/tween.umd.js"></script>
-		<script src="js/createGraph.js"></script>
-		<script>
+		<script type="module">
+			import {createGraph} from './js/createGraph.js'
+			import * as TWEEN from '../dist/tween.esm.js'
+
+			const group = new TWEEN.Group()
+
 			window.addEventListener('load', function () {
 				init()
 				animate()
 			})
 
 			function init() {
-				var target = document.getElementById('target')
+				const target = document.getElementById('target')
 
-				target.appendChild(createGraph('Linear.None', TWEEN.Easing.Linear.None))
-
-				target.appendChild(document.createElement('br'))
-
-				target.appendChild(createGraph('Quadratic.In', TWEEN.Easing.Quadratic.In))
-				target.appendChild(createGraph('Quadratic.Out', TWEEN.Easing.Quadratic.Out))
-				target.appendChild(createGraph('Quadratic.InOut', TWEEN.Easing.Quadratic.InOut))
-
-				target.appendChild(createGraph('Cubic.In', TWEEN.Easing.Cubic.In))
-				target.appendChild(createGraph('Cubic.Out', TWEEN.Easing.Cubic.Out))
-				target.appendChild(createGraph('Cubic.InOut', TWEEN.Easing.Cubic.InOut))
+				target.appendChild(createGraph(group, 'Linear.None', TWEEN.Easing.Linear.None))
 
 				target.appendChild(document.createElement('br'))
 
-				target.appendChild(createGraph('Quartic.In', TWEEN.Easing.Quartic.In))
-				target.appendChild(createGraph('Quartic.Out', TWEEN.Easing.Quartic.Out))
-				target.appendChild(createGraph('Quartic.InOut', TWEEN.Easing.Quartic.InOut))
+				target.appendChild(createGraph(group, 'Quadratic.In', TWEEN.Easing.Quadratic.In))
+				target.appendChild(createGraph(group, 'Quadratic.Out', TWEEN.Easing.Quadratic.Out))
+				target.appendChild(createGraph(group, 'Quadratic.InOut', TWEEN.Easing.Quadratic.InOut))
 
-				target.appendChild(createGraph('Quintic.In', TWEEN.Easing.Quintic.In))
-				target.appendChild(createGraph('Quintic.Out', TWEEN.Easing.Quintic.Out))
-				target.appendChild(createGraph('Quintic.InOut', TWEEN.Easing.Quintic.InOut))
-
-				target.appendChild(document.createElement('br'))
-
-				target.appendChild(createGraph('Sinusoidal.In', TWEEN.Easing.Sinusoidal.In))
-				target.appendChild(createGraph('Sinusoidal.Out', TWEEN.Easing.Sinusoidal.Out))
-				target.appendChild(createGraph('Sinusoidal.InOut', TWEEN.Easing.Sinusoidal.InOut))
-
-				target.appendChild(createGraph('Exponential.In', TWEEN.Easing.Exponential.In))
-				target.appendChild(createGraph('Exponential.Out', TWEEN.Easing.Exponential.Out))
-				target.appendChild(createGraph('Exponential.InOut', TWEEN.Easing.Exponential.InOut))
+				target.appendChild(createGraph(group, 'Cubic.In', TWEEN.Easing.Cubic.In))
+				target.appendChild(createGraph(group, 'Cubic.Out', TWEEN.Easing.Cubic.Out))
+				target.appendChild(createGraph(group, 'Cubic.InOut', TWEEN.Easing.Cubic.InOut))
 
 				target.appendChild(document.createElement('br'))
 
-				target.appendChild(createGraph('Circular.In', TWEEN.Easing.Circular.In))
-				target.appendChild(createGraph('Circular.Out', TWEEN.Easing.Circular.Out))
-				target.appendChild(createGraph('Circular.InOut', TWEEN.Easing.Circular.InOut))
+				target.appendChild(createGraph(group, 'Quartic.In', TWEEN.Easing.Quartic.In))
+				target.appendChild(createGraph(group, 'Quartic.Out', TWEEN.Easing.Quartic.Out))
+				target.appendChild(createGraph(group, 'Quartic.InOut', TWEEN.Easing.Quartic.InOut))
 
-				target.appendChild(createGraph('Elastic.In', TWEEN.Easing.Elastic.In))
-				target.appendChild(createGraph('Elastic.Out', TWEEN.Easing.Elastic.Out))
-				target.appendChild(createGraph('Elastic.InOut', TWEEN.Easing.Elastic.InOut))
+				target.appendChild(createGraph(group, 'Quintic.In', TWEEN.Easing.Quintic.In))
+				target.appendChild(createGraph(group, 'Quintic.Out', TWEEN.Easing.Quintic.Out))
+				target.appendChild(createGraph(group, 'Quintic.InOut', TWEEN.Easing.Quintic.InOut))
 
 				target.appendChild(document.createElement('br'))
 
-				target.appendChild(createGraph('Back.In', TWEEN.Easing.Back.In))
-				target.appendChild(createGraph('Back.Out', TWEEN.Easing.Back.Out))
-				target.appendChild(createGraph('Back.InOut', TWEEN.Easing.Back.InOut))
+				target.appendChild(createGraph(group, 'Sinusoidal.In', TWEEN.Easing.Sinusoidal.In))
+				target.appendChild(createGraph(group, 'Sinusoidal.Out', TWEEN.Easing.Sinusoidal.Out))
+				target.appendChild(createGraph(group, 'Sinusoidal.InOut', TWEEN.Easing.Sinusoidal.InOut))
 
-				target.appendChild(createGraph('Bounce.In', TWEEN.Easing.Bounce.In))
-				target.appendChild(createGraph('Bounce.Out', TWEEN.Easing.Bounce.Out))
-				target.appendChild(createGraph('Bounce.InOut', TWEEN.Easing.Bounce.InOut))
+				target.appendChild(createGraph(group, 'Exponential.In', TWEEN.Easing.Exponential.In))
+				target.appendChild(createGraph(group, 'Exponential.Out', TWEEN.Easing.Exponential.Out))
+				target.appendChild(createGraph(group, 'Exponential.InOut', TWEEN.Easing.Exponential.InOut))
+
+				target.appendChild(document.createElement('br'))
+
+				target.appendChild(createGraph(group, 'Circular.In', TWEEN.Easing.Circular.In))
+				target.appendChild(createGraph(group, 'Circular.Out', TWEEN.Easing.Circular.Out))
+				target.appendChild(createGraph(group, 'Circular.InOut', TWEEN.Easing.Circular.InOut))
+
+				target.appendChild(createGraph(group, 'Elastic.In', TWEEN.Easing.Elastic.In))
+				target.appendChild(createGraph(group, 'Elastic.Out', TWEEN.Easing.Elastic.Out))
+				target.appendChild(createGraph(group, 'Elastic.InOut', TWEEN.Easing.Elastic.InOut))
+
+				target.appendChild(document.createElement('br'))
+
+				target.appendChild(createGraph(group, 'Back.In', TWEEN.Easing.Back.In))
+				target.appendChild(createGraph(group, 'Back.Out', TWEEN.Easing.Back.Out))
+				target.appendChild(createGraph(group, 'Back.InOut', TWEEN.Easing.Back.InOut))
+
+				target.appendChild(createGraph(group, 'Bounce.In', TWEEN.Easing.Bounce.In))
+				target.appendChild(createGraph(group, 'Bounce.Out', TWEEN.Easing.Bounce.Out))
+				target.appendChild(createGraph(group, 'Bounce.InOut', TWEEN.Easing.Bounce.InOut))
 			}
 
 			function animate(time) {
 				requestAnimationFrame(animate)
 
-				TWEEN.update(time)
+				group.update(time)
 			}
 		</script>
 	</body>

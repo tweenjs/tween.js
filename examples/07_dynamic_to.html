@@ -31,55 +31,43 @@
 			</div>
 		</div>
 
-		<script src="../dist/tween.umd.js"></script>
 		<script type="module">
+			import {Tween, Group, Easing} from '../dist/tween.esm.js'
 			import {drawRabbit, drawFox} from './js/drawings.js'
 
 			startScene('scene1', false)
 			startScene('scene2', true)
 
 			function startScene(id, dynamic) {
-				var width
-				var height
-				var context
-				var rabbit
-				var fox
+				const group = new Group()
 
-				init()
+				const width = 480
+				const height = 320
+
+				const scene = document.getElementById(id)
+
+				const canvas = document.createElement('canvas')
+				canvas.width = width
+				canvas.height = height
+				scene.appendChild(canvas)
+
+				const context = canvas.getContext('2d')
+
+				const rabbit = {x: width - 50, y: 50}
+
+				new Tween(rabbit, group)
+					.to({x: width - 50, y: height - 50}, 3000)
+					.easing(Easing.Exponential.InOut)
+					.start()
+
+				const fox = {x: 50, y: 50}
+
+				new Tween(fox, group).to(rabbit, 3000).dynamic(dynamic).duration(3000).easing(Easing.Exponential.InOut).start()
+
 				animate()
 
-				function init() {
-					width = 480
-					height = 320
-
-					var scene = document.getElementById(id)
-
-					var canvas = document.createElement('canvas')
-					canvas.width = width
-					canvas.height = height
-					scene.appendChild(canvas)
-
-					context = canvas.getContext('2d')
-
-					rabbit = {x: width - 50, y: 50}
-
-					new TWEEN.Tween(rabbit)
-						.to({x: width - 50, y: height - 50}, 3000)
-						.easing(TWEEN.Easing.Exponential.InOut)
-						.start()
-
-					fox = {x: 50, y: 50}
-
-					new TWEEN.Tween(fox)
-						.to(rabbit, 3000)
-						.dynamic(dynamic)
-						.duration(3000)
-						.easing(TWEEN.Easing.Exponential.InOut)
-						.start()
-				}
-
 				function animate(time) {
-					TWEEN.update(time)
+					group.update(time)
 
 					// draw background
 					context.fillStyle = 'rgb(240,250,240)'

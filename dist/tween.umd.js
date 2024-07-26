@@ -229,33 +229,61 @@
      */
     var Group = /** @class */ (function () {
         function Group() {
+            var tweens = [];
+            for (var _i = 0; _i < arguments.length; _i++) {
+                tweens[_i] = arguments[_i];
+            }
             this._tweens = {};
             this._tweensAddedDuringUpdate = {};
+            this.add.apply(this, tweens);
         }
         Group.prototype.getAll = function () {
             var _this = this;
-            return Object.keys(this._tweens).map(function (tweenId) {
-                return _this._tweens[tweenId];
-            });
+            return Object.keys(this._tweens).map(function (tweenId) { return _this._tweens[tweenId]; });
         };
         Group.prototype.removeAll = function () {
             this._tweens = {};
         };
-        Group.prototype.add = function (tween) {
-            this._tweens[tween.getId()] = tween;
-            this._tweensAddedDuringUpdate[tween.getId()] = tween;
+        Group.prototype.add = function () {
+            var _a;
+            var tweens = [];
+            for (var _i = 0; _i < arguments.length; _i++) {
+                tweens[_i] = arguments[_i];
+            }
+            for (var _b = 0, tweens_1 = tweens; _b < tweens_1.length; _b++) {
+                var tween = tweens_1[_b];
+                // Remove from any other group first, a tween can only be in one group at a time.
+                // @ts-expect-error library internal access
+                (_a = tween._group) === null || _a === void 0 ? void 0 : _a.remove(tween);
+                // @ts-expect-error library internal access
+                tween._group = this;
+                this._tweens[tween.getId()] = tween;
+                this._tweensAddedDuringUpdate[tween.getId()] = tween;
+            }
         };
-        Group.prototype.remove = function (tween) {
-            delete this._tweens[tween.getId()];
-            delete this._tweensAddedDuringUpdate[tween.getId()];
+        Group.prototype.remove = function () {
+            var tweens = [];
+            for (var _i = 0; _i < arguments.length; _i++) {
+                tweens[_i] = arguments[_i];
+            }
+            for (var _a = 0, tweens_2 = tweens; _a < tweens_2.length; _a++) {
+                var tween = tweens_2[_a];
+                // @ts-expect-error library internal access
+                tween._group = undefined;
+                delete this._tweens[tween.getId()];
+                delete this._tweensAddedDuringUpdate[tween.getId()];
+            }
+        };
+        /** Return true if all tweens in the group are not paused or playing. */
+        Group.prototype.allStopped = function () {
+            return this.getAll().every(function (tween) { return !tween.isPlaying(); });
         };
         Group.prototype.update = function (time, preserve) {
             if (time === void 0) { time = now(); }
-            if (preserve === void 0) { preserve = false; }
+            if (preserve === void 0) { preserve = true; }
             var tweenIds = Object.keys(this._tweens);
-            if (tweenIds.length === 0) {
-                return false;
-            }
+            if (tweenIds.length === 0)
+                return;
             // Tweens are updated in "batches". If you add a new tween during an
             // update, then the new tween will be updated in the next batch.
             // If you remove a tween during an update, it may or may not be updated.
@@ -266,13 +294,11 @@
                 for (var i = 0; i < tweenIds.length; i++) {
                     var tween = this._tweens[tweenIds[i]];
                     var autoStart = !preserve;
-                    if (tween && tween.update(time, autoStart) === false && !preserve) {
-                        delete this._tweens[tweenIds[i]];
-                    }
+                    if (tween && tween.update(time, autoStart) === false && !preserve)
+                        this.remove(tween);
                 }
                 tweenIds = Object.keys(this._tweensAddedDuringUpdate);
             }
-            return true;
         };
         return Group;
     }());
@@ -381,10 +407,7 @@
      * Thank you all, you're awesome!
      */
     var Tween = /** @class */ (function () {
-        function Tween(_object, _group) {
-            if (_group === void 0) { _group = mainGroup; }
-            this._object = _object;
-            this._group = _group;
+        function Tween(object, group) {
             this._isPaused = false;
             this._pauseStart = 0;
             this._valuesStart = {};
@@ -409,6 +432,16 @@
             this._isChainStopped = false;
             this._propertiesAreSetUp = false;
             this._goToEnd = false;
+            this._object = object;
+            if (typeof group === 'object') {
+                this._group = group;
+                group.add(this);
+            }
+            // Use "true" to restore old behavior (will be removed in future release).
+            else if (group === true) {
+                this._group = mainGroup;
+                mainGroup.add(this);
+            }
         }
         Tween.prototype.getId = function () {
             return this._id;
@@ -447,8 +480,6 @@
             if (this._isPlaying) {
                 return this;
             }
-            // eslint-disable-next-line
-            this._group && this._group.add(this);
             this._repeat = this._initialRepeat;
             if (this._reversed) {
                 // If we were reversed (f.e. using the yoyo feature) then we need to
@@ -565,8 +596,6 @@
             if (!this._isPlaying) {
                 return this;
             }
-            // eslint-disable-next-line
-            this._group && this._group.remove(this);
             this._isPlaying = false;
             this._isPaused = false;
             if (this._onStopCallback) {
@@ -586,8 +615,6 @@
             }
             this._isPaused = true;
             this._pauseStart = time;
-            // eslint-disable-next-line
-            this._group && this._group.remove(this);
             return this;
         };
         Tween.prototype.resume = function (time) {
@@ -598,8 +625,6 @@
             this._isPaused = false;
             this._startTime += time - this._pauseStart;
             this._pauseStart = 0;
-            // eslint-disable-next-line
-            this._group && this._group.add(this);
             return this;
         };
         Tween.prototype.stopChainedTweens = function () {
@@ -609,8 +634,19 @@
             return this;
         };
         Tween.prototype.group = function (group) {
-            if (group === void 0) { group = mainGroup; }
-            this._group = group;
+            if (!group) {
+                console.warn('tween.group() without args has been removed, use group.add(tween) instead.');
+                return this;
+            }
+            group.add(this);
+            return this;
+        };
+        /**
+         * Removes the tween from whichever group it is in.
+         */
+        Tween.prototype.remove = function () {
+            var _a;
+            (_a = this._group) === null || _a === void 0 ? void 0 : _a.remove(this);
             return this;
         };
         Tween.prototype.delay = function (amount) {
@@ -689,12 +725,11 @@
             if (this._isPaused)
                 return true;
             var property;
-            var endTime = this._startTime + this._duration;
             if (!this._goToEnd && !this._isPlaying) {
-                if (time > endTime)
-                    return false;
                 if (autoStart)
                     this.start(time, true);
+                else
+                    return false;
             }
             this._goToEnd = false;
             if (time < this._startTime) {
@@ -858,10 +893,245 @@
     // Modules and CommonJS, without build hacks, and so as not to break the
     // existing API.
     // https://github.com/rollup/rollup/issues/1961#issuecomment-423037881
+    /**
+     * @deprecated The global TWEEN Group will be removed in a following major
+     * release. To migrate, create a `new Group()` instead of using `TWEEN` as a
+     * group.
+     *
+     * Old code:
+     *
+     * ```js
+     * import * as TWEEN from '@tweenjs/tween.js'
+     *
+     * //...
+     *
+     * const tween = new TWEEN.Tween(obj)
+     * const tween2 = new TWEEN.Tween(obj2)
+     *
+     * //...
+     *
+     * requestAnimationFrame(function loop(time) {
+     *   TWEEN.update(time)
+     *   requestAnimationFrame(loop)
+     * })
+     * ```
+     *
+     * New code:
+     *
+     * ```js
+     * import {Tween, Group} from '@tweenjs/tween.js'
+     *
+     * //...
+     *
+     * const tween = new Tween(obj)
+     * const tween2 = new TWEEN.Tween(obj2)
+     *
+     * //...
+     *
+     * const group = new Group()
+     * group.add(tween)
+     * group.add(tween2)
+     *
+     * //...
+     *
+     * requestAnimationFrame(function loop(time) {
+     *   group.update(time)
+     *   requestAnimationFrame(loop)
+     * })
+     * ```
+     */
     var getAll = TWEEN.getAll.bind(TWEEN);
+    /**
+     * @deprecated The global TWEEN Group will be removed in a following major
+     * release. To migrate, create a `new Group()` instead of using `TWEEN` as a
+     * group.
+     *
+     * Old code:
+     *
+     * ```js
+     * import * as TWEEN from '@tweenjs/tween.js'
+     *
+     * //...
+     *
+     * const tween = new TWEEN.Tween(obj)
+     * const tween2 = new TWEEN.Tween(obj2)
+     *
+     * //...
+     *
+     * requestAnimationFrame(function loop(time) {
+     *   TWEEN.update(time)
+     *   requestAnimationFrame(loop)
+     * })
+     * ```
+     *
+     * New code:
+     *
+     * ```js
+     * import {Tween, Group} from '@tweenjs/tween.js'
+     *
+     * //...
+     *
+     * const tween = new Tween(obj)
+     * const tween2 = new TWEEN.Tween(obj2)
+     *
+     * //...
+     *
+     * const group = new Group()
+     * group.add(tween)
+     * group.add(tween2)
+     *
+     * //...
+     *
+     * requestAnimationFrame(function loop(time) {
+     *   group.update(time)
+     *   requestAnimationFrame(loop)
+     * })
+     * ```
+     */
     var removeAll = TWEEN.removeAll.bind(TWEEN);
+    /**
+     * @deprecated The global TWEEN Group will be removed in a following major
+     * release. To migrate, create a `new Group()` instead of using `TWEEN` as a
+     * group.
+     *
+     * Old code:
+     *
+     * ```js
+     * import * as TWEEN from '@tweenjs/tween.js'
+     *
+     * //...
+     *
+     * const tween = new TWEEN.Tween(obj)
+     * const tween2 = new TWEEN.Tween(obj2)
+     *
+     * //...
+     *
+     * requestAnimationFrame(function loop(time) {
+     *   TWEEN.update(time)
+     *   requestAnimationFrame(loop)
+     * })
+     * ```
+     *
+     * New code:
+     *
+     * ```js
+     * import {Tween, Group} from '@tweenjs/tween.js'
+     *
+     * //...
+     *
+     * const tween = new Tween(obj)
+     * const tween2 = new TWEEN.Tween(obj2)
+     *
+     * //...
+     *
+     * const group = new Group()
+     * group.add(tween)
+     * group.add(tween2)
+     *
+     * //...
+     *
+     * requestAnimationFrame(function loop(time) {
+     *   group.update(time)
+     *   requestAnimationFrame(loop)
+     * })
+     * ```
+     */
     var add = TWEEN.add.bind(TWEEN);
+    /**
+     * @deprecated The global TWEEN Group will be removed in a following major
+     * release. To migrate, create a `new Group()` instead of using `TWEEN` as a
+     * group.
+     *
+     * Old code:
+     *
+     * ```js
+     * import * as TWEEN from '@tweenjs/tween.js'
+     *
+     * //...
+     *
+     * const tween = new TWEEN.Tween(obj)
+     * const tween2 = new TWEEN.Tween(obj2)
+     *
+     * //...
+     *
+     * requestAnimationFrame(function loop(time) {
+     *   TWEEN.update(time)
+     *   requestAnimationFrame(loop)
+     * })
+     * ```
+     *
+     * New code:
+     *
+     * ```js
+     * import {Tween, Group} from '@tweenjs/tween.js'
+     *
+     * //...
+     *
+     * const tween = new Tween(obj)
+     * const tween2 = new TWEEN.Tween(obj2)
+     *
+     * //...
+     *
+     * const group = new Group()
+     * group.add(tween)
+     * group.add(tween2)
+     *
+     * //...
+     *
+     * requestAnimationFrame(function loop(time) {
+     *   group.update(time)
+     *   requestAnimationFrame(loop)
+     * })
+     * ```
+     */
     var remove = TWEEN.remove.bind(TWEEN);
+    /**
+     * @deprecated The global TWEEN Group will be removed in a following major
+     * release. To migrate, create a `new Group()` instead of using `TWEEN` as a
+     * group.
+     *
+     * Old code:
+     *
+     * ```js
+     * import * as TWEEN from '@tweenjs/tween.js'
+     *
+     * //...
+     *
+     * const tween = new TWEEN.Tween(obj)
+     * const tween2 = new TWEEN.Tween(obj2)
+     *
+     * //...
+     *
+     * requestAnimationFrame(function loop(time) {
+     *   TWEEN.update(time)
+     *   requestAnimationFrame(loop)
+     * })
+     * ```
+     *
+     * New code:
+     *
+     * ```js
+     * import {Tween, Group} from '@tweenjs/tween.js'
+     *
+     * //...
+     *
+     * const tween = new Tween(obj)
+     * const tween2 = new TWEEN.Tween(obj2)
+     *
+     * //...
+     *
+     * const group = new Group()
+     * group.add(tween)
+     * group.add(tween2)
+     *
+     * //...
+     *
+     * requestAnimationFrame(function loop(time) {
+     *   group.update(time)
+     *   requestAnimationFrame(loop)
+     * })
+     * ```
+     */
     var update = TWEEN.update.bind(TWEEN);
     var exports$1 = {
         Easing: Easing,
@@ -872,10 +1142,245 @@
         nextId: nextId,
         Tween: Tween,
         VERSION: VERSION,
+        /**
+         * @deprecated The global TWEEN Group will be removed in a following major
+         * release. To migrate, create a `new Group()` instead of using `TWEEN` as a
+         * group.
+         *
+         * Old code:
+         *
+         * ```js
+         * import * as TWEEN from '@tweenjs/tween.js'
+         *
+         * //...
+         *
+         * const tween = new TWEEN.Tween(obj)
+         * const tween2 = new TWEEN.Tween(obj2)
+         *
+         * //...
+         *
+         * requestAnimationFrame(function loop(time) {
+         *   TWEEN.update(time)
+         *   requestAnimationFrame(loop)
+         * })
+         * ```
+         *
+         * New code:
+         *
+         * ```js
+         * import {Tween, Group} from '@tweenjs/tween.js'
+         *
+         * //...
+         *
+         * const tween = new Tween(obj)
+         * const tween2 = new TWEEN.Tween(obj2)
+         *
+         * //...
+         *
+         * const group = new Group()
+         * group.add(tween)
+         * group.add(tween2)
+         *
+         * //...
+         *
+         * requestAnimationFrame(function loop(time) {
+         *   group.update(time)
+         *   requestAnimationFrame(loop)
+         * })
+         * ```
+         */
         getAll: getAll,
+        /**
+         * @deprecated The global TWEEN Group will be removed in a following major
+         * release. To migrate, create a `new Group()` instead of using `TWEEN` as a
+         * group.
+         *
+         * Old code:
+         *
+         * ```js
+         * import * as TWEEN from '@tweenjs/tween.js'
+         *
+         * //...
+         *
+         * const tween = new TWEEN.Tween(obj)
+         * const tween2 = new TWEEN.Tween(obj2)
+         *
+         * //...
+         *
+         * requestAnimationFrame(function loop(time) {
+         *   TWEEN.update(time)
+         *   requestAnimationFrame(loop)
+         * })
+         * ```
+         *
+         * New code:
+         *
+         * ```js
+         * import {Tween, Group} from '@tweenjs/tween.js'
+         *
+         * //...
+         *
+         * const tween = new Tween(obj)
+         * const tween2 = new TWEEN.Tween(obj2)
+         *
+         * //...
+         *
+         * const group = new Group()
+         * group.add(tween)
+         * group.add(tween2)
+         *
+         * //...
+         *
+         * requestAnimationFrame(function loop(time) {
+         *   group.update(time)
+         *   requestAnimationFrame(loop)
+         * })
+         * ```
+         */
         removeAll: removeAll,
+        /**
+         * @deprecated The global TWEEN Group will be removed in a following major
+         * release. To migrate, create a `new Group()` instead of using `TWEEN` as a
+         * group.
+         *
+         * Old code:
+         *
+         * ```js
+         * import * as TWEEN from '@tweenjs/tween.js'
+         *
+         * //...
+         *
+         * const tween = new TWEEN.Tween(obj)
+         * const tween2 = new TWEEN.Tween(obj2)
+         *
+         * //...
+         *
+         * requestAnimationFrame(function loop(time) {
+         *   TWEEN.update(time)
+         *   requestAnimationFrame(loop)
+         * })
+         * ```
+         *
+         * New code:
+         *
+         * ```js
+         * import {Tween, Group} from '@tweenjs/tween.js'
+         *
+         * //...
+         *
+         * const tween = new Tween(obj)
+         * const tween2 = new TWEEN.Tween(obj2)
+         *
+         * //...
+         *
+         * const group = new Group()
+         * group.add(tween)
+         * group.add(tween2)
+         *
+         * //...
+         *
+         * requestAnimationFrame(function loop(time) {
+         *   group.update(time)
+         *   requestAnimationFrame(loop)
+         * })
+         * ```
+         */
         add: add,
+        /**
+         * @deprecated The global TWEEN Group will be removed in a following major
+         * release. To migrate, create a `new Group()` instead of using `TWEEN` as a
+         * group.
+         *
+         * Old code:
+         *
+         * ```js
+         * import * as TWEEN from '@tweenjs/tween.js'
+         *
+         * //...
+         *
+         * const tween = new TWEEN.Tween(obj)
+         * const tween2 = new TWEEN.Tween(obj2)
+         *
+         * //...
+         *
+         * requestAnimationFrame(function loop(time) {
+         *   TWEEN.update(time)
+         *   requestAnimationFrame(loop)
+         * })
+         * ```
+         *
+         * New code:
+         *
+         * ```js
+         * import {Tween, Group} from '@tweenjs/tween.js'
+         *
+         * //...
+         *
+         * const tween = new Tween(obj)
+         * const tween2 = new TWEEN.Tween(obj2)
+         *
+         * //...
+         *
+         * const group = new Group()
+         * group.add(tween)
+         * group.add(tween2)
+         *
+         * //...
+         *
+         * requestAnimationFrame(function loop(time) {
+         *   group.update(time)
+         *   requestAnimationFrame(loop)
+         * })
+         * ```
+         */
         remove: remove,
+        /**
+         * @deprecated The global TWEEN Group will be removed in a following major
+         * release. To migrate, create a `new Group()` instead of using `TWEEN` as a
+         * group.
+         *
+         * Old code:
+         *
+         * ```js
+         * import * as TWEEN from '@tweenjs/tween.js'
+         *
+         * //...
+         *
+         * const tween = new TWEEN.Tween(obj)
+         * const tween2 = new TWEEN.Tween(obj2)
+         *
+         * //...
+         *
+         * requestAnimationFrame(function loop(time) {
+         *   TWEEN.update(time)
+         *   requestAnimationFrame(loop)
+         * })
+         * ```
+         *
+         * New code:
+         *
+         * ```js
+         * import {Tween, Group} from '@tweenjs/tween.js'
+         *
+         * //...
+         *
+         * const tween = new Tween(obj)
+         * const tween2 = new TWEEN.Tween(obj2)
+         *
+         * //...
+         *
+         * const group = new Group()
+         * group.add(tween)
+         * group.add(tween2)
+         *
+         * //...
+         *
+         * requestAnimationFrame(function loop(time) {
+         *   group.update(time)
+         *   requestAnimationFrame(loop)
+         * })
+         * ```
+         */
         update: update,
     };
 
