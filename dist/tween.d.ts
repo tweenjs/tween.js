@@ -188,7 +188,7 @@ declare class Sequence {
     static nextId(): number;
 }
 
-declare const VERSION = "23.1.3";
+declare const VERSION = "24.0.0";
 
 declare const nextId: typeof Sequence.nextId;
 /**
