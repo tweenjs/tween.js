@@ -17,7 +17,7 @@ import type {EasingFunction} from './Easing'
 import type {InterpolationFunction} from './Interpolation'
 import type Group from './Group'
 
-export class Tween<T extends UnknownProps> {
+export class Tween<T extends UnknownProps = any> {
 	private _isPaused = false
 	private _pauseStart = 0
 	private _valuesStart: UnknownProps = {}
@@ -48,11 +48,34 @@ export class Tween<T extends UnknownProps> {
 	private _id = Sequence.nextId()
 	private _isChainStopped = false
 	private _propertiesAreSetUp = false
+	private _object: T
+	private _group?: Group
 
-	constructor(
-		private _object: T,
-		private _group: Group | false = mainGroup,
-	) {}
+	/**
+	 * @param object - The object whose properties this Tween will animate.
+	 * @param group - The object whose properties this Tween will animate.
+	 */
+	constructor(object: T, group?: Group)
+	/**
+	 * @deprecated The group parameter is now deprecated, instead use `new
+	 * Tween(object)` then `group.add(tween)` to add a tween to a group. Use
+	 * `new Tween(object, true)` to restore the old behavior for now, but this
+	 * will be removed in the future.
+	 */
+	constructor(object: T, group: true)
+	constructor(object: T, group?: Group | true) {
+		this._object = object
+
+		if (typeof group === 'object') {
+			this._group = group
+			group.add(this)
+		}
+		// Use "true" to restore old behavior (will be removed in future release).
+		else if (group === true) {
+			this._group = mainGroup
+			mainGroup.add(this)
+		}
+	}
 
 	getId(): number {
 		return this._id
@@ -95,9 +118,6 @@ export class Tween<T extends UnknownProps> {
 		if (this._isPlaying) {
 			return this
 		}
-
-		// eslint-disable-next-line
-		this._group && this._group.add(this as any)
 
 		this._repeat = this._initialRepeat
 
@@ -259,9 +279,6 @@ export class Tween<T extends UnknownProps> {
 			return this
 		}
 
-		// eslint-disable-next-line
-		this._group && this._group.remove(this as any)
-
 		this._isPlaying = false
 
 		this._isPaused = false
@@ -288,9 +305,6 @@ export class Tween<T extends UnknownProps> {
 
 		this._pauseStart = time
 
-		// eslint-disable-next-line
-		this._group && this._group.remove(this as any)
-
 		return this
 	}
 
@@ -305,9 +319,6 @@ export class Tween<T extends UnknownProps> {
 
 		this._pauseStart = 0
 
-		// eslint-disable-next-line
-		this._group && this._group.add(this as any)
-
 		return this
 	}
 
@@ -318,8 +329,31 @@ export class Tween<T extends UnknownProps> {
 		return this
 	}
 
-	group(group = mainGroup): this {
-		this._group = group
+	/**
+	 * Removes the tween from the current group it is in, if any, then adds the
+	 * tween to the specified `group`.
+	 */
+	group(group: Group): this
+	/**
+	 * @deprecated The argless call signature has been removed. Use
+	 * `tween.group(group)` or `group.add(tween)`, instead.
+	 */
+	group(): this
+	group(group?: Group): this {
+		if (!group) {
+			console.warn('tween.group() without args has been removed, use group.add(tween) instead.')
+			return this
+		}
+
+		group.add(this)
+		return this
+	}
+
+	/**
+	 * Removes the tween from whichever group it is in.
+	 */
+	remove() {
+		this._group?.remove(this)
 		return this
 	}
 
@@ -402,11 +436,9 @@ export class Tween<T extends UnknownProps> {
 
 		let property
 
-		const endTime = this._startTime + this._duration
-
 		if (!this._goToEnd && !this._isPlaying) {
-			if (time > endTime) return false
 			if (autoStart) this.start(time, true)
+			else return false
 		}
 
 		this._goToEnd = false

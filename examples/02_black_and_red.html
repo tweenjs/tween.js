@@ -32,62 +32,63 @@
 			}
 		</style>
 
-		<script src="../dist/tween.umd.js"></script>
 		<script src="js/stats.min.js"></script>
-		<script>
-			var stats
 
-			init()
-			animate()
+		<script type="module">
+			import * as TWEEN from '../dist/tween.esm.js'
 
-			function init() {
-				var target = document.getElementById('target')
-				stats = new Stats()
-				target.appendChild(stats.domElement)
+			const group = new TWEEN.Group()
 
-				var t = document.createElement('table')
-				var index = 0
+			const target = document.getElementById('target')
+			const stats = new Stats()
+			target.appendChild(stats.domElement)
 
-				for (var i = 0; i < 64; i++) {
-					var tr = t.insertRow(-1)
-					for (var j = 0; j < 64; j++) {
-						var td = tr.insertCell(-1)
-						td.style.background = '#000'
-						var x = (i + j) * 0.1
-						var cell = {td: td, value: 0}
-						var tween = new TWEEN.Tween(cell)
-							.to({value: 1}, 8000)
-							.delay((0.001 * index + Math.random()) * 500)
-							.easing(TWEEN.Easing.Elastic.InOut)
-							.onUpdate(function (object) {
-								var c = Math.floor(object.value * 0xff)
-								object.td.style.background = 'rgb(' + c + ', 0, 0)'
-							})
+			const t = document.createElement('table')
+			let index = 0
 
-						var tweenBack = new TWEEN.Tween(cell)
-							.to({value: 0}, 4000)
-							.delay((0.001 * index + Math.random()) * 500)
-							.easing(TWEEN.Easing.Elastic.InOut)
-							.onUpdate(function (object) {
-								var c = Math.floor(object.value * 0xff)
-								object.td.style.background = 'rgb(' + c + ', 0, 0)'
-							})
+			for (let i = 0; i < 64; i++) {
+				const tr = t.insertRow(-1)
+				for (let j = 0; j < 64; j++) {
+					const td = tr.insertCell(-1)
+					td.style.background = '#000'
+					const x = (i + j) * 0.1
+					const cell = {td: td, value: 0}
+					const tween = new TWEEN.Tween(cell)
+						.to({value: 1}, 8000)
+						.delay((0.001 * index + Math.random()) * 500)
+						.easing(TWEEN.Easing.Elastic.InOut)
+						.onUpdate(function (object) {
+							const c = Math.floor(object.value * 0xff)
+							object.td.style.background = 'rgb(' + c + ', 0, 0)'
+						})
 
-						tween.chain(tweenBack)
-						tweenBack.chain(tween)
+					const tweenBack = new TWEEN.Tween(cell)
+						.to({value: 0}, 4000)
+						.delay((0.001 * index + Math.random()) * 500)
+						.easing(TWEEN.Easing.Elastic.InOut)
+						.onUpdate(function (object) {
+							const c = Math.floor(object.value * 0xff)
+							object.td.style.background = 'rgb(' + c + ', 0, 0)'
+						})
 
-						tween.start()
-						index++
-					}
+					tween.chain(tweenBack)
+					tweenBack.chain(tween)
+
+					group.add(tween, tweenBack)
+
+					tween.start()
+					index++
 				}
-
-				target.appendChild(t)
 			}
+
+			target.appendChild(t)
+
+			animate()
 
 			function animate(time) {
 				requestAnimationFrame(animate)
 
-				TWEEN.update(time)
+				group.update(time)
 				stats.update()
 			}
 		</script>

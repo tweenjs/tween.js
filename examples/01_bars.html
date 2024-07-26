@@ -13,67 +13,67 @@
 		</div>
 		<div id="target"></div>
 
-		<script src="../dist/tween.umd.js"></script>
 		<script src="js/stats.min.js"></script>
-		<script>
-			var stats
-			var elems = []
 
-			init()
-			animate()
+		<script type="module">
+			import * as TWEEN from '../dist/tween.esm.js'
 
-			function init() {
-				stats = new Stats()
-				var sds = stats.domElement.style
-				sds.position = 'absolute'
-				sds.right = '0px'
-				sds.top = '0px'
-				sds.margin = '4em 3em'
-				document.body.appendChild(stats.domElement)
+			const group = new TWEEN.Group()
 
-				for (var i = 0; i < 1000; i++) {
-					var startValue = 500 + (Math.random() - Math.random()) * 250
-					var endValue = 500 + (Math.random() - Math.random()) * 250
+			const stats = new Stats()
+			const sds = stats.domElement.style
+			sds.position = 'absolute'
+			sds.right = '0px'
+			sds.top = '0px'
+			sds.margin = '4em 3em'
+			document.body.appendChild(stats.domElement)
 
-					var domElement = document.createElement('div')
-					var bg = (Math.random() * 0xffffff) >> 0
-					domElement.style.position = 'absolute'
-					const y = Math.random() * window.innerHeight
-					domElement.style.translate = startValue + 'px ' + y + 'px'
-					domElement.style.background = '#' + bg.toString(16)
-					domElement.style.width = '100px'
-					domElement.style.height = '2px'
+			for (let i = 0; i < 1000; i++) {
+				const startValue = 500 + (Math.random() - Math.random()) * 250
+				const endValue = 500 + (Math.random() - Math.random()) * 250
 
-					var elem = {x: startValue, domElement: domElement, y}
+				const domElement = document.createElement('div')
+				const bg = (Math.random() * 0xffffff) >> 0
+				domElement.style.position = 'absolute'
+				const y = Math.random() * window.innerHeight
+				domElement.style.translate = startValue + 'px ' + y + 'px'
+				domElement.style.background = '#' + bg.toString(16)
+				domElement.style.width = '100px'
+				domElement.style.height = '2px'
 
-					var updateCallback = function (object) {
-						object.domElement.style.translate = object.x + 'px ' + object.y + 'px'
-					}
+				const elem = {x: startValue, domElement: domElement, y}
 
-					var tween = new TWEEN.Tween(elem)
-						.to({x: endValue}, 4000)
-						.delay(Math.random() * 1000)
-						.onUpdate(updateCallback)
-						.easing(TWEEN.Easing.Back.Out)
-						.start()
-
-					var tweenBack = new TWEEN.Tween(elem)
-						.to({x: startValue}, 4000)
-						.delay(Math.random() * 1000)
-						.onUpdate(updateCallback)
-						.easing(TWEEN.Easing.Elastic.InOut)
-
-					tween.chain(tweenBack)
-					tweenBack.chain(tween)
-
-					document.body.appendChild(elem.domElement)
+				const updateCallback = function (object) {
+					object.domElement.style.translate = object.x + 'px ' + object.y + 'px'
 				}
+
+				const tween = new TWEEN.Tween(elem)
+					.to({x: endValue}, 4000)
+					.delay(Math.random() * 1000)
+					.onUpdate(updateCallback)
+					.easing(TWEEN.Easing.Back.Out)
+					.start()
+
+				const tweenBack = new TWEEN.Tween(elem)
+					.to({x: startValue}, 4000)
+					.delay(Math.random() * 1000)
+					.onUpdate(updateCallback)
+					.easing(TWEEN.Easing.Elastic.InOut)
+
+				tween.chain(tweenBack)
+				tweenBack.chain(tween)
+
+				group.add(tween, tweenBack)
+
+				document.body.appendChild(elem.domElement)
 			}
+
+			animate()
 
 			function animate(time) {
 				requestAnimationFrame(animate)
 
-				TWEEN.update(time)
+				group.update(time)
 				stats.update()
 			}
 		</script>

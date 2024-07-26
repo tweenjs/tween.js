@@ -18,28 +18,31 @@
 			<div id="target2" data-rotation="0" data-y="0" class="box" style="left: 0px; top: 200px">Box Two</div>
 		</div>
 
-		<script src="../dist/tween.umd.js"></script>
-		<script>
+		<script type="module">
+			import * as TWEEN from '../dist/tween.esm.js'
+
+			const group = new TWEEN.Group()
+
 			function animate(time) {
+				group.update(time)
 				requestAnimationFrame(animate)
-				TWEEN.update(time)
 			}
 
 			animate()
 
-			var a = document.getElementById('target1')
-			var b = document.getElementById('target2')
-			var start = document.getElementById('start')
-			var stop = document.getElementById('stop')
-			var t0, t1
-			var p0 = {x: 0},
+			const a = document.getElementById('target1')
+			const b = document.getElementById('target2')
+			const start = document.getElementById('start')
+			const stop = document.getElementById('stop')
+			let t0, t1
+			const p0 = {x: 0},
 				p1 = {x: 0}
 
 			start.onclick = function () {
 				if (!t0 && !t1) {
-					t0 = new TWEEN.Tween(p0)
+					t0 = new TWEEN.Tween(p0, group)
 						.to({x: 700}, 2000)
-						.delay(1000)
+						.delay(100)
 						.easing(TWEEN.Easing.Elastic.InOut)
 						.onUpdate(function () {
 							a.style.left = p0.x + 'px'
@@ -49,9 +52,9 @@
 							a.style.left = p0.x + 'px'
 						})
 
-					t1 = new TWEEN.Tween(p1)
+					t1 = new TWEEN.Tween(p1, group)
 						.to({x: 1000}, 3000)
-						.delay(1000)
+						.delay(100)
 						.easing(TWEEN.Easing.Elastic.InOut)
 						.onUpdate(function () {
 							b.style.left = p1.x + 'px'

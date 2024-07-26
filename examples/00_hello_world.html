@@ -25,36 +25,39 @@
 			hello world!
 		</div>
 
-		<script src="../dist/tween.umd.js"></script>
-		<script>
+		<script type="module">
+			import {Tween, Easing, Group} from '../dist/tween.esm.js'
+
 			const position = {x: 100, y: 100, rotation: 10}
 			const target = document.getElementById('target')
-			const tween = new TWEEN.Tween(position)
+			const tween = new Tween(position)
 				.to({x: 700, y: 200, rotation: 359}, 2000)
 				.delay(1000)
-				.easing(TWEEN.Easing.Elastic.InOut)
+				.easing(Easing.Elastic.InOut)
 				.onUpdate(update)
 
-			const tweenBack = new TWEEN.Tween(position)
+			const tweenBack = new Tween(position)
 				.to({x: 100, y: 100, rotation: 10}, 3000)
-				.easing(TWEEN.Easing.Elastic.InOut)
+				.easing(Easing.Elastic.InOut)
 				.onUpdate(update)
 
 			tween.chain(tweenBack)
-			tweenBack.chain(tween)
+			// tweenBack.chain(tween)
 
 			tween.start()
 
+			const group = new Group(tween, tweenBack)
+
 			animate(performance.now())
 
-			//If we register the callback animate, but the TWEEN.update(time) returns false,
-			//cancel/unregister the handler
 			function animate(time) {
-				var id = requestAnimationFrame(animate)
+				group.update(time)
 
-				var result = TWEEN.update(time)
+				// If the update method returns false, it means all tweens in
+				// the group are done playing, so we can stop the loop.
+				const keepGoing = !group.allStopped()
 
-				if (!result) cancelAnimationFrame(id)
+				if (keepGoing) requestAnimationFrame(animate)
 			}
 
 			function update() {

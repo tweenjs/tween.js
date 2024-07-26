@@ -17,30 +17,27 @@
 			<div id="target2" class="box">three</div>
 		</div>
 
-		<script src="../dist/tween.umd.js"></script>
-		<script>
-			init()
-			animate()
+		<script type="module">
+			import * as TWEEN from '../dist/tween.esm.js'
 
-			function init() {
-				var target,
-					axes = ['Y', 'Z', 'X'],
-					tween1 = new TWEEN.Tween([0, 0, 0])
-						.to([360, 540, '+180'], 2000)
-						.repeat(1)
-						.delay(1000)
-						.easing(TWEEN.Easing.Cubic.InOut)
-						.onUpdate(function (rotations) {
-							for (var i = 0; i < rotations.length; i++)
-								document.getElementById('target' + i).style.transform =
-									'rotate' + axes[i] + '(' + Math.floor(rotations[i]) + 'deg)'
-						})
-						.start()
-			}
+			const axes = ['Y', 'Z', 'X']
+			const tween1 = new TWEEN.Tween([0, 0, 0])
+				.to([360, 540, '+180'], 2000)
+				.repeat(1)
+				.delay(1000)
+				.easing(TWEEN.Easing.Cubic.InOut)
+				.onUpdate(function (rotations) {
+					for (let i = 0; i < rotations.length; i++)
+						document.getElementById('target' + i).style.transform =
+							'rotate' + axes[i] + '(' + Math.floor(rotations[i]) + 'deg)'
+				})
+				.start()
+
+			animate()
 
 			function animate(time) {
 				// Keep requesting frames only if we still need to update.
-				if (TWEEN.update(time)) requestAnimationFrame(animate)
+				if (tween1.update(time)) requestAnimationFrame(animate)
 			}
 		</script>
 

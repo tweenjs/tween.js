@@ -4,6 +4,16 @@
 		<title>Tween.js / yoyo</title>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 		<link href="css/style.css" media="screen" rel="stylesheet" type="text/css" />
+
+		<script type="importmap">
+			{
+				"imports": {
+					"tweenjs": "../dist/tween.esm.js"
+				}
+			}
+		</script>
+
+		<script type="module" src="./10_yoyo.js"></script>
 	</head>
 	<body>
 		<div id="info">
@@ -28,110 +38,6 @@
 				yoyo with repeat forever, relative values
 			</div>
 		</div>
-
-		<script src="../dist/tween.umd.js"></script>
-		<script>
-			init()
-			animate()
-
-			var restart, stop, start, pause, resume
-
-			function init() {
-				var target1 = document.getElementById('target1')
-				var tween1 = new TWEEN.Tween(target1.dataset)
-					.to({rotation: 360, y: 300}, 750)
-					.repeat(1)
-					.delay(1000)
-					.yoyo(true)
-					.easing(TWEEN.Easing.Cubic.InOut)
-					.onUpdate(function (object) {
-						updateBox(target1, object)
-					})
-					.start()
-				var target2 = document.getElementById('target2')
-				var tween2 = new TWEEN.Tween(target2.dataset)
-					.to({rotation: 360, y: 300}, 750)
-					.repeat(Infinity)
-					.delay(1000)
-					.yoyo(true)
-					.easing(TWEEN.Easing.Cubic.InOut)
-					.onUpdate(function (object) {
-						updateBox(target2, object)
-					})
-					.start()
-				var target3 = document.getElementById('target3')
-				var tween3 = new TWEEN.Tween(target3.dataset)
-					.to({rotation: '+360', y: '+300'}, 750)
-					.repeat(1)
-					.delay(1000)
-					.yoyo(true)
-					.easing(TWEEN.Easing.Cubic.InOut)
-					.onUpdate(function (object) {
-						updateBox(target3, object)
-					})
-					.start()
-				var target4 = document.getElementById('target4')
-				var tween4 = new TWEEN.Tween(target4.dataset)
-					.to({rotation: '+360', y: '+300'}, 750)
-					.repeat(Infinity)
-					.delay(1000)
-					.yoyo(true)
-					.easing(TWEEN.Easing.Cubic.InOut)
-					.onUpdate(function (object) {
-						updateBox(target4, object)
-					})
-					.start()
-
-				restart = function () {
-					tween1.stop().start()
-					tween2.stop().start()
-					tween3.stop().start()
-					tween4.stop().start()
-				}
-
-				stop = function () {
-					tween1.stop()
-					tween2.stop()
-					tween3.stop()
-					tween4.stop()
-				}
-
-				start = function () {
-					tween1.start()
-					tween2.start()
-					tween3.start()
-					tween4.start()
-				}
-
-				pause = function () {
-					tween1.pause()
-					tween2.pause()
-					tween3.pause()
-					tween4.pause()
-				}
-
-				resume = function () {
-					tween1.resume()
-					tween2.resume()
-					tween3.resume()
-					tween4.resume()
-				}
-			}
-
-			function animate(time) {
-				requestAnimationFrame(animate)
-
-				TWEEN.update(time)
-			}
-
-			function updateBox(box, params) {
-				var s = box.style,
-					transform = 'translateY(' + Math.round(params.y) + 'px) rotate(' + Math.floor(params.rotation) + 'deg)'
-				s.webkitTransform = transform
-				s.mozTransform = transform
-				s.transform = transform
-			}
-		</script>
 
 		<style type="text/css">
 			.box {

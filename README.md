@@ -12,8 +12,6 @@ More languages: [English](./README.md), [简体中文](./README_zh-CN.md)
 ---
 
 ```html
-<script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/20.0.0/tween.umd.js"></script>
-
 <div id="box"></div>
 
 <style>
@@ -24,14 +22,16 @@ More languages: [English](./README.md), [简体中文](./README_zh-CN.md)
 	}
 </style>
 
-<script>
+<script type="module">
+	import {Tween, Easing} from 'https://unpkg.com/@tweenjs/tween.js@23.1.3/dist/tween.esm.js'
+
 	const box = document.getElementById('box') // Get the element we want to animate.
 
 	const coords = {x: 0, y: 0} // Start at (0, 0)
 
-	const tween = new TWEEN.Tween(coords, false) // Create a new tween that modifies 'coords'.
+	const tween = new Tween(coords, false) // Create a new tween that modifies 'coords'.
 		.to({x: 300, y: 200}, 1000) // Move to (300, 200) in 1 second.
-		.easing(TWEEN.Easing.Quadratic.InOut) // Use an easing function to make the animation smooth.
+		.easing(Easing.Quadratic.InOut) // Use an easing function to make the animation smooth.
 		.onUpdate(() => {
 			// Called after tween.js updates 'coords'.
 			// Move 'box' to the position described by 'coords' with a CSS translation.
@@ -50,109 +50,15 @@ More languages: [English](./README.md), [简体中文](./README_zh-CN.md)
 
 [Try this example on CodePen](https://codepen.io/trusktr/pen/KKGaBVz?editors=1000)
 
-# Installation
-
-## From CDN
-
-Install from a content-delivery network (CDN) like in the above example.
-
-From cdnjs:
-
-```html
-<script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/20.0.0/tween.umd.js"></script>
-```
-
-Or from unpkg.com:
-
-```html
-<script src="https://unpkg.com/@tweenjs/tween.js@^20.0.0/dist/tween.umd.js"></script>
-```
-
-Note that unpkg.com supports a semver version in the URL, where the `^` in the URL tells unpkg to give you the latest version 20.x.x.
-
-## Build and include in your project with script tag
-
-Currently npm is required to build the project.
-
-```bash
-git clone https://github.com/tweenjs/tween.js
-cd tween.js
-npm install
-npm run build
-```
-
-This will create some builds in the `dist` directory. There are currently two different builds of the library:
-
-- UMD : `tween.umd.js`
-- ES6 Module : `tween.es.js`
-
-You are now able to copy tween.umd.js into your project, then include it with
-a script tag, which will add TWEEN to the global scope,
-
-```html
-<script src="path/to/tween.umd.js"></script>
-```
-
-or import TWEEN as a JavaScript module,
-
-```html
-<script type="module">
-	import * as TWEEN from 'path/to/tween.es.js'
-</script>
-```
-
-where `path/to` is replaced with the location where you placed the file.
-
-## With `npm install` and `import` from `node_modules`
-
-You can add tween.js as an npm dependency:
-
-```bash
-npm install @tweenjs/tween.js
-```
-
-### With a build tool
-
-If you are using [Node.js](https://nodejs.org/), [Parcel](https://parceljs.org/), [Webpack](https://webpack.js.org/), [Rollup](https://rollupjs.org/), [Vite](https://vitejs.dev/), or another build tool, then you can now use the following to include tween.js:
-
-```javascript
-import * as TWEEN from '@tweenjs/tween.js'
-```
-
-### Without a build tool
-
-You can import from `node_modules` if you serve node_modules as part of your website, using an `importmap` script tag. First, assuming `node_modules` is at the root of your website, you can write an import map:
-
-```html
-<script type="importmap">
-	{
-		"imports": {
-			"@tweenjs/tween.js": "./node_modules/@tweenjs/tween.js/dist/tween.esm.js"
-		}
-	}
-</script>
-```
-
-Now in any of your module scripts you can import it by its package name:
-
-```javascript
-import * as TWEEN from '@tweenjs/tween.js'
-```
-
 # Features
 
-- Does one thing and one thing only: tween properties
+- Does one thing only and does it well: tweens properties of an object
 - Doesn't take care of CSS units (e.g. appending `px`)
 - Doesn't interpolate colors
 - Easing functions are reusable outside of Tween
 - Can also use custom easing functions
-
-# Documentation
-
-- [User guide](./docs/user_guide.md)
-- [Contributor guide](./docs/contributor_guide.md)
-- [Tutorial](https://web.archive.org/web/20220601192930/http://learningthreejs.com/blog/2011/08/17/tweenjs-for-smooth-animation/) using tween.js with three.js
-- Also: [libtween](https://github.com/jsm174/libtween), a port of tween.js to C by [jsm174](https://github.com/jsm174)
+- Doesn't make its own animation loop, making it flexible for integration into
+  any animation loop.
 
 # Examples
 
@@ -350,6 +256,184 @@ import * as TWEEN from '@tweenjs/tween.js'
 	</tr>
 </table>
 
+# Installation
+
+The recommended method is to use `import` syntax. Here we've listed various
+install methods starting roughly with the most recommended first and least
+desirable last. Evaluate all of the following methods to pick what is most
+suitable for your project.
+
+## With `npm install` and `import` from `node_modules`
+
+You can add tween.js as an npm dependency:
+
+```bash
+npm install @tweenjs/tween.js
+```
+
+### Without a build tool
+
+#### Installed locally
+
+You can import from `node_modules` if you serve `node_modules` as part of your
+website, using a standard `importmap` script tag. First, assuming `node_modules`
+is at the root of your website, you can write an import map like so in your HTML
+file:
+
+```html
+<script type="importmap">
+	{
+		"imports": {
+			"@tweenjs/tween.js": "/node_modules/@tweenjs/tween.js/dist/tween.esm.js"
+		}
+	}
+</script>
+```
+
+Now in any of your module scripts you can import Tween.js by its package name:
+
+```html
+<script type="module">
+	import {Tween} from '@tweenjs/tween.js'
+</script>
+```
+
+#### Import from CDN
+
+Note that, without the `importmap`, you can import directly from a CDN as with the first example above, like so:
+
+```html
+<script type="module">
+	import {Tween} from 'https://unpkg.com/browse/@tweenjs/tween.js@23.1.3/dist/tween.esm.js'
+</script>
+```
+
+You can also link your `importmap` to the CDN instead of a local `node_modules` folder, if you prefer that:
+
+```html
+<script type="importmap">
+	{
+		"imports": {
+			"@tweenjs/tween.js": "https://unpkg.com/browse/@tweenjs/tween.js@23.1.3/dist/tween.esm.js"
+		}
+	}
+</script>
+
+<script type="module">
+	import {Tween} from '@tweenjs/tween.js'
+</script>
+```
+
+### With a build tool
+
+If you are using [Node.js](https://nodejs.org/),
+[Parcel](https://parceljs.org/), [Webpack](https://webpack.js.org/),
+[Rollup](https://rollupjs.org/), [Vite](https://vitejs.dev/), or another build
+tool, then you can install `@tweenjs/tween.js` with `npm install
+@tweenjs/tween.js`, and `import` the library into your JavaScript (or
+TypeScript) file, and the build tool will know how to find the source code from
+`node_modules` without needing to create an `importmap` script:
+
+```javascript
+import * as TWEEN from '@tweenjs/tween.js'
+```
+
+However, note that this approach requires always running a build tool for your
+app to work, while the `importmap` approach will simply work without any build
+tools as a simple static HTML site.
+
+## Manual build
+
+Another approach is to download the source code with git, manually build the
+library, then place the output in your project. Node.js is required for this.
+
+```bash
+git clone https://github.com/tweenjs/tween.js
+cd tween.js
+npm install
+npm run build
+```
+
+This will create some builds in the `dist` directory. There are currently two different builds of the library:
+
+- ES6 Module in `/dist/tween.esm.js` (recommended)
+- UMD in `/dist/tween.umd.js` (deprecated, will be removed in a future major version)
+
+You are now able to copy one of those two files into your project, and use like this (recommended):
+
+```html
+<script type="module">
+	import {Tween} from 'path/to/tween.esm.js'
+</script>
+```
+
+or (deprecated, to be removed in future major):
+
+```html
+<script src="path/to/tween.umd.js"></script>
+<script>
+	const {Tween} = TWEEN
+</script>
+```
+
+where `path/to` is replaced with the location where you placed the file.
+
+> [!Note]
+> You can also download these files from unpkg, for example here:
+> https://unpkg.com/browse/@tweenjs/tween.js@23.1.3/dist/
+
+## Global variable from CDN (deprecated)
+
+> [!Note]
+> This method is deprecated and will be removed in a future major version!
+
+Install a global `TWEEN` variable from a content-delivery network (CDN) using the UMD file.
+
+From cdnjs:
+
+```html
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/23.1.3/tween.umd.js"></script>
+```
+
+Or from unpkg.com:
+
+```html
+<script src="https://unpkg.com/@tweenjs/tween.js@^23.1.3/dist/tween.umd.js"></script>
+```
+
+Then use the `TWEEN` variable in any script:
+
+```html
+<script>
+	const {Tween, Easing, Group /*, ...*/} = TWEEN
+
+	const tween = new Tween(someObject)
+	// ...
+</script>
+```
+
+> [!Note]
+> unpkg.com supports a semver version in the URL, where the `^` in the
+> URL tells unpkg to give you the latest version 20.x.x.
+
+## CommonJS (deprecated)
+
+Skip this section if you don't know what CommonJS is!
+
+> [!Note]
+> This method is deprecated and will be removed in a future major version!
+
+Any of the above methods work in older systems that still use CommonJS. Repeat
+any of the above methods but using `dist/tween.cjs` instead of
+`dist/tween.esm.js` or `dist/tween.umd.js`.
+
+# Documentation
+
+- [User guide](./docs/user_guide.md)
+- [Contributor guide](./docs/contributor_guide.md)
+- [Tutorial](https://web.archive.org/web/20220601192930/http://learningthreejs.com/blog/2011/08/17/tweenjs-for-smooth-animation/) using tween.js with three.js
+- Also: [libtween](https://github.com/jsm174/libtween), a port of tween.js to C by [jsm174](https://github.com/jsm174)
+
 # Tests
 
 You need to install `npm` first--this comes with node.js, so install that one first. Then, cd to `tween.js`'s (or wherever you cloned the repo) directory and run:
@@ -364,7 +448,11 @@ To run the tests run:
 npm test
 ```
 
-If you want to add any feature or change existing features, you _must_ run the tests to make sure you didn't break anything else. Any pull request (PR) needs to have updated passing tests for feature changes (or new passing tests for new features or fixes) in `src/tests.ts` a PR to be accepted. See [contributing](CONTRIBUTING.md) for more information.
+If you want to add any feature or change existing features, you _must_ run the
+tests to make sure you didn't break anything else. Any pull request (PR) needs
+to have updated passing tests for feature changes (or new passing tests for new
+features or fixes) in `src/tests.ts` to be accepted. See
+[contributing](CONTRIBUTING.md) for more information.
 
 # People
 

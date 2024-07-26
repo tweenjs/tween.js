@@ -1,5 +1,5 @@
 import now from './Now'
-import type {Tween, UnknownProps} from './Tween'
+import type {Tween} from './Tween'
 
 /**
  * Controlling groups of tweens
@@ -8,40 +8,63 @@ import type {Tween, UnknownProps} from './Tween'
  * In these cases, you may want to create your own smaller groups of tween
  */
 export default class Group {
-	private _tweens: {
-		[key: string]: Tween<UnknownProps>
-	} = {}
+	private _tweens: Record<string, Tween> = {}
+	private _tweensAddedDuringUpdate: Record<string, Tween> = {}
 
-	private _tweensAddedDuringUpdate: {
-		[key: string]: Tween<UnknownProps>
-	} = {}
+	constructor(...tweens: Tween[]) {
+		this.add(...tweens)
+	}
 
-	getAll(): Array<Tween<UnknownProps>> {
-		return Object.keys(this._tweens).map(tweenId => {
-			return this._tweens[tweenId]
-		})
+	getAll(): Array<Tween> {
+		return Object.keys(this._tweens).map(tweenId => this._tweens[tweenId])
 	}
 
 	removeAll(): void {
 		this._tweens = {}
 	}
 
-	add(tween: Tween<UnknownProps>): void {
-		this._tweens[tween.getId()] = tween
-		this._tweensAddedDuringUpdate[tween.getId()] = tween
+	add(...tweens: Tween[]): void {
+		for (const tween of tweens) {
+			// Remove from any other group first, a tween can only be in one group at a time.
+			// @ts-expect-error library internal access
+			tween._group?.remove(tween)
+
+			// @ts-expect-error library internal access
+			tween._group = this
+
+			this._tweens[tween.getId()] = tween
+			this._tweensAddedDuringUpdate[tween.getId()] = tween
+		}
 	}
 
-	remove(tween: Tween<UnknownProps>): void {
-		delete this._tweens[tween.getId()]
-		delete this._tweensAddedDuringUpdate[tween.getId()]
+	remove(...tweens: Tween[]): void {
+		for (const tween of tweens) {
+			// @ts-expect-error library internal access
+			tween._group = undefined
+
+			delete this._tweens[tween.getId()]
+			delete this._tweensAddedDuringUpdate[tween.getId()]
+		}
 	}
 
-	update(time: number = now(), preserve = false): boolean {
+	/** Return true if all tweens in the group are not paused or playing. */
+	allStopped() {
+		return this.getAll().every(tween => !tween.isPlaying())
+	}
+
+	update(time?: number): void
+	/**
+	 * @deprecated The `preserve` parameter is now defaulted to `true` and will
+	 * be removed in a future major release, at which point all tweens of a
+	 * group will always be preserved when calling update. To migrate, always
+	 * use `group.add(tween)` or `group.remove(tween)` to manually add or remove
+	 * tweens, and do not rely on tweens being automatically added or removed.
+	 */
+	update(time?: number, preserve?: boolean): void
+	update(time: number = now(), preserve = true): void {
 		let tweenIds = Object.keys(this._tweens)
 
-		if (tweenIds.length === 0) {
-			return false
-		}
+		if (tweenIds.length === 0) return
 
 		// Tweens are updated in "batches". If you add a new tween during an
 		// update, then the new tween will be updated in the next batch.
@@ -55,14 +78,10 @@ export default class Group {
 				const tween = this._tweens[tweenIds[i]]
 				const autoStart = !preserve
 
-				if (tween && tween.update(time, autoStart) === false && !preserve) {
-					delete this._tweens[tweenIds[i]]
-				}
+				if (tween && tween.update(time, autoStart) === false && !preserve) this.remove(tween)
 			}
 
 			tweenIds = Object.keys(this._tweensAddedDuringUpdate)
 		}
-
-		return true
 	}
 }

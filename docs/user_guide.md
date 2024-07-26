@@ -6,17 +6,21 @@ _**NOTE** This is a work in progress. If you find that something is unclear or m
 
 ## What is a tween? How do they work? Why do you want to use them?
 
-A tween (from [_in-between_](http://en.wikipedia.org/wiki/Inbetweening)) is a concept that allows you to change the values of the properties of an object in a smooth way. You just tell it which properties you want to change, which final values should they have when the tween finishes running, and how long should this take, and the tweening engine will take care of finding the intermediate values from the starting to the ending point. For example, suppose you have a `position` object with `x` and `y` coordinates:
+A tween (from [_in-between_](http://en.wikipedia.org/wiki/Inbetweening)) is a concept that allows you to change the values of the properties of an object in a smooth way. You just tell it which properties you want to change, which final values should they have when the tween finishes running, and how long should this take, and the tweening engine will take care of finding the intermediate values from the starting to the ending point.
+
+For example, suppose you have a `position` object with `x` and `y` coordinates:
 
 ```javascript
-var position = {x: 100, y: 0}
+const position = {x: 100, y: 0}
 ```
 
 If you wanted to change the `x` value from `100` to `200`, you'd do this:
 
 ```javascript
+import {Tween} from '@tweenjs/tween.js'
+
 // Create a tween for position first
-var tween = new TWEEN.Tween(position)
+const tween = new Tween(position)
 
 // Then tell the tween we want to animate the x property over 1000 milliseconds
 tween.to({x: 200}, 1000)
@@ -29,7 +33,7 @@ Actually this won't do anything yet. The tween has been created but it's not act
 tween.start()
 ```
 
-Finally in order to run as smoothly as possible you should call the `TWEEN.update` function in the same main loop you're using for animating. This generally looks like this:
+Finally in order to run as smoothly as possible you should call the `tween.update()` function in the same main loop you're using for animating. This generally looks like this:
 
 ```javascript
 animate()
@@ -37,12 +41,12 @@ animate()
 function animate() {
 	requestAnimationFrame(animate)
 	// [...]
-	TWEEN.update()
+	tween.update()
 	// [...]
 }
 ```
 
-This will take care of updating all active tweens; after 1 second (i.e. 1000 milliseconds) `position.x` will be `200`.
+After 1 second (i.e. 1000 milliseconds) `position.x` will be `200`.
 
 But unless you print the value of `x` to the console, you can't see its value changing. You might want to use the `onUpdate` callback:
 
@@ -57,13 +61,13 @@ This function will be called each time the tween is updated; how often this happ
 So far we've only used tweens to print values to the console, but you could use it for things such as animating positions of three.js objects:
 
 ```javascript
-var tween = new TWEEN.Tween(cube.position).to({x: 100, y: 100, z: 100}, 10000).start()
+const tween = new Tween(cube.position).to({x: 100, y: 100, z: 100}, 10000).start()
 
 animate()
 
 function animate() {
 	requestAnimationFrame(animate)
-	TWEEN.update()
+	tween.update()
 
 	threeRenderer.render(scene, camera)
 }
@@ -74,7 +78,7 @@ In this case, because the three.js renderer will look at the object's position b
 You might have noticed something different here too: we're chaining the tween function calls! Each tween function returns the tween instance, so you can rewrite the following code:
 
 ```javascript
-var tween = new TWEEN.Tween(position)
+const tween = new Tween(position)
 tween.to({x: 200}, 1000)
 tween.start()
 ```
@@ -82,14 +86,14 @@ tween.start()
 into this
 
 ```javascript
-var tween = new TWEEN.Tween(position).to({x: 200}, 1000).start()
+const tween = new Tween(position).to({x: 200}, 1000).start()
 ```
 
 You'll see this a lot in the examples, so it's good to be familiar with it! Check [04-simplest](../examples/04_simplest.html) for a working example.
 
 ## Animating with tween.js
 
-Tween.js doesn't run by itself. You need to tell it when to run, by explicitly calling the `update` method. The recommended method is to do this inside your main animation loop, which should be called with `requestAnimationFrame` for getting the best graphics performance:
+Tween.js doesn't run by itself. You need to tell it when to run, by explicitly calling the `update` method of each tween, or the `update` method of a `Group` that has multiple tweens (more on Groups below). The recommended method is to do this inside your main animation loop, which should be called with `requestAnimationFrame` for getting the best graphics performance:
 
 We've seen this example before:
 
@@ -99,7 +103,7 @@ animate()
 function animate() {
 	requestAnimationFrame(animate)
 	// [...]
-	TWEEN.update()
+	tween.update()
 	// [...]
 }
 ```
@@ -109,17 +113,17 @@ If called without parameters, `update` will determine the current time in order 
 However you can also pass an explicit time parameter to `update`. Thus,
 
 ```javascript
-TWEEN.update(100)
+tween.update(100)
 ```
 
 means "update with time = 100 milliseconds". You can use this to make sure that all the time-dependent functions in your code are using the very same time value. For example, suppose you've got a player and want to run tweens in sync. Your `animate` code could look like this:
 
 ```javascript
-var currentTime = player.currentTime
-TWEEN.update(currentTime)
+let currentTime = player.currentTime
+tween.update(currentTime)
 ```
 
-We use explicit time values for the unit tests. You can have a look at [tests.ts](../src/tests.ts) to see how we call TWEEN.update() with different values in order to simulate time passing.
+We use explicit time values for the unit tests. You can have a look at [tests.ts](../src/tests.ts) to see how we call `tween.update()` with different values in order to simulate time passing.
 
 ## Controlling a tween
 
@@ -127,13 +131,13 @@ We use explicit time values for the unit tests. You can have a look at [tests.ts
 
 So far we've learnt about the `Tween.start` method, but there are more methods that control individual tweens. Probably the most important one is the `start` counterpart: `stop`. If you want to cancel a tween, just call this method over an individual tween:
 
-```
-tween.stop();
+```js
+tween.stop()
 ```
 
 Stopping a tween that was never started or that has already been stopped has no effect. No errors are thrown either.
 
-The `start` method also accepts a `time` argument. If you use it, the tween won't start until that particular moment in time; otherwise it will start as soon as possible (i.e. on the next call to `TWEEN.update`).
+The `start` method also accepts a `time` argument. If you use it, the tween won't start until that particular moment in time; otherwise it will start as soon as possible (i.e. on the next call to `tween.update()`).
 
 The `start` method accepts a second boolean argument: when `true`, a tween that we previously used will start from the values in the target object, instead of starting from the beginning. Useful for stopping a tween, then starting another one that will continue from the current location.
 
@@ -145,12 +149,10 @@ beginning.
 
 ### `update`
 
-Individual tweens have an `update` method. This is in fact called by `TWEEN.update` for tweens that have been constructed with only one argument.
-
-In the following example, the second argument tells the new Tween not to add itself to the default group (`TWEEN` is an instance of `TWEEN.Group`). If the tween is not associated with a group (note that a group can be associated by passing it in as the second arg to the constructor), then the tween needs to be updated manually using its `updated` method like so:
+Individual tweens have an `update` method to so that they can be updated over time in an animation loop, and on each update they will apply updated values to their target object.
 
 ```js
-const tween = new TWEEN.Tween(someObject, false).to(/*...*/).start()
+const tween = new Tween(someObject).to(/*...*/).start()
 
 function animate(time) {
 	tween.update(time)
@@ -158,9 +160,27 @@ function animate(time) {
 }
 ```
 
-> **Note** You don't need to call `tween.update()` directly if you're using `TWEEN.update()` as a way to control all tweens by default, however we recommend that you either [make your own groups of tweens](#controlling-groups-of-tweens) or manually update your tweens directly as in the last example. The concept of using groups or individually-controlled tweens is much like the practice of avoiding use of global variables in your JavaScript code: it prevents one component from accidentally ruining the behavior of some other unrelated component.
+### `pause`
 
-Using `TWEEN` to control your tweens is like using globals: and it is only good for simple cases (f.e. small demos, prototypes, etc) but it may not scale well for big apps that may have different parts that need to animate tweens on differing schedules.
+While an tween is running (i.e. it has already been `start`ed and may have
+already been `update`d numerous times) it can be paused. Even if `update()` is
+called while the tween is paused, its time will not move forward. `isPlaying`
+will still be true while a tween is `paused` and its `update()` method continues
+to track time progression (you can continue to call `update()` while a tween is
+paused).
+
+```js
+tween.start()
+
+function animate() {
+	tween.update()
+	requestAnimationFrame(animate)
+}
+animate()
+
+// at any time while the tween is running
+tween.pause()
+```
 
 ### `chain`
 
@@ -243,76 +263,82 @@ See the other `dynamic to` examples for more ideas.
 
 > **Warning** When `dynamic` is set to `false`, Tween makes a copy of the object passed into `tween.to()` and will never modify it (hence updating the original object from the outside is not dynamic). When `dynamic` is `true`, Tween uses the original object as the source of values during animation (every update reads the values, hence they can be modified dynamically) but note that **in dynamic mode, Tween will modify any interpolation arrays of the object passed into `tween.to()` which may cause side-effects on any external code that may also rely on the same object**.
 
-## Controlling _all_ the tweens
-
-The following methods are found in the TWEEN global object, and you generally won't need to use most of them, except for `update`. `TWEEN` is effectively an instance of `TWEEN.Group`, and by default all new Tweens are associated to this global `Group` unless otherwise specified (see the next section on grouping tweens with your own Groups).
-
-### `TWEEN.update(time)`
-
-We've already talked about this method. It is used to update all the active tweens.
-
-If `time` is not specified, it will use the current time.
-
-### `TWEEN.getAll` and `TWEEN.removeAll`
-
-Used to get a reference to the active `tweens` array and to remove all of them from the array with just one call, respectively.
-
-### `TWEEN.add(tween)` and `TWEEN.remove(tween)`
-
-Used to add a tween to the list of active tweens, or to remove a specific one from the list, respectively.
-
-These methods are usually used internally only, but are exposed just in case you want to do something _funny_.
-
 ## Controlling groups of tweens
 
-Using the `TWEEN` singleton to manage your tweens can cause issues in large apps with many components. In these cases, you may want to create your own smaller groups of tweens.
+Sometimes you want to update multiple tweens at once, which can be useful when
+grouping a set of tweens into a logical component in your application. You can
+do this with a `Group`.
 
-#### Example: cross-component conflict
+First add multiple tweens to a group:
 
-A conflict can occur if you have multiple components using `TWEEN`, and each component wants to manage its own set of tweens. If one component calls `TWEEN.update()` or `TWEEN.removeAll()` the tweens of other components will also be updated or removed.
+```js
+import {Group, Tween} from '@tweenjs/tween.js'
 
-#### Creating your own tween groups
+const tween1 = new Tween(obj1).to(...).start()
+const tween2 = new Tween(obj2).to(...).start()
 
-To solve this, each component can make their own instance of `TWEEN.Group` (which is what the global `TWEEN` object uses internally). These groups can be passed in as a second optional parameter when instantiating a new tween:
-
-```javascript
-var groupA = new TWEEN.Group()
-var groupB = new TWEEN.Group()
-
-var tweenA = new TWEEN.Tween({x: 1}, groupA).to({x: 10}, 100).start()
-
-var tweenB = new TWEEN.Tween({x: 1}, groupB).to({x: 10}, 100).start()
-
-var tweenC = new TWEEN.Tween({x: 1}).to({x: 10}, 100).start()
-
-groupA.update() // only updates tweenA
-groupB.update() // only updates tweenB
-TWEEN.update() // only updates tweenC
-
-groupA.removeAll() // only removes tweenA
-groupB.removeAll() // only removes tweenB
-TWEEN.removeAll() // only removes tweenC
+const group = new Group()
+group.add(tween1)
+group.add(tween2)
 ```
 
-In this way, each component can handle creating, updating, and destroying its own set of tweens.
+Then call `group.update()` in your animation loop instead of on individual
+tweens:
+
+```js
+animate()
+
+function animate() {
+	requestAnimationFrame(animate)
+	// [...]
+	group.update()
+	// [...]
+}
+```
+
+Note that a tween can only belong to a single group. Adding a tween to a group
+automatically removes it from any previous group.
+
+### `group.getAll()`
+
+Returns an array of all tweens added to a group.
+
+### `group.add(tween)`
+
+Add a tween to a group.
+
+### `group.remove(tween)`
+
+Remove a tween from a group.
+
+### `group.removeAll()`
+
+Remove all tween from a group.
+
+### `group.update(time?)`
+
+Update all tweens in a group, with an optional time value. If time value is not
+supplied, it default to the current time.
 
 ## Changing the easing function (AKA make it bouncy)
 
 Tween.js will perform the interpolation between values (i.e. the easing) in a linear manner, so the change will be directly proportional to the elapsed time. This is predictable but also quite uninteresting visually wise. Worry not--this behaviour can be easily changed using the `easing` method. For example:
 
 ```javascript
-tween.easing(TWEEN.Easing.Quadratic.In)
+import {Tween, Easing} from '@tweenjs/tween.js'
+// ...
+tween.easing(Easing.Quadratic.In)
 ```
 
-This will result in the tween slowly starting to change towards the final value, accelerating towards the middle, and then quickly reaching its final value. In contrast, `TWEEN.Easing.Quadratic.Out` would start changing quickly towards the value, but then slow down as it approaches the final value.
+This will result in the tween slowly starting to change towards the final value, accelerating towards the middle, and then quickly reaching its final value. In contrast, `Easing.Quadratic.Out` would start changing quickly towards the value, but then slow down as it approaches the final value.
 
-### Available easing functions: `TWEEN.Easing`
+### Available `Easing` functions
 
 There are a few existing easing functions provided with tween.js. They are grouped by the type of equation they represent: Linear, Quadratic, Cubic, Quartic, Quintic, Sinusoidal, Exponential, Circular, Elastic, Back and Bounce, and then by the easing type: In, Out and InOut.
 
 Probably the names won't be saying anything to you unless you're familiar with these concepts already, so it is probably the time to check the [Graphs](../examples/03_graphs.html) example, which graphs all the curves in one page so you can compare how they look at a glance.
 
-TWEEN.Easing also has a function called generatePow(). This function generates easing functions for different curves depending on arguments. You can check the relevance of the arguments to curves in the [example of pow easing](../examples/17_generate_pow.html) page.
+`Easing` also has a function called `generatePow()`. This function generates easing functions for different curves depending on arguments. You can check the relevance of the arguments to curves in the [example of pow easing](../examples/17_generate_pow.html) page.
 
 _Credit where credit is due:_ these functions are derived from the original set of equations that Robert Penner graciously made available as free software a few years ago, but have been optimised to play nicely with JavaScript.
 
@@ -357,7 +383,7 @@ Another powerful feature is to be able to run your own functions at specific tim
 For example, suppose you're trying to animate some object whose properties can't be accessed directly but require you to call a setter instead. You can use an `update` callback to read the new updated values and then manually call the setters. All callbacks are passed the tweened object as the only parameter.
 
 ```javascript
-var trickyObjTween = new TWEEN.Tween({
+const trickyObjTween = new Tween({
 	propertyA: trickyObj.getPropertyA(),
 	propertyB: trickyObj.getPropertyB(),
 })
@@ -371,7 +397,7 @@ var trickyObjTween = new TWEEN.Tween({
 Or imagine you want to play a sound when a tween is started. You can use a `start` callback:
 
 ```javascript
-var tween = new TWEEN.Tween(obj).to({x: 100}).onStart(function () {
+const tween = new Tween(obj).to({x: 100}).onStart(function () {
 	sound.play()
 })
 ```
@@ -421,7 +447,7 @@ To clarify when `onStart`, `onEveryStart` and `onRepeat` are called, consider:
 ```javascript
 const obj = {x: 0}
 
-const t = new TWEEN.Tween(obj)
+const t = new Tween(obj)
 	.to({x: 5}, 5)
 	.repeat(Infinity)
 	.onStart(() => {
@@ -437,7 +463,7 @@ const t = new TWEEN.Tween(obj)
 
 for (let ticks = 0; ticks < 22; ticks += 1) {
 	console.log('Tick', ticks)
-	TWEEN.update(ticks)
+	t.update(ticks)
 
 	console.log(obj)
 	console.log()
@@ -529,13 +555,13 @@ onEveryStart     { x: 5 }
 
 ### `isPlaying`
 
-`true` when started (even if paused).
+`tween.isPlaying` is `true` when a tween is started, even if it is paused.
 
-When a tween is stopped, `isPlaying` and `isPaused` will both be `false`.
+When a tween is stopped, `isPlaying` and `isPaused` will both be `false`, so `!tween.isPlaying()` can be used to detect if a tween is stopped (regardless if the tween has completed).
 
 ### `isPaused`
 
-`true` when paused. `isPlaying` will also be `true`. If a tween is started, but not paused, `isPlaying` will be `true` and `isPaused` will be `false`.
+`tween.isPaused` is `true` when a tween is paused. `isPlaying` will also be `true`. If a tween is started, but not paused, `isPlaying` will be `true` and `isPaused` will be `false`.
 
 ## Advanced tweening
 
@@ -545,7 +571,7 @@ You can also use relative values when using the `to` method. When the tween is s
 
 ```javascript
 // This will make the `x` property be 100, always
-var absoluteTween = new TWEEN.Tween(absoluteObj).to({x: 100})
+const absoluteTween = new Tween(absoluteObj).to({x: 100})
 
 // Suppose absoluteObj.x is 0 now
 absoluteTween.start() // Makes x go to 100
@@ -557,7 +583,7 @@ absoluteTween.start() // Makes x go to 100
 
 // This will make the `x` property be 100 units more,
 // relative to the actual value when it starts
-var relativeTween = new TWEEN.Tween(relativeObj).to({x: '+100'})
+const relativeTween = new Tween(relativeObj).to({x: '+100'})
 
 // Suppose relativeObj.x is 0 now
 relativeTween.start() // Makes x go to 0 +100 = 100
@@ -573,8 +599,8 @@ Check [09_relative_values](../examples/09_relative_values.html) for an example.
 Tween.js can also change properties across nested objects. For example:
 
 ```javascript
-var nestedObject = {scale: {x: 0, y: 0}, alpha: 0}
-var tween = new TWEEN.Tween(nestedObject).to({scale: {x: 100, y: 100}, alpha: 1})
+const nestedObject = {scale: {x: 0, y: 0}, alpha: 0}
+const tween = new Tween(nestedObject).to({scale: {x: 100, y: 100}, alpha: 1})
 ```
 
 ### Tweening to arrays of values
@@ -582,7 +608,7 @@ var tween = new TWEEN.Tween(nestedObject).to({scale: {x: 100, y: 100}, alpha: 1}
 In addition to tweening to an absolute or a relative value, you can also have Tween.js change properties across a series of values. To do this, you just need to specify an array of values instead of a single value for a property. For example:
 
 ```javascript
-var tween = new TWEEN.Tween(relativeObj).to({x: [0, -100, 100]})
+const tween = new Tween(relativeObj).to({x: [0, -100, 100]})
 ```
 
 will make `x` go from its initial value to 0, -100 and 100.
@@ -595,17 +621,20 @@ The way these values are calculated is as follows:
 
 For example, when the tween has just started (progress is 0), the interpolation function will return the first value in the array. When the tween is halfway, the interpolation function will return a value approximately in the middle of the array, and when the tween is at the end, the interpolation function will return the last value.
 
-You can change the interpolation function with the `interpolation` method. For example:
+You can change the interpolation mode by passing an `Interpolation` function
+into the `tween.interpolation` method. For example:
 
 ```javascript
-tween.interpolation(TWEEN.Interpolation.Bezier)
+import {Interpolation} from '@tweenjs/tween.js'
+// ...
+tween.interpolation(Interpolation.Bezier)
 ```
 
 The following values are available:
 
-- TWEEN.Interpolation.Linear
-- TWEEN.Interpolation.Bezier
-- TWEEN.Interpolation.CatmullRom
+- `Interpolation.Linear`
+- `Interpolation.Bezier`
+- `Interpolation.CatmullRom`
 
 The default is `Linear`.
 
@@ -622,8 +651,8 @@ While Tween.js tries to be performant on its own, nothing prevents you from usin
 When you try to animate the position of an element in the page, the easiest solution is to animate the `top` and `left` style properties, like this:
 
 ```javascript
-var element = document.getElementById('myElement')
-var tween = new TWEEN.Tween({top: 0, left: 0}).to({top: 100, left: 100}, 1000).onUpdate(function (object) {
+const element = document.getElementById('myElement')
+const tween = new Tween({top: 0, left: 0}).to({top: 100, left: 100}, 1000).onUpdate(function (object) {
 	element.style.top = object.top + 'px'
 	element.style.left = object.left + 'px'
 })
@@ -632,8 +661,8 @@ var tween = new TWEEN.Tween({top: 0, left: 0}).to({top: 100, left: 100}, 1000).o
 but this is really inefficient because altering these properties forces the browser to recalculate the layout on each update, and this is a very costly operation. Instead of using these, you should use `transform`, which doesn't invalidate the layout and will also be hardware accelerated when possible, like this:
 
 ```javascript
-var element = document.getElementById('myElement')
-var tween = new TWEEN.Tween({top: 0, left: 0}).to({top: 100, left: 100}, 1000).onUpdate(function (object) {
+const element = document.getElementById('myElement')
+const tween = new Tween({top: 0, left: 0}).to({top: 100, left: 100}, 1000).onUpdate(function (object) {
 	element.style.transform = 'translate(' + object.left + 'px, ' + object.top + 'px)'
 })
 ```

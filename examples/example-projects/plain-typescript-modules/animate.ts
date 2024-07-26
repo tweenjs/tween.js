@@ -1,12 +1,11 @@
-// For sake of example, we put animate() in a separate file, and import it into index.ts.
-import * as TWEEN from '@tweenjs/tween.js'
+import type {Group} from '@tweenjs/tween.js'
 
-//If we register the callback animate, but the TWEEN.update(time) returns false,
-//cancel/unregister the handler
-export function animate(time) {
-	var id = requestAnimationFrame(animate)
+export function animate(group: Group) {
+	function loop(time: number) {
+		group.update(time)
+		const stopped = group.allStopped()
+		if (!stopped) requestAnimationFrame(loop)
+	}
 
-	var result = TWEEN.update(time)
-
-	if (!result) cancelAnimationFrame(id)
+	loop(performance.now())
 }

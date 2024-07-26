@@ -45,32 +45,26 @@
 			</div>
 		</div>
 
-		<script src="../dist/tween.umd.js"></script>
-		<script>
-			var progress
-			var fill
-			var tween1
+		<script type="module">
+			import * as TWEEN from '../dist/tween.esm.js'
 
-			init()
+			const progress = {width: 0}
+			const fill = document.getElementById('progress_bar_fill')
+
+			const tween1 = new TWEEN.Tween(progress)
+				.to({width: 100}, 2000)
+				.onUpdate(update1)
+				.yoyo(true)
+				.repeat(Infinity)
+				.delay(500)
+				.start()
+
 			animate()
-
-			function init() {
-				progress = {width: 0}
-				fill = document.getElementById('progress_bar_fill')
-
-				tween1 = new TWEEN.Tween(progress)
-					.to({width: 100}, 2000)
-					.onUpdate(update1)
-					.yoyo(true)
-					.repeat(Infinity)
-					.delay(500)
-					.start()
-			}
 
 			function animate(time) {
 				requestAnimationFrame(animate)
 
-				TWEEN.update(time)
+				tween1.update(time)
 			}
 
 			function update1() {
@@ -78,11 +72,11 @@
 				fill.innerHTML = Math.floor(progress.width) + '%'
 			}
 
-			function pause() {
+			window.pause = () => {
 				tween1.pause()
 			}
 
-			function resume() {
+			window.resume = () => {
 				tween1.resume()
 			}
 		</script>

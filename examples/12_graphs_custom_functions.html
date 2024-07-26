@@ -27,43 +27,50 @@
 
 		<div id="target"></div>
 
-		<script src="../dist/tween.umd.js"></script>
-		<script src="js/createGraph.js"></script>
-		<script>
+		<script type="module">
+			import {createGraph} from './js/createGraph.js'
+			import * as TWEEN from '../dist/tween.esm.js'
+
+			const group = new TWEEN.Group()
+
 			window.addEventListener('load', function () {
 				init()
 				animate()
 			})
 
 			function init() {
-				var target = document.getElementById('target')
+				const target = document.getElementById('target')
 
-				target.appendChild(createGraph('Ten Steps', tenStepsEasing))
+				target.appendChild(createGraph(group, 'Ten Steps', tenStepsEasing))
 
 				target.appendChild(document.createElement('br'))
 
-				for (var i = 0; i < 4; i++) {
-					var numSteps = (i + 1) * 4
-					target.appendChild(createGraph(numSteps + ' steps', createStepFunction(numSteps)))
+				for (let i = 0; i < 4; i++) {
+					const numSteps = (i + 1) * 4
+					target.appendChild(createGraph(group, numSteps + ' steps', createStepFunction(numSteps)))
 				}
 
 				target.appendChild(document.createElement('br'))
 
-				target.appendChild(createGraph('Random', randomEasing))
+				target.appendChild(createGraph(group, 'Random', randomEasing))
 
 				target.appendChild(document.createElement('br'))
 
 				target.appendChild(
-					createGraph('Noisy Exponential.InOut', createNoisyEasing(0.1, TWEEN.Easing.Exponential.InOut)),
+					createGraph(group, 'Noisy Exponential.InOut', createNoisyEasing(0.1, TWEEN.Easing.Exponential.InOut)),
 				)
-				target.appendChild(createGraph('Noisy Elastic.InOut', createNoisyEasing(0.1, TWEEN.Easing.Elastic.InOut)))
-				target.appendChild(createGraph('Noisy Circular.InOut', createNoisyEasing(0.1, TWEEN.Easing.Circular.InOut)))
+				target.appendChild(
+					createGraph(group, 'Noisy Elastic.InOut', createNoisyEasing(0.1, TWEEN.Easing.Elastic.InOut)),
+				)
+				target.appendChild(
+					createGraph(group, 'Noisy Circular.InOut', createNoisyEasing(0.1, TWEEN.Easing.Circular.InOut)),
+				)
 			}
 
 			function animate() {
 				requestAnimationFrame(animate)
 
-				TWEEN.update()
+				group.update()
 			}
 
 			function tenStepsEasing(k) {
@@ -87,7 +94,7 @@
 			// Getting meta again: why not use existing functions as the
 			// base for new easing functions?
 			function createNoisyEasing(randomProportion, easingFunction) {
-				var normalProportion = 1.0 - randomProportion
+				const normalProportion = 1.0 - randomProportion
 				return function (k) {
 					return randomProportion * Math.random() + normalProportion * easingFunction(k)
 				}
