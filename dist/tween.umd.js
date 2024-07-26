@@ -605,7 +605,7 @@
         };
         Tween.prototype.end = function () {
             this._goToEnd = true;
-            this.update(Infinity);
+            this.update(this._startTime + this._duration);
             return this;
         };
         Tween.prototype.pause = function (time) {
@@ -716,12 +716,16 @@
          * @returns true if the tween is still playing after the update, false
          * otherwise (calling update on a paused tween still returns true because
          * it is still playing, just paused).
+         *
+         * @param autoStart - When true, calling update will implicitly call start()
+         * as well. Note, if you stop() or end() the tween, but are still calling
+         * update(), it will start again!
          */
         Tween.prototype.update = function (time, autoStart) {
             var _this = this;
             var _a;
             if (time === void 0) { time = now(); }
-            if (autoStart === void 0) { autoStart = true; }
+            if (autoStart === void 0) { autoStart = Tween.autoStartOnUpdate; }
             if (this._isPaused)
                 return true;
             var property;
@@ -868,6 +872,7 @@
             }
             this._valuesEnd[property] = tmp;
         };
+        Tween.autoStartOnUpdate = false;
         return Tween;
     }());
 

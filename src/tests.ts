@@ -520,6 +520,8 @@ export const tests = {
 	},
 
 	'Ensure tweens start without calling start() method.'(test: Test): void {
+		TWEEN.Tween.autoStartOnUpdate = true
+
 		const obj = {x: 0},
 			t = new TWEEN.Tween(obj)
 
@@ -537,6 +539,8 @@ export const tests = {
 		t.update(1000)
 		test.deepEqual(obj.x, 1000)
 		test.deepEqual(started, false)
+
+		TWEEN.Tween.autoStartOnUpdate = false
 
 		test.done()
 	},

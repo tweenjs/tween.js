@@ -1,0 +1,51 @@
+<!-- shows what happens when we call tween.end() -->
+
+<style>
+	#box {
+		background-color: deeppink;
+		width: 100px;
+		height: 100px;
+	}
+</style>
+
+<div id="box"></div>
+
+<button id="end">tween.end()</button>
+
+<script type="module">
+	import {Tween, Easing} from '../dist/tween.esm.js'
+
+	const box = document.getElementById('box') // Get the element we want to animate.
+
+	const coords = {x: 0, y: 0} // Start at (0, 0)
+
+	const tween = new Tween(coords, false) // Create a new tween that modifies 'coords'.
+		.to({x: 300, y: 200}, 5000) // Move to (300, 200) in 1 second.
+		.easing(Easing.Quadratic.InOut) // Use an easing function to make the animation smooth.
+		.onUpdate(() => {
+			// Called after tween.js updates 'coords'.
+			// Move 'box' to the position described by 'coords' with a CSS translation.
+			box.style.setProperty('transform', 'translate(' + coords.x + 'px, ' + coords.y + 'px)')
+
+			//
+			console.log(coords, tween.isPlaying())
+		})
+		.onComplete(() => {
+			console.log('onComplete')
+		})
+		.start() // Start the tween immediately.
+
+	// Setup the animation loop.
+	function animate(time) {
+		tween.update(time)
+		requestAnimationFrame(animate)
+	}
+
+	requestAnimationFrame(animate)
+
+	document.querySelector('#end').addEventListener('click', () => {
+		console.log('tween.end')
+		tween.end()
+		console.log(tween)
+	})
+</script>

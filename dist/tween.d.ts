@@ -53,6 +53,7 @@ declare const Interpolation: {
  */
 
 declare class Tween<T extends UnknownProps = any> {
+    static autoStartOnUpdate: boolean;
     private _isPaused;
     private _pauseStart;
     private _valuesStart;
@@ -143,6 +144,10 @@ declare class Tween<T extends UnknownProps = any> {
      * @returns true if the tween is still playing after the update, false
      * otherwise (calling update on a paused tween still returns true because
      * it is still playing, just paused).
+     *
+     * @param autoStart - When true, calling update will implicitly call start()
+     * as well. Note, if you stop() or end() the tween, but are still calling
+     * update(), it will start again!
      */
     update(time?: number, autoStart?: boolean): boolean;
     private _updateProperties;
