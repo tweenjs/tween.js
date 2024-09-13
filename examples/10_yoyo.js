@@ -5,86 +5,101 @@ const group = new Group()
 
 animate()
 
+const tweenMap = new Map()
+
 const target1 = document.getElementById('target1')
-const tween1 = new Tween(target1.dataset, group)
-	.to({rotation: 360, y: 300}, 750)
-	.repeat(1)
-	.delay(1000)
-	.yoyo(true)
-	.easing(Easing.Cubic.InOut)
-	.onUpdate(function (object) {
-		updateBox(target1, object)
-	})
-	.start()
+tweenMap.set(
+	'tween1',
+	new Tween(target1.dataset, group)
+		.to({rotation: 360, y: 300}, 750)
+		.repeat(Infinity)
+		.delay(1000)
+		.yoyo(true)
+		.easing(Easing.Quadratic.InOut)
+		.onUpdate(function (object) {
+			updateBox(target1, object)
+		})
+		.start(),
+)
 const target2 = document.getElementById('target2')
-const tween2 = new Tween(target2.dataset, group)
-	.to({rotation: 360, y: 300}, 750)
-	.repeat(Infinity)
-	.delay(1000)
-	.yoyo(true)
-	.easing(Easing.Cubic.InOut)
-	.onUpdate(function (object) {
-		updateBox(target2, object)
-	})
-	.start()
+
+tweenMap.set(
+	'tween2',
+	new Tween(target2.dataset, group)
+		.to({rotation: 360, y: 300}, 750)
+		.repeat(Infinity)
+		.delay(1000)
+		.yoyo(true)
+		.easing(Easing.Cubic.InOut)
+		.onUpdate(function (object) {
+			updateBox(target2, object)
+		})
+		.start(),
+)
 const target3 = document.getElementById('target3')
-const tween3 = new Tween(target3.dataset, group)
-	.to({rotation: '+360', y: '+300'}, 750)
-	.repeat(1)
-	.delay(1000)
-	.yoyo(true)
-	.easing(Easing.Cubic.InOut)
-	.onUpdate(function (object) {
-		updateBox(target3, object)
-	})
-	.start()
+tweenMap.set(
+	'tween3',
+	new Tween(target3.dataset, group)
+		.to({rotation: '+360', y: '+300'}, 750)
+		.repeat(1)
+		.delay(1000)
+		.yoyo(true)
+		.easing(Easing.Cubic.InOut)
+		.onUpdate(function (object) {
+			updateBox(target3, object)
+		})
+		.start(),
+)
 const target4 = document.getElementById('target4')
-const tween4 = new Tween(target4.dataset, group)
-	.to({rotation: '+360', y: '+300'}, 750)
-	.repeat(Infinity)
-	.delay(1000)
-	.yoyo(true)
-	.easing(Easing.Cubic.InOut)
-	.onUpdate(function (object) {
-		updateBox(target4, object)
-	})
-	.start()
+tweenMap.set(
+	'tween4',
+	new Tween(target4.dataset, group)
+		.to({rotation: '+360', y: '+300'}, 750)
+		.repeat(Infinity)
+		.delay(1000)
+		.yoyo(true)
+		.easing(Easing.Quadratic.InOut)
+		.onUpdate(function (object) {
+			updateBox(target4, object)
+		})
+		.start(),
+)
+
+const target5 = document.getElementById('target5')
+tweenMap.set(
+	'tween5',
+	new Tween(target5.dataset, group)
+		.to({rotation: '+360', y: '+300'}, 1050)
+		.repeat(Infinity)
+		// .delay(1000) // without delay
+		.yoyo(true)
+		.easing(Easing.Quadratic.InOut)
+		.onUpdate(function (object) {
+			updateBox(target5, object)
+		})
+		.start(),
+)
 
 // TODO perhaps add these methods to Group
 
 const restart = (window.restart = function () {
-	tween1.stop().start()
-	tween2.stop().start()
-	tween3.stop().start()
-	tween4.stop().start()
+	tweenMap.forEach(tween => tween.start())
 })
 
 const stop = (window.stop = function () {
-	tween1.stop()
-	tween2.stop()
-	tween3.stop()
-	tween4.stop()
+	tweenMap.forEach(tween => tween.stop())
 })
 
 const start = (window.start = function () {
-	tween1.start()
-	tween2.start()
-	tween3.start()
-	tween4.start()
+	tweenMap.forEach(tween => tween.start())
 })
 
 const pause = (window.pause = function () {
-	tween1.pause()
-	tween2.pause()
-	tween3.pause()
-	tween4.pause()
+	tweenMap.forEach(tween => tween.pause())
 })
 
 const resume = (window.resume = function () {
-	tween1.resume()
-	tween2.resume()
-	tween3.resume()
-	tween4.resume()
+	tweenMap.forEach(tween => tween.resume())
 })
 
 function animate(time) {

@@ -474,22 +474,16 @@ export class Tween<T extends UnknownProps = any> {
 		const totalTime = this._duration + this._repeat * durationAndDelay
 
 		const calculateElapsedPortion = () => {
-			if (this._duration === 0) return 1
-			if (elapsedTime > totalTime) {
-				return 1
-			}
+			if (this._duration === 0 || elapsedTime > totalTime) return 1
 
-			const timesRepeated = Math.trunc(elapsedTime / durationAndDelay)
-			const timeIntoCurrentRepeat = elapsedTime - timesRepeated * durationAndDelay
-			// TODO use %?
-			// const timeIntoCurrentRepeat = elapsedTime % durationAndDelay
+			const portion = Math.min(elapsedTime / this._duration, 1)
 
-			const portion = Math.min(timeIntoCurrentRepeat / this._duration, 1)
 			if (portion === 0 && elapsedTime === this._duration) {
 				return 1
 			}
 			return portion
 		}
+
 		const elapsed = calculateElapsedPortion()
 		const value = this._easingFunction(elapsed)
 
