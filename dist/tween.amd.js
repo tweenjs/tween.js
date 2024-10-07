@@ -296,6 +296,18 @@ define(['exports'], (function (exports) { 'use strict';
                 tweenIds = Object.keys(this._tweensAddedDuringUpdate);
             }
         };
+        Group.prototype.onComplete = function (callback) {
+            var group = this.getAll();
+            group.forEach(function (tween) {
+                var prevCallback = tween.getCompleteCallback();
+                tween.onComplete(function () {
+                    prevCallback === null || prevCallback === void 0 ? void 0 : prevCallback(tween);
+                    // Since _isPlaying is updated to false after the onComplete callback finishes, the final tween is omitted from the check to determine if all animations have completed
+                    if (group.slice(0, group.length - 1).every(function (t) { return !t.isPlaying(); }))
+                        callback(group);
+                });
+            });
+        };
         return Group;
     }());
 
@@ -441,6 +453,9 @@ define(['exports'], (function (exports) { 'use strict';
         }
         Tween.prototype.getId = function () {
             return this._id;
+        };
+        Tween.prototype.getCompleteCallback = function () {
+            return this._onCompleteCallback;
         };
         Tween.prototype.isPlaying = function () {
             return this._isPlaying;

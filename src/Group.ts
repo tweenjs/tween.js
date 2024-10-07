@@ -84,4 +84,15 @@ export default class Group {
 			tweenIds = Object.keys(this._tweensAddedDuringUpdate)
 		}
 	}
+	onComplete(callback: (object: Tween[]) => void) {
+		const group = this.getAll()
+		group.forEach(tween => {
+			const prevCallback = tween.getCompleteCallback()
+			tween.onComplete(() => {
+				prevCallback?.(tween)
+				// Since _isPlaying is updated to false after the onComplete callback finishes, the final tween is omitted from the check to determine if all animations have completed
+				if (group.slice(0, group.length - 1).every(t => !t.isPlaying())) callback(group)
+			})
+		})
+	}
 }
