@@ -90,8 +90,9 @@ export default class Group {
 			const prevCallback = tween.getCompleteCallback()
 			tween.onComplete(() => {
 				prevCallback?.(tween)
-				// Since _isPlaying is updated to false after the onComplete callback finishes, the final tween is omitted from the check to determine if all animations have completed
-				if (group.slice(0, group.length - 1).every(t => !t.isPlaying())) callback(group)
+				// After the onComplete callback completes, _isPlaying is updated to false, so if the total number of completed tweens is -1, then they are all complete.
+				const completedGroup = group.filter(tween => !tween.isPlaying())
+				if (completedGroup.length === group.length - 1) callback(group)
 			})
 		})
 	}

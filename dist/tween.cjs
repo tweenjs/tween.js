@@ -305,7 +305,8 @@ var Group = /** @class */ (function () {
             tween.onComplete(function () {
                 prevCallback === null || prevCallback === void 0 ? void 0 : prevCallback(tween);
                 // Since _isPlaying is updated to false after the onComplete callback finishes, the final tween is omitted from the check to determine if all animations have completed
-                if (group.slice(0, group.length - 1).every(function (t) { return !t.isPlaying(); }))
+                var completedGroup = group.filter(function (tween) { return !tween.isPlaying(); });
+                if (completedGroup.length === group.length - 1)
                     callback(group);
             });
         });
