@@ -83,6 +83,10 @@ export class Tween<T extends UnknownProps = any> {
 		return this._id
 	}
 
+	getCompleteCallback(): ((object: T) => void) | undefined {
+		return this._onCompleteCallback
+	}
+
 	isPlaying(): boolean {
 		return this._isPlaying
 	}

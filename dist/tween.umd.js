@@ -306,6 +306,19 @@
                 tweenIds = Object.keys(this._tweensAddedDuringUpdate);
             }
         };
+        Group.prototype.onComplete = function (callback) {
+            var group = this.getAll();
+            group.forEach(function (tween) {
+                var prevCallback = tween.getCompleteCallback();
+                tween.onComplete(function () {
+                    prevCallback === null || prevCallback === void 0 ? void 0 : prevCallback(tween);
+                    // After the onComplete callback completes, _isPlaying is updated to false, so if the total number of completed tweens is -1, then they are all complete.
+                    var completedGroup = group.filter(function (tween) { return !tween.isPlaying(); });
+                    if (completedGroup.length === group.length - 1)
+                        callback(group);
+                });
+            });
+        };
         return Group;
     }());
 
@@ -451,6 +464,9 @@
         }
         Tween.prototype.getId = function () {
             return this._id;
+        };
+        Tween.prototype.getCompleteCallback = function () {
+            return this._onCompleteCallback;
         };
         Tween.prototype.isPlaying = function () {
             return this._isPlaying;
