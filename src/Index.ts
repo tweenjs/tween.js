@@ -10,7 +10,7 @@
 import Easing from './Easing'
 import Group from './Group'
 import Interpolation from './Interpolation'
-import now from './Now'
+import now, { setNow } from './Now'
 import Sequence from './Sequence'
 import Tween from './Tween'
 import VERSION from './Version'
@@ -273,13 +273,14 @@ const update = TWEEN.update.bind(TWEEN)
 
 // NOTE! Make sure both lists of exports below are kept in sync:
 
-export {Easing, Group, Interpolation, now, Sequence, nextId, Tween, VERSION, getAll, removeAll, add, remove, update}
+export {Easing, Group, Interpolation, now, setNow, Sequence, nextId, Tween, VERSION, getAll, removeAll, add, remove, update}
 
 const exports = {
 	Easing,
 	Group,
 	Interpolation,
 	now,
+	setNow,
 	Sequence,
 	nextId,
 	Tween,

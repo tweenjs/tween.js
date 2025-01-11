@@ -642,6 +642,12 @@ Note that the interpolation function is global to all properties that are tweene
 
 Check [06_array_interpolation](../examples/06_array_interpolation.html) for an example.
 
+## Changing the Definition of "Now"
+
+When working with tweening, you inevitably rely on a definition of what "now" is. By default, Tween.js uses performance.now, which is a reliable and precise approach. However, if you need to adjust the flow of time—for instance, to slow it down or manipulate it for a custom purpose—you may encounter discrepancies between your internal definition of "now" and what Tween.js considers "now."
+
+To address this, a new function, setNow, has been introduced. This function allows you to redefine the internal "now" used by Tween.js. You can pass a custom function to setNow, which will replace the default definition. This provides greater flexibility and enables synchronization with your specific requirements for time control.
+
 ## Getting the best performance
 
 While Tween.js tries to be performant on its own, nothing prevents you from using it in a way that is counterperformant. Here are some of the ways you can avoid slowing down your projects when using Tween.js (or when animating in the web, in general).
