@@ -219,7 +219,13 @@
         },
     });
 
-    var now = function () { return performance.now(); };
+    var _nowFunc = function () { return performance.now(); };
+    var now = function () {
+        return _nowFunc();
+    };
+    function setNow(nowFunction) {
+        _nowFunc = nowFunction;
+    }
 
     /**
      * Controlling groups of tweens
@@ -1159,6 +1165,7 @@
         Group: Group,
         Interpolation: Interpolation,
         now: now,
+        setNow: setNow,
         Sequence: Sequence,
         nextId: nextId,
         Tween: Tween,
@@ -1418,6 +1425,7 @@
     exports.now = now;
     exports.remove = remove;
     exports.removeAll = removeAll;
+    exports.setNow = setNow;
     exports.update = update;
 
     Object.defineProperty(exports, '__esModule', { value: true });

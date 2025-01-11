@@ -213,7 +213,13 @@ var Easing = Object.freeze({
     },
 });
 
-var now = function () { return performance.now(); };
+var _nowFunc = function () { return performance.now(); };
+var now = function () {
+    return _nowFunc();
+};
+function setNow(nowFunction) {
+    _nowFunc = nowFunction;
+}
 
 /**
  * Controlling groups of tweens
@@ -1153,6 +1159,7 @@ var exports = {
     Group: Group,
     Interpolation: Interpolation,
     now: now,
+    setNow: setNow,
     Sequence: Sequence,
     nextId: nextId,
     Tween: Tween,
@@ -1399,4 +1406,4 @@ var exports = {
     update: update,
 };
 
-export { Easing, Group, Interpolation, Sequence, Tween, VERSION, add, exports as default, getAll, nextId, now, remove, removeAll, update };
+export { Easing, Group, Interpolation, Sequence, Tween, VERSION, add, exports as default, getAll, nextId, now, remove, removeAll, setNow, update };
