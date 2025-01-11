@@ -1,11 +1,11 @@
 let _nowFunc: Function = () => performance.now()
 
 const now = (): number => {
-  return _nowFunc()
+	return _nowFunc()
 }
 
 export function setNow(nowFunction: Function) {
-  _nowFunc = nowFunction
+	_nowFunc = nowFunction
 }
 
 export default now
