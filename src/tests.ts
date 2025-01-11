@@ -2060,6 +2060,70 @@ export const tests = {
 		test.ok(group.getAll() instanceof Array)
 		test.done()
 	},
+	'Custom group.onComplete() should be triggered when all Tweens in the group have reached their completion, and the child Tween.onComplete() should also be fired'(
+		test: Test,
+	): void {
+		TWEEN.removeAll()
+
+		const t = new TWEEN.Tween({x: 1}),
+			t2 = new TWEEN.Tween({x: 1}),
+			t3 = new TWEEN.Tween({x: 1}),
+			group = new TWEEN.Group()
+		let groupCounter = 0,
+			childCounter = 0,
+			childCounter2 = 0,
+			childCounter3 = 0
+
+		group.add(t)
+		group.add(t2)
+		group.add(t3)
+
+		t.to({x: 2}, 1000)
+		t2.to({x: 2}, 2000)
+		t3.to({x: 2}, 3000)
+
+		t.onComplete(function (): void {
+			childCounter++
+		})
+		t2.onComplete(function (): void {
+			childCounter2++
+		})
+		t3.onComplete(function (): void {
+			childCounter3++
+		})
+		group.onComplete(function (): void {
+			groupCounter++
+		})
+
+		t.start(0)
+		t2.start(0)
+		t3.start(0)
+
+		group.update(0)
+		test.deepEqual(groupCounter, 0)
+		test.deepEqual(childCounter, 0)
+		test.deepEqual(childCounter2, 0)
+		test.deepEqual(childCounter3, 0)
+
+		group.update(1000)
+		test.deepEqual(groupCounter, 0)
+		test.deepEqual(childCounter, 1)
+		test.deepEqual(childCounter2, 0)
+		test.deepEqual(childCounter3, 0)
+
+		group.update(2000)
+		test.deepEqual(childCounter, 1)
+		test.deepEqual(groupCounter, 0)
+		test.deepEqual(childCounter2, 1)
+		test.deepEqual(childCounter3, 0)
+
+		group.update(3000)
+		test.deepEqual(groupCounter, 1)
+		test.deepEqual(childCounter, 1)
+		test.deepEqual(childCounter2, 1)
+		test.deepEqual(childCounter3, 1)
+		test.done()
+	},
 
 	'Custom group stores tweens instead of global TWEEN group'(test: Test): void {
 		const group = new TWEEN.Group()

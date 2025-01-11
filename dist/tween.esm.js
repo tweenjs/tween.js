@@ -213,7 +213,13 @@ var Easing = Object.freeze({
     },
 });
 
-var now = function () { return performance.now(); };
+var _nowFunc = function () { return performance.now(); };
+var now = function () {
+    return _nowFunc();
+};
+function setNow(nowFunction) {
+    _nowFunc = nowFunction;
+}
 
 /**
  * Controlling groups of tweens
@@ -293,6 +299,19 @@ var Group = /** @class */ (function () {
             }
             tweenIds = Object.keys(this._tweensAddedDuringUpdate);
         }
+    };
+    Group.prototype.onComplete = function (callback) {
+        var group = this.getAll();
+        group.forEach(function (tween) {
+            var prevCallback = tween.getCompleteCallback();
+            tween.onComplete(function () {
+                prevCallback === null || prevCallback === void 0 ? void 0 : prevCallback(tween);
+                // After the onComplete callback completes, _isPlaying is updated to false, so if the total number of completed tweens is -1, then they are all complete.
+                var completedGroup = group.filter(function (tween) { return !tween.isPlaying(); });
+                if (completedGroup.length === group.length - 1)
+                    callback(group);
+            });
+        });
     };
     return Group;
 }());
@@ -439,6 +458,9 @@ var Tween = /** @class */ (function () {
     }
     Tween.prototype.getId = function () {
         return this._id;
+    };
+    Tween.prototype.getCompleteCallback = function () {
+        return this._onCompleteCallback;
     };
     Tween.prototype.isPlaying = function () {
         return this._isPlaying;
@@ -1130,6 +1152,7 @@ var exports = {
     Group: Group,
     Interpolation: Interpolation,
     now: now,
+    setNow: setNow,
     Sequence: Sequence,
     nextId: nextId,
     Tween: Tween,
@@ -1376,4 +1399,4 @@ var exports = {
     update: update,
 };
 
-export { Easing, Group, Interpolation, Sequence, Tween, VERSION, add, exports as default, getAll, nextId, now, remove, removeAll, update };
+export { Easing, Group, Interpolation, Sequence, Tween, VERSION, add, exports as default, getAll, nextId, now, remove, removeAll, setNow, update };

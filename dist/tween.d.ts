@@ -98,6 +98,7 @@ declare class Tween<T extends UnknownProps = any> {
      */
     constructor(object: T, group: true);
     getId(): number;
+    getCompleteCallback(): ((object: T) => void) | undefined;
     isPlaying(): boolean;
     isPaused(): boolean;
     getDuration(): number;
@@ -181,9 +182,11 @@ declare class Group {
      * tweens, and do not rely on tweens being automatically added or removed.
      */
     update(time?: number, preserve?: boolean): void;
+    onComplete(callback: (object: Tween[]) => void): void;
 }
 
 declare const now: () => number;
+declare function setNow(nowFunction: Function): void;
 
 /**
  * Utils
@@ -470,6 +473,7 @@ declare const exports: {
         };
     };
     now: () => number;
+    setNow: typeof setNow;
     Sequence: typeof Sequence;
     nextId: typeof Sequence.nextId;
     Tween: typeof Tween;
@@ -719,4 +723,4 @@ declare const exports: {
     };
 };
 
-export { Easing, Group, Interpolation, Sequence, Tween, VERSION, add, exports as default, getAll, nextId, now, remove, removeAll, update };
+export { Easing, Group, Interpolation, Sequence, Tween, VERSION, add, exports as default, getAll, nextId, now, remove, removeAll, setNow, update };
