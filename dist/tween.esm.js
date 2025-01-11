@@ -771,16 +771,9 @@ var Tween = /** @class */ (function () {
         var durationAndDelay = this._duration + ((_a = this._repeatDelayTime) !== null && _a !== void 0 ? _a : this._delayTime);
         var totalTime = this._duration + this._repeat * durationAndDelay;
         var calculateElapsedPortion = function () {
-            if (_this._duration === 0)
+            if (_this._duration === 0 || elapsedTime > totalTime)
                 return 1;
-            if (elapsedTime > totalTime) {
-                return 1;
-            }
-            var timesRepeated = Math.trunc(elapsedTime / durationAndDelay);
-            var timeIntoCurrentRepeat = elapsedTime - timesRepeated * durationAndDelay;
-            // TODO use %?
-            // const timeIntoCurrentRepeat = elapsedTime % durationAndDelay
-            var portion = Math.min(timeIntoCurrentRepeat / _this._duration, 1);
+            var portion = Math.min(elapsedTime / _this._duration, 1);
             if (portion === 0 && elapsedTime === _this._duration) {
                 return 1;
             }
