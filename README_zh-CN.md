@@ -12,8 +12,6 @@
 ---
 
 ```html
-<script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/23.1.3/tween.umd.js"></script>
-
 <div id="box"></div>
 
 <style>
@@ -24,16 +22,18 @@
 	}
 </style>
 
-<script>
+<script type="module">
+	import {Tween, Easing} from 'https://unpkg.com/@tweenjs/tween.js@23.1.3/dist/tween.esm.js'
+
 	const box = document.getElementById('box') // 获取我们想要设置动画的元素。
 
 	const coords = {x: 0, y: 0} // 从 (0, 0) 开始
 
-	const tween = new TWEEN.Tween(coords, false) // 创建一个修改“坐标”的新 tween。
+	const tween = new Tween(coords, false) // 创建一个修改"坐标"的新 tween。
 		.to({x: 300, y: 200}, 1000) // 在 1 秒内移动到 (300, 200)。
-		.easing(TWEEN.Easing.Quadratic.InOut) // 使用缓动函数使动画流畅。
+		.easing(Easing.Quadratic.InOut) // 使用缓动函数使动画流畅。
 		.onUpdate(() => {
-			// 在 tween.js 更新“坐标”后调用。
+			// 在 tween.js 更新"坐标"后调用。
 			// 使用 CSS transform 将 'box' 移动到 'coords' 描述的位置。
 			box.style.setProperty('transform', 'translate(' + coords.x + 'px, ' + coords.y + 'px)')
 		})
@@ -50,103 +50,17 @@
 
 [在 CodePen 上试试这个例子](https://codepen.io/trusktr/pen/KKGaBVz?editors=1000)
 
-## 安装
-
-## 从 CDN 安装
-
-从上例中的内容分发网络 (CDN) 安装。
-
-cdnjs:
-
-```html
-<script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/23.1.3/tween.umd.js"></script>
-```
-
-或者 unpkg.com:
-
-```html
-<script src="https://unpkg.com/@tweenjs/tween.js@^23.1.3/dist/tween.umd.js"></script>
-```
-
-请注意，unpkg.com 支持 URL 中的 semver 版本，其中 URL 中的 `^` 告诉 unpkg 为你提供最新版本 20.x.x。
-
-## 使用 script 标签构建并包含在你的项目中
-
-目前需要 npm 来构建项目。
-
-```bash
-git clone https://github.com/tweenjs/tween.js
-cd tween.js
-npm install
-npm run build
-```
-
-这将在 `dist` 目录中创建一些构建。 目前有两种不同的库版本：
-
-- UMD : `tween.umd.js`
-- ES6 Module : `tween.esm.js`
-
-你现在可以将 tween.umd.js 复制到你的项目中，然后将其包含在一个 script 标签，它将 TWEEN 添加到全局范围，
-
-```html
-<script src="path/to/tween.umd.js"></script>
-```
-
-或将 TWEEN 作为 JavaScript 模块导入，
-
-```html
-<script type="module">
-	import * as TWEEN from 'path/to/tween.esm.js'
-</script>
-```
-
-其中 `path/to` 替换为你放置文件的位置。
-
-## 使用 `npm install` 和 `import` 从 `node_modules` 中添加
-
-你可以将 tween.js 添加为 npm 依赖项：
-
-```bash
-npm install @tweenjs/tween.js
-```
-
-### 使用构建工具
-
-如果你使用 [Node.js](https://nodejs.org/)、[Parcel](https://parceljs.org/)、[Webpack](https://webpack.js.org/), [Rollup](https://rollupjs.org/)、[Vite](https://vitejs.dev/) 或者其他的构建工具，那么你现在可以使用以下方式来导入 tween.js：
-
-```javascript
-import * as TWEEN from '@tweenjs/tween.js'
-```
-
-### 没有构建工具
-
-如果你将 `node_modules` 作为网站的一部分提供服务，则可以使用 `importmap` script 标签从 `node_modules` 导入。 首先，假设 `node_modules` 位于你网站的根目录，你可以编写一个导入映射：
-
-```html
-<script type="importmap">
-	{
-		"imports": {
-			"@tweenjs/tween.js": "/node_modules/@tweenjs/tween.js/dist/tween.esm.js"
-		}
-	}
-</script>
-```
-
-现在，在任何 module script 中，你都可以通过包名导入它：
-
-```javascript
-import * as TWEEN from '@tweenjs/tween.js'
-```
-
 # 特性
 
-- 做一件事并且只做一件事：补间属性
-- 不处理 CSS 单位（例如附加 `px`）
+- 专注于一件事并且做得很好：补间对象的属性
+- 不处理 CSS 单位（例如添加 `px`）
 - 不插值颜色
 - 缓动函数可在 Tween 之外重复使用
 - 也可以使用自定义缓动函数
+- 不创建自己的动画循环，使其能够灵活地集成到
+  任何动画循环中。
 
-# 文档
+# 示例
 
 <table>
 	<tr>
@@ -342,9 +256,169 @@ import * as TWEEN from '@tweenjs/tween.js'
 	</tr>
 </table>
 
+# 安装
+
+推荐的方法是使用 `import` 语法。这里我们列出了各种安装方法，大致按照最推荐到最不推荐的顺序排列。请评估以下所有方法，选择最适合你项目的方法。
+
+## 使用 `npm install` 和从 `node_modules` 导入
+
+你可以将 tween.js 添加为 npm 依赖项：
+
+```bash
+npm install @tweenjs/tween.js
+```
+
+### 不使用构建工具
+
+#### 本地安装
+
+如果你将 `node_modules` 作为网站的一部分提供服务，可以使用标准的 `importmap` 脚本标签从 `node_modules` 导入。首先，假设 `node_modules` 位于你网站的根目录，你可以在 HTML 文件中编写导入映射：
+
+```html
+<script type="importmap">
+	{
+		"imports": {
+			"@tweenjs/tween.js": "/node_modules/@tweenjs/tween.js/dist/tween.esm.js"
+		}
+	}
+</script>
+```
+
+现在在任何模块脚本中，你都可以通过包名导入 Tween.js：
+
+```html
+<script type="module">
+	import {Tween} from '@tweenjs/tween.js'
+</script>
+```
+
+#### 从 CDN 导入
+
+请注意，没有 `importmap` 的情况下，你可以像上面第一个示例一样直接从 CDN 导入：
+
+```html
+<script type="module">
+	import {Tween} from 'https://unpkg.com/browse/@tweenjs/tween.js@23.1.3/dist/tween.esm.js'
+</script>
+```
+
+如果你愿意，也可以将 `importmap` 链接到 CDN 而不是本地的 `node_modules` 文件夹：
+
+```html
+<script type="importmap">
+	{
+		"imports": {
+			"@tweenjs/tween.js": "https://unpkg.com/browse/@tweenjs/tween.js@23.1.3/dist/tween.esm.js"
+		}
+	}
+</script>
+
+<script type="module">
+	import {Tween} from '@tweenjs/tween.js'
+</script>
+```
+
+### 使用构建工具
+
+如果你使用 [Node.js](https://nodejs.org/)、[Parcel](https://parceljs.org/)、[Webpack](https://webpack.js.org/)、[Rollup](https://rollupjs.org/)、[Vite](https://vitejs.dev/) 或其他构建工具，那么你可以使用 `npm install @tweenjs/tween.js` 安装，然后将库 `import` 到你的 JavaScript（或 TypeScript）文件中，构建工具会知道如何从 `node_modules` 找到源代码，而无需创建 `importmap` 脚本：
+
+```javascript
+import * as TWEEN from '@tweenjs/tween.js'
+```
+
+但是请注意，这种方法需要始终运行构建工具才能使你的应用程序工作，而 `importmap` 方法无需任何构建工具即可作为简单的静态 HTML 站点工作。
+
+## 手动构建
+
+另一种方法是使用 git 下载源代码，手动构建库，然后将输出放置在你的项目中。这需要 Node.js。
+
+```bash
+git clone https://github.com/tweenjs/tween.js
+cd tween.js
+npm install
+npm run build
+```
+
+这将在 `dist` 目录中创建一些构建文件。目前有两种不同的库构建版本：
+
+- ES6 模块在 `/dist/tween.esm.js`（推荐）
+- UMD 在 `/dist/tween.umd.js`（已弃用，将在未来的主要版本中删除）
+
+你现在可以将这两个文件中的一个复制到你的项目中，并像这样使用（推荐）：
+
+```html
+<script type="module">
+	import {Tween} from 'path/to/tween.esm.js'
+</script>
+```
+
+或（已弃用，将在未来的主要版本中删除）：
+
+```html
+<script src="path/to/tween.umd.js"></script>
+<script>
+	const {Tween} = TWEEN
+</script>
+```
+
+其中 `path/to` 替换为你放置文件的位置。
+
+> [!Note]
+> 你也可以从 unpkg 下载这些文件，例如：
+> https://unpkg.com/browse/@tweenjs/tween.js@23.1.3/dist/
+
+## 从 CDN 使用全局变量（已弃用）
+
+> [!Note]
+> 此方法已弃用，将在未来的主要版本中删除！
+
+使用 UMD 文件从内容分发网络（CDN）安装全局 `TWEEN` 变量。
+
+从 cdnjs：
+
+```html
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/23.1.3/tween.umd.js"></script>
+```
+
+或从 unpkg.com：
+
+```html
+<script src="https://unpkg.com/@tweenjs/tween.js@^23.1.3/dist/tween.umd.js"></script>
+```
+
+然后在任何脚本中使用 `TWEEN` 变量：
+
+```html
+<script>
+	const {Tween, Easing, Group /*, ...*/} = TWEEN
+
+	const tween = new Tween(someObject)
+	// ...
+</script>
+```
+
+> [!Note]
+> unpkg.com 支持 URL 中的 semver 版本，其中 URL 中的 `^` 告诉 unpkg 提供最新版本 20.x.x。
+
+## CommonJS（已弃用）
+
+如果你不知道 CommonJS 是什么，请跳过此部分！
+
+> [!Note]
+> 此方法已弃用，将在未来的主要版本中删除！
+
+以上任何方法都适用于仍使用 CommonJS 的旧系统。重复以上任何方法，但使用 `dist/tween.cjs` 而不是 `dist/tween.esm.js` 或 `dist/tween.umd.js`。
+
+# 文档
+
+- [用户指南](./docs/user_guide_zh-CN.md)
+- [贡献者指南](./docs/contributor_guide_zh-CN.md)
+- 使用 tween.js 与 three.js 的[教程](https://web.archive.org/web/20220601192930/http://learningthreejs.com/blog/2011/08/17/tweenjs-for-smooth-animation/)
+- 另见：[libtween](https://github.com/jsm174/libtween)，由 [jsm174](https://github.com/jsm174) 将 tween.js 移植到 C 的版本
+
 # 测试
 
-你需要先安装 `npm`——它随 node.js 一起提供，因此请先安装它。 然后，cd 到 `tween.js` 的（或你克隆 repo 的任何地方）目录并运行：
+你需要先安装 `npm`——它随 node.js 一起提供，因此请先安装它。然后，cd 到 `tween.js` 的（或你克隆 repo 的任何地方）目录并运行：
 
 ```bash
 npm install
@@ -356,7 +430,13 @@ npm install
 npm test
 ```
 
-如果你想添加任何功能或更改现有功能，你 _必须_ 运行测试以确保你没有破坏任何其他功能。任何拉取请求 (PR) 都需要在 `src/tests.ts` 中更新通过功能更改测试（或通过新功能或修复的新测试）才能接受 PR。 有关更多信息，请参阅 [贡献](CONTRIBUTING.md)。
+如果你想添加任何功能或更改现有功能，你 _必须_ 运行测试以确保你没有破坏任何其他功能。任何拉取请求 (PR) 都需要在 `src/tests.ts` 中为功能更改提供更新的通过测试（或为新功能或修复提供新的通过测试）才能被接受。有关更多信息，请参阅 [贡献](CONTRIBUTING.md)。
+
+# 人员
+
+维护者：[Joe Pea (@trusktr)](https://github.com/trusktr)。
+
+[所有贡献者](http://github.com/tweenjs/tween.js/contributors)。
 
 # 使用 tween.js 的项目
 
