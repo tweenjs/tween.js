@@ -473,7 +473,8 @@ export class Tween<T extends UnknownProps = any> {
 			this._onEveryStartCallbackFired = true
 		}
 
-		const elapsedTime = time - this._startTime
+		const elapsedTime = this._yoyo ? Math.min(time - this._startTime, this._duration) : time - this._startTime
+
 		const durationAndDelay = this._duration + (this._repeatDelayTime ?? this._delayTime)
 		const totalTime = this._duration + this._repeat * durationAndDelay
 
