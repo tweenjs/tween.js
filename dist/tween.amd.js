@@ -769,7 +769,7 @@ define(['exports'], (function (exports) { 'use strict';
                 }
                 this._onEveryStartCallbackFired = true;
             }
-            var elapsedTime = time - this._startTime;
+            var elapsedTime = this._yoyo ? Math.min(time - this._startTime, this._duration) : time - this._startTime;
             var durationAndDelay = this._duration + ((_a = this._repeatDelayTime) !== null && _a !== void 0 ? _a : this._delayTime);
             var totalTime = this._duration + this._repeat * durationAndDelay;
             var calculateElapsedPortion = function () {
