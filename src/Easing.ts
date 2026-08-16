@@ -240,6 +240,72 @@ export const Easing = Object.freeze({
 			},
 		}
 	},
+
+	generateBack(overshoot = 1.70158): EasingFunctionGroup {
+		const s = overshoot
+		return {
+			In(amount: number): number {
+				return amount === 1 ? 1 : amount * amount * ((s + 1) * amount - s)
+			},
+			Out(amount: number): number {
+				return amount === 0 ? 0 : --amount * amount * ((s + 1) * amount + s) + 1
+			},
+			InOut(amount: number): number {
+				const s2 = s * 1.525
+				if ((amount *= 2) < 1) {
+					return 0.5 * (amount * amount * ((s2 + 1) * amount - s2))
+				}
+				return 0.5 * ((amount -= 2) * amount * ((s2 + 1) * amount + s2) + 2)
+			},
+		}
+	},
+
+	generateElastic(amplitude = 1, period = 0.3): EasingFunctionGroup {
+		const a = Math.max(1, amplitude)
+		const p = period
+		const s = (p / (2 * Math.PI)) * Math.asin(1 / a)
+		const pIO = p * 1.5
+		const sIO = (pIO / (2 * Math.PI)) * Math.asin(1 / a)
+		return {
+			In(amount: number): number {
+				if (amount === 0) return 0
+				if (amount === 1) return 1
+				return -(a * Math.pow(2, 10 * (amount - 1)) * Math.sin(((amount - 1) - s) * (2 * Math.PI) / p))
+			},
+			Out(amount: number): number {
+				if (amount === 0) return 0
+				if (amount === 1) return 1
+				return a * Math.pow(2, -10 * amount) * Math.sin((amount - s) * (2 * Math.PI) / p) + 1
+			},
+			InOut(amount: number): number {
+				if (amount === 0) return 0
+				if (amount === 1) return 1
+				amount *= 2
+				if (amount < 1) {
+					return -0.5 * (a * Math.pow(2, 10 * (amount - 1)) * Math.sin(((amount - 1) - sIO) * (2 * Math.PI) / pIO))
+				}
+				return 0.5 * (a * Math.pow(2, -10 * (amount - 1)) * Math.sin(((amount - 1) - sIO) * (2 * Math.PI) / pIO)) + 1
+			},
+		}
+	},
+
+	generateSteps(steps = 10): EasingFunctionGroup {
+		steps = Math.max(1, Math.floor(steps))
+		return {
+			In(amount: number): number {
+				return Math.ceil(amount * steps) / steps
+			},
+			Out(amount: number): number {
+				return Math.floor(amount * steps) / steps
+			},
+			InOut(amount: number): number {
+				if (amount <= 0.5) {
+					return Math.ceil(amount * steps * 2) / (steps * 2)
+				}
+				return (Math.floor((amount - 0.5) * steps * 2) + steps) / (steps * 2)
+			},
+		}
+	},
 })
 
 export default Easing

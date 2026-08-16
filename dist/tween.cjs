@@ -215,6 +215,79 @@ var Easing = Object.freeze({
             },
         };
     },
+    generateBack: function (overshoot) {
+        if (overshoot === void 0) { overshoot = 1.70158; }
+        var s = overshoot;
+        return {
+            In: function (amount) {
+                return amount === 1 ? 1 : amount * amount * ((s + 1) * amount - s);
+            },
+            Out: function (amount) {
+                return amount === 0 ? 0 : --amount * amount * ((s + 1) * amount + s) + 1;
+            },
+            InOut: function (amount) {
+                var s2 = s * 1.525;
+                if ((amount *= 2) < 1) {
+                    return 0.5 * (amount * amount * ((s2 + 1) * amount - s2));
+                }
+                return 0.5 * ((amount -= 2) * amount * ((s2 + 1) * amount + s2) + 2);
+            },
+        };
+    },
+    generateElastic: function (amplitude, period) {
+        if (amplitude === void 0) { amplitude = 1; }
+        if (period === void 0) { period = 0.3; }
+        var a = Math.max(1, amplitude);
+        var p = period;
+        var s = (p / (2 * Math.PI)) * Math.asin(1 / a);
+        var pIO = p * 1.5;
+        var sIO = (pIO / (2 * Math.PI)) * Math.asin(1 / a);
+        return {
+            In: function (amount) {
+                if (amount === 0)
+                    return 0;
+                if (amount === 1)
+                    return 1;
+                return -(a * Math.pow(2, 10 * (amount - 1)) * Math.sin(((amount - 1) - s) * (2 * Math.PI) / p));
+            },
+            Out: function (amount) {
+                if (amount === 0)
+                    return 0;
+                if (amount === 1)
+                    return 1;
+                return a * Math.pow(2, -10 * amount) * Math.sin((amount - s) * (2 * Math.PI) / p) + 1;
+            },
+            InOut: function (amount) {
+                if (amount === 0)
+                    return 0;
+                if (amount === 1)
+                    return 1;
+                amount *= 2;
+                if (amount < 1) {
+                    return -0.5 * (a * Math.pow(2, 10 * (amount - 1)) * Math.sin(((amount - 1) - sIO) * (2 * Math.PI) / pIO));
+                }
+                return 0.5 * (a * Math.pow(2, -10 * (amount - 1)) * Math.sin(((amount - 1) - sIO) * (2 * Math.PI) / pIO)) + 1;
+            },
+        };
+    },
+    generateSteps: function (steps) {
+        if (steps === void 0) { steps = 10; }
+        steps = Math.max(1, Math.floor(steps));
+        return {
+            In: function (amount) {
+                return Math.ceil(amount * steps) / steps;
+            },
+            Out: function (amount) {
+                return Math.floor(amount * steps) / steps;
+            },
+            InOut: function (amount) {
+                if (amount <= 0.5) {
+                    return Math.ceil(amount * steps * 2) / (steps * 2);
+                }
+                return (Math.floor((amount - 0.5) * steps * 2) + steps) / (steps * 2);
+            },
+        };
+    },
 });
 
 var _nowFunc = function () { return performance.now(); };

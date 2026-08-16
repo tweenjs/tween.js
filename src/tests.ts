@@ -2650,6 +2650,106 @@ export const tests = {
 		test.done()
 	},
 
+	'Test TWEEN.Easing.generateBack() should match default Back at default overshoot'(test: Test): void {
+		const defaultBack = TWEEN.Easing.generateBack()
+		const amount = Math.LOG10E
+		toBeCloseTo(test, defaultBack.In(amount), TWEEN.Easing.Back.In(amount), 14)
+		toBeCloseTo(test, defaultBack.Out(amount), TWEEN.Easing.Back.Out(amount), 14)
+		toBeCloseTo(test, defaultBack.InOut(amount), TWEEN.Easing.Back.InOut(amount), 14)
+		test.done()
+	},
+
+	'Test TWEEN.Easing.generateBack(n) should pass 0.0, 0.5, 1.0'(test: Test): void {
+		const checkEdgeValue = (ease: EasingFunctionGroup) => {
+			test.equal(ease.InOut(0.0), 0.0)
+			test.equal(ease.In(0.0), 0.0)
+			test.equal(ease.Out(0.0), 0.0)
+
+			test.equal(ease.InOut(0.5), 0.5)
+
+			test.equal(ease.InOut(1.0), 1.0)
+			test.equal(ease.In(1.0), 1.0)
+			test.equal(ease.Out(1.0), 1.0)
+		}
+		checkEdgeValue(TWEEN.Easing.generateBack(0))
+		checkEdgeValue(TWEEN.Easing.generateBack(1.0))
+		checkEdgeValue(TWEEN.Easing.generateBack())
+		checkEdgeValue(TWEEN.Easing.generateBack(2.5))
+		checkEdgeValue(TWEEN.Easing.generateBack(5.0))
+		test.done()
+	},
+
+	'Test TWEEN.Easing.generateElastic() should pass 0.0, 0.5, 1.0'(test: Test): void {
+		const checkEdgeValue = (ease: EasingFunctionGroup) => {
+			test.equal(ease.In(0.0), 0.0)
+			test.equal(ease.Out(0.0), 0.0)
+			test.equal(ease.InOut(0.0), 0.0)
+
+			toBeCloseTo(test, ease.InOut(0.5), 0.5, 10)
+
+			test.equal(ease.In(1.0), 1.0)
+			test.equal(ease.Out(1.0), 1.0)
+			test.equal(ease.InOut(1.0), 1.0)
+		}
+		checkEdgeValue(TWEEN.Easing.generateElastic())
+		checkEdgeValue(TWEEN.Easing.generateElastic(1, 0.3))
+		checkEdgeValue(TWEEN.Easing.generateElastic(1.5, 0.4))
+		checkEdgeValue(TWEEN.Easing.generateElastic(2, 0.5))
+		test.done()
+	},
+
+	'Test TWEEN.Easing.generateSteps() should pass 0.0, 0.5, 1.0'(test: Test): void {
+		const checkEdgeValue = (ease: EasingFunctionGroup) => {
+			test.equal(ease.In(0.0), 0.0)
+			test.equal(ease.Out(0.0), 0.0)
+			test.equal(ease.InOut(0.0), 0.0)
+
+			test.equal(ease.In(1.0), 1.0)
+			test.equal(ease.Out(1.0), 1.0)
+			test.equal(ease.InOut(1.0), 1.0)
+		}
+		checkEdgeValue(TWEEN.Easing.generateSteps(1))
+		checkEdgeValue(TWEEN.Easing.generateSteps(4))
+		checkEdgeValue(TWEEN.Easing.generateSteps())
+		checkEdgeValue(TWEEN.Easing.generateSteps(100))
+		test.done()
+	},
+
+	'Test TWEEN.Easing.generateSteps() produces discrete values'(test: Test): void {
+		const steps4 = TWEEN.Easing.generateSteps(4)
+
+		test.equal(steps4.In(0.0), 0.0)
+		test.equal(steps4.In(0.1), 0.25)
+		test.equal(steps4.In(0.25), 0.25)
+		test.equal(steps4.In(0.3), 0.5)
+		test.equal(steps4.In(0.5), 0.5)
+		test.equal(steps4.In(0.7), 0.75)
+		test.equal(steps4.In(0.75), 0.75)
+		test.equal(steps4.In(0.9), 1.0)
+		test.equal(steps4.In(1.0), 1.0)
+
+		test.equal(steps4.Out(0.0), 0.0)
+		test.equal(steps4.Out(0.1), 0.0)
+		test.equal(steps4.Out(0.25), 0.25)
+		test.equal(steps4.Out(0.5), 0.5)
+		test.equal(steps4.Out(0.7), 0.5)
+		test.equal(steps4.Out(0.75), 0.75)
+		test.equal(steps4.Out(1.0), 1.0)
+
+		test.done()
+	},
+
+	'Test TWEEN.Easing.generateSteps() InOut should be 0.5 at midpoint'(test: Test): void {
+		test.equal(TWEEN.Easing.generateSteps(1).InOut(0.5), 0.5)
+		test.equal(TWEEN.Easing.generateSteps(2).InOut(0.5), 0.5)
+		test.equal(TWEEN.Easing.generateSteps(3).InOut(0.5), 0.5)
+		test.equal(TWEEN.Easing.generateSteps(4).InOut(0.5), 0.5)
+		test.equal(TWEEN.Easing.generateSteps(5).InOut(0.5), 0.5)
+		test.equal(TWEEN.Easing.generateSteps(10).InOut(0.5), 0.5)
+		test.equal(TWEEN.Easing.generateSteps(100).InOut(0.5), 0.5)
+		test.done()
+	},
+
 	'Test TWEEN.Easing.generatePow(n) should pass 0.0, 0.5, 1.0'(test: Test): void {
 		const checkEdgeValue = (ease: EasingFunctionGroup) => {
 			test.equal(ease.InOut(0.0), 0.0)
