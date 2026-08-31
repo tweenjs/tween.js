@@ -101,7 +101,9 @@ The Biome rules are in `biome.json`.
 
 ### Other types of tests
 
-We would like to test for performance regressions i.e. if a change made things go slower, or simply, for performance, so we can compare the performance of the same code between different browsers.
+We would like to test for performance regressions i.e. if a change made things
+go slower, or simply, for performance, so we can compare the performance of the
+same code between different browsers.
 
 There's an [open issue](https://github.com/tweenjs/discuss/issues/3) to track work on this, but we have not made progress on it yet. Help! :-)
 

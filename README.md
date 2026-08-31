@@ -1,6 +1,7 @@
 # tween.js
 
-JavaScript (TypeScript) tweening engine for easy animations, incorporating optimised Robert Penner's equations.
+JavaScript (TypeScript) tweening engine for easy animations, incorporating
+optimised Robert Penner's equations.
 
 [![NPM Version][npm-image]][npm-url]
 [![CDNJS][cdnjs-image]][cdnjs-url]
@@ -79,7 +80,7 @@ More languages: [English](./README.md), [简体中文](./README_zh-CN.md)
 | [<img width="100" height="50" src="https://tweenjs.github.io/tween.js/assets/examples/10_yoyo.png" alt="Yoyo" />](http://tweenjs.github.io/tween.js/examples/10_yoyo.html) | Yoyo<br />([source](examples/10_yoyo.html)) | [<img width="100" height="50" src="https://tweenjs.github.io/tween.js/assets/examples/11_stop_all_chained_tweens.png" alt="Stop all chained tweens" />](http://tweenjs.github.io/tween.js/examples/11_stop_all_chained_tweens.html) | Stop all chained tweens<br />([source](examples/11_stop_all_chained_tweens.html)) |
 | [<img width="100" height="50" src="https://tweenjs.github.io/tween.js/assets/examples/03_graphs.png" alt="Custom functions" />](http://tweenjs.github.io/tween.js/examples/12_graphs_custom_functions.html) | Custom functions<br />([source](examples/12_graphs_custom_functions.html)) | [<img width="100" height="50" src="https://tweenjs.github.io/tween.js/assets/examples/13_relative_start_time.png" alt="Relative start time" />](http://tweenjs.github.io/tween.js/examples/13_relative_start_time.html) | Relative start time<br />([source](examples/13_relative_start_time.html)) |
 | [<img width="100" height="50" src="https://tweenjs.github.io/tween.js/assets/examples/14_pause_tween.png" alt="Pause tween" />](http://tweenjs.github.io/tween.js/examples/14_pause_tween.html) | Pause tween<br />([source](examples/14_pause_tween.html)) | [<img width="100" height="50" src="https://tweenjs.github.io/tween.js/assets/examples/15_complex_properties.png" alt="Complex properties" />](http://tweenjs.github.io/tween.js/examples/15_complex_properties.html) | Complex properties<br />([source](examples/15_complex_properties.html)) |
-| [<img width="100" height="50" src="https://tweenjs.github.io/tween.js/assets/examples/16_animate_an_array_of_values.png" alt="Animate an array of values" />](http://tweenjs.github.io/tween.js/examples/16_animate_an_array_of_values.html) | Animate an array of values<br />([source](examples/16_animate_an_array_of_values.html)) |  |  |
+| [<img width="100" height="50" src="https://tweenjs.github.io/tween.js/assets/examples/16_animate_an_array_of_values.png" alt="Animate an array of values" />](http://tweenjs.github.io/tween.js/examples/16_animate_an_array_of_values.html) | Animate an array of values<br />([source](examples/16_animate_an_array_of_values.html)) | | |
 
 ## Installation
 

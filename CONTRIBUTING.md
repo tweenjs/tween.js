@@ -16,7 +16,7 @@ If you find something that you believe to be a bug, please
 1. Specify the revision number of the tween.js library where the bug occurred
 2. Specify your browser version and operating system (i.e. Chrome 23.0.1271.95, Windows 7)
 3. Describe the problem in detail. What happened? What did you expect to happen?
-4. Provide a small test case (e.g. using http://jsfiddle.net). Or if not possible, provide a link to a live version of your application.
+4. Provide a small test case (e.g. using <http://jsfiddle.net>). Or if not possible, provide a link to a live version of your application.
 
 ## Contributing
 

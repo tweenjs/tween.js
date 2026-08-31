@@ -39,10 +39,10 @@ tween.start()
 animate()
 
 function animate() {
-	requestAnimationFrame(animate)
-	// [...]
-	TWEEN.update()
-	// [...]
+ requestAnimationFrame(animate)
+ // [...]
+ TWEEN.update()
+ // [...]
 }
 ```
 
@@ -52,7 +52,7 @@ function animate() {
 
 ```js
 tween.onUpdate(function (object) {
-	console.log(object.x)
+ console.log(object.x)
 })
 ```
 
@@ -66,10 +66,10 @@ const tween = new TWEEN.Tween(cube.position).to({x: 100, y: 100, z: 100}, 10000)
 animate()
 
 function animate() {
-	requestAnimationFrame(animate)
-	TWEEN.update()
+ requestAnimationFrame(animate)
+ TWEEN.update()
 
-	threeRenderer.render(scene, camera)
+ threeRenderer.render(scene, camera)
 }
 ```
 
@@ -101,10 +101,10 @@ Tween.js 不会自行运行。你需要显式的调用 `update` 方法来告诉�
 animate()
 
 function animate() {
-	requestAnimationFrame(animate)
-	// [...]
-	TWEEN.update()
-	// [...]
+ requestAnimationFrame(animate)
+ // [...]
+ TWEEN.update()
+ // [...]
 }
 ```
 
@@ -155,8 +155,8 @@ tween.stop()
 const tween = new TWEEN.Tween(someObject, false).to(/*...*/).start()
 
 function animate(time) {
-	tween.update(time)
-	requestAnimationFrame(animate)
+ tween.update(time)
+ requestAnimationFrame(animate)
 }
 ```
 
@@ -240,7 +240,7 @@ tween.start()
 
 > **Warning** 当 `dynamic` 设置为 `false` 时，Tween 复制传递给 `tween.to()` 的对象并且永远不会修改它（因此从外部更新原始对象不是动态的）。当 `dynamic` 为 `true` 时，Tween 在动画期间使用原始对象作为值的来源（每次更新都读取值，因此可以动态修改它们） **但请注意，在 dynamic 模式下，Tween 将修改传递给 `tween.to()` 的对象的任何插值数组，这可能会对也可能依赖于同一对象的任何外部代码造成副作用。**
 
-## 控制*所有*补间
+## 控制_所有_补间
 
 在 TWEEN 全局对象中可以找到以下方法，除了 `update` 之外，你通常不需要使用其中的大部分方法。
 
@@ -257,7 +257,7 @@ tween.start()
 
 分别用于将补间添加到活动补间列表，或从列表中删除特定补间。
 
-这些方法通常只在内部使用，但如果你想做一些*有趣*的事情，我们会公开这些方法。
+这些方法通常只在内部使用，但如果你想做一些_有趣_的事情，我们会公开这些方法。
 
 ## 控制补间集
 
@@ -323,7 +323,7 @@ tween.js 提供了一些现成的缓动功能。它们按照它们表示的方�
 ```js
 easedElapsed = easing(k);
 for each property:
-	newPropertyValue = initialPropertyValue + propertyDelta * easedElapsed;
+ newPropertyValue = initialPropertyValue + propertyDelta * easedElapsed;
 ```
 
 对于更注重性能表现的人来说：只有在补间上调用 `start()` 时才会计算 deltas。
@@ -332,7 +332,7 @@ for each property:
 
 ```js
 function tenStepEasing(k) {
-	return Math.floor(k * 10) / 10
+ return Math.floor(k * 10) / 10
 }
 ```
 
@@ -352,21 +352,21 @@ tween.easing(tenStepEasing)
 
 ```js
 const trickyObjTween = new TWEEN.Tween({
-	propertyA: trickyObj.getPropertyA(),
-	propertyB: trickyObj.getPropertyB(),
+ propertyA: trickyObj.getPropertyA(),
+ propertyB: trickyObj.getPropertyB(),
 })
-	.to({propertyA: 100, propertyB: 200})
-	.onUpdate(function (object) {
-		object.setA(object.propertyA)
-		object.setB(object.propertyB)
-	})
+ .to({propertyA: 100, propertyB: 200})
+ .onUpdate(function (object) {
+  object.setA(object.propertyA)
+  object.setB(object.propertyB)
+ })
 ```
 
 或者假设你想在开始补间时播放声音。 你可以使用 `start` 回调：
 
 ```js
 const tween = new TWEEN.Tween(obj).to({x: 100}).onStart(function () {
-	sound.play()
+ sound.play()
 })
 ```
 
@@ -416,25 +416,25 @@ const tween = new TWEEN.Tween(obj).to({x: 100}).onStart(function () {
 const obj = {x: 0}
 
 const t = new TWEEN.Tween(obj)
-	.to({x: 5}, 5)
-	.repeat(Infinity)
-	.onStart(() => {
-		console.log('onStart')
-	})
-	.onRepeat(() => {
-		console.log('onRepeat')
-	})
-	.onEveryStart(() => {
-		console.log('onEveryStart')
-	})
-	.start(0)
+ .to({x: 5}, 5)
+ .repeat(Infinity)
+ .onStart(() => {
+  console.log('onStart')
+ })
+ .onRepeat(() => {
+  console.log('onRepeat')
+ })
+ .onEveryStart(() => {
+  console.log('onEveryStart')
+ })
+ .start(0)
 
 for (let ticks = 0; ticks < 22; ticks += 1) {
-	console.log('Tick', ticks)
-	TWEEN.update(ticks)
+ console.log('Tick', ticks)
+ TWEEN.update(ticks)
 
-	console.log(obj)
-	console.log()
+ console.log(obj)
+ console.log()
 }
 ```
 
@@ -619,8 +619,8 @@ tween.interpolation(TWEEN.Interpolation.Bezier)
 ```js
 const element = document.getElementById('myElement')
 const tween = new TWEEN.Tween({top: 0, left: 0}).to({top: 100, left: 100}, 1000).onUpdate(function (object) {
-	element.style.top = object.top + 'px'
-	element.style.left = object.left + 'px'
+ element.style.top = object.top + 'px'
+ element.style.left = object.left + 'px'
 })
 ```
 
@@ -629,7 +629,7 @@ const tween = new TWEEN.Tween({top: 0, left: 0}).to({top: 100, left: 100}, 1000)
 ```js
 const element = document.getElementById('myElement')
 const tween = new TWEEN.Tween({top: 0, left: 0}).to({top: 100, left: 100}, 1000).onUpdate(function (object) {
-	element.style.transform = 'translate(' + object.left + 'px, ' + object.top + 'px);'
+ element.style.transform = 'translate(' + object.left + 'px, ' + object.top + 'px);'
 })
 ```
 

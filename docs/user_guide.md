@@ -39,10 +39,10 @@ Finally in order to run as smoothly as possible you should call the `tween.updat
 animate()
 
 function animate() {
-	requestAnimationFrame(animate)
-	// [...]
-	tween.update()
-	// [...]
+ requestAnimationFrame(animate)
+ // [...]
+ tween.update()
+ // [...]
 }
 ```
 
@@ -52,7 +52,7 @@ But unless you print the value of `x` to the console, you can't see its value ch
 
 ```javascript
 tween.onUpdate(function (object) {
-	console.log(object.x)
+ console.log(object.x)
 })
 ```
 
@@ -66,10 +66,10 @@ const tween = new Tween(cube.position).to({x: 100, y: 100, z: 100}, 10000).start
 animate()
 
 function animate() {
-	requestAnimationFrame(animate)
-	tween.update()
+ requestAnimationFrame(animate)
+ tween.update()
 
-	threeRenderer.render(scene, camera)
+ threeRenderer.render(scene, camera)
 }
 ```
 
@@ -101,10 +101,10 @@ We've seen this example before:
 animate()
 
 function animate() {
-	requestAnimationFrame(animate)
-	// [...]
-	tween.update()
-	// [...]
+ requestAnimationFrame(animate)
+ // [...]
+ tween.update()
+ // [...]
 }
 ```
 
@@ -155,8 +155,8 @@ Individual tweens have an `update` method to so that they can be updated over ti
 const tween = new Tween(someObject).to(/*...*/).start()
 
 function animate(time) {
-	tween.update(time)
-	requestAnimationFrame(animate)
+ tween.update(time)
+ requestAnimationFrame(animate)
 }
 ```
 
@@ -173,8 +173,8 @@ paused).
 tween.start()
 
 function animate() {
-	tween.update()
-	requestAnimationFrame(animate)
+ tween.update()
+ requestAnimationFrame(animate)
 }
 animate()
 
@@ -289,10 +289,10 @@ tweens:
 animate()
 
 function animate() {
-	requestAnimationFrame(animate)
-	// [...]
-	group.update()
-	// [...]
+ requestAnimationFrame(animate)
+ // [...]
+ group.update()
+ // [...]
 }
 ```
 
@@ -352,7 +352,7 @@ Not only can you use any of the existing functions, but you can also provide you
 
 The easing function is only called _once per tween_ on each update, no matter how many properties are to be changed. The result is then used with the initial value and the difference (the _deltas_) between this and the final values, as in this pseudocode:
 
-```
+```text
 easedElapsed = easing(k);
 for each property:
     newPropertyValue = initialPropertyValue + propertyDelta * easedElapsed;
@@ -364,7 +364,7 @@ So let's suppose you wanted to use a custom easing function that eased the value
 
 ```javascript
 function tenStepEasing(k) {
-	return Math.floor(k * 10) / 10
+ return Math.floor(k * 10) / 10
 }
 ```
 
@@ -384,21 +384,21 @@ For example, suppose you're trying to animate some object whose properties can't
 
 ```javascript
 const trickyObjTween = new Tween({
-	propertyA: trickyObj.getPropertyA(),
-	propertyB: trickyObj.getPropertyB(),
+ propertyA: trickyObj.getPropertyA(),
+ propertyB: trickyObj.getPropertyB(),
 })
-	.to({propertyA: 100, propertyB: 200})
-	.onUpdate(function (object) {
-		object.setA(object.propertyA)
-		object.setB(object.propertyB)
-	})
+ .to({propertyA: 100, propertyB: 200})
+ .onUpdate(function (object) {
+  object.setA(object.propertyA)
+  object.setB(object.propertyB)
+ })
 ```
 
 Or imagine you want to play a sound when a tween is started. You can use a `start` callback:
 
 ```javascript
 const tween = new Tween(obj).to({x: 100}).onStart(function () {
-	sound.play()
+ sound.play()
 })
 ```
 
@@ -448,31 +448,31 @@ To clarify when `onStart`, `onEveryStart` and `onRepeat` are called, consider:
 const obj = {x: 0}
 
 const t = new Tween(obj)
-	.to({x: 5}, 5)
-	.repeat(Infinity)
-	.onStart(() => {
-		console.log('onStart')
-	})
-	.onRepeat(() => {
-		console.log('onRepeat')
-	})
-	.onEveryStart(() => {
-		console.log('onEveryStart')
-	})
-	.start(0)
+ .to({x: 5}, 5)
+ .repeat(Infinity)
+ .onStart(() => {
+  console.log('onStart')
+ })
+ .onRepeat(() => {
+  console.log('onRepeat')
+ })
+ .onEveryStart(() => {
+  console.log('onEveryStart')
+ })
+ .start(0)
 
 for (let ticks = 0; ticks < 22; ticks += 1) {
-	console.log('Tick', ticks)
-	t.update(ticks)
+ console.log('Tick', ticks)
+ t.update(ticks)
 
-	console.log(obj)
-	console.log()
+ console.log(obj)
+ console.log()
 }
 ```
 
 The output would look like this, on the left as above, and on the right with `.delay(5)`:
 
-```
+```text
 Tick 0           Tick 0
 onStart          { x: 0 }
 onEveryStart
@@ -659,8 +659,8 @@ When you try to animate the position of an element in the page, the easiest solu
 ```javascript
 const element = document.getElementById('myElement')
 const tween = new Tween({top: 0, left: 0}).to({top: 100, left: 100}, 1000).onUpdate(function (object) {
-	element.style.top = object.top + 'px'
-	element.style.left = object.left + 'px'
+ element.style.top = object.top + 'px'
+ element.style.left = object.left + 'px'
 })
 ```
 
@@ -669,7 +669,7 @@ but this is really inefficient because altering these properties forces the brow
 ```javascript
 const element = document.getElementById('myElement')
 const tween = new Tween({top: 0, left: 0}).to({top: 100, left: 100}, 1000).onUpdate(function (object) {
-	element.style.transform = 'translate(' + object.left + 'px, ' + object.top + 'px)'
+ element.style.transform = 'translate(' + object.left + 'px, ' + object.top + 'px)'
 })
 ```
 
