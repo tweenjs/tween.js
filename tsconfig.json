@@ -1,18 +1,13 @@
 {
 	"compilerOptions": {
-		"baseUrl": ".",
-		"outDir": "./.tmp",
-		"declaration": true,
 		"strict": true,
-		"sourceMap": true,
-		"module": "es2015",
-		"target": "es5",
-		"moduleResolution": "node",
-		"lib": ["dom", "es2015"],
-
-		// TODO will be removed in TS 5.5
-		"ignoreDeprecations": "5.0",
-		"importsNotUsedAsValues": "error"
+		"module": "preserve",
+		"target": "es2020",
+		"moduleResolution": "bundler",
+		"lib": ["dom", "es2020"],
+		"types": ["bun"],
+		"noEmit": true
 	},
+	"include": ["src", "scripts"],
 	"exclude": ["node_modules", "examples"]
 }
