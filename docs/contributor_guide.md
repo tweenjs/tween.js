@@ -90,10 +90,11 @@ The tests are executed using [Bun's built-in test runner](https://bun.com/docs/c
 
 We use [Biome](https://biomejs.dev) to ensure the code style is uniform.
 
-To automatically format code and report any errors for pieces of code that aren't automatically formattable, run:
+To lint code and report any errors for pieces of code, run:
 
 ```bash
-bun run test-lint
+bun run lint
+bun test
 ```
 
 The Biome rules are in `biome.json`.
@@ -106,7 +107,7 @@ There's an [open issue](https://github.com/tweenjs/discuss/issues/3) to track wo
 
 ## Continuous integration
 
-We use GitHub Actions for continuous integration so that a build and tests will run for every pull request. The `.github/workflows/tests.yml` file tells GitHub what to run; in our case we run `bun install` followed by `bun run test` in the OSes specified in that file.
+We use GitHub Actions for continuous integration so that a build and tests will run for every pull request. The `.github/workflows/tests.yml` file tells GitHub what to run; in our case we run `bun install` followed by `bun run lint` -> `bun test` in the OSes specified in that file.
 
 **TODO:** Add macOS and Windows to OSes that the tests run on. Help! :)
 

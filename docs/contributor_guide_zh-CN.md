@@ -90,10 +90,11 @@ bun test
 
 我们使用 [Biome](https://biomejs.dev) 来保证代码风格的统一。
 
-要自动格式化代码并报告不可被格式化的代码片段的任何错误，请运行：
+要检查代码并报告代码片段中的任何错误，请运行：
 
-```base
-bun run test-lint
+```bash
+bun run lint
+bun test
 ```
 
 Biome 规则在 `biome.json` 中。
@@ -106,7 +107,7 @@ Biome 规则在 `biome.json` 中。
 
 ## 持续集成
 
-我们使用 GitHub Actions 进行持续集成，以便为每个 pull request 运行构建和测试。 `.github/workflows/tests.yml` 文件告诉 GitHub 要运行什么；在我们的例子中，我们在该文件中指定的操作系统中运行 `bun install`，然后运行 `bun run test`。
+我们使用 GitHub Actions 进行持续集成，以便为每个 pull request 运行构建和测试。 `.github/workflows/tests.yml` 文件告诉 GitHub 要运行什么；在我们的例子中，我们在该文件中指定的操作系统中运行 `bun install`，然后依次运行 `bun run lint` -> `bun test`。
 
 **TODO**：将 macOS 和 Windows 添加到运行测试的操作系统。 请求帮助！ :)
 
