@@ -14,11 +14,7 @@
 			"types": "./dist/tween.d.ts"
 		}
 	},
-	"files": [
-		"dist",
-		"README.md",
-		"LICENSE"
-	],
+	"files": ["dist", "README.md", "LICENSE"],
 	"homepage": "https://github.com/tweenjs/tween.js",
 	"repository": {
 		"type": "git",
@@ -28,10 +24,7 @@
 		"url": "https://github.com/tweenjs/tween.js/issues"
 	},
 	"license": "MIT",
-	"keywords": [
-		"tween",
-		"interpolation"
-	],
+	"keywords": ["tween", "interpolation"],
 	"dependencies": {},
 	"scripts": {
 		"build": "bun run scripts/write-version.ts && bun run scripts/build.ts",
@@ -52,9 +45,5 @@
 		"rumdl": "^0.2.62",
 		"typescript": "^7.0.2"
 	},
-	"trustedDependencies": [
-		"@biomejs/biome",
-		"lefthook",
-		"rumdl"
-	]
+	"trustedDependencies": ["@biomejs/biome", "lefthook", "rumdl"]
 }
