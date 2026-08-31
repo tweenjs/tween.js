@@ -37,7 +37,6 @@ export class Tween<T extends UnknownProps = any> {
 	private _startTime = 0
 	private _easingFunction: EasingFunction = Easing.Linear.None
 	private _interpolationFunction: InterpolationFunction = Interpolation.Linear
-	// eslint-disable-next-line
 	private _chainedTweens: Array<Tween<any>> = []
 	private _onStartCallback?: (object: T) => void
 	private _onStartCallbackFired = false
@@ -209,7 +208,7 @@ export class Tween<T extends UnknownProps = any> {
 				const temp = [startValue as number]
 				for (let i = 0, l = endValues.length; i < l; i += 1) {
 					const value = this._handleRelativeValue(startValue as number, endValues[i])
-					if (isNaN(value)) {
+					if (Number.isNaN(value)) {
 						isInterpolationList = false
 						console.warn('Found invalid interpolation list. Skipping.')
 						break
@@ -259,14 +258,10 @@ export class Tween<T extends UnknownProps = any> {
 				}
 
 				if (!startValueIsArray) {
-					// eslint-disable-next-line
-					// @ts-expect-error FIXME?
 					_valuesStart[property] *= 1.0 // Ensures we're using numbers, not strings
 				}
 
 				if (isInterpolationList) {
-					// eslint-disable-next-line
-					// @ts-expect-error FIXME?
 					_valuesStartRepeat[property] = _valuesEnd[property].slice().reverse()
 				} else {
 					_valuesStartRepeat[property] = _valuesStart[property] || 0
@@ -394,7 +389,6 @@ export class Tween<T extends UnknownProps = any> {
 		return this
 	}
 
-	// eslint-disable-next-line
 	chain(...tweens: Array<Tween<any>>): this {
 		this._chainedTweens = tweens
 		return this
@@ -443,8 +437,6 @@ export class Tween<T extends UnknownProps = any> {
 	 */
 	update(time = now(), autoStart = Tween.autoStartOnUpdate): boolean {
 		if (this._isPaused) return true
-
-		let property
 
 		if (!this._goToEnd && !this._isPlaying) {
 			if (autoStart) this.start(time, true)
@@ -507,16 +499,14 @@ export class Tween<T extends UnknownProps = any> {
 		if (this._duration === 0 || elapsedTime >= this._duration) {
 			if (this._repeat > 0) {
 				const completeCount = Math.min(Math.trunc((elapsedTime - this._duration) / durationAndDelay) + 1, this._repeat)
-				if (isFinite(this._repeat)) {
+				if (Number.isFinite(this._repeat)) {
 					this._repeat -= completeCount
 				}
 
 				// Reassign starting values, restart by making startTime = now
-				for (property in this._valuesStartRepeat) {
+				for (const property in this._valuesStartRepeat) {
 					if (!this._yoyo && typeof this._valuesEnd[property] === 'string') {
 						this._valuesStartRepeat[property] =
-							// eslint-disable-next-line
-							// @ts-expect-error FIXME?
 							this._valuesStartRepeat[property] + parseFloat(this._valuesEnd[property])
 					}
 
@@ -581,8 +571,6 @@ export class Tween<T extends UnknownProps = any> {
 			if (isInterpolationList) {
 				_object[property] = this._interpolationFunction(end as Array<number>, value)
 			} else if (typeof end === 'object' && end) {
-				// eslint-disable-next-line
-				// @ts-expect-error FIXME?
 				this._updateProperties(_object[property], start, end, value)
 			} else {
 				// Parses relative end values with start as base (e.g.: +10, -3)
@@ -590,8 +578,6 @@ export class Tween<T extends UnknownProps = any> {
 
 				// Protect against non numeric properties.
 				if (typeof end === 'number') {
-					// eslint-disable-next-line
-					// @ts-expect-error FIXME?
 					_object[property] = start + (end - start) * value
 				}
 			}
