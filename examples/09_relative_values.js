@@ -6,7 +6,7 @@ const tween = new Tween(target1.dataset)
 	.repeat(5)
 	.delay(500)
 	.easing(Easing.Exponential.In)
-	.onUpdate(function (object) {
+	.onUpdate(object => {
 		object.top = Math.round(object.top)
 		object.left = Math.round(object.left)
 		updateBox(target1, object)

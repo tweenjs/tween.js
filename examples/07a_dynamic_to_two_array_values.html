@@ -61,7 +61,7 @@
 				new TWEEN.Tween(rabbit1, group)
 					.to({x: width / 2, y: height - 50}, 2000)
 					.easing(TWEEN.Easing.Cubic.InOut)
-					.onUpdate(function ({x, y}) {
+					.onUpdate(({x, y}) => {
 						rabbits.x[1] = x
 						rabbits.y[1] = y
 					})
@@ -75,7 +75,7 @@
 				new TWEEN.Tween(rabbit2, group)
 					.to({x: width / 3, y: 50}, 3000)
 					.easing(TWEEN.Easing.Cubic.InOut)
-					.onUpdate(function ({x, y}) {
+					.onUpdate(({x, y}) => {
 						rabbits.x[2] = x
 						rabbits.y[2] = y
 					})

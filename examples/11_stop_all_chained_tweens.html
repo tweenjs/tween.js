@@ -38,16 +38,16 @@
 			const p0 = {x: 0},
 				p1 = {x: 0}
 
-			start.onclick = function () {
+			start.onclick = () => {
 				if (!t0 && !t1) {
 					t0 = new TWEEN.Tween(p0, group)
 						.to({x: 700}, 2000)
 						.delay(100)
 						.easing(TWEEN.Easing.Elastic.InOut)
-						.onUpdate(function () {
+						.onUpdate(() => {
 							a.style.left = p0.x + 'px'
 						})
-						.onComplete(function () {
+						.onComplete(() => {
 							p0.x = 0
 							a.style.left = p0.x + 'px'
 						})
@@ -56,10 +56,10 @@
 						.to({x: 1000}, 3000)
 						.delay(100)
 						.easing(TWEEN.Easing.Elastic.InOut)
-						.onUpdate(function () {
+						.onUpdate(() => {
 							b.style.left = p1.x + 'px'
 						})
-						.onComplete(function () {
+						.onComplete(() => {
 							p1.x = 0
 							b.style.left = p1.x + 'px'
 						})
@@ -70,7 +70,7 @@
 				t0.start()
 			}
 
-			stop.onclick = function () {
+			stop.onclick = () => {
 				t0.stop()
 			}
 		</script>

@@ -31,7 +31,7 @@
 						.to({rotation: 360}, 1000)
 						.easing(Easing.Exponential.InOut)
 						.delay(100)
-						.onUpdate(function (object) {
+						.onUpdate((object) => {
 							updateBox(target1, object)
 						})
 						.start(),
@@ -41,7 +41,7 @@
 						.easing(Easing.Exponential.InOut)
 						.repeat(2)
 						.delay(100)
-						.onUpdate(function (object) {
+						.onUpdate((object) => {
 							updateBox(target2, object)
 						})
 						.start(),
@@ -51,7 +51,7 @@
 						.easing(Easing.Exponential.InOut)
 						.repeat(Infinity)
 						.delay(100)
-						.onUpdate(function (object) {
+						.onUpdate((object) => {
 							updateBox(target3, object)
 						})
 						.start()

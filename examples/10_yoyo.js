@@ -12,7 +12,7 @@ const tween1 = new Tween(target1.dataset, group)
 	.delay(1000)
 	.yoyo(true)
 	.easing(Easing.Cubic.InOut)
-	.onUpdate(function (object) {
+	.onUpdate(object => {
 		updateBox(target1, object)
 	})
 	.start()
@@ -23,7 +23,7 @@ const tween2 = new Tween(target2.dataset, group)
 	.delay(1000)
 	.yoyo(true)
 	.easing(Easing.Cubic.InOut)
-	.onUpdate(function (object) {
+	.onUpdate(object => {
 		updateBox(target2, object)
 	})
 	.start()
@@ -34,7 +34,7 @@ const tween3 = new Tween(target3.dataset, group)
 	.delay(1000)
 	.yoyo(true)
 	.easing(Easing.Cubic.InOut)
-	.onUpdate(function (object) {
+	.onUpdate(object => {
 		updateBox(target3, object)
 	})
 	.start()
@@ -45,42 +45,42 @@ const tween4 = new Tween(target4.dataset, group)
 	.delay(1000)
 	.yoyo(true)
 	.easing(Easing.Cubic.InOut)
-	.onUpdate(function (object) {
+	.onUpdate(object => {
 		updateBox(target4, object)
 	})
 	.start()
 
 // TODO perhaps add these methods to Group
 
-const restart = (window.restart = function () {
+const restart = (window.restart = () => {
 	tween1.stop().start()
 	tween2.stop().start()
 	tween3.stop().start()
 	tween4.stop().start()
 })
 
-const stop = (window.stop = function () {
+const stop = (window.stop = () => {
 	tween1.stop()
 	tween2.stop()
 	tween3.stop()
 	tween4.stop()
 })
 
-const start = (window.start = function () {
+const start = (window.start = () => {
 	tween1.start()
 	tween2.start()
 	tween3.start()
 	tween4.start()
 })
 
-const pause = (window.pause = function () {
+const pause = (window.pause = () => {
 	tween1.pause()
 	tween2.pause()
 	tween3.pause()
 	tween4.pause()
 })
 
-const resume = (window.resume = function () {
+const resume = (window.resume = () => {
 	tween1.resume()
 	tween2.resume()
 	tween3.resume()

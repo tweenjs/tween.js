@@ -32,7 +32,7 @@
 			let video
 			let tween = null
 
-			playButton.addEventListener('click', function () {
+			playButton.addEventListener('click', () => {
 				init()
 				animate()
 			})
@@ -50,7 +50,7 @@
 						tween = new TWEEN.Tween({x: 50, y: 0})
 							.to({x: 400}, this.duration)
 							.easing(TWEEN.Easing.Linear.None)
-							.onUpdate(function (object) {
+							.onUpdate((object) => {
 								const roundX = Math.round(object.x)
 								const transform = 'translateX(' + roundX + 'px)'
 								output.innerHTML = 'x == ' + roundX

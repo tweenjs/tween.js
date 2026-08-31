@@ -87,7 +87,7 @@ export function createPath(group, text, interpolation, width = 240, height = 160
 		.to({x: xA, y: yA}, 3000)
 		.easing(Easing.Linear.None)
 		.interpolation(interpolation)
-		.onUpdate(function () {
+		.onUpdate(() => {
 			context.lineTo(toPhysicalPx(position.x), toPhysicalPx(position.y))
 			context.stroke()
 		})

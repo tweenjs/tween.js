@@ -48,7 +48,7 @@ export function createGraph(group, text, easingFn, width = 180, height = 100) {
 	new Tween(position, group)
 		.to({y: toPhysicalPx(20)}, 2000)
 		.easing(easingFn)
-		.onUpdate(function () {
+		.onUpdate(() => {
 			context.lineTo(position.x, position.y)
 			context.stroke()
 		})

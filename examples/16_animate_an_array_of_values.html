@@ -26,7 +26,7 @@
 				.repeat(1)
 				.delay(1000)
 				.easing(TWEEN.Easing.Cubic.InOut)
-				.onUpdate(function (rotations) {
+				.onUpdate((rotations) => {
 					for (let i = 0; i < rotations.length; i++)
 						document.getElementById('target' + i).style.transform =
 							'rotate' + axes[i] + '(' + Math.floor(rotations[i]) + 'deg)'

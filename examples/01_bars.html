@@ -43,7 +43,7 @@
 
 				const elem = {x: startValue, domElement: domElement, y}
 
-				const updateCallback = function (object) {
+				const updateCallback = (object) => {
 					object.domElement.style.translate = object.x + 'px ' + object.y + 'px'
 				}
 

@@ -33,7 +33,7 @@
 
 			const group = new TWEEN.Group()
 
-			window.addEventListener('load', function () {
+			window.addEventListener('load', () => {
 				init()
 				animate()
 			})
@@ -82,9 +82,7 @@
 			// the tenStepsEasing function above, but the number of steps
 			// is passed as a parameter
 			function createStepFunction(numSteps) {
-				return function (k) {
-					return Math.floor(k * numSteps) / numSteps
-				}
+				return (k) => Math.floor(k * numSteps) / numSteps
 			}
 
 			function randomEasing(k) {
@@ -95,9 +93,7 @@
 			// base for new easing functions?
 			function createNoisyEasing(randomProportion, easingFunction) {
 				const normalProportion = 1.0 - randomProportion
-				return function (k) {
-					return randomProportion * Math.random() + normalProportion * easingFunction(k)
-				}
+				return (k) => randomProportion * Math.random() + normalProportion * easingFunction(k)
 			}
 		</script>
 	</body>

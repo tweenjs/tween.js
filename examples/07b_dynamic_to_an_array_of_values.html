@@ -105,7 +105,7 @@
 				function createRabbitTween(index, rabbit) {
 					return new TWEEN.Tween(rabbit, group)
 						.to(bunnyDestinations[index], duration)
-						.onUpdate(function (object) {
+						.onUpdate((object) => {
 							// We need `index + 1` because Tween modifies the arrays and adds the fox start values to it.
 							// TODO this is confusing. Better if Tween simply never modified the input object.
 							_rabbitValues.x[index + 1] = object.x
@@ -120,7 +120,7 @@
 				new TWEEN.Tween(fox, group)
 					.to(_rabbitValues, duration)
 					.dynamic(dynamic)
-					.onUpdate(function (object) {
+					.onUpdate((object) => {
 						rabbitsEaten = Math.floor(object.eatenCounter)
 						if (rabbitsEaten > 0) {
 							// A dead rabbit stops moving.
