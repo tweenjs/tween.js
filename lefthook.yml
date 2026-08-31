@@ -1,0 +1,31 @@
+skip_lfs: true
+
+pre-commit:
+  parallel: true
+  commands:
+    biome:
+      env:
+        PATH: $PATH:./node_modules/.bin
+      glob: "*.{js,ts,json}"
+      run: biome check {staged_files}
+      stage_fixed: false
+    markdown:
+      env:
+        PATH: $PATH:./node_modules/.bin
+      glob: "*.md"
+      run: rumdl check {staged_files}
+      stage_fixed: false
+
+pre-push:
+  parallel: true
+  commands:
+    biome:
+      env:
+        PATH: $PATH:./node_modules/.bin
+      glob: "*.{js,ts,json}"
+      run: biome check {push_files}
+    markdown:
+      env:
+        PATH: $PATH:./node_modules/.bin
+      glob: "*.md"
+      run: rumdl check {push_files}
