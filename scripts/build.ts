@@ -19,22 +19,9 @@ const bundles = [
 		format: "iife",
 		target: "browser",
 	},
-	{
-		entry: "src/tests.ts",
-		outfile: ".tmp/tests.cjs",
-		format: "cjs",
-		target: "node",
-	},
-	{
-		entry: "src/tests-global.ts",
-		outfile: ".tmp/tests.umd.js",
-		format: "iife",
-		target: "browser",
-	},
 ] as const;
 
 await rm("dist", { recursive: true, force: true });
-await rm(".tmp", { recursive: true, force: true });
 
 for (const { entry, outfile, format, target } of bundles) {
 	const banner = format === "esm" ? undefined : `'use strict';`;

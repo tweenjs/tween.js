@@ -21,11 +21,11 @@ In this guide:
 
 ## Developer requirements
 
-Although tween.js does _not_ need node.js to work, we use it for development. So you will need to [install node.js](https://nodejs.org/en/download/) before you can work on the library.
+Although tween.js does _not_ need Bun to work, we use it for development. So you will need to [install Bun](https://bun.com/docs/installation) before you can work on the library.
 
-Node.js includes the `npm` tool that we use to run scripts such as the one for packaging, running tests, etc. Please make sure it is working in your system before you attempt to run any of the steps detailed below.
+Bun is a standalone JavaScript runtime that ships with its own package manager, bundler and test runner, and it is the _only_ prerequisite: you do not need Node.js or `npm` installed separately. The `bun` command runs all of the scripts referenced below, such as the ones for packaging and running tests. Please make sure it is working in your system before you attempt to run any of the steps detailed below.
 
-Once node.js is installed, clone the tween.js repository:
+Once Bun is installed, clone the tween.js repository:
 
 ```bash
 git clone https://github.com/tweenjs/tween.js.git
@@ -40,7 +40,7 @@ cd tween.js
 And run the script to install development dependencies:
 
 ```bash
-npm install
+bun install
 ```
 
 Or in three lines:
@@ -48,13 +48,13 @@ Or in three lines:
 ```bash
 git clone https://github.com/tweenjs/tween.js.git
 cd tween.js
-npm install
+bun install
 ```
 
-Once `npm install` completes successfully, try having a go at running the tests:
+Once `bun install` completes successfully, try having a go at running the tests:
 
 ```bash
-npm test
+bun test
 ```
 
 If you get issues running any of the above, try to search for the text of the error using your search engine of choice. This is normally the fastest route, as many people might have encountered the same issue already.
@@ -68,7 +68,7 @@ These can quickly spot regressions on the code--useful when new features are add
 To run the tests, type:
 
 ```bash
-npm test
+bun test
 ```
 
 You should run the tests after you change code in the library. If you change the behaviour the tests describe, the tests won't pass and you'll get an error pointing to the test(s) that failed. This might be either because...
@@ -82,23 +82,21 @@ The one that happens more frequently is the first one, but the second one has ha
 
 ### Unit tests
 
-Tests are in the `src/tests.ts` file.
+Tests are in the `test/unit/tween.test.ts` file.
 
-The tests are executed using [nodeunit](https://www.npmjs.com/package/nodeunit).
-
-**TODO:** the tests should also work if opening `test/unit/nodeunit.html` in a browser, but they are broken right now. There is [an open issue](https://github.com/tweenjs/tween.js/issues/307) to make them work again.
+The tests are executed using [Bun's built-in test runner](https://bun.com/docs/cli/test), so you can also run them on their own with `bun test`.
 
 ### Code style and lint tests
 
-We use [Prettier](https://prettier.io) and [ESLint](https://eslint.org) to ensure the code style is uniform.
+We use [Biome](https://biomejs.dev) to ensure the code style is uniform.
 
 To automatically format code and report any errors for pieces of code that aren't automatically formattable, run:
 
 ```bash
-npm run test-lint
+bun run test-lint
 ```
 
-The Prettier rules are in `.prettierrc.js` and ESLint rules are in `.eslintrc.js`.
+The Biome rules are in `biome.json`.
 
 ### Other types of tests
 
@@ -108,7 +106,7 @@ There's an [open issue](https://github.com/tweenjs/discuss/issues/3) to track wo
 
 ## Continuous integration
 
-We use GitHub Actions for continuous integration so that a build and tests will run for every pull request. The `.github/workflows/tests.yml` file tells GitHub what to run; in our case we run `npm install` followed by `npm test` in the OSes and versions of Node.js specified in that file.
+We use GitHub Actions for continuous integration so that a build and tests will run for every pull request. The `.github/workflows/tests.yml` file tells GitHub what to run; in our case we run `bun install` followed by `bun run test` in the OSes specified in that file.
 
 **TODO:** Add macOS and Windows to OSes that the tests run on. Help! :)
 
@@ -116,6 +114,6 @@ We use GitHub Actions for continuous integration so that a build and tests will 
 
 Currently the release process is manual.
 
-When ready to make a release on the `master` branch, ensure there are no un-committed changes, then run `npm run release:patch` to release a new version with its patch number bumped, `npm run release:minor` to release a new version with its minor number bumped, or `npm run release:major` to release a new version with its major number bumped.
+When ready to make a release on the `master` branch, ensure there are no un-committed changes, then run `bun run release:patch` to release a new version with its patch number bumped, `bun run release:minor` to release a new version with its minor number bumped, or `bun run release:major` to release a new version with its major number bumped.
 
 Tip: see [semver.org](https://semver.org) and the [npm-semver](https://docs.npmjs.com/misc/semver) docs to learn about semantic versioning.

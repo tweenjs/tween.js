@@ -10,22 +10,22 @@
 
 目录:
 
-- [tween.js 贡献者指南](#tween.js-贡献者指南)
-- [开发者要求](#开发者要求)
-- [测试](#测试)
-  - [单元测试](#单元测试)
-  - [代码风格和 lint 测试](#代码风格和-lint-测试)
-  - [其他类型的测试](#其他类型的测试)
-- [持续集成](#持续集成)
-- [发布流程](#发布流程)
+- [tween.js 贡献者指南](#tweenjs-贡献者指南)
+  - [开发者要求](#开发者要求)
+  - [测试](#测试)
+    - [单元测试](#单元测试)
+    - [代码风格和 lint 测试](#代码风格和-lint-测试)
+    - [其他类型的测试](#其他类型的测试)
+  - [持续集成](#持续集成)
+  - [发布流程](#发布流程)
 
 ## 开发者要求
 
-虽然 tween.js *不*需要依赖 node.js 运行，但我们使用 node.js 来进行开发。所以我们需要先 [安装 node.js](https://nodejs.org/en/download/)，然后才能在库中工作。
+虽然 tween.js *不*需要依赖 Bun 运行，但我们使用 Bun 来进行开发。所以我们需要先 [安装 Bun](https://bun.com/docs/installation)，然后才能在库中工作。
 
-Node.js 包括我们用来运行脚本的 npm 工具，例如打包、运行测试等的脚本。在你尝试运行下面详述的任何步骤之前，请确保它在你的系统中正常工作。
+Bun 是一个独立的 JavaScript 运行时，自带包管理器、打包器和测试运行器，并且是*唯一*的前置依赖：你不需要另外安装 Node.js 或 `npm`。下文提到的所有脚本（例如打包、运行测试等）都由 `bun` 命令来执行。在你尝试运行下面详述的任何步骤之前，请确保它在你的系统中正常工作。
 
-安装 node.js 后，克隆 tween.js 存储库：
+安装 Bun 后，克隆 tween.js 存储库：
 
 ```bash
 git clone https://github.com/tweenjs/tween.js.git
@@ -40,7 +40,7 @@ cd tween.js
 并运行脚本来安装开发依赖项：
 
 ```bash
-npm install
+bun install
 ```
 
 或者分三行：
@@ -48,13 +48,13 @@ npm install
 ```bash
 git clone https://github.com/tweenjs/tween.js.git
 cd tween.js
-npm install
+bun install
 ```
 
-`npm install` 成功完成后，尝试运行测试：
+`bun install` 成功完成后，尝试运行测试：
 
 ```bash
-npm test
+bun test
 ```
 
 如果你在运行上述任何步骤时遇到问题，请尝试使用你选择的搜索引擎搜索错误文本。这通常是最快的解决方法，因为很多人可能已经遇到过同样的问题。
@@ -68,7 +68,7 @@ npm test
 要运行测试，请输入：
 
 ```bash
-npm test
+bun test
 ```
 
 你应该在更改库中的代码后运行测试。如果你更改测试描述的行为，测试将不会通过，你将得到指向失败测试的错误。 这可能是因为...
@@ -82,23 +82,21 @@ npm test
 
 ### 单元测试
 
-测试用例在 `src/tests.ts` 文件中。
+测试用例在 `test/unit/tween.test.ts` 文件中。
 
-测试使用 [nodeunit](https://www.npmjs.com/package/nodeunit) 执行。
-
-**TODO:** 如果在浏览器中打开 `test/unit/nodeunit.html`，测试也应该能够正常运行，但是现在已经被损坏。有一个 [打开的问题](https://github.com/tweenjs/tween.js/issues/307) 可以使他们再次工作。
+测试使用 [Bun 内置的测试运行器](https://bun.com/docs/cli/test) 执行，你也可以单独运行 `bun test`。
 
 ### 代码风格和 lint 测试
 
-我们使用 [JSCS](http://jscs.info/) 和 [JSHint](http://jshint.com/) 来保证代码风格的统一。
+我们使用 [Biome](https://biomejs.dev) 来保证代码风格的统一。
 
 要自动格式化代码并报告不可被格式化的代码片段的任何错误，请运行：
 
 ```base
-npm run test-lint
+bun run test-lint
 ```
 
-Prettier 规则在 `.prettierrc.js` 中，ESLint 规则在 `.eslintrc.js` 中。
+Biome 规则在 `biome.json` 中。
 
 ### 其他类型的测试
 
@@ -108,7 +106,7 @@ Prettier 规则在 `.prettierrc.js` 中，ESLint 规则在 `.eslintrc.js` 中。
 
 ## 持续集成
 
-我们使用 GitHub Actions 进行持续集成，以便为每个 pull request 运行构建和测试。 `.github/workflows/tests.yml` 文件告诉 GitHub 要运行什么；在我们的例子中，我们在该文件中指定的操作系统和 Node.js 版本中运行 `npm install`，然后运行 `npm test`。
+我们使用 GitHub Actions 进行持续集成，以便为每个 pull request 运行构建和测试。 `.github/workflows/tests.yml` 文件告诉 GitHub 要运行什么；在我们的例子中，我们在该文件中指定的操作系统中运行 `bun install`，然后运行 `bun run test`。
 
 **TODO**：将 macOS 和 Windows 添加到运行测试的操作系统。 请求帮助！ :)
 
@@ -116,6 +114,6 @@ Prettier 规则在 `.prettierrc.js` 中，ESLint 规则在 `.eslintrc.js` 中。
 
 目前发布过程是手动的。
 
-当准备好在 `master` 分支上发布时，确保没有未提交的更改，然后运行 `npm run release:patch` 发布一个新版本，其补丁号已被修改，`npm run release:minor` ，修改 minor 版本号并发布一个新版本，或者 `npm run release:major` 修改 major 版本号并发布一个新版本。
+当准备好在 `master` 分支上发布时，确保没有未提交的更改，然后运行 `bun run release:patch` 发布一个新版本，其补丁号已被修改，`bun run release:minor` ，修改 minor 版本号并发布一个新版本，或者 `bun run release:major` 修改 major 版本号并发布一个新版本。
 
 Tip: 请参阅 [semver.org](https://semver.org/) 和 [npm-semver](https://docs.npmjs.com/misc/semver) 文档以了解语义版本控制。

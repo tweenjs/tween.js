@@ -2,8 +2,8 @@
 .idea
 .vscode
 .tmp
+.claude
 build/npm*
 node_modules
 npm-debug.log
-tsconfig.build.json
 dist

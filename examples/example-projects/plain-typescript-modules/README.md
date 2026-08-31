@@ -8,10 +8,10 @@ This example uses the `tsc` (TypeScript compiler) to compile `.ts` files into
 as we've written them in the `.ts` files, and the output `.js` files will be
 executed as native JS modules in the browser.
 
-To set up, run `npm install`.
+To set up, run `bun install`.
 
-To build and run the project in a single command, run `npm start`.
+To build and run the project in a single command, run `bun build`.
 
-To compile only, run `npm run build` to generate `.js` files from `.ts` files.
+To compile only, run `bun run build` to generate `.js` files from `.ts` files.
 
-To continuously build `.ts` files into `.js` files any time the `.ts` files change, run `npm run dev`.
+To continuously build `.ts` files into `.js` files any time the `.ts` files change, run `bun run dev`.

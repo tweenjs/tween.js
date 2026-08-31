@@ -2,7 +2,7 @@
 	"description": "TS compiled to plain JS modules for running in browser.",
 	"type": "module",
 	"scripts": {
-		"start": "npm run build && npm run serve",
+		"start": "bun run build && bun run serve",
 		"build": "tsc",
 		"dev": "tsc --watch",
 		"serve": "five-server ."
