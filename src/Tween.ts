@@ -260,13 +260,13 @@ export class Tween<T extends UnknownProps = any> {
 
 				if (!startValueIsArray) {
 					// eslint-disable-next-line
-					// @ts-ignore FIXME?
+					// @ts-expect-error FIXME?
 					_valuesStart[property] *= 1.0 // Ensures we're using numbers, not strings
 				}
 
 				if (isInterpolationList) {
 					// eslint-disable-next-line
-					// @ts-ignore FIXME?
+					// @ts-expect-error FIXME?
 					_valuesStartRepeat[property] = _valuesEnd[property].slice().reverse()
 				} else {
 					_valuesStartRepeat[property] = _valuesStart[property] || 0
@@ -516,7 +516,7 @@ export class Tween<T extends UnknownProps = any> {
 					if (!this._yoyo && typeof this._valuesEnd[property] === 'string') {
 						this._valuesStartRepeat[property] =
 							// eslint-disable-next-line
-							// @ts-ignore FIXME?
+							// @ts-expect-error FIXME?
 							this._valuesStartRepeat[property] + parseFloat(this._valuesEnd[property])
 					}
 
@@ -582,7 +582,7 @@ export class Tween<T extends UnknownProps = any> {
 				_object[property] = this._interpolationFunction(end as Array<number>, value)
 			} else if (typeof end === 'object' && end) {
 				// eslint-disable-next-line
-				// @ts-ignore FIXME?
+				// @ts-expect-error FIXME?
 				this._updateProperties(_object[property], start, end, value)
 			} else {
 				// Parses relative end values with start as base (e.g.: +10, -3)
@@ -591,7 +591,7 @@ export class Tween<T extends UnknownProps = any> {
 				// Protect against non numeric properties.
 				if (typeof end === 'number') {
 					// eslint-disable-next-line
-					// @ts-ignore FIXME?
+					// @ts-expect-error FIXME?
 					_object[property] = start + (end - start) * value
 				}
 			}

@@ -103,10 +103,10 @@ export const Easing = Object.freeze({
 
 	Exponential: Object.freeze(<EasingFunctionGroup>{
 		In(amount: number): number {
-			return amount === 0 ? 0 : Math.pow(1024, amount - 1)
+			return amount === 0 ? 0 : 1024 ** (amount - 1)
 		},
 		Out(amount: number): number {
-			return amount === 1 ? 1 : 1 - Math.pow(2, -10 * amount)
+			return amount === 1 ? 1 : 1 - 2 ** (-10 * amount)
 		},
 		InOut(amount: number): number {
 			if (amount === 0) {
@@ -118,10 +118,10 @@ export const Easing = Object.freeze({
 			}
 
 			if ((amount *= 2) < 1) {
-				return 0.5 * Math.pow(1024, amount - 1)
+				return 0.5 * 1024 ** (amount - 1)
 			}
 
-			return 0.5 * (-Math.pow(2, -10 * (amount - 1)) + 2)
+			return 0.5 * (-(2 ** (-10 * (amount - 1))) + 2)
 		},
 	}),
 
@@ -150,7 +150,7 @@ export const Easing = Object.freeze({
 				return 1
 			}
 
-			return -Math.pow(2, 10 * (amount - 1)) * Math.sin((amount - 1.1) * 5 * Math.PI)
+			return -(2 ** (10 * (amount - 1))) * Math.sin((amount - 1.1) * 5 * Math.PI)
 		},
 		Out(amount: number): number {
 			if (amount === 0) {
@@ -160,7 +160,7 @@ export const Easing = Object.freeze({
 			if (amount === 1) {
 				return 1
 			}
-			return Math.pow(2, -10 * amount) * Math.sin((amount - 0.1) * 5 * Math.PI) + 1
+			return 2 ** (-10 * amount) * Math.sin((amount - 0.1) * 5 * Math.PI) + 1
 		},
 		InOut(amount: number): number {
 			if (amount === 0) {
@@ -174,10 +174,10 @@ export const Easing = Object.freeze({
 			amount *= 2
 
 			if (amount < 1) {
-				return -0.5 * Math.pow(2, 10 * (amount - 1)) * Math.sin((amount - 1.1) * 5 * Math.PI)
+				return -0.5 * 2 ** (10 * (amount - 1)) * Math.sin((amount - 1.1) * 5 * Math.PI)
 			}
 
-			return 0.5 * Math.pow(2, -10 * (amount - 1)) * Math.sin((amount - 1.1) * 5 * Math.PI) + 1
+			return 0.5 * 2 ** (-10 * (amount - 1)) * Math.sin((amount - 1.1) * 5 * Math.PI) + 1
 		},
 	}),
 
