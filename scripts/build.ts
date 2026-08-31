@@ -1,43 +1,76 @@
-import {rm} from 'node:fs/promises'
+import { rm } from "node:fs/promises";
 
 const bundles = [
-	{entry: 'src/Index.ts', outfile: 'dist/tween.esm.js', format: 'esm', target: 'browser'},
-	{entry: 'src/Index.ts', outfile: 'dist/tween.cjs', format: 'cjs', target: 'node'},
-	{entry: 'src/global.ts', outfile: 'dist/tween.umd.js', format: 'iife', target: 'browser'},
-	{entry: 'src/tests.ts', outfile: '.tmp/tests.cjs', format: 'cjs', target: 'node'},
-	{entry: 'src/tests-global.ts', outfile: '.tmp/tests.umd.js', format: 'iife', target: 'browser'},
-] as const
+	{
+		entry: "src/Index.ts",
+		outfile: "dist/tween.esm.js",
+		format: "esm",
+		target: "browser",
+	},
+	{
+		entry: "src/Index.ts",
+		outfile: "dist/tween.cjs",
+		format: "cjs",
+		target: "node",
+	},
+	{
+		entry: "src/global.ts",
+		outfile: "dist/tween.umd.js",
+		format: "iife",
+		target: "browser",
+	},
+	{
+		entry: "src/tests.ts",
+		outfile: ".tmp/tests.cjs",
+		format: "cjs",
+		target: "node",
+	},
+	{
+		entry: "src/tests-global.ts",
+		outfile: ".tmp/tests.umd.js",
+		format: "iife",
+		target: "browser",
+	},
+] as const;
 
-await rm('dist', {recursive: true, force: true})
-await rm('.tmp', {recursive: true, force: true})
+await rm("dist", { recursive: true, force: true });
+await rm(".tmp", { recursive: true, force: true });
 
-for (const {entry, outfile, format, target} of bundles) {
-	// ES modules are strict by definition, but the cjs and iife outputs are not,
-	// and rollup used to add this directive for us. Without it, assigning to a
-	// frozen object fails silently instead of throwing, which the Easing tests
-	// rely on.
-	const banner = format === 'esm' ? undefined : `'use strict';`
-	const result = await Bun.build({entrypoints: [entry], format, target, banner})
+for (const { entry, outfile, format, target } of bundles) {
+	const banner = format === "esm" ? undefined : `'use strict';`;
+	const result = await Bun.build({
+		entrypoints: [entry],
+		format,
+		target,
+		banner,
+	});
 
 	if (!result.success) {
-		console.error(`Failed to bundle ${outfile}:`)
-		for (const message of result.logs) console.error(message)
-		process.exit(1)
+		console.error(`Failed to bundle ${outfile}:`);
+		for (const message of result.logs) console.error(message);
+		process.exit(1);
 	}
 
-	await Bun.write(outfile, result.outputs[0])
-	console.log(outfile)
+	await Bun.write(outfile, result.outputs[0]);
+	console.log(outfile);
 }
 
-const tsc = Bun.spawn(['bunx', 'tsc', '--project', 'tsconfig.build.json'], {stdout: 'inherit', stderr: 'inherit'})
-const tscExitCode = await tsc.exited
+const tsc = Bun.spawn(["bunx", "tsc", "--project", "tsconfig.build.json"], {
+	stdout: "inherit",
+	stderr: "inherit",
+});
+const tscExitCode = await tsc.exited;
 
-if (tscExitCode !== 0) process.exit(tscExitCode)
+if (tscExitCode !== 0) process.exit(tscExitCode);
 
 // tsc emits one declaration per module, so dist/tween.d.ts re-exports the entry
 // point to keep the published `types` path unchanged.
 await Bun.write(
-	'dist/tween.d.ts',
-	[`export * from './types/Index'`, `export {default} from './types/Index'`, ''].join('\n'),
-)
-console.log('dist/tween.d.ts')
+	"dist/tween.d.ts",
+	[
+		`export * from './types/Index'`,
+		`export {default} from './types/Index'`,
+		"",
+	].join("\n"),
+);
+console.log("dist/tween.d.ts");
