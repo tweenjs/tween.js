@@ -1,0 +1,49 @@
+# Prettier-Compatible Markdown Configuration
+# https://prettier.io/docs/options
+#
+# This config aligns rumdl with Prettier's markdown formatting choices.
+# Use when your project uses Prettier for markdown formatting.
+#
+# Note: Prettier's default prose-wrap is "preserve" (no line wrapping).
+# Line length warnings only apply if you use --prose-wrap always.
+
+[global]
+line-length = 80
+
+enable = []
+disable = ["MD033"]
+respect_gitignore  = true
+
+# Headings: ATX-style (# Heading) - Prettier converts setext to ATX
+[MD003]
+style = "atx"
+
+# Lists: Prettier maintains consistent markers within each list
+# It doesn't enforce a global marker style across all lists
+[MD004]
+style = "consistent"
+
+# Lists: Prettier uses 2-space indentation (tab-width default)
+[MD007]
+indent = 2
+
+# Ordered lists: Prettier renumbers by default, but allows lazy (all 1.)
+# Use "one_or_ordered" to accept either style
+[MD029]
+style = "one_or_ordered"
+
+# Note: MD046 (code block style) is not configured because Prettier
+# preserves both fenced and indented code blocks as-is.
+
+# Emphasis: Prettier normalizes italics to underscores, bold to asterisks
+[MD049]
+style = "underscore"
+
+[MD050]
+style = "asterisk"
+
+# The following rules are enabled by default and align with Prettier:
+# - MD010: No hard tabs (Prettier converts to spaces)
+# - MD012: No multiple consecutive blank lines
+# - MD023: Headings must start at beginning of line
+# - MD047: Files end with single newline
