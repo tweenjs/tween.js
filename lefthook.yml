@@ -33,3 +33,5 @@ pre-push:
         PATH: $PATH:./node_modules/.bin
       glob: "*.md"
       run: rumdl check {push_files}
+    test:
+      run: bun test
