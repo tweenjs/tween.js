@@ -36,11 +36,8 @@
 	"scripts": {
 		"build": "bun run scripts/write-version.ts && bun run scripts/build.ts",
 		"examples": "bunx serve .",
-		"test": "bun run build && tsc && bun run test-lint && bun run test-unit",
-		"test-unit": "bun test",
-		"test-lint": "biome check .",
-		"lint": "biome check . --write",
-		"prepare22": "bun run build",
+		"lint": "biome check .",
+		"prepublishOnly": "bun run build",
 		"version": "bun test && git add .",
 		"release:patch": "npm version patch --message 'v%s' && npm publish && bun run _release:push-branch",
 		"release:minor": "npm version minor --message 'v%s' && npm publish && bun run _release:push-branch",
