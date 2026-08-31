@@ -123,7 +123,7 @@ let currentTime = player.currentTime
 tween.update(currentTime)
 ```
 
-We use explicit time values for the unit tests. You can have a look at [tests.ts](../src/tests.ts) to see how we call `tween.update()` with different values in order to simulate time passing.
+We use explicit time values for the unit tests. You can have a look at [tests.ts](../test/unit/tween.test.ts) to see how we call `tween.update()` with different values in order to simulate time passing.
 
 ## Controlling a tween
 
@@ -347,7 +347,7 @@ _Credit where credit is due:_ these functions are derived from the original set 
 Not only can you use any of the existing functions, but you can also provide your own, as long as it follows a couple of conventions:
 
 - it must accept one parameter:
-  - `k`: the easing progress, or how far along the duration of the tween we are. Allowed values are in the range [0, 1].
+  - `k`: the easing progress, or how far along the duration of the tween we are. Allowed values are in the range `[0, 1]`.
 - it must return a value based on the input parameters.
 
 The easing function is only called _once per tween_ on each update, no matter how many properties are to be changed. The result is then used with the initial value and the difference (the _deltas_) between this and the final values, as in this pseudocode:
