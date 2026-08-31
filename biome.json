@@ -1,7 +1,14 @@
 {
 	"$schema": "https://biomejs.dev/schemas/2.5.11/schema.json",
 	"vcs": { "enabled": true, "clientKind": "git", "useIgnoreFile": true },
-	"files": { "includes": ["**", "!!**/dist"] },
+	"files": {
+		"includes": [
+			"**",
+			"!!**/dist",
+			"!examples/js/stats.min.js",
+			"!examples/example-projects/plain-typescript-modules/**/*.js"
+		]
+	},
 	"formatter": {
 		"enabled": true,
 		"formatWithErrors": false,
@@ -13,15 +20,7 @@
 		"bracketSameLine": false,
 		"bracketSpacing": true,
 		"expand": "auto",
-		"useEditorconfig": true,
-		"includes": [
-			"**",
-			"!**/dist/",
-			"!**/.tmp/",
-			"!**/.vscode/",
-			"!examples/js/stats.min.js",
-			"!examples/example-projects/plain-typescript-modules/**/*.js"
-		]
+		"useEditorconfig": true
 	},
 	"linter": { "enabled": true, "rules": { "preset": "recommended" } },
 	"javascript": {
