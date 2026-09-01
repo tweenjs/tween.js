@@ -1,10 +1,10 @@
-let _nowFunc: Function = () => performance.now()
+let _nowFunc = (): DOMHighResTimeStamp => performance.now()
 
 const now = (): number => {
 	return _nowFunc()
 }
 
-export function setNow(nowFunction: Function) {
+export function setNow(nowFunction: () => number) {
 	_nowFunc = nowFunction
 }
 
