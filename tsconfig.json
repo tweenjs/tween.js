@@ -2,9 +2,9 @@
 	"compilerOptions": {
 		"strict": true,
 		"module": "preserve",
-		"target": "es2020",
+		"target": "es2022",
 		"moduleResolution": "bundler",
-		"lib": ["dom", "es2020"],
+		"lib": ["dom", "es2022"],
 		"types": ["bun"],
 		"noEmit": true
 	},
