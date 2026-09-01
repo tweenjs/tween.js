@@ -23,8 +23,8 @@
 				.to({x: 400}, 2000)
 				.easing(TWEEN.Easing.Elastic.InOut)
 				.onUpdate((object) => {
-					output.innerHTML = 'x == ' + Math.round(object.x)
-					const transform = 'translateX(' + object.x + 'px)'
+					output.innerHTML = `x == ${Math.round(object.x)}`
+					const transform = `translateX(${object.x}px)`
 					output.style.webkitTransform = transform
 					output.style.transform = transform
 				})

@@ -12,8 +12,8 @@
 			<p>Tween#stopChainedTweens</p>
 		</div>
 		<div style="position: absolute; top: 250px; left: 50px">
-			<button id="start">Start</button>
-			<button id="stop">Stop</button>
+			<button type="button" id="start">Start</button>
+			<button type="button" id="stop">Stop</button>
 			<div id="target1" data-rotation="0" data-y="0" class="box" style="left: 0px; top: 50px">Box One</div>
 			<div id="target2" data-rotation="0" data-y="0" class="box" style="left: 0px; top: 200px">Box Two</div>
 		</div>
@@ -45,11 +45,11 @@
 						.delay(100)
 						.easing(TWEEN.Easing.Elastic.InOut)
 						.onUpdate(() => {
-							a.style.left = p0.x + 'px'
+							a.style.left = `${p0.x}px`
 						})
 						.onComplete(() => {
 							p0.x = 0
-							a.style.left = p0.x + 'px'
+							a.style.left = `${p0.x}px`
 						})
 
 					t1 = new TWEEN.Tween(p1, group)
@@ -57,11 +57,11 @@
 						.delay(100)
 						.easing(TWEEN.Easing.Elastic.InOut)
 						.onUpdate(() => {
-							b.style.left = p1.x + 'px'
+							b.style.left = `${p1.x}px`
 						})
 						.onComplete(() => {
 							p1.x = 0
-							b.style.left = p1.x + 'px'
+							b.style.left = `${p1.x}px`
 						})
 
 					t0.chain(t1)

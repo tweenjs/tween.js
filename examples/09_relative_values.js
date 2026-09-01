@@ -1,4 +1,4 @@
-import {Tween, Group, Easing} from '@tweenjs/tween.js'
+import {Tween, Easing} from '@tweenjs/tween.js'
 
 const target1 = document.getElementById('target1')
 const tween = new Tween(target1.dataset)
@@ -24,6 +24,6 @@ function animate(time) {
 
 function updateBox(box, params) {
 	const s = box.style
-	const transform = 'translate(' + params.left + 'px, ' + params.top + 'px)'
+	const transform = `translate(${params.left}px, ${params.top}px)`
 	s.transform = transform
 }

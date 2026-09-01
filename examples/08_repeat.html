@@ -67,7 +67,7 @@
 
 			function updateBox(box, params) {
 				const s = box.style,
-					transform = 'rotate(' + Math.floor(params.rotation) + 'deg)'
+					transform = `rotate(${Math.floor(params.rotation)}deg)`
 				s.webkitTransform = transform
 				s.mozTransform = transform
 				s.transform = transform

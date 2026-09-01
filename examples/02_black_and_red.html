@@ -16,7 +16,7 @@
 
 		<style>
 			body {
-				font-family: Arial, Helvetica, sans;
+				font-family: Arial, Helvetica, sans-serif;
 			}
 			table {
 				border-collapse: collapse;
@@ -51,7 +51,7 @@
 				for (let j = 0; j < 64; j++) {
 					const td = tr.insertCell(-1)
 					td.style.background = '#000'
-					const x = (i + j) * 0.1
+					const _x = (i + j) * 0.1
 					const cell = {td: td, value: 0}
 					const tween = new TWEEN.Tween(cell)
 						.to({value: 1}, 8000)
@@ -59,7 +59,7 @@
 						.easing(TWEEN.Easing.Elastic.InOut)
 						.onUpdate((object) => {
 							const c = Math.floor(object.value * 0xff)
-							object.td.style.background = 'rgb(' + c + ', 0, 0)'
+							object.td.style.background = `rgb(${c}, 0, 0)`
 						})
 
 					const tweenBack = new TWEEN.Tween(cell)
@@ -68,7 +68,7 @@
 						.easing(TWEEN.Easing.Elastic.InOut)
 						.onUpdate((object) => {
 							const c = Math.floor(object.value * 0xff)
-							object.td.style.background = 'rgb(' + c + ', 0, 0)'
+							object.td.style.background = `rgb(${c}, 0, 0)`
 						})
 
 					tween.chain(tweenBack)

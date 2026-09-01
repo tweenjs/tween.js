@@ -1,16 +1,18 @@
-<!-- shows what happens when we call tween.end() -->
-
+<!doctype html>
+<html lang="en">
+	<head>
+		<title>End tween</title>
 <style>
 	#box {
 		background-color: deeppink;
 		width: 100px;
 		height: 100px;
 	}
-</style>
+</style></head><body>
 
 <div id="box"></div>
 
-<button id="end">tween.end()</button>
+<button type="button" id="end">tween.end()</button>
 
 <script type="module">
 	import {Tween, Easing} from '../dist/tween.esm.js'
@@ -25,7 +27,7 @@
 		.onUpdate(() => {
 			// Called after tween.js updates 'coords'.
 			// Move 'box' to the position described by 'coords' with a CSS translation.
-			box.style.setProperty('transform', 'translate(' + coords.x + 'px, ' + coords.y + 'px)')
+			box.style.setProperty('transform', `translate(${coords.x}px, ${coords.y}px)`)
 
 			//
 			console.log(coords, tween.isPlaying())
@@ -49,3 +51,5 @@
 		console.log(tween)
 	})
 </script>
+</body>
+</html>

@@ -33,12 +33,12 @@ export function createPath(group, text, interpolation, width = 240, height = 160
 	const div = document.createElement('div')
 	div.style.display = 'inline-block'
 	// +20 for padding
-	div.style.width = width + 20 + 'px'
-	div.style.height = height + 20 + 'px'
+	div.style.width = `${width + 20}px`
+	div.style.height = `${height + 20}px`
 
 	const canvas = document.createElement('canvas')
-	canvas.style.width = width + 'px'
-	canvas.style.height = height + 'px'
+	canvas.style.width = `${width}px`
+	canvas.style.height = `${height}px`
 	canvas.width = toPhysicalPx(width)
 	canvas.height = toPhysicalPx(height)
 

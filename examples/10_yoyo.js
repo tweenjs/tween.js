@@ -52,40 +52,52 @@ const tween4 = new Tween(target4.dataset, group)
 
 // TODO perhaps add these methods to Group
 
-const restart = (window.restart = () => {
+const restart = () => {
 	tween1.stop().start()
 	tween2.stop().start()
 	tween3.stop().start()
 	tween4.stop().start()
-})
+}
 
-const stop = (window.stop = () => {
+const stop = () => {
 	tween1.stop()
 	tween2.stop()
 	tween3.stop()
 	tween4.stop()
-})
+}
 
-const start = (window.start = () => {
+const start = () => {
 	tween1.start()
 	tween2.start()
 	tween3.start()
 	tween4.start()
-})
+}
 
-const pause = (window.pause = () => {
+const pause = () => {
 	tween1.pause()
 	tween2.pause()
 	tween3.pause()
 	tween4.pause()
-})
+}
 
-const resume = (window.resume = () => {
+const resume = () => {
 	tween1.resume()
 	tween2.resume()
 	tween3.resume()
 	tween4.resume()
-})
+}
+
+// Expose to global
+Object.assign(
+	window,
+	Object.freeze({
+		restart,
+		stop,
+		start,
+		pause,
+		resume,
+	}),
+)
 
 function animate(time) {
 	requestAnimationFrame(animate)
@@ -95,7 +107,7 @@ function animate(time) {
 
 function updateBox(box, params) {
 	const s = box.style,
-		transform = 'translateY(' + Math.round(params.y) + 'px) rotate(' + Math.floor(params.rotation) + 'deg)'
+		transform = `translateY(${Math.round(params.y)}px) rotate(${Math.floor(params.rotation)}deg)`
 	s.webkitTransform = transform
 	s.mozTransform = transform
 	s.transform = transform

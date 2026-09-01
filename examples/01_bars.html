@@ -36,15 +36,15 @@
 				const bg = (Math.random() * 0xffffff) >> 0
 				domElement.style.position = 'absolute'
 				const y = Math.random() * window.innerHeight
-				domElement.style.translate = startValue + 'px ' + y + 'px'
-				domElement.style.background = '#' + bg.toString(16)
+				domElement.style.translate = `${startValue}px ${y}px`
+				domElement.style.background = `#${bg.toString(16)}`
 				domElement.style.width = '100px'
 				domElement.style.height = '2px'
 
 				const elem = {x: startValue, domElement: domElement, y}
 
 				const updateCallback = (object) => {
-					object.domElement.style.translate = object.x + 'px ' + object.y + 'px'
+					object.domElement.style.translate = `${object.x}px ${object.y}px`
 				}
 
 				const tween = new TWEEN.Tween(elem)

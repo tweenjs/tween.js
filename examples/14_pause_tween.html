@@ -68,8 +68,8 @@
 			}
 
 			function update1() {
-				fill.style.width = progress.width + '%'
-				fill.innerHTML = Math.floor(progress.width) + '%'
+				fill.style.width = `${progress.width}%`
+				fill.innerHTML = `${Math.floor(progress.width)}%`
 			}
 
 			window.pause = () => {

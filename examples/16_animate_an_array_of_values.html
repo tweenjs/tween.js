@@ -28,8 +28,8 @@
 				.easing(TWEEN.Easing.Cubic.InOut)
 				.onUpdate((rotations) => {
 					for (let i = 0; i < rotations.length; i++)
-						document.getElementById('target' + i).style.transform =
-							'rotate' + axes[i] + '(' + Math.floor(rotations[i]) + 'deg)'
+						document.getElementById(`target${i}`).style.transform =
+							`rotate${axes[i]}(${Math.floor(rotations[i])}deg)`
 				})
 				.start()
 

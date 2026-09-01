@@ -47,7 +47,7 @@
 
 				for (let i = 0; i < 4; i++) {
 					const numSteps = (i + 1) * 4
-					target.appendChild(createGraph(group, numSteps + ' steps', createStepFunction(numSteps)))
+					target.appendChild(createGraph(group, `${numSteps} steps`, createStepFunction(numSteps)))
 				}
 
 				target.appendChild(document.createElement('br'))
