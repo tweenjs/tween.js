@@ -38,15 +38,13 @@ for (const {entry, outfile, minfile, format, target} of bundles) {
 		target,
 		banner,
 	})
-	const result_min =
-		minfile &&
-		(await Bun.build({
-			entrypoints: [entry],
-			format,
-			target,
-			banner,
-			minify: true,
-		}))
+	const result_min = await Bun.build({
+		entrypoints: [entry],
+		format,
+		target,
+		banner,
+		minify: true,
+	})
 
 	if (!result.success) {
 		console.error(`Failed to bundle ${outfile}:`)
