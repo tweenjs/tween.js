@@ -7,15 +7,15 @@
  * Thank you all, you're awesome!
  */
 
-import Easing from './Easing'
-import Interpolation from './Interpolation'
-import {mainGroup} from './mainGroup'
-import Sequence from './Sequence'
-import now from './Now'
+import Easing from './Easing.js'
+import Interpolation from './Interpolation.js'
+import {mainGroup} from './mainGroup.js'
+import Sequence from './Sequence.js'
+import now from './Now.js'
 
-import type {EasingFunction} from './Easing'
-import type {InterpolationFunction} from './Interpolation'
-import type Group from './Group'
+import type {EasingFunction} from './Easing.js'
+import type {InterpolationFunction} from './Interpolation.js'
+import type Group from './Group.js'
 
 export class Tween<T extends UnknownProps = any> {
 	static autoStartOnUpdate = false

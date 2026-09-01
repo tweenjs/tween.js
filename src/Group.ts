@@ -1,5 +1,5 @@
-import now from './Now'
-import type {Tween} from './Tween'
+import now from './Now.js'
+import type {Tween} from './Tween.js'
 
 /**
  * Controlling groups of tweens

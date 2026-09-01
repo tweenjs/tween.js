@@ -7,14 +7,14 @@
  * Thank you all, you're awesome!
  */
 
-import Easing from './Easing'
-import Group from './Group'
-import Interpolation from './Interpolation'
-import now, {setNow} from './Now'
-import Sequence from './Sequence'
-import Tween from './Tween'
-import VERSION from './Version'
-import {mainGroup} from './mainGroup'
+import Easing from './Easing.js'
+import Group from './Group.js'
+import Interpolation from './Interpolation.js'
+import now, {setNow} from './Now.js'
+import Sequence from './Sequence.js'
+import Tween from './Tween.js'
+import VERSION from './Version.js'
+import {mainGroup} from './mainGroup.js'
 
 const nextId = Sequence.nextId
 
