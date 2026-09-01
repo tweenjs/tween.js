@@ -8,12 +8,14 @@ const bundles = [
 	{
 		entry: 'src/Index.ts',
 		outfile: 'dist/tween.esm.js',
+		minfile: false,
 		format: 'esm',
 		target: 'node',
 	},
 	{
 		entry: 'src/Index.ts',
 		outfile: 'dist/tween.cjs',
+		minfile: false,
 		format: 'cjs',
 		target: 'node',
 	},
