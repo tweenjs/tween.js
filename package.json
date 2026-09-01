@@ -5,16 +5,16 @@
 	"version": "25.0.1",
 	"type": "module",
 	"main": "dist/tween.esm.js",
-	"browser": "dist/tween.browser.js",
-	"commonjs": "dist/tween.cjs",
-	"types": "dist/tween.d.ts",
 	"module": "dist/tween.esm.js",
+	"browser": "dist/tween.umd.js",
+	"jsdelivr": "dist/tween.umd.min.js",
+	"unpkg": "dist/tween.umd.min.js",
+	"types": "dist/tween.d.ts",
 	"exports": {
 		".": {
+			"types": "./dist/tween.d.ts",
 			"import": "./dist/tween.esm.js",
-			"browser": "./dist/tween.browser.js",
-			"require": "./dist/tween.cjs",
-			"types": "./dist/tween.d.ts"
+			"require": "./dist/tween.cjs"
 		}
 	},
 	"engines": {

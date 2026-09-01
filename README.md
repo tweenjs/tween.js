@@ -180,12 +180,13 @@ bun install
 bun run build
 ```
 
-This will create some builds in the `dist` directory. There are currently two different builds of the library:
+This will create some builds in the `dist` directory. There are currently three different builds of the library:
 
 - ES6 Module in `/dist/tween.esm.js` (recommended)
-- UMD in `/dist/tween.umd.js` (deprecated, will be removed in a future major version)
+- UMD in `/dist/tween.umd.js`, minified as `/dist/tween.umd.min.js` (deprecated, will be removed in a future major version)
+- CommonJS in `/dist/tween.cjs` (deprecated, will be removed in a future major version)
 
-You are now able to copy one of those two files into your project, and use like this (recommended):
+You are now able to copy one of those files into your project, and use like this (recommended):
 
 ```html
 <script type="module">

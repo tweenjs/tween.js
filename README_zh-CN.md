@@ -84,10 +84,11 @@ bun install
 bun run build
 ```
 
-这将在 `dist` 目录中创建一些构建。 目前有两种不同的库版本：
+这将在 `dist` 目录中创建一些构建。 目前有三种不同的库版本：
 
-- UMD : `tween.umd.js`
 - ES6 Module : `tween.esm.js`
+- UMD : `tween.umd.js`（压缩版为 `tween.umd.min.js`）
+- CommonJS : `tween.cjs`
 
 你现在可以将 tween.umd.js 复制到你的项目中，然后将其包含在一个 script 标签，它将 TWEEN 添加到全局范围，
 

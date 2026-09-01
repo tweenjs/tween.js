@@ -2,8 +2,7 @@ import {rm} from 'node:fs/promises'
 
 // The published bundles target the last few browser releases and Node.js 22+,
 // so nothing needs downlevelling and Bun can bundle the TypeScript sources
-// directly. `bun run build:types` writes the declarations into dist/types
-// afterwards.
+// directly. tsc then writes the declarations into dist/types afterwards.
 const bundles = [
 	{
 		entry: 'src/Index.ts',
@@ -21,8 +20,8 @@ const bundles = [
 	},
 	{
 		entry: 'src/global.ts',
-		outfile: 'dist/tween.browser.js',
-		minfile: `dist/tween.browser.min.js`,
+		outfile: 'dist/tween.umd.js',
+		minfile: `dist/tween.umd.min.js`,
 		format: 'iife',
 		target: 'browser',
 	},
@@ -72,8 +71,9 @@ const tscExitCode = await tsc.exited
 if (tscExitCode !== 0) process.exit(tscExitCode)
 
 // tsc emits one declaration per module, so dist/tween.d.ts re-exports the entry
-// point to keep the published `types` path unchanged.
+// point to keep the published `types` path unchanged. The `.js` extensions are
+// required for consumers on `moduleResolution: node16`/`nodenext`.
 await Bun.write(
 	'dist/tween.d.ts',
-	[`export * from './types/Index'`, `export {default} from './types/Index'`, ''].join('\n'),
+	[`export * from './types/Index.js'`, `export {default} from './types/Index.js'`, ''].join('\n'),
 )
