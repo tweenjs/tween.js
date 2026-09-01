@@ -8,14 +8,12 @@ const bundles = [
 	{
 		entry: 'src/Index.ts',
 		outfile: 'dist/tween.esm.js',
-		minfile: `dist/tween.esm.min.js`,
 		format: 'esm',
 		target: 'node',
 	},
 	{
 		entry: 'src/Index.ts',
 		outfile: 'dist/tween.cjs',
-		minfile: `dist/tween.min.cjs`,
 		format: 'cjs',
 		target: 'node',
 	},
@@ -38,27 +36,31 @@ for (const {entry, outfile, minfile, format, target} of bundles) {
 		target,
 		banner,
 	})
-	const result_min = await Bun.build({
-		entrypoints: [entry],
-		format,
-		target,
-		banner,
-		minify: true,
-	})
+	const result_min =
+		minfile &&
+		(await Bun.build({
+			entrypoints: [entry],
+			format,
+			target,
+			banner,
+			minify: true,
+		}))
 
 	if (!result.success) {
 		console.error(`Failed to bundle ${outfile}:`)
 		for (const message of result.logs) console.error(message)
 		process.exit(1)
 	}
-	if (!result_min.success) {
+	if (minfile && !result_min.success) {
 		console.error(`Failed to minify ${minfile}:`)
 		for (const message of result_min.logs) console.error(message)
 		process.exit(1)
 	}
 
 	await Bun.write(outfile, result.outputs[0])
-	await Bun.write(minfile, result_min.outputs[0])
+	if (minfile) {
+		await Bun.write(minfile, result_min.outputs[0])
+	}
 }
 
 const tsc = Bun.spawn(['bunx', 'tsc', '--project', 'tsconfig.build.json'], {
