@@ -22,7 +22,18 @@
 		"expand": "auto",
 		"useEditorconfig": true
 	},
-	"linter": { "enabled": true, "rules": { "preset": "recommended" } },
+	"linter": {
+		"enabled": true,
+		"rules": {
+			"preset": "recommended",
+			"a11y": {
+				"useMediaCaption": "info"
+			},
+			"suspicious": {
+				"noAssignInExpressions": "warn"
+			}
+		}
+	},
 	"javascript": {
 		"formatter": {
 			"jsxQuoteStyle": "double",
@@ -40,6 +51,9 @@
 		"formatter": {
 			"indentScriptAndStyle": false,
 			"selfCloseVoidElements": "always"
+		},
+		"linter": {
+			"enabled": true
 		}
 	},
 	"assist": {
