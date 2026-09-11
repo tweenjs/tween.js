@@ -4,6 +4,8 @@
 		<title>Tween.js / timeline</title>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 		<link href="css/style.css" media="screen" rel="stylesheet" type="text/css" />
+		<!-- UMD build (not a module) so this page also works via file:// -->
+		<script src="../dist/tween.umd.js"></script>
 	</head>
 	<body>
 		<div id="info">
@@ -12,52 +14,69 @@
 			<p>Sequencing with Timeline: sequential by default, parallel via offsets and labels.</p>
 		</div>
 		<div style="position: absolute; top: 100px; left: 400px">
-			<div id="target1" data-x="0" class="box">sequential</div>
-			<div id="target2" data-x="0" class="box">parallel</div>
-			<div id="target3" data-x="0" class="box">labels + yoyo</div>
+			<div id="target1" data-x="0" data-rotation="0" class="box">sequential</div>
+			<div id="target2" data-x="0" data-rotation="0" class="box">parallel</div>
+			<div id="target3" data-x="0" data-rotation="0" class="box">labels + yoyo</div>
 		</div>
 
-		<script type="module">
-			import {Tween, Timeline, Easing} from '../dist/tween.esm.js'
+		<script>
+			if (!window.TWEEN || typeof TWEEN.Timeline !== 'function') {
+				document.getElementById('info').innerHTML +=
+					'<p style="color:red">TWEEN.Timeline not found in ../dist/. Run `npm run build` first, then reload.</p>'
+				throw new Error('TWEEN.Timeline missing: rebuild dist with `npm run build`')
+			}
 
-			const timelines = []
+			var Tween = TWEEN.Tween
+			var Timeline = TWEEN.Timeline
+			var Easing = TWEEN.Easing
+
+			var timelines = []
 
 			init()
 			animate()
 
 			function init() {
 				// 1. Sequential: add() appends after the last child (replaces chain).
-				const target1 = document.getElementById('target1')
-				const seq = new Timeline()
+				var target1 = document.getElementById('target1')
+				var seq = new Timeline()
 					.add(new Tween(target1.dataset).to({x: 200}, 800).easing(Easing.Quadratic.InOut))
 					.add(new Tween(target1.dataset).to({x: 0}, 800).easing(Easing.Quadratic.InOut))
 					.repeat(Infinity)
-					.onUpdate(() => updateBox(target1, target1.dataset))
+					.onUpdate(function () {
+						updateBox(target1, target1.dataset)
+					})
 				seq.start()
 				timelines.push(seq)
 
-				// 2. Parallel: explicit offset 0 starts children together.
-				const target2 = document.getElementById('target2')
-				const par = new Timeline()
+				// 2. Parallel: explicit offset 0 starts children together
+				// (two tweens, two different properties of the same box).
+				var target2 = document.getElementById('target2')
+				var par = new Timeline()
 					.add(new Tween(target2.dataset).to({x: 200}, 1000).easing(Easing.Sinusoidal.InOut), 0)
-					.add(new Tween({dummy: 0}).to({dummy: 1}, 1000), 0)
-					.onUpdate(() => updateBox(target2, target2.dataset))
-				par.repeat(Infinity).yoyo(true)
+					.add(new Tween(target2.dataset).to({rotation: 360}, 1000).easing(Easing.Sinusoidal.InOut), 0)
+					.repeat(Infinity)
+					.yoyo(true)
+					.onUpdate(function () {
+						updateBox(target2, target2.dataset)
+					})
 				par.start()
 				timelines.push(par)
 
 				// 3. Labels and nesting: an inner timeline inside an outer one.
-				const target3 = document.getElementById('target3')
-				const inner = new Timeline()
-					.add(new Tween(target3.dataset).to({x: 200}, 600), 0)
-					.addLabel('mid', 300)
-					.add(new Tween(target3.dataset).to({x: 0}, 600), 'mid+=150')
+				// The spin starts 200ms after the 'moved' label, leaving a gap.
+				var target3 = document.getElementById('target3')
+				var inner = new Timeline()
+					.add(new Tween(target3.dataset).to({x: 200}, 600).easing(Easing.Quadratic.Out), 0)
+					.addLabel('moved', 600)
+					.add(new Tween(target3.dataset).to({rotation: 180}, 600).easing(Easing.Quadratic.InOut), 'moved+=200')
 
-				const outer = new Timeline()
+				var outer = new Timeline()
 					.add(inner, 0)
 					.repeat(Infinity)
 					.yoyo(true)
-					.onUpdate(() => updateBox(target3, target3.dataset))
+					.onUpdate(function () {
+						updateBox(target3, target3.dataset)
+					})
 				outer.start()
 				timelines.push(outer)
 			}
@@ -65,12 +84,12 @@
 			function animate(time) {
 				requestAnimationFrame(animate)
 
-				for (const tl of timelines) tl.update(time)
+				for (var i = 0; i < timelines.length; i++) timelines[i].update(time)
 			}
 
 			function updateBox(box, params) {
-				const s = box.style,
-					transform = 'translateX(' + Math.floor(params.x) + 'px)'
+				var s = box.style,
+					transform = 'translateX(' + Math.floor(params.x) + 'px) rotate(' + Math.floor(params.rotation) + 'deg)'
 				s.webkitTransform = transform
 				s.mozTransform = transform
 				s.transform = transform
