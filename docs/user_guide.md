@@ -320,6 +320,47 @@ Remove all tween from a group.
 Update all tweens in a group, with an optional time value. If time value is not
 supplied, it default to the current time.
 
+## Timeline (sequencing and overlapping)
+
+A `Group` updates many tweens at once, but it has no notion of order: every
+tween keeps its own start time. When you need tweens to play in sequence, to
+overlap with precise offsets, or to repeat as a whole, use a `Timeline`
+instead of `.chain()`:
+
+```js
+import {Timeline, Tween} from '@tweenjs/tween.js'
+
+// Sequential by default: `add()` appends after the last child.
+const timeline = new Timeline().add(new Tween(obj1).to({x: 100}, 1000)).add(new Tween(obj2).to({y: 100}, 1000))
+
+timeline.start()
+
+function animate(time) {
+	requestAnimationFrame(animate)
+	timeline.update(time)
+}
+```
+
+Pass an explicit offset for parallel or staggered playback:
+
+```js
+const timeline = new Timeline()
+	.add(tweenA, 0) // start at 0ms
+	.add(tweenB, 0) // in parallel with tweenA
+	.add(tweenC, 500) // start at 500ms
+```
+
+Positions also accept labels: `'myLabel'`, `'myLabel+=100'`, `'<'` (start of
+the last child), `'>'` (end), `'+=100'` (relative to the end). Custom labels
+are added with `timeline.addLabel('intro', 300)`. Timelines can be nested
+inside other timelines, and have their own `delay`, `repeat`, `repeatDelay`,
+`yoyo`, `pause`/`resume`, `stop`, and `onStart`/`onEveryStart`/`onUpdate`/
+`onRepeat`/`onComplete`/`onStop` callbacks, mirroring `Tween`. A `Timeline`
+can also be added to a `Group` (`group.add(timeline)`) — just don't add its
+children to a `Group` as well, or they would be updated twice.
+
+Check [Timeline](../examples/20_timeline.html) for a working example.
+
 ## Changing the easing function (AKA make it bouncy)
 
 Tween.js will perform the interpolation between values (i.e. the easing) in a linear manner, so the change will be directly proportional to the elapsed time. This is predictable but also quite uninteresting visually wise. Worry not--this behaviour can be easily changed using the `easing` method. For example:
