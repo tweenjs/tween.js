@@ -25,6 +25,12 @@ export type TimelinePosition = number | string
 type TimelineEntry = {
 	node: TimelineChild
 	offset: number
+	// Whether the child was ever started. Only the first start captures
+	// start values, so it must happen exactly when the playhead reaches the
+	// child (lazy start: sequential same-property tweens then chain
+	// correctly). Later re-starts never re-capture, so they may happen
+	// eagerly, e.g. when scrubbing back before the child's offset.
+	started: boolean
 }
 
 export class Timeline {
@@ -197,13 +203,10 @@ export class Timeline {
 		if (existing) {
 			existing.offset = offset
 		} else {
-			this._entries.push({node, offset})
-			// If timeline is already playing, new child joins immediately.
-			if (this._isPlaying && !this._isPaused) {
-				if (node.isPlaying()) node.stop()
-				node.start(offset)
-			}
+			this._entries.push({node, offset, started: false})
 		}
+		// Children start lazily when the playhead reaches them (see update),
+		// so start values are captured at the right moment.
 		this._recalculateDuration()
 		return this
 	}
@@ -312,7 +315,6 @@ export class Timeline {
 
 		for (const entry of this._entries) {
 			if (entry.node.isPlaying()) entry.node.stop()
-			entry.node.start(entry.offset)
 		}
 
 		return this
@@ -375,19 +377,36 @@ export class Timeline {
 
 		const timelineLocal = time - this._startTime
 
-		// Infinite timelines never complete; just drive children.
-		if (!isFinite(this._duration)) {
-			const effective = this._reversed ? 0 : timelineLocal
-			for (const entry of this._entries) entry.node.update(effective)
-			const elapsed = 0
-			if (this._onUpdateCallback) this._onUpdateCallback(this, elapsed)
-			return true
+		const effectiveLocal = !isFinite(this._duration)
+			? timelineLocal
+			: this._reversed
+				? this._duration - Math.min(timelineLocal, this._duration)
+				: Math.min(timelineLocal, this._duration)
+
+		for (const entry of this._entries) {
+			const child = entry.node
+			if (!entry.started) {
+				// First start must wait until due; a never-started child left
+				// behind stays untouched. (Later re-starts are harmless and
+				// handled below, since Tween keeps its captured setup.)
+				if (effectiveLocal < entry.offset) continue
+				child.start(entry.offset)
+				entry.started = true
+			} else if (!child.isPlaying() && effectiveLocal < entry.offset + child.getTotalDuration()) {
+				// Re-enter when the playhead is inside (or scrubbed back
+				// before) the child's range: yoyo reverse, scrubbing, or a
+				// fresh iteration after repeat.
+				child.start(entry.offset)
+			}
+			// Clamp the lower end so reversed/scrubbed playheads snap the
+			// child to its start value instead of freezing on stale values.
+			child.update(effectiveLocal < entry.offset ? entry.offset : effectiveLocal)
 		}
 
-		const clampedLocal = Math.min(timelineLocal, this._duration)
-		const effectiveLocal = this._reversed ? this._duration - clampedLocal : clampedLocal
-
-		for (const entry of this._entries) entry.node.update(effectiveLocal)
+		if (!isFinite(this._duration)) {
+			if (this._onUpdateCallback) this._onUpdateCallback(this, 0)
+			return true
+		}
 
 		const elapsed = this._duration === 0 ? 1 : effectiveLocal / this._duration
 		if (this._onUpdateCallback) this._onUpdateCallback(this, elapsed)
@@ -409,10 +428,10 @@ export class Timeline {
 					if (completeCount % 2 === 1) this._reversed = !this._reversed
 				}
 
-				// Restart children for the next iteration.
+				// Stop running children for the next iteration; each restarts
+				// lazily (or via re-enter) when the playhead reaches it.
 				for (const entry of this._entries) {
 					if (entry.node.isPlaying()) entry.node.stop()
-					entry.node.start(entry.offset)
 				}
 
 				if (this._onRepeatCallback) this._onRepeatCallback(this)
