@@ -3213,6 +3213,85 @@ export const tests = {
 		test.equal(tl.stop(), tl)
 		test.done()
 	},
+
+	'Timeline sequential same-property tweens chain end-to-start values'(test: Test): void {
+		const obj = {x: 0}
+		const t1 = new TWEEN.Tween(obj).to({x: 100}, 1000)
+		const t2 = new TWEEN.Tween(obj).to({x: 0}, 1000)
+		const tl = new TWEEN.Timeline().add(t1).add(t2)
+
+		tl.start(0)
+		tl.update(0)
+		test.equal(obj.x, 0)
+
+		tl.update(500)
+		test.equal(obj.x, 50)
+
+		// Handoff: second tween must start from the first tween's end value.
+		tl.update(1000)
+		test.equal(obj.x, 100)
+
+		tl.update(1500)
+		test.equal(obj.x, 50)
+
+		test.equal(tl.update(2000), false)
+		test.equal(obj.x, 0)
+
+		test.done()
+	},
+
+	'Timeline scrubbing back to start restores start values'(test: Test): void {
+		const obj = {x: 0, y: 0, size: 100}
+		const tl = new TWEEN.Timeline()
+			.add(new TWEEN.Tween(obj).to({x: 100}, 500))
+			.add(new TWEEN.Tween(obj).to({y: 100}, 500))
+			.add(new TWEEN.Tween(obj).to({size: 200}, 500))
+
+		const scrub = (v: number): void => {
+			if (!tl.isPlaying()) tl.start(0)
+			tl.update(v)
+		}
+
+		scrub(1500)
+		test.equal(obj.x, 100)
+		test.equal(obj.y, 100)
+		test.equal(obj.size, 200)
+		test.ok(!tl.isPlaying())
+
+		// Scrub back to zero: every child must show its start value again.
+		scrub(0)
+		test.equal(obj.x, 0)
+		test.equal(obj.y, 0)
+		test.equal(obj.size, 100)
+
+		// And forward again still works after scrubbing back.
+		scrub(750)
+		test.equal(obj.x, 100)
+		test.equal(obj.y, 50)
+		test.equal(obj.size, 100)
+
+		test.done()
+	},
+
+	'Timeline yoyo reverse returns children to start values'(test: Test): void {
+		const obj = {x: 0, y: 0}
+		const inner = new TWEEN.Timeline()
+			.add(new TWEEN.Tween(obj).to({x: 200}, 600), 0)
+			.add(new TWEEN.Tween(obj).to({y: 180}, 600), 800)
+		const outer = new TWEEN.Timeline().add(inner, 0).repeat(1).yoyo(true)
+
+		outer.start(0)
+		for (let t = 0; t <= 1400; t += 20) outer.update(t)
+		test.equal(obj.x, 200)
+		test.equal(obj.y, 180)
+
+		for (let t = 1420; t <= 2800; t += 20) outer.update(t)
+		test.equal(obj.x, 0)
+		test.equal(obj.y, 0)
+		test.ok(!outer.isPlaying())
+
+		test.done()
+	},
 }
 
 type Test = {
