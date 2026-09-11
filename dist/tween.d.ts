@@ -304,7 +304,7 @@ declare class Sequence {
     static nextId(): number;
 }
 
-declare const VERSION = "25.0.0";
+declare const VERSION = "26.0.0";
 
 declare const nextId: typeof Sequence.nextId;
 /**

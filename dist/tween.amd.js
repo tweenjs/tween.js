@@ -1336,7 +1336,7 @@ define(['exports'], (function (exports) { 'use strict';
         return Timeline;
     }());
 
-    var VERSION = '25.0.0';
+    var VERSION = '26.0.0';
 
     /**
      * Tween.js - Licensed under the MIT license
