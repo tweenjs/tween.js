@@ -2808,6 +2808,413 @@ export const tests = {
 
 		test.done()
 	},
+
+	// Timeline tests
+
+	'Timeline is sequential by default (replaces chain)'(test: Test): void {
+		const obj1 = {x: 0}
+		const obj2 = {y: 0}
+		const t1 = new TWEEN.Tween(obj1).to({x: 100}, 1000)
+		const t2 = new TWEEN.Tween(obj2).to({y: 100}, 1000)
+		const tl = new TWEEN.Timeline().add(t1).add(t2)
+
+		test.equal(tl.getDuration(), 2000)
+
+		tl.start(0)
+		tl.update(0)
+		test.equal(obj1.x, 0)
+		test.equal(obj2.y, 0)
+
+		tl.update(500)
+		test.equal(obj1.x, 50)
+		test.equal(obj2.y, 0)
+
+		tl.update(1000)
+		test.equal(obj1.x, 100)
+		test.equal(obj2.y, 0)
+
+		tl.update(1500)
+		test.equal(obj1.x, 100)
+		test.equal(obj2.y, 50)
+
+		const stillPlaying = tl.update(2000)
+		test.equal(obj1.x, 100)
+		test.equal(obj2.y, 100)
+		test.equal(stillPlaying, false)
+		test.ok(!tl.isPlaying())
+
+		test.done()
+	},
+
+	'Timeline parallel via explicit offset 0'(test: Test): void {
+		const obj1 = {x: 0}
+		const obj2 = {y: 0}
+		const t1 = new TWEEN.Tween(obj1).to({x: 100}, 1000)
+		const t2 = new TWEEN.Tween(obj2).to({y: 100}, 1000)
+		const tl = new TWEEN.Timeline().add(t1, 0).add(t2, 0)
+
+		test.equal(tl.getDuration(), 1000)
+
+		tl.start(0)
+		tl.update(500)
+		test.equal(obj1.x, 50)
+		test.equal(obj2.y, 50)
+
+		tl.update(1000)
+		test.equal(obj1.x, 100)
+		test.equal(obj2.y, 100)
+
+		test.done()
+	},
+
+	'Timeline with staggered offsets'(test: Test): void {
+		const obj1 = {x: 0}
+		const obj2 = {y: 0}
+		const t1 = new TWEEN.Tween(obj1).to({x: 100}, 1000)
+		const t2 = new TWEEN.Tween(obj2).to({y: 100}, 1000)
+		const tl = new TWEEN.Timeline().add(t1, 0).add(t2, 500)
+
+		test.equal(tl.getDuration(), 1500)
+
+		tl.start(0)
+		tl.update(250)
+		test.equal(obj1.x, 25)
+		test.equal(obj2.y, 0)
+
+		tl.update(750)
+		test.equal(obj1.x, 75)
+		test.equal(obj2.y, 25)
+
+		tl.update(1500)
+		test.equal(obj1.x, 100)
+		test.equal(obj2.y, 100)
+
+		test.done()
+	},
+
+	'Timeline supports labels and relative positions'(test: Test): void {
+		const obj = {x: 0}
+		const t1 = new TWEEN.Tween(obj).to({x: 100}, 1000)
+		const tl = new TWEEN.Timeline().add(t1, 0)
+		tl.addLabel('mid', 500)
+		test.equal(tl.getLabel('mid'), 500)
+
+		const obj2 = {y: 0}
+		const t2 = new TWEEN.Tween(obj2).to({y: 100}, 500)
+		tl.add(t2, 'mid')
+		test.equal(tl.getDuration(), 1000)
+
+		const obj3 = {z: 0}
+		const t3 = new TWEEN.Tween(obj3).to({z: 100}, 200)
+		tl.add(t3, 'mid+=100')
+		// max is still 1000 from first tween
+		test.equal(tl.getDuration(), 1000)
+
+		tl.start(0)
+		tl.update(600)
+		test.equal(obj.x, 60)
+		test.equal(obj2.y, 20)
+		test.equal(obj3.z, 0)
+
+		tl.update(800)
+		test.equal(obj3.z, 100)
+
+		// '<' means start of last added, '>' means end
+		const tl2 = new TWEEN.Timeline()
+		const a = new TWEEN.Tween({x: 0}).to({x: 1}, 400)
+		const b = new TWEEN.Tween({x: 0}).to({x: 1}, 400)
+		tl2.add(a, 100)
+		tl2.add(b, '<')
+		test.equal(tl2.getDuration(), 500)
+
+		tl.removeLabel('mid')
+		test.equal(tl.getLabel('mid'), undefined)
+
+		test.done()
+	},
+
+	'Timeline add array sequentially by default, parallel with explicit offset'(test: Test): void {
+		const o1 = {x: 0}
+		const o2 = {x: 0}
+		const a = new TWEEN.Tween(o1).to({x: 100}, 500)
+		const b = new TWEEN.Tween(o2).to({x: 100}, 500)
+
+		const seq = new TWEEN.Timeline().add([a, b])
+		test.equal(seq.getDuration(), 1000)
+
+		const o3 = {x: 0}
+		const o4 = {x: 0}
+		const c = new TWEEN.Tween(o3).to({x: 100}, 500)
+		const d = new TWEEN.Tween(o4).to({x: 100}, 500)
+		const par = new TWEEN.Timeline().add([c, d], 0)
+		test.equal(par.getDuration(), 500)
+
+		test.done()
+	},
+
+	'Timeline nesting (timeline in timeline)'(test: Test): void {
+		const o1 = {x: 0}
+		const o2 = {y: 0}
+		const o3 = {z: 0}
+		const t1 = new TWEEN.Tween(o1).to({x: 100}, 500)
+		const t2 = new TWEEN.Tween(o2).to({y: 100}, 500)
+		const inner = new TWEEN.Timeline().add(t1).add(t2)
+		test.equal(inner.getDuration(), 1000)
+
+		const t3 = new TWEEN.Tween(o3).to({z: 100}, 1000)
+		const outer = new TWEEN.Timeline().add(inner, 0).add(t3, 0)
+		test.equal(outer.getDuration(), 1000)
+
+		outer.start(0)
+		outer.update(250)
+		test.equal(o1.x, 50)
+		test.equal(o2.y, 0)
+		test.equal(o3.z, 25)
+
+		outer.update(750)
+		test.equal(o1.x, 100)
+		test.equal(o2.y, 50)
+		test.equal(o3.z, 75)
+
+		outer.update(1000)
+		test.equal(o1.x, 100)
+		test.equal(o2.y, 100)
+		test.equal(o3.z, 100)
+
+		test.done()
+	},
+
+	'Timeline repeat'(test: Test): void {
+		const obj = {x: 0}
+		const t = new TWEEN.Tween(obj).to({x: 100}, 500)
+		let repeats = 0
+		const tl = new TWEEN.Timeline()
+			.add(t, 0)
+			.repeat(1)
+			.onRepeat(() => repeats++)
+
+		tl.start(0)
+		tl.update(250)
+		test.equal(obj.x, 50)
+		test.equal(repeats, 0)
+
+		tl.update(500)
+		test.equal(obj.x, 100)
+		// repeat triggers on reaching duration
+		test.equal(repeats, 1)
+		test.ok(tl.isPlaying())
+
+		tl.update(750)
+		test.equal(obj.x, 50)
+
+		const alive = tl.update(1000)
+		test.equal(obj.x, 100)
+		test.equal(alive, false)
+
+		test.done()
+	},
+
+	'Timeline yoyo plays backwards on every other iteration'(test: Test): void {
+		const obj = {x: 0}
+		const t = new TWEEN.Tween(obj).to({x: 100}, 1000)
+		const tl = new TWEEN.Timeline().add(t, 0).repeat(1).yoyo(true)
+
+		tl.start(0)
+		tl.update(500)
+		test.equal(obj.x, 50)
+
+		tl.update(1000) // end of forward, triggers yoyo repeat
+		test.equal(obj.x, 100)
+
+		tl.update(1500) // halfway backwards
+		test.equal(obj.x, 50)
+
+		tl.update(2000)
+		test.equal(obj.x, 0)
+
+		test.done()
+	},
+
+	'Timeline pause and resume freezes children'(test: Test): void {
+		const obj = {x: 0}
+		const t = new TWEEN.Tween(obj).to({x: 100}, 1000)
+		const tl = new TWEEN.Timeline().add(t, 0)
+
+		tl.start(0)
+		tl.update(400)
+		test.equal(obj.x, 40)
+
+		tl.pause(400)
+		tl.update(800)
+		test.equal(obj.x, 40)
+
+		tl.resume(1000)
+		tl.update(1100)
+		test.equal(obj.x, 50)
+
+		tl.update(1600)
+		test.equal(obj.x, 100)
+
+		test.done()
+	},
+
+	'Timeline stop stops children and fires onStop'(test: Test): void {
+		let stopped = false
+		const obj = {x: 0}
+		const t = new TWEEN.Tween(obj).to({x: 100}, 1000)
+		const tl = new TWEEN.Timeline().add(t, 0).onStop(() => (stopped = true))
+
+		tl.start(0)
+		tl.update(500)
+		test.equal(obj.x, 50)
+
+		tl.stop()
+		test.equal(stopped, true)
+		test.ok(!tl.isPlaying())
+		test.ok(!t.isPlaying())
+
+		test.done()
+	},
+
+	'Timeline callbacks onStart onUpdate onComplete'(test: Test): void {
+		let starts = 0
+		let updates = 0
+		let completes = 0
+		let lastElapsed = -1
+		const obj = {x: 0}
+		const t = new TWEEN.Tween(obj).to({x: 100}, 500)
+		const tl = new TWEEN.Timeline()
+			.add(t, 0)
+			.onStart(() => starts++)
+			.onUpdate((_tl, elapsed) => {
+				updates++
+				lastElapsed = elapsed
+			})
+			.onComplete(() => completes++)
+
+		tl.start(0)
+		tl.update(0)
+		test.equal(starts, 1)
+		test.ok(updates >= 1)
+
+		tl.update(250)
+		test.equal(obj.x, 50)
+
+		const alive = tl.update(500)
+		test.equal(alive, false)
+		test.equal(completes, 1)
+		test.equal(lastElapsed, 1)
+
+		// onComplete only once
+		tl.update(600)
+		test.equal(completes, 1)
+
+		test.done()
+	},
+
+	'Timeline getTotalDuration includes repeats and delays'(test: Test): void {
+		const t = new TWEEN.Tween({x: 0}).to({x: 1}, 400)
+		test.equal(t.getTotalDuration(), 400)
+
+		const tRepeat = new TWEEN.Tween({x: 0}).to({x: 1}, 100).repeat(1)
+		test.equal(tRepeat.getTotalDuration(), 200)
+
+		const tDelayRepeat = new TWEEN.Tween({x: 0}).to({x: 1}, 100).delay(100).repeat(1)
+		// delay 100 + duration 100 + 1 * (100 + 100)
+		test.equal(tDelayRepeat.getTotalDuration(), 400)
+
+		const tl = new TWEEN.Timeline().add(t, 0)
+		test.equal(tl.getDuration(), 400)
+		test.equal(tl.getTotalDuration(), 400)
+
+		const tlRepeat = new TWEEN.Timeline().add(t, 0).repeat(1)
+		test.equal(tlRepeat.getTotalDuration(), 800)
+
+		test.done()
+	},
+
+	'Timeline remove and has and removeAll'(test: Test): void {
+		const t1 = new TWEEN.Tween({x: 0}).to({x: 1}, 500)
+		const t2 = new TWEEN.Tween({x: 0}).to({x: 1}, 500)
+		const tl = new TWEEN.Timeline().add(t1).add(t2)
+		test.equal(tl.getDuration(), 1000)
+		test.ok(tl.has(t1))
+
+		// Removing the first child leaves a gap (second child still at offset 500).
+		tl.remove(t1)
+		test.ok(!tl.has(t1))
+		test.equal(tl.getDuration(), 1000)
+
+		// Removing the last child shrinks the timeline.
+		const t3 = new TWEEN.Tween({x: 0}).to({x: 1}, 500)
+		const tl2 = new TWEEN.Timeline().add(t1).add(t3)
+		test.equal(tl2.getDuration(), 1000)
+		tl2.remove(t3)
+		test.equal(tl2.getDuration(), 500)
+
+		tl.removeAll()
+		test.equal(tl.getDuration(), 0)
+		test.equal(tl.getAll().length, 0)
+
+		test.done()
+	},
+
+	'Timeline respects child delay on top of offset'(test: Test): void {
+		const obj = {x: 0}
+		const t = new TWEEN.Tween(obj).to({x: 100}, 500).delay(200)
+		const tl = new TWEEN.Timeline().add(t, 100)
+		// offset 100 + delay 200 + duration 500
+		test.equal(tl.getDuration(), 800)
+
+		tl.start(0)
+		tl.update(100)
+		test.equal(obj.x, 0)
+		tl.update(300)
+		test.equal(obj.x, 0)
+		tl.update(550)
+		test.equal(obj.x, 50)
+		tl.update(800)
+		test.equal(obj.x, 100)
+
+		test.done()
+	},
+
+	'Timeline can be added to a Group'(test: Test): void {
+		const group = new TWEEN.Group()
+		const obj = {x: 0}
+		const t = new TWEEN.Tween(obj).to({x: 100}, 500)
+		const tl = new TWEEN.Timeline().add(t, 0)
+		group.add(tl as any)
+		test.equal(group.getAll().length, 1)
+
+		tl.start(0)
+		group.update(250)
+		test.equal(obj.x, 50)
+
+		group.update(500)
+		test.equal(obj.x, 100)
+
+		test.done()
+	},
+
+	'Timeline chaining returns same instance'(test: Test): void {
+		const tl = new TWEEN.Timeline()
+		const t = new TWEEN.Tween({x: 0}).to({x: 1}, 100)
+		test.equal(tl.add(t), tl)
+		test.equal(tl.delay(10), tl)
+		test.equal(tl.repeat(1), tl)
+		test.equal(tl.yoyo(true), tl)
+		test.equal(tl.onStart(), tl)
+		test.equal(tl.onUpdate(), tl)
+		test.equal(tl.onComplete(), tl)
+		test.equal(tl.onRepeat(), tl)
+		test.equal(tl.onStop(), tl)
+		test.equal(tl.start(), tl)
+		test.equal(tl.pause(), tl)
+		test.equal(tl.resume(), tl)
+		test.equal(tl.stop(), tl)
+		test.done()
+	},
 }
 
 type Test = {
