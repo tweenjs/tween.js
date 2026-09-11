@@ -99,6 +99,17 @@ export class Tween<T extends UnknownProps = any> {
 		return this._duration
 	}
 
+	/**
+	 * Total duration from `start()` call (including initial delay, repeats
+	 * and repeat delays). Used by `Timeline` to compute its own duration.
+	 * Returns `Infinity` when the tween repeats forever.
+	 */
+	getTotalDuration(): number {
+		if (!isFinite(this._initialRepeat)) return Infinity
+		const repeatDelay = this._repeatDelayTime ?? this._delayTime
+		return this._delayTime + this._duration + this._initialRepeat * (this._duration + repeatDelay)
+	}
+
 	to(target: UnknownProps, duration = 1000): this {
 		if (this._isPlaying)
 			throw new Error('Can not call Tween.to() while Tween is already started or paused. Stop the Tween first.')
