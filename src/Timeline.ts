@@ -6,8 +6,7 @@
  * Timeline: compose Tweens (and nested Timelines) in sequence and in parallel.
  *
  * Inspired by trusktr's vision in #647 / #560:
- * - Tween does tweening, Timeline does orchestration (replaces `.chain`,
- *   and handles repeat/yoyo at a higher level).
+ * - Tween does tweening, Timeline does orchestration (replaces `.chain`).
  * - Single class, sequential by default (append), parallel via explicit offset.
  * - Simple, Three.js ethos: small API, explicit times, no magic.
  */
@@ -20,7 +19,14 @@ import type {InterpolationFunction} from './Interpolation'
 import type {Tween} from './Tween'
 
 export type TimelineChild = Tween<any> | Timeline
-export type TimelinePosition = number | string
+export type TimelineAt = TimelineChild | number | string
+export type TimelineAddOptions = {
+	at?: TimelineAt
+	atIndex?: number
+	offset?: number
+	shift?: boolean
+}
+export type TimelinePosition = TimelineAt | TimelineAddOptions
 
 type TimelineEntry = {
 	node: TimelineChild
@@ -38,7 +44,7 @@ export class Timeline {
 
 	private _id = Sequence.nextId()
 	private _entries: Array<TimelineEntry> = []
-	private _labels: Record<string, number> = {afterInit: 0, afterLast: 0}
+	private _labels: Record<string, number> = {start: 0, end: 0}
 
 	private _duration = 0
 	private _startTime = 0
@@ -46,25 +52,17 @@ export class Timeline {
 	private _isPaused = false
 	private _pauseStart = 0
 
-	private _delayTime = 0
-	private _initialRepeat = 0
-	private _repeat = 0
-	private _repeatDelayTime?: number
-	private _yoyo = false
-	private _reversed = false
-
 	private _onStartCallback?: (timeline: Timeline) => void
 	private _onStartCallbackFired = false
 	private _onEveryStartCallback?: (timeline: Timeline) => void
 	private _onEveryStartCallbackFired = false
 	private _onUpdateCallback?: (timeline: Timeline, elapsed: number) => void
-	private _onRepeatCallback?: (timeline: Timeline) => void
 	private _onCompleteCallback?: (timeline: Timeline) => void
 	private _onStopCallback?: (timeline: Timeline) => void
 
 	constructor() {
 		// Empty on purpose. Use `.add()` to compose.
-		// Sequential by default, parallel via explicit offset 0 or labels.
+		// Sequential by default, parallel via explicit offsets, labels, or options.
 	}
 
 	getId(): number {
@@ -79,20 +77,13 @@ export class Timeline {
 		return this._isPaused
 	}
 
-	/** Duration of one iteration (max child end), excluding own delay/repeats. */
+	/** Duration of the timeline (max child end). */
 	getDuration(): number {
 		return this._duration
 	}
 
-	/**
-	 * Total duration from `start()` call, including own delay, repeats and
-	 * repeat delays. `Infinity` when repeating forever or containing an
-	 * infinite child.
-	 */
 	getTotalDuration(): number {
-		if (!isFinite(this._initialRepeat) || !isFinite(this._duration)) return Infinity
-		const repeatDelay = this._repeatDelayTime ?? this._delayTime
-		return this._delayTime + this._duration + this._initialRepeat * (this._duration + repeatDelay)
+		return this._duration
 	}
 
 	getAll(): Array<TimelineChild> {
@@ -103,52 +94,55 @@ export class Timeline {
 		return this._entries.some(entry => entry.node === node)
 	}
 
-	/** Resolve a position to a local time in ms. */
-	private _parsePosition(position?: TimelinePosition): number {
-		if (position === undefined) return this._duration // append = sequential default
-		if (typeof position === 'number') return position
-
-		const s = position.trim()
-		if (s === '>') return this._duration
-		if (s === '<') {
-			if (this._entries.length === 0) return 0
-			return this._entries[this._entries.length - 1].offset
-		}
-
-		// Relative to afterLast: "+=100", "-=50"
-		if (s.startsWith('+=') || s.startsWith('-=')) {
-			const delta = parseFloat(s.slice(2))
-			if (isNaN(delta)) return this._duration
-			return this._duration + (s.startsWith('+=') ? delta : -delta)
-		}
-
-		// "label+=100", "label-=100", "label"
-		const match = s.match(/^(.*?)([+-]=)(-?\d+(?:\.\d+)?)$/)
-		if (match) {
-			const [, label, op, amountStr] = match
-			const base = this._labels[label.trim()] ?? 0
-			const amount = parseFloat(amountStr)
-			if (isNaN(amount)) return base
-			return op === '+=' ? base + amount : base - amount
-		}
-
-		if (s in this._labels) return this._labels[s]
-
-		const asNumber = parseFloat(s)
-		if (!isNaN(asNumber)) return asNumber
-
-		// Unknown label -> treat as append to stay robust.
-		return this._duration
+	private _isAddOptions(position: TimelinePosition | undefined): position is TimelineAddOptions {
+		return (
+			typeof position === 'object' &&
+			position !== null &&
+			!Array.isArray(position) &&
+			('at' in position || 'atIndex' in position || 'offset' in position || 'shift' in position)
+		)
 	}
 
-	addLabel(name: string, offset: TimelinePosition): this {
-		const time = typeof offset === 'number' ? offset : this._parsePosition(offset)
-		this._labels[name] = time
+	private _resolveAt(at?: TimelineAt): {offset: number; insertIndex?: number} {
+		if (at === undefined) return {offset: this._duration}
+		if (typeof at === 'number') return {offset: at}
+		if (typeof at === 'string') return {offset: this._labels[at] ?? this._duration}
+
+		const insertIndex = this._entries.findIndex(entry => entry.node === at)
+		if (insertIndex === -1) return {offset: this._duration}
+
+		return {offset: this._entries[insertIndex].offset, insertIndex}
+	}
+
+	private _resolvePosition(position?: TimelinePosition): {offset: number; shift: boolean; insertIndex?: number} {
+		if (this._isAddOptions(position)) {
+			const offset = position.offset ?? 0
+			if (position.atIndex !== undefined) {
+				const insertIndex = Math.max(0, Math.min(position.atIndex, this._entries.length))
+				const baseOffset = insertIndex < this._entries.length ? this._entries[insertIndex].offset : this._duration
+				return {offset: baseOffset + offset, shift: position.shift === true, insertIndex}
+			}
+
+			const resolved = this._resolveAt(position.at)
+			return {
+				offset: resolved.offset + offset,
+				shift: position.shift === true,
+				insertIndex: resolved.insertIndex,
+			}
+		}
+
+		const resolved = this._resolveAt(position)
+		return {offset: resolved.offset, shift: false, insertIndex: resolved.insertIndex}
+	}
+
+	addLabel(name: string, offset: number): this {
+		if (name === 'start' || name === 'end') return this
+		this._labels[name] = offset
 		return this
 	}
 
 	removeLabel(name: string): this {
-		if (name === 'afterInit' || name === 'afterLast') return this
+		if (name === 'start' || name === 'end') return this
 		delete this._labels[name]
 		return this
 	}
@@ -169,7 +163,7 @@ export class Timeline {
 			max = Math.max(max, entry.offset + childTotal)
 		}
 		this._duration = infinite ? Infinity : max
-		this._labels['afterLast'] = this._duration
+		this._labels['end'] = this._duration
 	}
 
 	/**
@@ -178,33 +172,47 @@ export class Timeline {
 	 * - `add(tween)` appends after the last child (sequential).
 	 * - `add(tween, 0)` starts at timeline start (parallel).
 	 * - `add(tween, 500)` starts at 500ms.
-	 * - `add(tween, 'myLabel')`, `add(tween, 'myLabel+=100')`, `add(tween, '<')`, `add(tween, '>')`.
+	 * - `add(tween, 'myLabel')` aligns to an existing label.
+	 * - `add(tween, otherTween)` aligns to another child.
+	 * - `add(tween, {at: 'myLabel', offset: 100})` adds with an offset.
+	 * - `add(tween, {atIndex: 5, shift: true})` inserts and shifts later children.
 	 * - `add([a, b])` adds sequentially; `add([a, b], 0)` adds in parallel.
 	 */
 	add(node: TimelineChild | Array<TimelineChild>, position?: TimelinePosition): this {
 		if (Array.isArray(node)) {
-			// Sequential when no explicit position, parallel when explicit.
-			if (position === undefined) {
-				for (const child of node) this.add(child)
-			} else {
-				const offset = this._parsePosition(position)
-				for (const child of node) this._addSingle(child, offset)
-			}
+			if (position === undefined) for (const child of node) this.add(child)
+			else for (const child of node) this.add(child, position)
 			return this
 		}
-		const offset = this._parsePosition(position)
-		return this._addSingle(node, offset)
+		return this._addSingle(node, position)
 	}
 
-	private _addSingle(node: TimelineChild, offset: number): this {
-		// A child can only be in one timeline at a time for predictable ownership.
-		// If it was already added, move it (update offset) instead of duplicating.
-		const existing = this._entries.find(entry => entry.node === node)
-		if (existing) {
-			existing.offset = offset
-		} else {
-			this._entries.push({node, offset, started: false})
+	private _shiftEntries(offset: number, amount: number): void {
+		if (amount === 0) return
+		for (const entry of this._entries) {
+			if (entry.offset >= offset) entry.offset += amount
 		}
+	}
+
+	private _addSingle(node: TimelineChild, position?: TimelinePosition): this {
+		const resolved = this._resolvePosition(position)
+		const existingIndex = this._entries.findIndex(entry => entry.node === node)
+		const entry =
+			existingIndex === -1 ? {node, offset: resolved.offset, started: false} : this._entries.splice(existingIndex, 1)[0]
+
+		if (resolved.shift) this._shiftEntries(resolved.offset, node.getTotalDuration())
+
+		entry.offset = resolved.offset
+		entry.started = false
+
+		if (resolved.insertIndex !== undefined) {
+			const insertIndex =
+				existingIndex !== -1 && existingIndex < resolved.insertIndex ? resolved.insertIndex - 1 : resolved.insertIndex
+			this._entries.splice(insertIndex, 0, entry)
+		} else {
+			this._entries.push(entry)
+		}
+
 		// Children start lazily when the playhead reaches them (see update),
 		// so start values are captured at the right moment.
 		this._recalculateDuration()
@@ -230,27 +238,6 @@ export class Timeline {
 		return this
 	}
 
-	delay(amount = 0): this {
-		this._delayTime = amount
-		return this
-	}
-
-	repeat(times = 0): this {
-		this._initialRepeat = times
-		this._repeat = times
-		return this
-	}
-
-	repeatDelay(amount?: number): this {
-		this._repeatDelayTime = amount
-		return this
-	}
-
-	yoyo(yoyo = false): this {
-		this._yoyo = yoyo
-		return this
-	}
-
 	onStart(callback?: (timeline: Timeline) => void): this {
 		this._onStartCallback = callback
 		return this
@@ -263,11 +250,6 @@ export class Timeline {
 
 	onUpdate(callback?: (timeline: Timeline, elapsed: number) => void): this {
 		this._onUpdateCallback = callback
-		return this
-	}
-
-	onRepeat(callback?: (timeline: Timeline) => void): this {
-		this._onRepeatCallback = callback
 		return this
 	}
 
@@ -305,13 +287,11 @@ export class Timeline {
 		if (this._isPlaying) return this
 
 		this._recalculateDuration()
-		this._repeat = this._initialRepeat
-		this._reversed = false
 		this._isPlaying = true
 		this._isPaused = false
 		this._onStartCallbackFired = false
 		this._onEveryStartCallbackFired = false
-		this._startTime = time + this._delayTime
+		this._startTime = time
 
 		for (const entry of this._entries) {
 			if (entry.node.isPlaying()) entry.node.stop()
@@ -352,8 +332,7 @@ export class Timeline {
 
 	/**
 	 * @returns true if still playing after update, false otherwise.
-	 * Children use a local clock (0 = timeline start), so yoyo/reverse is a
-	 * single time mapping with no offset mirroring needed.
+	 * Children use a local clock (0 = timeline start).
 	 */
 	update(time = now(), autoStart = Timeline.autoStartOnUpdate): boolean {
 		if (this._isPaused) return true
@@ -377,11 +356,7 @@ export class Timeline {
 
 		const timelineLocal = time - this._startTime
 
-		const effectiveLocal = !isFinite(this._duration)
-			? timelineLocal
-			: this._reversed
-				? this._duration - Math.min(timelineLocal, this._duration)
-				: Math.min(timelineLocal, this._duration)
+		const effectiveLocal = !isFinite(this._duration) ? timelineLocal : Math.min(timelineLocal, this._duration)
 
 		for (const entry of this._entries) {
 			const child = entry.node
@@ -393,9 +368,8 @@ export class Timeline {
 				child.start(entry.offset)
 				entry.started = true
 			} else if (!child.isPlaying() && effectiveLocal < entry.offset + child.getTotalDuration()) {
-				// Re-enter when the playhead is inside (or scrubbed back
-				// before) the child's range: yoyo reverse, scrubbing, or a
-				// fresh iteration after repeat.
+				// Re-enter when the playhead is inside the child's range after
+				// scrubbing back.
 				child.start(entry.offset)
 			}
 			// Clamp the lower end so reversed/scrubbed playheads snap the
@@ -412,37 +386,9 @@ export class Timeline {
 		if (this._onUpdateCallback) this._onUpdateCallback(this, elapsed)
 
 		if (this._duration === 0 || timelineLocal >= this._duration) {
-			if (this._repeat > 0 || !isFinite(this._repeat)) {
-				const durationAndDelay = this._duration + (this._repeatDelayTime ?? this._delayTime)
-				// How many iterations completed in this overshoot (tab sleep safe).
-				const completeCount = Math.min(
-					Math.trunc((timelineLocal - this._duration) / durationAndDelay) + 1,
-					isFinite(this._repeat) ? this._repeat : Infinity,
-				)
-
-				if (isFinite(this._repeat)) this._repeat -= completeCount
-				this._startTime += durationAndDelay * completeCount
-
-				if (this._yoyo) {
-					// Odd number of completed iterations flips direction.
-					if (completeCount % 2 === 1) this._reversed = !this._reversed
-				}
-
-				// Stop running children for the next iteration; each restarts
-				// lazily (or via re-enter) when the playhead reaches it.
-				for (const entry of this._entries) {
-					if (entry.node.isPlaying()) entry.node.stop()
-				}
-
-				if (this._onRepeatCallback) this._onRepeatCallback(this)
-				this._onEveryStartCallbackFired = false
-
-				return true
-			} else {
-				if (this._onCompleteCallback) this._onCompleteCallback(this)
-				this._isPlaying = false
-				return false
-			}
+			if (this._onCompleteCallback) this._onCompleteCallback(this)
+			this._isPlaying = false
+			return false
 		}
 
 		return true

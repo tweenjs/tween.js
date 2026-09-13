@@ -916,8 +916,7 @@ var Tween = /** @class */ (function () {
  * Timeline: compose Tweens (and nested Timelines) in sequence and in parallel.
  *
  * Inspired by trusktr's vision in #647 / #560:
- * - Tween does tweening, Timeline does orchestration (replaces `.chain`,
- *   and handles repeat/yoyo at a higher level).
+ * - Tween does tweening, Timeline does orchestration (replaces `.chain`).
  * - Single class, sequential by default (append), parallel via explicit offset.
  * - Simple, Three.js ethos: small API, explicit times, no magic.
  */
@@ -925,21 +924,16 @@ var Timeline = /** @class */ (function () {
     function Timeline() {
         this._id = Sequence.nextId();
         this._entries = [];
-        this._labels = { afterInit: 0, afterLast: 0 };
+        this._labels = { start: 0, end: 0 };
         this._duration = 0;
         this._startTime = 0;
         this._isPlaying = false;
         this._isPaused = false;
         this._pauseStart = 0;
-        this._delayTime = 0;
-        this._initialRepeat = 0;
-        this._repeat = 0;
-        this._yoyo = false;
-        this._reversed = false;
         this._onStartCallbackFired = false;
         this._onEveryStartCallbackFired = false;
         // Empty on purpose. Use `.add()` to compose.
-        // Sequential by default, parallel via explicit offset 0 or labels.
+        // Sequential by default, parallel via explicit offsets, labels, or options.
     }
     Timeline.prototype.getId = function () {
         return this._id;
@@ -950,21 +944,12 @@ var Timeline = /** @class */ (function () {
     Timeline.prototype.isPaused = function () {
         return this._isPaused;
     };
-    /** Duration of one iteration (max child end), excluding own delay/repeats. */
+    /** Duration of the timeline (max child end). */
     Timeline.prototype.getDuration = function () {
         return this._duration;
     };
-    /**
-     * Total duration from `start()` call, including own delay, repeats and
-     * repeat delays. `Infinity` when repeating forever or containing an
-     * infinite child.
-     */
     Timeline.prototype.getTotalDuration = function () {
-        var _a;
-        if (!isFinite(this._initialRepeat) || !isFinite(this._duration))
-            return Infinity;
-        var repeatDelay = (_a = this._repeatDelayTime) !== null && _a !== void 0 ? _a : this._delayTime;
-        return this._delayTime + this._duration + this._initialRepeat * (this._duration + repeatDelay);
+        return this._duration;
     };
     Timeline.prototype.getAll = function () {
         return this._entries.map(function (entry) { return entry.node; });
@@ -972,53 +957,52 @@ var Timeline = /** @class */ (function () {
     Timeline.prototype.has = function (node) {
         return this._entries.some(function (entry) { return entry.node === node; });
     };
-    /** Resolve a position to a local time in ms. */
-    Timeline.prototype._parsePosition = function (position) {
+    Timeline.prototype._isAddOptions = function (position) {
+        return (typeof position === 'object' &&
+            position !== null &&
+            !Array.isArray(position) &&
+            ('at' in position || 'atIndex' in position || 'offset' in position || 'shift' in position));
+    };
+    Timeline.prototype._resolveAt = function (at) {
         var _a;
-        if (position === undefined)
-            return this._duration; // append = sequential default
-        if (typeof position === 'number')
-            return position;
-        var s = position.trim();
-        if (s === '>')
-            return this._duration;
-        if (s === '<') {
-            if (this._entries.length === 0)
-                return 0;
-            return this._entries[this._entries.length - 1].offset;
+        if (at === undefined)
+            return { offset: this._duration };
+        if (typeof at === 'number')
+            return { offset: at };
+        if (typeof at === 'string')
+            return { offset: (_a = this._labels[at]) !== null && _a !== void 0 ? _a : this._duration };
+        var insertIndex = this._entries.findIndex(function (entry) { return entry.node === at; });
+        if (insertIndex === -1)
+            return { offset: this._duration };
+        return { offset: this._entries[insertIndex].offset, insertIndex: insertIndex };
+    };
+    Timeline.prototype._resolvePosition = function (position) {
+        var _a;
+        if (this._isAddOptions(position)) {
+            var offset = (_a = position.offset) !== null && _a !== void 0 ? _a : 0;
+            if (position.atIndex !== undefined) {
+                var insertIndex = Math.max(0, Math.min(position.atIndex, this._entries.length));
+                var baseOffset = insertIndex < this._entries.length ? this._entries[insertIndex].offset : this._duration;
+                return { offset: baseOffset + offset, shift: position.shift === true, insertIndex: insertIndex };
+            }
+            var resolved_1 = this._resolveAt(position.at);
+            return {
+                offset: resolved_1.offset + offset,
+                shift: position.shift === true,
+                insertIndex: resolved_1.insertIndex,
+            };
         }
-        // Relative to afterLast: "+=100", "-=50"
-        if (s.startsWith('+=') || s.startsWith('-=')) {
-            var delta = parseFloat(s.slice(2));
-            if (isNaN(delta))
-                return this._duration;
-            return this._duration + (s.startsWith('+=') ? delta : -delta);
-        }
-        // "label+=100", "label-=100", "label"
-        var match = s.match(/^(.*?)([+-]=)(-?\d+(?:\.\d+)?)$/);
-        if (match) {
-            var label = match[1], op = match[2], amountStr = match[3];
-            var base = (_a = this._labels[label.trim()]) !== null && _a !== void 0 ? _a : 0;
-            var amount = parseFloat(amountStr);
-            if (isNaN(amount))
-                return base;
-            return op === '+=' ? base + amount : base - amount;
-        }
-        if (s in this._labels)
-            return this._labels[s];
-        var asNumber = parseFloat(s);
-        if (!isNaN(asNumber))
-            return asNumber;
-        // Unknown label -> treat as append to stay robust.
-        return this._duration;
+        var resolved = this._resolveAt(position);
+        return { offset: resolved.offset, shift: false, insertIndex: resolved.insertIndex };
     };
     Timeline.prototype.addLabel = function (name, offset) {
-        var time = typeof offset === 'number' ? offset : this._parsePosition(offset);
-        this._labels[name] = time;
+        if (name === 'start' || name === 'end')
+            return this;
+        this._labels[name] = offset;
         return this;
     };
     Timeline.prototype.removeLabel = function (name) {
-        if (name === 'afterInit' || name === 'afterLast')
+        if (name === 'start' || name === 'end')
             return this;
         delete this._labels[name];
         return this;
@@ -1039,7 +1023,7 @@ var Timeline = /** @class */ (function () {
             max = Math.max(max, entry.offset + childTotal);
         }
         this._duration = infinite ? Infinity : max;
-        this._labels['afterLast'] = this._duration;
+        this._labels['end'] = this._duration;
     };
     /**
      * Add a Tween or nested Timeline.
@@ -1047,39 +1031,51 @@ var Timeline = /** @class */ (function () {
      * - `add(tween)` appends after the last child (sequential).
      * - `add(tween, 0)` starts at timeline start (parallel).
      * - `add(tween, 500)` starts at 500ms.
-     * - `add(tween, 'myLabel')`, `add(tween, 'myLabel+=100')`, `add(tween, '<')`, `add(tween, '>')`.
+     * - `add(tween, 'myLabel')` aligns to an existing label.
+     * - `add(tween, otherTween)` aligns to another child.
+     * - `add(tween, {at: 'myLabel', offset: 100})` adds with an offset.
+     * - `add(tween, {atIndex: 5, shift: true})` inserts and shifts later children.
      * - `add([a, b])` adds sequentially; `add([a, b], 0)` adds in parallel.
      */
     Timeline.prototype.add = function (node, position) {
         if (Array.isArray(node)) {
-            // Sequential when no explicit position, parallel when explicit.
-            if (position === undefined) {
+            if (position === undefined)
                 for (var _i = 0, node_1 = node; _i < node_1.length; _i++) {
                     var child = node_1[_i];
                     this.add(child);
                 }
-            }
-            else {
-                var offset_1 = this._parsePosition(position);
+            else
                 for (var _a = 0, node_2 = node; _a < node_2.length; _a++) {
                     var child = node_2[_a];
-                    this._addSingle(child, offset_1);
+                    this.add(child, position);
                 }
-            }
             return this;
         }
-        var offset = this._parsePosition(position);
-        return this._addSingle(node, offset);
+        return this._addSingle(node, position);
     };
-    Timeline.prototype._addSingle = function (node, offset) {
-        // A child can only be in one timeline at a time for predictable ownership.
-        // If it was already added, move it (update offset) instead of duplicating.
-        var existing = this._entries.find(function (entry) { return entry.node === node; });
-        if (existing) {
-            existing.offset = offset;
+    Timeline.prototype._shiftEntries = function (offset, amount) {
+        if (amount === 0)
+            return;
+        for (var _i = 0, _a = this._entries; _i < _a.length; _i++) {
+            var entry = _a[_i];
+            if (entry.offset >= offset)
+                entry.offset += amount;
+        }
+    };
+    Timeline.prototype._addSingle = function (node, position) {
+        var resolved = this._resolvePosition(position);
+        var existingIndex = this._entries.findIndex(function (entry) { return entry.node === node; });
+        var entry = existingIndex === -1 ? { node: node, offset: resolved.offset, started: false } : this._entries.splice(existingIndex, 1)[0];
+        if (resolved.shift)
+            this._shiftEntries(resolved.offset, node.getTotalDuration());
+        entry.offset = resolved.offset;
+        entry.started = false;
+        if (resolved.insertIndex !== undefined) {
+            var insertIndex = existingIndex !== -1 && existingIndex < resolved.insertIndex ? resolved.insertIndex - 1 : resolved.insertIndex;
+            this._entries.splice(insertIndex, 0, entry);
         }
         else {
-            this._entries.push({ node: node, offset: offset, started: false });
+            this._entries.push(entry);
         }
         // Children start lazily when the playhead reaches them (see update),
         // so start values are captured at the right moment.
@@ -1113,26 +1109,6 @@ var Timeline = /** @class */ (function () {
         this._recalculateDuration();
         return this;
     };
-    Timeline.prototype.delay = function (amount) {
-        if (amount === void 0) { amount = 0; }
-        this._delayTime = amount;
-        return this;
-    };
-    Timeline.prototype.repeat = function (times) {
-        if (times === void 0) { times = 0; }
-        this._initialRepeat = times;
-        this._repeat = times;
-        return this;
-    };
-    Timeline.prototype.repeatDelay = function (amount) {
-        this._repeatDelayTime = amount;
-        return this;
-    };
-    Timeline.prototype.yoyo = function (yoyo) {
-        if (yoyo === void 0) { yoyo = false; }
-        this._yoyo = yoyo;
-        return this;
-    };
     Timeline.prototype.onStart = function (callback) {
         this._onStartCallback = callback;
         return this;
@@ -1143,10 +1119,6 @@ var Timeline = /** @class */ (function () {
     };
     Timeline.prototype.onUpdate = function (callback) {
         this._onUpdateCallback = callback;
-        return this;
-    };
-    Timeline.prototype.onRepeat = function (callback) {
-        this._onRepeatCallback = callback;
         return this;
     };
     Timeline.prototype.onComplete = function (callback) {
@@ -1186,13 +1158,11 @@ var Timeline = /** @class */ (function () {
         if (this._isPlaying)
             return this;
         this._recalculateDuration();
-        this._repeat = this._initialRepeat;
-        this._reversed = false;
         this._isPlaying = true;
         this._isPaused = false;
         this._onStartCallbackFired = false;
         this._onEveryStartCallbackFired = false;
-        this._startTime = time + this._delayTime;
+        this._startTime = time;
         for (var _i = 0, _a = this._entries; _i < _a.length; _i++) {
             var entry = _a[_i];
             if (entry.node.isPlaying())
@@ -1233,11 +1203,9 @@ var Timeline = /** @class */ (function () {
     };
     /**
      * @returns true if still playing after update, false otherwise.
-     * Children use a local clock (0 = timeline start), so yoyo/reverse is a
-     * single time mapping with no offset mirroring needed.
+     * Children use a local clock (0 = timeline start).
      */
     Timeline.prototype.update = function (time, autoStart) {
-        var _a;
         if (time === void 0) { time = now(); }
         if (autoStart === void 0) { autoStart = Timeline.autoStartOnUpdate; }
         if (this._isPaused)
@@ -1261,13 +1229,9 @@ var Timeline = /** @class */ (function () {
             this._onEveryStartCallbackFired = true;
         }
         var timelineLocal = time - this._startTime;
-        var effectiveLocal = !isFinite(this._duration)
-            ? timelineLocal
-            : this._reversed
-                ? this._duration - Math.min(timelineLocal, this._duration)
-                : Math.min(timelineLocal, this._duration);
-        for (var _i = 0, _b = this._entries; _i < _b.length; _i++) {
-            var entry = _b[_i];
+        var effectiveLocal = !isFinite(this._duration) ? timelineLocal : Math.min(timelineLocal, this._duration);
+        for (var _i = 0, _a = this._entries; _i < _a.length; _i++) {
+            var entry = _a[_i];
             var child = entry.node;
             if (!entry.started) {
                 // First start must wait until due; a never-started child left
@@ -1279,9 +1243,8 @@ var Timeline = /** @class */ (function () {
                 entry.started = true;
             }
             else if (!child.isPlaying() && effectiveLocal < entry.offset + child.getTotalDuration()) {
-                // Re-enter when the playhead is inside (or scrubbed back
-                // before) the child's range: yoyo reverse, scrubbing, or a
-                // fresh iteration after repeat.
+                // Re-enter when the playhead is inside the child's range after
+                // scrubbing back.
                 child.start(entry.offset);
             }
             // Clamp the lower end so reversed/scrubbed playheads snap the
@@ -1297,36 +1260,10 @@ var Timeline = /** @class */ (function () {
         if (this._onUpdateCallback)
             this._onUpdateCallback(this, elapsed);
         if (this._duration === 0 || timelineLocal >= this._duration) {
-            if (this._repeat > 0 || !isFinite(this._repeat)) {
-                var durationAndDelay = this._duration + ((_a = this._repeatDelayTime) !== null && _a !== void 0 ? _a : this._delayTime);
-                // How many iterations completed in this overshoot (tab sleep safe).
-                var completeCount = Math.min(Math.trunc((timelineLocal - this._duration) / durationAndDelay) + 1, isFinite(this._repeat) ? this._repeat : Infinity);
-                if (isFinite(this._repeat))
-                    this._repeat -= completeCount;
-                this._startTime += durationAndDelay * completeCount;
-                if (this._yoyo) {
-                    // Odd number of completed iterations flips direction.
-                    if (completeCount % 2 === 1)
-                        this._reversed = !this._reversed;
-                }
-                // Stop running children for the next iteration; each restarts
-                // lazily (or via re-enter) when the playhead reaches it.
-                for (var _c = 0, _d = this._entries; _c < _d.length; _c++) {
-                    var entry = _d[_c];
-                    if (entry.node.isPlaying())
-                        entry.node.stop();
-                }
-                if (this._onRepeatCallback)
-                    this._onRepeatCallback(this);
-                this._onEveryStartCallbackFired = false;
-                return true;
-            }
-            else {
-                if (this._onCompleteCallback)
-                    this._onCompleteCallback(this);
-                this._isPlaying = false;
-                return false;
-            }
+            if (this._onCompleteCallback)
+                this._onCompleteCallback(this);
+            this._isPlaying = false;
+            return false;
         }
         return true;
     };
