@@ -4,8 +4,13 @@
 		<title>Tween.js / timeline</title>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 		<link href="css/style.css" media="screen" rel="stylesheet" type="text/css" />
-		<!-- UMD build (not a module) so this page also works via file:// -->
-		<script src="../dist/tween.umd.js"></script>
+		<script type="importmap">
+			{
+				"imports": {
+					"@tweenjs/tween.js": "../dist/tween.esm.js"
+				}
+			}
+		</script>
 	</head>
 	<body>
 		<div id="info">
@@ -19,26 +24,18 @@
 			<div id="target3" data-x="0" data-rotation="0" class="box">labels + yoyo</div>
 		</div>
 
-		<script>
-			if (!window.TWEEN || typeof TWEEN.Timeline !== 'function') {
-				document.getElementById('info').innerHTML +=
-					'<p style="color:red">TWEEN.Timeline not found in ../dist/. Run `npm run build` first, then reload.</p>'
-				throw new Error('TWEEN.Timeline missing: rebuild dist with `npm run build`')
-			}
+		<script type="module">
+			import {Easing, Timeline, Tween} from '@tweenjs/tween.js'
 
-			var Tween = TWEEN.Tween
-			var Timeline = TWEEN.Timeline
-			var Easing = TWEEN.Easing
-
-			var timelines = []
+			const timelines = []
 
 			init()
 			animate()
 
 			function init() {
 				// 1. Sequential: add() appends after the last child (replaces chain).
-				var target1 = document.getElementById('target1')
-				var seq = new Timeline()
+				const target1 = document.getElementById('target1')
+				const seq = new Timeline()
 					.add(new Tween(target1.dataset).to({x: 200}, 800).easing(Easing.Quadratic.InOut))
 					.add(new Tween(target1.dataset).to({x: 0}, 800).easing(Easing.Quadratic.InOut))
 					.repeat(Infinity)
@@ -50,8 +47,8 @@
 
 				// 2. Parallel: explicit offset 0 starts children together
 				// (two tweens, two different properties of the same box).
-				var target2 = document.getElementById('target2')
-				var par = new Timeline()
+				const target2 = document.getElementById('target2')
+				const par = new Timeline()
 					.add(new Tween(target2.dataset).to({x: 200}, 1000).easing(Easing.Sinusoidal.InOut), 0)
 					.add(new Tween(target2.dataset).to({rotation: 360}, 1000).easing(Easing.Sinusoidal.InOut), 0)
 					.repeat(Infinity)
@@ -64,13 +61,13 @@
 
 				// 3. Labels and nesting: an inner timeline inside an outer one.
 				// The spin starts 200ms after the 'moved' label, leaving a gap.
-				var target3 = document.getElementById('target3')
-				var inner = new Timeline()
+				const target3 = document.getElementById('target3')
+				const inner = new Timeline()
 					.add(new Tween(target3.dataset).to({x: 200}, 600).easing(Easing.Quadratic.Out), 0)
 					.addLabel('moved', 600)
 					.add(new Tween(target3.dataset).to({rotation: 180}, 600).easing(Easing.Quadratic.InOut), 'moved+=200')
 
-				var outer = new Timeline()
+				const outer = new Timeline()
 					.add(inner, 0)
 					.repeat(Infinity)
 					.yoyo(true)
@@ -84,11 +81,11 @@
 			function animate(time) {
 				requestAnimationFrame(animate)
 
-				for (var i = 0; i < timelines.length; i++) timelines[i].update(time)
+				for (let i = 0; i < timelines.length; i++) timelines[i].update(time)
 			}
 
 			function updateBox(box, params) {
-				var s = box.style,
+				const s = box.style,
 					transform = 'translateX(' + Math.floor(params.x) + 'px) rotate(' + Math.floor(params.rotation) + 'deg)'
 				s.webkitTransform = transform
 				s.mozTransform = transform
