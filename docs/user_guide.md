@@ -350,36 +350,48 @@ const timeline = new Timeline()
 	.add(tweenC, 500) // start at 500ms
 ```
 
-Timeline positions and APIs:
+For labels and insertion, use the typed API instead of a string DSL:
 
-- Position strings accepted by `timeline.add(...)` and `timeline.addLabel(...)`:
-  - `'myLabel'`
-  - `'myLabel+=100'`
-  - `'myLabel-=100'`
-  - `'<'` (start of the last child)
-  - `'>'` (end of the timeline)
-  - `'+=100'` / `'-=100'` (relative to the end)
-- Label APIs:
-  - `timeline.addLabel('intro', 300)`
-  - `timeline.getLabel('intro')`
-  - `timeline.removeLabel('intro')`
-- Child management APIs:
-  - `timeline.add(child, position?)`
+```js
+timeline.addLabel('intro', 300)
+
+timeline.add(tweenD, 'intro') // align to label
+timeline.add(tweenE, {at: 'intro', offset: 100}) // 400ms
+timeline.add(tweenF, {at: tweenD, offset: -100}) // 100ms before tweenD
+timeline.add(tweenG, {atIndex: 2, shift: true}) // insert before child #3 and shift later children
+```
+
+Timeline APIs:
+
+- Labels:
+  - `timeline.addLabel(name, time)`
+  - `timeline.getLabel(name)`
+  - `timeline.removeLabel(name)`
+  - Reserved labels: `start` is always `0`, and `end` is always the current
+    end of the timeline. These labels cannot be changed or removed.
+- Child placement:
+  - `timeline.add(child)` appends at `end`
+  - `timeline.add(child, 500)` places a child at an absolute local time
+  - `timeline.add(child, 'intro')` aligns to an existing label
+  - `timeline.add(child, otherChild)` aligns to another child's start time
+  - `timeline.add(child, {at, offset, shift})` combines a target location with
+    an offset and optional insertion shifting
+  - `timeline.add(child, {atIndex, offset, shift})` targets a child by index;
+    `atIndex` takes precedence over `at`
+  - `timeline.add([a, b])` adds sequentially; `timeline.add([a, b], 0)` adds
+    in parallel
+- Child management:
   - `timeline.getAll()`
   - `timeline.has(child)`
   - `timeline.remove(child)`
   - `timeline.removeAll()`
-- Playback and timing APIs:
+- Playback and timing:
   - `timeline.start(time?)`
   - `timeline.update(time?)`
   - `timeline.isPlaying()`
   - `timeline.isPaused()`
   - `timeline.getDuration()`
   - `timeline.getTotalDuration()`
-  - `timeline.delay(ms)`
-  - `timeline.repeat(times)`
-  - `timeline.repeatDelay(ms?)`
-  - `timeline.yoyo(true)`
   - `timeline.pause()`
   - `timeline.resume()`
   - `timeline.stop()`
@@ -390,12 +402,21 @@ Timeline positions and APIs:
   - `timeline.onStart(fn)`
   - `timeline.onEveryStart(fn)`
   - `timeline.onUpdate(fn)`
-  - `timeline.onRepeat(fn)`
   - `timeline.onComplete(fn)`
   - `timeline.onStop(fn)`
-- Timelines can be nested inside other timelines.
-- A `Timeline` can also be added to a `Group` (`group.add(timeline)`) — just
-  don't add its children to a `Group` as well, or they would be updated twice.
+- Composition:
+  - Timelines can be nested inside other timelines.
+  - A `Timeline` can also be added to a `Group` (`group.add(timeline)`) — just
+    don't add its children to a `Group` as well, or they would be updated
+    twice.
+
+Timeline intentionally does not mirror Tween's legacy orchestration helpers
+such as `delay()`, `repeat()`, `repeatDelay()`, or `yoyo()`. Instead:
+
+- use offsets or labels to create gaps
+- add more tweens or nested timelines when you want repeated structure
+- build "go there, then come back" motion by composing multiple tweens in a
+  timeline
 
 Check [Timeline](../examples/20_timeline.html) for a working example.
 

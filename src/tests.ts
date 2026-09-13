@@ -2890,12 +2890,18 @@ export const tests = {
 		test.done()
 	},
 
-	'Timeline supports labels and relative positions'(test: Test): void {
+	'Timeline supports labels and typed positions'(test: Test): void {
 		const obj = {x: 0}
 		const t1 = new TWEEN.Tween(obj).to({x: 100}, 1000)
 		const tl = new TWEEN.Timeline().add(t1, 0)
 		tl.addLabel('mid', 500)
 		test.equal(tl.getLabel('mid'), 500)
+		test.equal(tl.getLabel('start'), 0)
+		test.equal(tl.getLabel('end'), 1000)
+		tl.addLabel('start', 250)
+		tl.addLabel('end', 250)
+		test.equal(tl.getLabel('start'), 0)
+		test.equal(tl.getLabel('end'), 1000)
 
 		const obj2 = {y: 0}
 		const t2 = new TWEEN.Tween(obj2).to({y: 100}, 500)
@@ -2904,29 +2910,74 @@ export const tests = {
 
 		const obj3 = {z: 0}
 		const t3 = new TWEEN.Tween(obj3).to({z: 100}, 200)
-		tl.add(t3, 'mid+=100')
+		tl.add(t3, {at: 'mid', offset: 100})
 		// max is still 1000 from first tween
 		test.equal(tl.getDuration(), 1000)
+
+		const obj4 = {w: 0}
+		const t4 = new TWEEN.Tween(obj4).to({w: 100}, 200)
+		tl.add(t4, {at: t2, offset: -100})
 
 		tl.start(0)
 		tl.update(600)
 		test.equal(obj.x, 60)
 		test.equal(obj2.y, 20)
 		test.equal(obj3.z, 0)
+		test.equal(obj4.w, 100)
 
 		tl.update(800)
 		test.equal(obj3.z, 100)
 
-		// '<' means start of last added, '>' means end
-		const tl2 = new TWEEN.Timeline()
-		const a = new TWEEN.Tween({x: 0}).to({x: 1}, 400)
-		const b = new TWEEN.Tween({x: 0}).to({x: 1}, 400)
-		tl2.add(a, 100)
-		tl2.add(b, '<')
-		test.equal(tl2.getDuration(), 500)
-
 		tl.removeLabel('mid')
+		tl.removeLabel('start')
+		tl.removeLabel('end')
 		test.equal(tl.getLabel('mid'), undefined)
+		test.equal(tl.getLabel('start'), 0)
+		test.equal(tl.getLabel('end'), 1000)
+
+		test.done()
+	},
+
+	'Timeline add options support atIndex precedence and shift'(test: Test): void {
+		const o1 = {x: 0}
+		const o2 = {y: 0}
+		const o3 = {z: 0}
+		const a = new TWEEN.Tween(o1).to({x: 100}, 100)
+		const b = new TWEEN.Tween(o2).to({y: 100}, 100)
+		const c = new TWEEN.Tween(o3).to({z: 100}, 100)
+		const tl = new TWEEN.Timeline().add(a).add(b).add(c)
+
+		const insertedObj = {w: 0}
+		const inserted = new TWEEN.Tween(insertedObj).to({w: 100}, 50)
+		tl.add(inserted, {atIndex: 1, shift: true})
+		test.equal(tl.getAll()[1], inserted)
+		test.equal(tl.getDuration(), 350)
+
+		const refObj = {v: 0}
+		const ref = new TWEEN.Tween(refObj).to({v: 100}, 50)
+		tl.add(ref, {at: 0, atIndex: 2, offset: -25})
+		test.equal(tl.getDuration(), 350)
+
+		tl.start(0)
+		tl.update(0)
+		test.equal(refObj.v, 0)
+
+		tl.update(100)
+		test.equal(o1.x, 100)
+		test.equal(insertedObj.w, 0)
+		test.equal(o2.y, 0)
+		test.equal(o3.z, 0)
+
+		tl.update(125)
+		test.equal(refObj.v, 0)
+		test.equal(o2.y, 0)
+
+		tl.update(175)
+		test.equal(refObj.v, 100)
+		test.equal(o2.y, 25)
+
+		tl.update(325)
+		test.equal(o3.z, 75)
 
 		test.done()
 	},
@@ -2978,57 +3029,6 @@ export const tests = {
 		test.equal(o1.x, 100)
 		test.equal(o2.y, 100)
 		test.equal(o3.z, 100)
-
-		test.done()
-	},
-
-	'Timeline repeat'(test: Test): void {
-		const obj = {x: 0}
-		const t = new TWEEN.Tween(obj).to({x: 100}, 500)
-		let repeats = 0
-		const tl = new TWEEN.Timeline()
-			.add(t, 0)
-			.repeat(1)
-			.onRepeat(() => repeats++)
-
-		tl.start(0)
-		tl.update(250)
-		test.equal(obj.x, 50)
-		test.equal(repeats, 0)
-
-		tl.update(500)
-		test.equal(obj.x, 100)
-		// repeat triggers on reaching duration
-		test.equal(repeats, 1)
-		test.ok(tl.isPlaying())
-
-		tl.update(750)
-		test.equal(obj.x, 50)
-
-		const alive = tl.update(1000)
-		test.equal(obj.x, 100)
-		test.equal(alive, false)
-
-		test.done()
-	},
-
-	'Timeline yoyo plays backwards on every other iteration'(test: Test): void {
-		const obj = {x: 0}
-		const t = new TWEEN.Tween(obj).to({x: 100}, 1000)
-		const tl = new TWEEN.Timeline().add(t, 0).repeat(1).yoyo(true)
-
-		tl.start(0)
-		tl.update(500)
-		test.equal(obj.x, 50)
-
-		tl.update(1000) // end of forward, triggers yoyo repeat
-		test.equal(obj.x, 100)
-
-		tl.update(1500) // halfway backwards
-		test.equal(obj.x, 50)
-
-		tl.update(2000)
-		test.equal(obj.x, 0)
 
 		test.done()
 	},
@@ -3110,7 +3110,7 @@ export const tests = {
 		test.done()
 	},
 
-	'Timeline getTotalDuration includes repeats and delays'(test: Test): void {
+	'Timeline getTotalDuration reflects child durations'(test: Test): void {
 		const t = new TWEEN.Tween({x: 0}).to({x: 1}, 400)
 		test.equal(t.getTotalDuration(), 400)
 
@@ -3125,8 +3125,9 @@ export const tests = {
 		test.equal(tl.getDuration(), 400)
 		test.equal(tl.getTotalDuration(), 400)
 
-		const tlRepeat = new TWEEN.Timeline().add(t, 0).repeat(1)
-		test.equal(tlRepeat.getTotalDuration(), 800)
+		const tlChild = new TWEEN.Timeline().add(tDelayRepeat, 0)
+		test.equal(tlChild.getDuration(), 400)
+		test.equal(tlChild.getTotalDuration(), 400)
 
 		test.done()
 	},
@@ -3199,13 +3200,9 @@ export const tests = {
 		const tl = new TWEEN.Timeline()
 		const t = new TWEEN.Tween({x: 0}).to({x: 1}, 100)
 		test.equal(tl.add(t), tl)
-		test.equal(tl.delay(10), tl)
-		test.equal(tl.repeat(1), tl)
-		test.equal(tl.yoyo(true), tl)
 		test.equal(tl.onStart(), tl)
 		test.equal(tl.onUpdate(), tl)
 		test.equal(tl.onComplete(), tl)
-		test.equal(tl.onRepeat(), tl)
 		test.equal(tl.onStop(), tl)
 		test.equal(tl.start(), tl)
 		test.equal(tl.pause(), tl)
@@ -3269,26 +3266,6 @@ export const tests = {
 		test.equal(obj.x, 100)
 		test.equal(obj.y, 50)
 		test.equal(obj.size, 100)
-
-		test.done()
-	},
-
-	'Timeline yoyo reverse returns children to start values'(test: Test): void {
-		const obj = {x: 0, y: 0}
-		const inner = new TWEEN.Timeline()
-			.add(new TWEEN.Tween(obj).to({x: 200}, 600), 0)
-			.add(new TWEEN.Tween(obj).to({y: 180}, 600), 800)
-		const outer = new TWEEN.Timeline().add(inner, 0).repeat(1).yoyo(true)
-
-		outer.start(0)
-		for (let t = 0; t <= 1400; t += 20) outer.update(t)
-		test.equal(obj.x, 200)
-		test.equal(obj.y, 180)
-
-		for (let t = 1420; t <= 2800; t += 20) outer.update(t)
-		test.equal(obj.x, 0)
-		test.equal(obj.y, 0)
-		test.ok(!outer.isPlaying())
 
 		test.done()
 	},

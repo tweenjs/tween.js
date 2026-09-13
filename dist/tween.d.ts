@@ -171,14 +171,20 @@ type UnknownProps = Record<string, any>;
  * Timeline: compose Tweens (and nested Timelines) in sequence and in parallel.
  *
  * Inspired by trusktr's vision in #647 / #560:
- * - Tween does tweening, Timeline does orchestration (replaces `.chain`,
- *   and handles repeat/yoyo at a higher level).
+ * - Tween does tweening, Timeline does orchestration (replaces `.chain`).
  * - Single class, sequential by default (append), parallel via explicit offset.
  * - Simple, Three.js ethos: small API, explicit times, no magic.
  */
 
 type TimelineChild = Tween<any> | Timeline;
-type TimelinePosition = number | string;
+type TimelineAt = TimelineChild | number | string;
+type TimelineAddOptions = {
+    at?: TimelineAt;
+    atIndex?: number;
+    offset?: number;
+    shift?: boolean;
+};
+type TimelinePosition = TimelineAt | TimelineAddOptions;
 declare class Timeline {
     static autoStartOnUpdate: boolean;
     private _id;
@@ -189,37 +195,26 @@ declare class Timeline {
     private _isPlaying;
     private _isPaused;
     private _pauseStart;
-    private _delayTime;
-    private _initialRepeat;
-    private _repeat;
-    private _repeatDelayTime?;
-    private _yoyo;
-    private _reversed;
     private _onStartCallback?;
     private _onStartCallbackFired;
     private _onEveryStartCallback?;
     private _onEveryStartCallbackFired;
     private _onUpdateCallback?;
-    private _onRepeatCallback?;
     private _onCompleteCallback?;
     private _onStopCallback?;
     constructor();
     getId(): number;
     isPlaying(): boolean;
     isPaused(): boolean;
-    /** Duration of one iteration (max child end), excluding own delay/repeats. */
+    /** Duration of the timeline (max child end). */
     getDuration(): number;
-    /**
-     * Total duration from `start()` call, including own delay, repeats and
-     * repeat delays. `Infinity` when repeating forever or containing an
-     * infinite child.
-     */
     getTotalDuration(): number;
     getAll(): Array<TimelineChild>;
     has(node: TimelineChild): boolean;
-    /** Resolve a position to a local time in ms. */
-    private _parsePosition;
-    addLabel(name: string, offset: TimelinePosition): this;
+    private _isAddOptions;
+    private _resolveAt;
+    private _resolvePosition;
+    addLabel(name: string, offset: number): this;
     removeLabel(name: string): this;
     getLabel(name: string): number | undefined;
     private _recalculateDuration;
@@ -229,21 +224,20 @@ declare class Timeline {
      * - `add(tween)` appends after the last child (sequential).
      * - `add(tween, 0)` starts at timeline start (parallel).
      * - `add(tween, 500)` starts at 500ms.
-     * - `add(tween, 'myLabel')`, `add(tween, 'myLabel+=100')`, `add(tween, '<')`, `add(tween, '>')`.
+     * - `add(tween, 'myLabel')` aligns to an existing label.
+     * - `add(tween, otherTween)` aligns to another child.
+     * - `add(tween, {at: 'myLabel', offset: 100})` adds with an offset.
+     * - `add(tween, {atIndex: 5, shift: true})` inserts and shifts later children.
      * - `add([a, b])` adds sequentially; `add([a, b], 0)` adds in parallel.
      */
     add(node: TimelineChild | Array<TimelineChild>, position?: TimelinePosition): this;
+    private _shiftEntries;
     private _addSingle;
     remove(...nodes: Array<TimelineChild>): this;
     removeAll(): this;
-    delay(amount?: number): this;
-    repeat(times?: number): this;
-    repeatDelay(amount?: number): this;
-    yoyo(yoyo?: boolean): this;
     onStart(callback?: (timeline: Timeline) => void): this;
     onEveryStart(callback?: (timeline: Timeline) => void): this;
     onUpdate(callback?: (timeline: Timeline, elapsed: number) => void): this;
-    onRepeat(callback?: (timeline: Timeline) => void): this;
     onComplete(callback?: (timeline: Timeline) => void): this;
     onStop(callback?: (timeline: Timeline) => void): this;
     /** Convenience: set easing for all child Tweens (recurses into nested Timelines). */
@@ -256,8 +250,7 @@ declare class Timeline {
     resume(time?: number): this;
     /**
      * @returns true if still playing after update, false otherwise.
-     * Children use a local clock (0 = timeline start), so yoyo/reverse is a
-     * single time mapping with no offset mirroring needed.
+     * Children use a local clock (0 = timeline start).
      */
     update(time?: number, autoStart?: boolean): boolean;
 }
