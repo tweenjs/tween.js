@@ -350,14 +350,52 @@ const timeline = new Timeline()
 	.add(tweenC, 500) // start at 500ms
 ```
 
-Positions also accept labels: `'myLabel'`, `'myLabel+=100'`, `'<'` (start of
-the last child), `'>'` (end), `'+=100'` (relative to the end). Custom labels
-are added with `timeline.addLabel('intro', 300)`. Timelines can be nested
-inside other timelines, and have their own `delay`, `repeat`, `repeatDelay`,
-`yoyo`, `pause`/`resume`, `stop`, and `onStart`/`onEveryStart`/`onUpdate`/
-`onRepeat`/`onComplete`/`onStop` callbacks, mirroring `Tween`. A `Timeline`
-can also be added to a `Group` (`group.add(timeline)`) — just don't add its
-children to a `Group` as well, or they would be updated twice.
+Timeline positions and APIs:
+
+- Position strings accepted by `timeline.add(...)` and `timeline.addLabel(...)`:
+  - `'myLabel'`
+  - `'myLabel+=100'`
+  - `'myLabel-=100'`
+  - `'<'` (start of the last child)
+  - `'>'` (end of the timeline)
+  - `'+=100'` / `'-=100'` (relative to the end)
+- Label APIs:
+  - `timeline.addLabel('intro', 300)`
+  - `timeline.getLabel('intro')`
+  - `timeline.removeLabel('intro')`
+- Child management APIs:
+  - `timeline.add(child, position?)`
+  - `timeline.getAll()`
+  - `timeline.has(child)`
+  - `timeline.remove(child)`
+  - `timeline.removeAll()`
+- Playback and timing APIs:
+  - `timeline.start(time?)`
+  - `timeline.update(time?)`
+  - `timeline.isPlaying()`
+  - `timeline.isPaused()`
+  - `timeline.getDuration()`
+  - `timeline.getTotalDuration()`
+  - `timeline.delay(ms)`
+  - `timeline.repeat(times)`
+  - `timeline.repeatDelay(ms?)`
+  - `timeline.yoyo(true)`
+  - `timeline.pause()`
+  - `timeline.resume()`
+  - `timeline.stop()`
+- Child-wide convenience APIs:
+  - `timeline.easing(fn)`
+  - `timeline.interpolation(fn)`
+- Callbacks:
+  - `timeline.onStart(fn)`
+  - `timeline.onEveryStart(fn)`
+  - `timeline.onUpdate(fn)`
+  - `timeline.onRepeat(fn)`
+  - `timeline.onComplete(fn)`
+  - `timeline.onStop(fn)`
+- Timelines can be nested inside other timelines.
+- A `Timeline` can also be added to a `Group` (`group.add(timeline)`) — just
+  don't add its children to a `Group` as well, or they would be updated twice.
 
 Check [Timeline](../examples/20_timeline.html) for a working example.
 

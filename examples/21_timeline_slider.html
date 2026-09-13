@@ -4,8 +4,13 @@
 		<title>Tween.js / timeline slider</title>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 		<link href="css/style.css" media="screen" rel="stylesheet" type="text/css" />
-		<!-- UMD build (not a module) so this page also works via file:// -->
-		<script src="../dist/tween.umd.js"></script>
+		<script type="importmap">
+			{
+				"imports": {
+					"@tweenjs/tween.js": "../dist/tween.esm.js"
+				}
+			}
+		</script>
 	</head>
 	<body id="page">
 		<div id="info">
@@ -22,20 +27,12 @@
 			<span id="readout">0ms</span>
 		</div>
 
-		<script>
-			if (!window.TWEEN || typeof TWEEN.Timeline !== 'function') {
-				document.getElementById('info').innerHTML +=
-					'<p style="color:red">TWEEN.Timeline not found in ../dist/. Run `npm run build` first, then reload.</p>'
-				throw new Error('TWEEN.Timeline missing: rebuild dist with `npm run build`')
-			}
-
-			var Tween = TWEEN.Tween
-			var Timeline = TWEEN.Timeline
-			var Easing = TWEEN.Easing
+		<script type="module">
+			import {Easing, Timeline, Tween} from '@tweenjs/tween.js'
 
 			// One shared state object; each tween owns different properties.
 			// Colors are tweened as r/g/b numbers, then composed into CSS.
-			var state = {
+			const state = {
 				x: 0,
 				y: 0,
 				r: 255,
@@ -50,10 +47,10 @@
 				pb: 255,
 			}
 
-			var STEP = 800
-			var labels = ['move', 'color', 'grow', 'round', 'spin', 'fade', 'drop', 'page']
+			const STEP = 800
+			const labels = ['move', 'color', 'grow', 'round', 'spin', 'fade', 'drop', 'page']
 
-			var tl = new Timeline()
+			const tl = new Timeline()
 				.add(new Tween(state).to({x: 260}, STEP).easing(Easing.Quadratic.InOut))
 				.add(new Tween(state).to({r: 108, g: 204, b: 255}, STEP).easing(Easing.Linear.None))
 				.add(new Tween(state).to({size: 160}, STEP).easing(Easing.Quadratic.InOut))
@@ -64,13 +61,13 @@
 				.add(new Tween(state).to({pr: 40, pg: 44, pb: 52}, STEP).easing(Easing.Linear.None))
 				.onUpdate(render)
 
-			var slider = document.getElementById('slider')
-			var readout = document.getElementById('readout')
-			var stepsEl = document.getElementById('steps')
+			const slider = document.getElementById('slider')
+			const readout = document.getElementById('readout')
+			const stepsEl = document.getElementById('steps')
 			slider.max = tl.getDuration()
 
 			labels.forEach(function (name, i) {
-				var dot = document.createElement('span')
+				const dot = document.createElement('span')
 				dot.className = 'step'
 				dot.textContent = i + 1
 				dot.title = name + ' (' + i * STEP + 'ms)'
@@ -79,7 +76,7 @@
 
 			slider.addEventListener('input', function () {
 				// Manual update: (re)start at local 0 when finished, then drive to v.
-				var v = +slider.value
+				const v = +slider.value
 				if (!tl.isPlaying()) tl.start(0)
 				tl.update(v)
 				render()
@@ -90,19 +87,19 @@
 			render()
 
 			function render() {
-				var t = +slider.value
+				const t = +slider.value
 				updateBox(state)
 				readout.textContent = t + 'ms · ' + labels[Math.min(labels.length - 1, Math.floor(t / STEP))]
-				var dots = stepsEl.children
-				var active = Math.min(dots.length - 1, Math.floor(t / STEP))
-				for (var i = 0; i < dots.length; i++) {
+				const dots = stepsEl.children
+				const active = Math.min(dots.length - 1, Math.floor(t / STEP))
+				for (let i = 0; i < dots.length; i++) {
 					dots[i].className = 'step' + (i === active ? ' active' : '')
 				}
 			}
 
 			function updateBox(s) {
-				var box = document.getElementById('target')
-				var st = box.style
+				const box = document.getElementById('target')
+				const st = box.style
 				st.width = Math.round(s.size) + 'px'
 				st.height = Math.round(s.size) + 'px'
 				st.background = 'rgb(' + Math.round(s.r) + ',' + Math.round(s.g) + ',' + Math.round(s.b) + ')'
