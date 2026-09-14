@@ -25,8 +25,29 @@ export type TimelineAddOptions = {
 	atIndex?: number
 	offset?: number
 	shift?: boolean
+	/**
+	 * Total number of times to play the child. Each extra play clones the
+	 * child (documented), so every clip has independent playback state.
+	 * Must be a positive integer, defaults to 1. One call may not expand
+	 * past {@link MAX_TIMELINE_DURATION_MS}.
+	 */
+	repeat?: number
+	/**
+	 * Alternate each play with a reversed clip (`child.reverse()`), i.e. a
+	 * yoyo without `yoyo()`. Total clips are `repeat * 2`, starting with the
+	 * original: `{yoyo: true, repeat: 2}` plays
+	 * forward, backward, forward, backward. Only supported for `Tween`
+	 * children; nested timelines must be reversed manually.
+	 */
+	yoyo?: boolean
 }
 export type TimelinePosition = TimelineAt | TimelineAddOptions
+
+/**
+ * One `add()` call may not expand to more than 72 hours of clips (a full
+ * three-day conference, the longest animation in the universe).
+ */
+const MAX_TIMELINE_DURATION_MS = 72 * 60 * 60 * 1000
 
 type TimelineEntry = {
 	node: TimelineChild
@@ -95,12 +116,13 @@ export class Timeline {
 	}
 
 	private _isAddOptions(position: TimelinePosition | undefined): position is TimelineAddOptions {
-		return (
-			typeof position === 'object' &&
-			position !== null &&
-			!Array.isArray(position) &&
-			('at' in position || 'atIndex' in position || 'offset' in position || 'shift' in position)
-		)
+		if (typeof position !== 'object' || position === null || Array.isArray(position)) return false
+		if (position instanceof Timeline) return false
+		// Tween instances are objects too (and have `repeat`/`yoyo` methods),
+		// so detect them by their playback interface first.
+		const maybeTween = position as Tween<any>
+		if (typeof maybeTween.isPlaying === 'function' && typeof maybeTween.getId === 'function') return false
+		return true
 	}
 
 	private _resolveAt(at?: TimelineAt): {offset: number; insertIndex?: number} {
@@ -169,14 +191,26 @@ export class Timeline {
 	/**
 	 * Add a Tween or nested Timeline.
 	 *
+	 * Placement (second argument):
 	 * - `add(tween)` appends after the last child (sequential).
 	 * - `add(tween, 0)` starts at timeline start (parallel).
 	 * - `add(tween, 500)` starts at 500ms.
-	 * - `add(tween, 'myLabel')` aligns to an existing label.
-	 * - `add(tween, otherTween)` aligns to another child.
-	 * - `add(tween, {at: 'myLabel', offset: 100})` adds with an offset.
-	 * - `add(tween, {atIndex: 5, shift: true})` inserts and shifts later children.
-	 * - `add([a, b])` adds sequentially; `add([a, b], 0)` adds in parallel.
+	 * - `add(tween, 'myLabel')` aligns to a label (`start` and `end` builtin).
+	 * - `add(tween, otherTween)` aligns to another child's start.
+	 * - `add(tween, {at, atIndex, offset, shift, repeat, yoyo})` for full control.
+	 *
+	 * Options:
+	 * - `at`: a time value, label, or child to align to (default: end).
+	 * - `atIndex`: entry index to align to (takes precedence over `at`).
+	 * - `offset`: added to the aligned base (default: 0).
+	 * - `shift`: shift entries at/after the base later so nothing overlaps.
+	 * - `repeat`: total plays; extra plays clone the child (default: 1).
+	 * - `yoyo`: alternate plays with reversed clips (see `Tween.reverse()`).
+	 *
+	 * Adding the same tween more than once clones it (each clip needs
+	 * independent playback state); the original object plays first.
+	 * `add([a, b])` adds sequentially; `add([a, b], 0)` adds in parallel
+	 * (`repeat`/`yoyo` apply per child).
 	 */
 	add(node: TimelineChild | Array<TimelineChild>, position?: TimelinePosition): this {
 		if (Array.isArray(node)) {
@@ -195,28 +229,92 @@ export class Timeline {
 	}
 
 	private _addSingle(node: TimelineChild, position?: TimelinePosition): this {
+		const repeat = this._isAddOptions(position) && position.repeat !== undefined ? position.repeat : 1
+		if (!Number.isInteger(repeat) || repeat < 1) {
+			throw new Error(`Timeline.add() repeat must be a positive integer, got ${repeat}.`)
+		}
+		const yoyo = this._isAddOptions(position) && position.yoyo === true
+
 		const resolved = this._resolvePosition(position)
-		const existingIndex = this._entries.findIndex(entry => entry.node === node)
-		const entry =
-			existingIndex === -1 ? {node, offset: resolved.offset, started: false} : this._entries.splice(existingIndex, 1)[0]
 
-		if (resolved.shift) this._shiftEntries(resolved.offset, node.getTotalDuration())
+		// Expand to clips. The original object plays first (unless it is
+		// already placed, in which case every clip is a clone: sharing one
+		// Tween across entries would share its playback state and break).
+		// Odd clips are reversed when yoyo. `{yoyo: true, repeat: 2}` plays
+		// forward, backward, forward, backward.
+		const totalClips = repeat * (yoyo ? 2 : 1)
+		// Fail fast before materializing: a huge repeat must throw instead
+		// of allocating millions of clones.
+		const clipsTotal = totalClips * node.getTotalDuration()
+		if (totalClips > 1 && !(clipsTotal <= MAX_TIMELINE_DURATION_MS)) {
+			throw new Error(`Timeline.add() {repeat: ${repeat}${yoyo ? ', yoyo: true' : ''}} exceeds the 72 hour cap.`)
+		}
+		const clips: Array<TimelineChild> = []
+		for (let i = 0; i < totalClips; i++) {
+			if (i === 0 && !this.has(node)) {
+				clips.push(node)
+			} else if (yoyo && i % 2 === 1) {
+				if (node instanceof Timeline) {
+					throw new Error(
+						'Timeline.add() yoyo is only supported for Tween children. Reverse nested timelines manually.',
+					)
+				}
+				clips.push((node as Tween<any>).reverse())
+			} else {
+				clips.push(node instanceof Timeline ? node.clone() : (node as Tween<any>).clone())
+			}
+		}
 
-		entry.offset = resolved.offset
-		entry.started = false
+		if (resolved.shift) {
+			const total = clips.reduce((sum, clip) => sum + clip.getTotalDuration(), 0)
+			this._shiftEntries(resolved.offset, total)
+		}
+
+		let cursor = resolved.offset
+		const newEntries: Array<TimelineEntry> = clips.map(clip => {
+			const entry: TimelineEntry = {node: clip, offset: cursor, started: false}
+			cursor += clip.getTotalDuration()
+			return entry
+		})
 
 		if (resolved.insertIndex !== undefined) {
-			const insertIndex =
-				existingIndex !== -1 && existingIndex < resolved.insertIndex ? resolved.insertIndex - 1 : resolved.insertIndex
-			this._entries.splice(insertIndex, 0, entry)
+			this._entries.splice(resolved.insertIndex, 0, ...newEntries)
 		} else {
-			this._entries.push(entry)
+			this._entries.push(...newEntries)
 		}
 
 		// Children start lazily when the playhead reaches them (see update),
 		// so start values are captured at the right moment.
 		this._recalculateDuration()
 		return this
+	}
+
+	/**
+	 * Create an independent copy of this timeline: entries, custom labels,
+	 * and callbacks are copied, and every child is cloned, so the copy plays
+	 * identically but owns its playback state. Used by
+	 * `add(child, {repeat})` expansion for nested timelines.
+	 */
+	clone(): Timeline {
+		const cloned = new Timeline()
+		for (const entry of this._entries) {
+			const child = entry.node
+			cloned._entries.push({
+				node: child instanceof Timeline ? child.clone() : (child as Tween<any>).clone(),
+				offset: entry.offset,
+				started: false,
+			})
+		}
+		for (const name of Object.keys(this._labels)) {
+			if (name !== 'start' && name !== 'end') cloned._labels[name] = this._labels[name]
+		}
+		cloned._onStartCallback = this._onStartCallback
+		cloned._onEveryStartCallback = this._onEveryStartCallback
+		cloned._onUpdateCallback = this._onUpdateCallback
+		cloned._onCompleteCallback = this._onCompleteCallback
+		cloned._onStopCallback = this._onStopCallback
+		cloned._recalculateDuration()
+		return cloned
 	}
 
 	remove(...nodes: Array<TimelineChild>): this {
