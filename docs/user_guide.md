@@ -358,6 +358,7 @@ timeline.addLabel('intro', 300)
 timeline.add(tweenD, 'intro') // align to label
 timeline.add(tweenE, {at: 'intro', offset: 100}) // 400ms
 timeline.add(tweenF, {at: tweenD, offset: -100}) // 100ms before tweenD
+timeline.add(tweenH, tweenD) // align to tweenD's start
 timeline.add(tweenG, {atIndex: 2, shift: true}) // insert before child #3 and shift later children
 ```
 
