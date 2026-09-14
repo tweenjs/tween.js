@@ -2920,6 +2920,13 @@ export const tests = {
 		const t4 = new TWEEN.Tween(obj4).to({w: 100}, 200)
 		tl.add(t4, {at: t2, offset: -100})
 
+		const tl2 = new TWEEN.Timeline()
+		const a = new TWEEN.Tween({x: 0}).to({x: 1}, 400)
+		const b = new TWEEN.Tween({x: 0}).to({x: 1}, 400)
+		tl2.add(a, 100)
+		tl2.add(b, a)
+		test.equal(tl2.getDuration(), 500)
+
 		tl.start(0)
 		tl.update(600)
 		test.equal(obj.x, 60)
