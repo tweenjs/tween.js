@@ -133,13 +133,59 @@ declare class Tween<T extends UnknownProps = any> {
      * Removes the tween from whichever group it is in.
      */
     remove(): this;
+    /**
+     * @deprecated Timing orchestration is moving to `Timeline` (use a timeline
+     * offset instead). This method keeps working for now and will be removed
+     * in a future major version.
+     */
     delay(amount?: number): this;
+    /**
+     * @deprecated Timing orchestration is moving to `Timeline` (repeat by
+     * adding the tween multiple times, e.g. `timeline.add(tween, {repeat: 3})`,
+     * which clones it internally). This method keeps working for now and will
+     * be removed in a future major version.
+     */
     repeat(times?: number): this;
+    /**
+     * @deprecated Timing orchestration is moving to `Timeline`. This method
+     * keeps working for now and will be removed in a future major version.
+     */
     repeatDelay(amount?: number): this;
+    /**
+     * @deprecated Timing orchestration is moving to `Timeline` (yoyo via
+     * `reverse()` clips, e.g. `timeline.add(tween, {yoyo: true})`). This method
+     * keeps working for now and will be removed in a future major version.
+     */
     yoyo(yoyo?: boolean): this;
     easing(easingFunction?: EasingFunction): this;
     interpolation(interpolationFunction?: InterpolationFunction): this;
     chain(...tweens: Array<Tween<any>>): this;
+    /**
+     * Create an independent copy of this tween: same object, end values,
+     * duration, easing, interpolation, dynamic flag, and callbacks, but no
+     * playback state. `Timeline` uses this when the same tween is added more
+     * than once (e.g. `timeline.add(tween, {repeat: 3})`).
+     *
+     * Start values are snapshotted right away, so every repeated play starts
+     * from the same state even though the object keeps changing.
+     *
+     * Chains are not copied; compose with `Timeline` instead.
+     */
+    clone(): Tween<T>;
+    /**
+     * Create a new tween that plays this tween backwards: same object, end
+     * values, duration, easing, interpolation, dynamic flag, and callbacks,
+     * but with progress mirrored so it runs from end to start.
+     *
+     * The typical use is a yoyo without `yoyo()`:
+     *
+     * ```js
+     * timeline.add(tween)
+     * timeline.add(tween.reverse())
+     * // or simply: timeline.add(tween, {yoyo: true})
+     * ```
+     */
+    reverse(): Tween<T>;
     onStart(callback?: (object: T) => void): this;
     onEveryStart(callback?: (object: T) => void): this;
     onUpdate(callback?: (object: T, elapsed: number) => void): this;
@@ -183,6 +229,21 @@ type TimelineAddOptions = {
     atIndex?: number;
     offset?: number;
     shift?: boolean;
+    /**
+     * Total number of times to play the child. Each extra play clones the
+     * child (documented), so every clip has independent playback state.
+     * Must be a positive integer, defaults to 1. One call may not expand
+     * past {@link MAX_TIMELINE_DURATION_MS}.
+     */
+    repeat?: number;
+    /**
+     * Alternate each play with a reversed clip (`child.reverse()`), i.e. a
+     * yoyo without `yoyo()`. Total clips are `repeat * 2`, starting with the
+     * original: `{yoyo: true, repeat: 2}` plays
+     * forward, backward, forward, backward. Only supported for `Tween`
+     * children; nested timelines must be reversed manually.
+     */
+    yoyo?: boolean;
 };
 type TimelinePosition = TimelineAt | TimelineAddOptions;
 declare class Timeline {
@@ -221,18 +282,37 @@ declare class Timeline {
     /**
      * Add a Tween or nested Timeline.
      *
+     * Placement (second argument):
      * - `add(tween)` appends after the last child (sequential).
      * - `add(tween, 0)` starts at timeline start (parallel).
      * - `add(tween, 500)` starts at 500ms.
-     * - `add(tween, 'myLabel')` aligns to an existing label.
-     * - `add(tween, otherTween)` aligns to another child.
-     * - `add(tween, {at: 'myLabel', offset: 100})` adds with an offset.
-     * - `add(tween, {atIndex: 5, shift: true})` inserts and shifts later children.
-     * - `add([a, b])` adds sequentially; `add([a, b], 0)` adds in parallel.
+     * - `add(tween, 'myLabel')` aligns to a label (`start` and `end` builtin).
+     * - `add(tween, otherTween)` aligns to another child's start.
+     * - `add(tween, {at, atIndex, offset, shift, repeat, yoyo})` for full control.
+     *
+     * Options:
+     * - `at`: a time value, label, or child to align to (default: end).
+     * - `atIndex`: entry index to align to (takes precedence over `at`).
+     * - `offset`: added to the aligned base (default: 0).
+     * - `shift`: shift entries at/after the base later so nothing overlaps.
+     * - `repeat`: total plays; extra plays clone the child (default: 1).
+     * - `yoyo`: alternate plays with reversed clips (see `Tween.reverse()`).
+     *
+     * Adding the same tween more than once clones it (each clip needs
+     * independent playback state); the original object plays first.
+     * `add([a, b])` adds sequentially; `add([a, b], 0)` adds in parallel
+     * (`repeat`/`yoyo` apply per child).
      */
     add(node: TimelineChild | Array<TimelineChild>, position?: TimelinePosition): this;
     private _shiftEntries;
     private _addSingle;
+    /**
+     * Create an independent copy of this timeline: entries, custom labels,
+     * and callbacks are copied, and every child is cloned, so the copy plays
+     * identically but owns its playback state. Used by
+     * `add(child, {repeat})` expansion for nested timelines.
+     */
+    clone(): Timeline;
     remove(...nodes: Array<TimelineChild>): this;
     removeAll(): this;
     onStart(callback?: (timeline: Timeline) => void): this;

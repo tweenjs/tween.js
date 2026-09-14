@@ -219,6 +219,8 @@ tween.repeat(Infinity) // repeats forever
 The total number of tweens will be the repeat parameter plus one for the initial tween.
 Check the [Repeat](../examples/08_repeat.html) example.
 
+> **Deprecated** Prefer `timeline.add(tween, {repeat: 3})` (total plays) instead; see Timeline.
+
 ### `yoyo`
 
 This function only has effect if used along with `repeat`. When active, the behaviour of the tween will be _like a yoyo_, i.e. it will bounce to and from the start and end values, instead of just repeating the same sequence from the beginning:
@@ -227,6 +229,8 @@ This function only has effect if used along with `repeat`. When active, the beha
 tween.yoyo(false) // default value, animation will only go from start to end value
 tween.yoyo(true) // tween will 'yoyo' between start and end values
 ```
+
+> **Deprecated** Prefer explicit forward/backward tweens in a Timeline instead, e.g. `timeline.add(tween)` + `timeline.add(tween.reverse())` or the `timeline.add(tween, {yoyo: true})` shortcut; see Timeline.
 
 ### `delay`
 
@@ -238,6 +242,8 @@ tween.start()
 ```
 
 will start executing 1 second after the `start` method has been called.
+
+> **Deprecated** Prefer a timeline offset (`timeline.add(tween, 1000)`) instead; see Timeline.
 
 ### `repeatDelay`
 
@@ -252,6 +258,8 @@ tween.start()
 ```
 
 The first iteration of the tween will happen after one second, the second iteration will happen a half second after the first iteration ends, the third iteration will happen a half second after the second iteration ends, etc. If you want to delay the initial iteration but you don't want any delay between iterations, then make sure to call `tween.repeatDelay(0)`.
+
+> **Deprecated** Prefer Timeline composition instead; see Timeline.
 
 ### `dynamic`
 
@@ -375,12 +383,17 @@ Timeline APIs:
   - `timeline.add(child, 500)` places a child at an absolute local time
   - `timeline.add(child, 'intro')` aligns to an existing label
   - `timeline.add(child, otherChild)` aligns to another child's start time
-  - `timeline.add(child, {at, offset, shift})` combines a target location with
-    an offset and optional insertion shifting
-  - `timeline.add(child, {atIndex, offset, shift})` targets a child by index;
-    `atIndex` takes precedence over `at`
+  - `timeline.add(child, {at, offset, shift, repeat, yoyo})` combines a target
+    location with an offset, optional insertion shifting, and repeat/yoyo
+    expansion (see below)
+  - `timeline.add(child, {atIndex, offset, shift, repeat, yoyo})` targets a
+    child by index; `atIndex` takes precedence over `at`
+  - `timeline.add(child, {repeat: 3})` plays the child 3 times in a row (see
+    repeats below)
+  - `timeline.add(child, {yoyo: true})` plays forward then backward (see yoyo
+    below)
   - `timeline.add([a, b])` adds sequentially; `timeline.add([a, b], 0)` adds
-    in parallel
+    in parallel (`repeat`/`yoyo` apply per child)
 - Child management:
   - `timeline.getAll()`
   - `timeline.has(child)`
@@ -412,14 +425,56 @@ Timeline APIs:
     twice.
 
 Timeline intentionally does not mirror Tween's legacy orchestration helpers
-such as `delay()`, `repeat()`, `repeatDelay()`, or `yoyo()`. Instead:
+such as `delay()`, `repeat()`, `repeatDelay()`, or `yoyo()` (deprecated on
+`Tween`, to be removed in a future major version). Instead:
 
 - use offsets or labels to create gaps
-- add more tweens or nested timelines when you want repeated structure
-- build "go there, then come back" motion by composing multiple tweens in a
-  timeline
+- repeat by adding the tween multiple times: each extra play clones it
+  internally (documented), so every clip owns its playback state:
 
-Check [Timeline](../examples/20_timeline.html) for a working example.
+```js
+// replacement for tween.repeat(): plays three times
+timeline.add(tween)
+timeline.add(tween)
+timeline.add(tween)
+
+// shortcut for the above
+timeline.add(tween, {repeat: 3})
+```
+
+One `add()` call may not expand past 72 hours of clips (a full three-day
+conference); anything beyond that throws instead of allocating millions of
+clones.
+
+- yoyo by composing a reversed clip (see `Tween.reverse()`):
+
+```js
+// replacement for tween.yoyo()
+timeline.add(tween)
+timeline.add(tween.reverse())
+
+// shortcut for the above
+timeline.add(tween, {yoyo: true})
+
+// forward, backward, forward, backward
+timeline.add(tween, {yoyo: true, repeat: 2})
+```
+
+### `Tween.clone()` and `Tween.reverse()`
+
+- `tween.clone()` returns an independent copy (same object, end values,
+  duration, easing, interpolation, dynamic flag, callbacks) with no playback
+  state. Start values are snapshotted right away, so repeated plays all start
+  from the same state.
+- `tween.reverse()` returns a new tween playing the same values backwards,
+  from end to start.
+- Chains are not copied; compose with `Timeline` instead.
+- `Timeline.clone()` copies entries, custom labels, and callbacks, cloning
+  every child, so `add(nestedTimeline, {repeat: 2})` works too.
+
+Check [Timeline](../examples/20_timeline.html),
+[Timeline slider](../examples/21_timeline_slider.html), and
+[Timeline repeat](../examples/22_timeline_repeat.html) for working examples.
 
 ## Changing the easing function (AKA make it bouncy)
 

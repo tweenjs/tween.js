@@ -3278,6 +3278,200 @@ export const tests = {
 
 		test.done()
 	},
+
+	'Tween.clone() copies config and plays independently'(test: Test): void {
+		const obj = {x: 0}
+		const t = new TWEEN.Tween(obj).to({x: 100}, 500)
+		const c = t.clone()
+
+		test.ok(c !== t)
+		test.equal(c.getDuration(), 500)
+
+		c.start(0)
+		c.update(250)
+		test.equal(obj.x, 50)
+		c.update(500)
+		test.equal(obj.x, 100)
+
+		// The original is untouched by playing the clone.
+		test.ok(!t.isPlaying())
+
+		test.done()
+	},
+
+	'Tween.clone() does not throw with yoyo, delay, or repeat'(test: Test): void {
+		test.ok(new TWEEN.Tween({}).to({}).delay(10).clone())
+		test.ok(new TWEEN.Tween({}).to({}).repeat(2).clone())
+		test.ok(new TWEEN.Tween({}).to({}).yoyo(true).clone())
+
+		test.done()
+	},
+
+	'Tween.reverse() plays backwards'(test: Test): void {
+		const obj = {x: 0}
+		const t = new TWEEN.Tween(obj).to({x: 100}, 500)
+		const r = t.reverse()
+
+		test.ok(r !== t)
+
+		// Reversed tween plays end to start, regardless of the object state.
+		obj.x = 100
+		r.start(0)
+		r.update(0)
+		test.equal(obj.x, 100)
+		r.update(250)
+		test.equal(obj.x, 50)
+		r.update(500)
+		test.equal(obj.x, 0)
+
+		test.done()
+	},
+
+	'Tween.reverse() does not throw with yoyo, delay, or repeat'(test: Test): void {
+		test.ok(new TWEEN.Tween({}).to({}).delay(10).reverse())
+		test.ok(new TWEEN.Tween({}).to({}).repeat(2).reverse())
+		test.ok(new TWEEN.Tween({}).to({}).yoyo(true).reverse())
+
+		test.done()
+	},
+
+	'Tween.reverse().reverse() plays forward again'(test: Test): void {
+		const obj = {x: 0}
+		const fwd = new TWEEN.Tween(obj).to({x: 100}, 500).reverse().reverse()
+
+		fwd.start(0)
+		fwd.update(250)
+		test.equal(obj.x, 50)
+		fwd.update(500)
+		test.equal(obj.x, 100)
+
+		test.done()
+	},
+
+	'Timeline.add(tween, {repeat}) repeats via clones'(test: Test): void {
+		const obj = {x: 0}
+		const t = new TWEEN.Tween(obj).to({x: 100}, 500)
+		const tl = new TWEEN.Timeline().add(t, {repeat: 3})
+
+		test.equal(tl.getDuration(), 1500)
+		test.equal(tl.getAll().length, 3)
+
+		tl.start(0)
+		tl.update(250)
+		test.equal(obj.x, 50)
+
+		// Every repetition restarts from the original start value.
+		tl.update(750)
+		test.equal(obj.x, 50)
+
+		tl.update(1250)
+		test.equal(obj.x, 50)
+
+		test.equal(tl.update(1500), false)
+		test.equal(obj.x, 100)
+
+		// Manual triple add is equivalent.
+		const obj2 = {x: 0}
+		const t2 = new TWEEN.Tween(obj2).to({x: 100}, 500)
+		const manual = new TWEEN.Timeline().add(t2).add(t2).add(t2)
+		test.equal(manual.getDuration(), 1500)
+		test.equal(manual.getAll().length, 3)
+
+		test.done()
+	},
+
+	'Timeline.add(tween, {yoyo}) plays forward then backward'(test: Test): void {
+		const obj = {x: 0}
+		const t = new TWEEN.Tween(obj).to({x: 100}, 500)
+		const tl = new TWEEN.Timeline().add(t, {yoyo: true})
+
+		test.equal(tl.getAll().length, 2)
+		test.equal(tl.getDuration(), 1000)
+
+		tl.start(0)
+		tl.update(250)
+		test.equal(obj.x, 50)
+		tl.update(500)
+		test.equal(obj.x, 100)
+		tl.update(750)
+		test.equal(obj.x, 50)
+		test.equal(tl.update(1000), false)
+		test.equal(obj.x, 0)
+
+		// Manual forward + reverse() is equivalent.
+		const obj2 = {x: 0}
+		const t2 = new TWEEN.Tween(obj2).to({x: 100}, 500)
+		const manual = new TWEEN.Timeline().add(t2).add(t2.reverse())
+		test.equal(manual.getDuration(), 1000)
+
+		test.done()
+	},
+
+	'Timeline.add(tween, {yoyo: true, repeat: 2}) plays forward, backward, forward, backward'(test: Test): void {
+		const obj = {x: 0}
+		const t = new TWEEN.Tween(obj).to({x: 100}, 500)
+		const tl = new TWEEN.Timeline().add(t, {yoyo: true, repeat: 2})
+
+		test.equal(tl.getAll().length, 4)
+		test.equal(tl.getDuration(), 2000)
+
+		tl.start(0)
+		tl.update(250)
+		test.equal(obj.x, 50)
+		tl.update(500)
+		test.equal(obj.x, 100)
+		tl.update(750)
+		test.equal(obj.x, 50)
+		tl.update(1000)
+		test.equal(obj.x, 0)
+		tl.update(1250)
+		test.equal(obj.x, 50)
+		tl.update(1500)
+		test.equal(obj.x, 100)
+		tl.update(1750)
+		test.equal(obj.x, 50)
+		test.equal(tl.update(2000), false)
+		test.equal(obj.x, 0)
+
+		test.done()
+	},
+
+	'Timeline.add() validates repeat and yoyo expansion'(test: Test): void {
+		const t = new TWEEN.Tween({x: 0}).to({x: 1}, 100)
+
+		test.throws(() => new TWEEN.Timeline().add(t, {repeat: 0}))
+		test.throws(() => new TWEEN.Timeline().add(t, {repeat: 1.5}))
+		test.throws(() => new TWEEN.Timeline().add(t, {repeat: -2}))
+
+		// Yoyo expansion is only supported for Tween children.
+		test.throws(() => new TWEEN.Timeline().add(new TWEEN.Timeline(), {yoyo: true}))
+
+		// Nested timelines repeat via cloning.
+		const obj = {x: 0}
+		const inner = new TWEEN.Timeline().add(new TWEEN.Tween(obj).to({x: 100}, 500))
+		const outer = new TWEEN.Timeline().add(inner, {repeat: 2})
+
+		test.equal(outer.getDuration(), 1000)
+
+		outer.start(0)
+		outer.update(750)
+		test.equal(obj.x, 50)
+		test.equal(outer.update(1000), false)
+		test.equal(obj.x, 100)
+
+		test.done()
+	},
+
+	'Timeline.add() caps expansion at 72 hours'(test: Test): void {
+		const hour = 60 * 60 * 1000
+		// 72 one-hour clips fit exactly; 74 do not (yoyo doubles the plays).
+		test.ok(new TWEEN.Timeline().add(new TWEEN.Tween({x: 0}).to({x: 1}, hour), {yoyo: true, repeat: 36}))
+		test.throws(() => new TWEEN.Timeline().add(new TWEEN.Tween({x: 0}).to({x: 1}, hour), {yoyo: true, repeat: 37}))
+		// Huge repeats fail fast instead of allocating millions of clones.
+		test.throws(() => new TWEEN.Timeline().add(new TWEEN.Tween({x: 0}).to({x: 1}, 1000), {repeat: 1000000}))
+
+		test.done()
+	},
 }
 
 type Test = {
