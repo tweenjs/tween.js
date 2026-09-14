@@ -138,7 +138,7 @@ export class Tween<T extends UnknownProps = any> {
 
 		this._repeat = this._initialRepeat
 
-		if (this._reversed) {
+		if (this._yoyo && this._reversed) {
 			// If we were reversed (f.e. using the yoyo feature) then we need to
 			// flip the tween direction back to forward.
 
@@ -374,22 +374,42 @@ export class Tween<T extends UnknownProps = any> {
 		return this
 	}
 
+	/**
+	 * @deprecated Timing orchestration is moving to `Timeline` (use a timeline
+	 * offset instead). This method keeps working for now and will be removed
+	 * in a future major version.
+	 */
 	delay(amount = 0): this {
 		this._delayTime = amount
 		return this
 	}
 
+	/**
+	 * @deprecated Timing orchestration is moving to `Timeline` (repeat by
+	 * adding the tween multiple times, e.g. `timeline.add(tween, {repeat: 3})`,
+	 * which clones it internally). This method keeps working for now and will
+	 * be removed in a future major version.
+	 */
 	repeat(times = 0): this {
 		this._initialRepeat = times
 		this._repeat = times
 		return this
 	}
 
+	/**
+	 * @deprecated Timing orchestration is moving to `Timeline`. This method
+	 * keeps working for now and will be removed in a future major version.
+	 */
 	repeatDelay(amount?: number): this {
 		this._repeatDelayTime = amount
 		return this
 	}
 
+	/**
+	 * @deprecated Timing orchestration is moving to `Timeline` (yoyo via
+	 * `reverse()` clips, e.g. `timeline.add(tween, {yoyo: true})`). This method
+	 * keeps working for now and will be removed in a future major version.
+	 */
 	yoyo(yoyo = false): this {
 		this._yoyo = yoyo
 		return this
@@ -409,6 +429,57 @@ export class Tween<T extends UnknownProps = any> {
 	chain(...tweens: Array<Tween<any>>): this {
 		this._chainedTweens = tweens
 		return this
+	}
+
+	/**
+	 * Create an independent copy of this tween: same object, end values,
+	 * duration, easing, interpolation, dynamic flag, and callbacks, but no
+	 * playback state. `Timeline` uses this when the same tween is added more
+	 * than once (e.g. `timeline.add(tween, {repeat: 3})`).
+	 *
+	 * Start values are snapshotted right away, so every repeated play starts
+	 * from the same state even though the object keeps changing.
+	 *
+	 * Chains are not copied; compose with `Timeline` instead.
+	 */
+	clone(): Tween<T> {
+		const cloned = new Tween<T>(this._object)
+		cloned._valuesEnd = this._valuesEnd
+		cloned._duration = this._duration
+		cloned._isDynamic = this._isDynamic
+		cloned._reversed = this._reversed
+		cloned._easingFunction = this._easingFunction
+		cloned._interpolationFunction = this._interpolationFunction
+		// Snapshot start values now (a later start() then preserves them).
+		// Callbacks are attached afterwards so this setup stays silent.
+		cloned.start(0)
+		cloned.stop()
+		cloned._onStartCallback = this._onStartCallback
+		cloned._onEveryStartCallback = this._onEveryStartCallback
+		cloned._onUpdateCallback = this._onUpdateCallback
+		cloned._onRepeatCallback = this._onRepeatCallback
+		cloned._onCompleteCallback = this._onCompleteCallback
+		cloned._onStopCallback = this._onStopCallback
+		return cloned
+	}
+
+	/**
+	 * Create a new tween that plays this tween backwards: same object, end
+	 * values, duration, easing, interpolation, dynamic flag, and callbacks,
+	 * but with progress mirrored so it runs from end to start.
+	 *
+	 * The typical use is a yoyo without `yoyo()`:
+	 *
+	 * ```js
+	 * timeline.add(tween)
+	 * timeline.add(tween.reverse())
+	 * // or simply: timeline.add(tween, {yoyo: true})
+	 * ```
+	 */
+	reverse(): Tween<T> {
+		const reversed = this.clone()
+		reversed._reversed = !this._reversed
+		return reversed
 	}
 
 	onStart(callback?: (object: T) => void): this {
@@ -506,7 +577,9 @@ export class Tween<T extends UnknownProps = any> {
 			return portion
 		}
 		const elapsed = calculateElapsedPortion()
-		const value = this._easingFunction(elapsed)
+		// A reversed tween (see reverse()) plays the same values backwards.
+		// Legacy yoyo() swaps values instead, so it is excluded here.
+		const value = this._easingFunction(this._reversed && !this._yoyo ? 1 - elapsed : elapsed)
 
 		// properties transformations
 		this._updateProperties(this._object, this._valuesStart, this._valuesEnd, value)
