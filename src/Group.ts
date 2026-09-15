@@ -1,6 +1,6 @@
 import now from './Now'
 import type {Tween} from './Tween'
-import type {Timeline} from './Timeline'
+import {Timeline} from './Timeline'
 
 export type GroupChild = Tween<any> | Timeline
 
@@ -98,16 +98,18 @@ export default class Group {
 				if (completedGroup.length === group.length - 1) callback(group)
 			}
 
-			if ('getCompleteCallback' in child) {
+			if (child instanceof Timeline) {
 				const prevCallback = child.getCompleteCallback()
-				child.onComplete(object => {
-					prevCallback?.(object)
+				child.onComplete(timeline => {
+					prevCallback?.(timeline)
 					notifyIfComplete()
 				})
 				return
 			}
 
-			child.onComplete(() => {
+			const prevCallback = child.getCompleteCallback()
+			child.onComplete(object => {
+				prevCallback?.(object)
 				notifyIfComplete()
 			})
 		})

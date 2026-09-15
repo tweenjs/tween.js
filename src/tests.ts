@@ -2135,10 +2135,14 @@ export const tests = {
 		const timelineChildTween = new TWEEN.Tween(timelineObj).to({y: 1}, 200)
 		const timeline = new TWEEN.Timeline().add(timelineChildTween, 0)
 		let tweenCompleteCount = 0
+		let timelineCompleteCount = 0
 		let groupCompleteCount = 0
 
 		tween.onComplete(() => {
 			tweenCompleteCount++
+		})
+		timeline.onComplete(() => {
+			timelineCompleteCount++
 		})
 		group.add(tween, timeline)
 		group.onComplete(() => {
@@ -2150,10 +2154,12 @@ export const tests = {
 
 		group.update(100)
 		test.equal(tweenCompleteCount, 1)
+		test.equal(timelineCompleteCount, 0)
 		test.equal(groupCompleteCount, 0)
 
 		group.update(200)
 		test.equal(tweenCompleteCount, 1)
+		test.equal(timelineCompleteCount, 1)
 		test.equal(groupCompleteCount, 1)
 
 		test.done()

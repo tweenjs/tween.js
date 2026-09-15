@@ -265,6 +265,7 @@ declare class Timeline {
     private _onStopCallback?;
     constructor();
     getId(): number;
+    getCompleteCallback(): ((timeline: Timeline) => void) | undefined;
     isPlaying(): boolean;
     isPaused(): boolean;
     /** Duration of the timeline (max child end). */
