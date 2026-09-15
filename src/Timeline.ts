@@ -90,6 +90,10 @@ export class Timeline {
 		return this._id
 	}
 
+	getCompleteCallback(): ((timeline: Timeline) => void) | undefined {
+		return this._onCompleteCallback
+	}
+
 	isPlaying(): boolean {
 		return this._isPlaying
 	}
