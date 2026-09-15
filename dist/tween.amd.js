@@ -306,16 +306,23 @@ define(['exports'], (function (exports) { 'use strict';
         };
         Group.prototype.onComplete = function (callback) {
             var group = this.getAll();
-            group.forEach(function (tween) {
-                // Timelines have onComplete but no getCompleteCallback; only wrap when available (plain Tweens).
-                var maybeTween = tween;
-                var prevCallback = typeof maybeTween.getCompleteCallback === 'function' ? maybeTween.getCompleteCallback() : undefined;
-                tween.onComplete(function () {
-                    prevCallback === null || prevCallback === void 0 ? void 0 : prevCallback(tween);
+            group.forEach(function (child) {
+                var notifyIfComplete = function () {
                     // After the onComplete callback completes, _isPlaying is updated to false, so if the total number of completed tweens is -1, then they are all complete.
                     var completedGroup = group.filter(function (tween) { return !tween.isPlaying(); });
                     if (completedGroup.length === group.length - 1)
                         callback(group);
+                };
+                if ('getCompleteCallback' in child) {
+                    var prevCallback_1 = child.getCompleteCallback();
+                    child.onComplete(function (object) {
+                        prevCallback_1 === null || prevCallback_1 === void 0 ? void 0 : prevCallback_1(object);
+                        notifyIfComplete();
+                    });
+                    return;
+                }
+                child.onComplete(function () {
+                    notifyIfComplete();
                 });
             });
         };

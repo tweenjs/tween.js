@@ -91,16 +91,24 @@ export default class Group {
 	}
 	onComplete(callback: (object: Array<GroupChild>) => void) {
 		const group = this.getAll()
-		group.forEach(tween => {
-			// Timelines have onComplete but no getCompleteCallback; only wrap when available (plain Tweens).
-			const maybeTween = tween as Tween<any>
-			const prevCallback =
-				typeof maybeTween.getCompleteCallback === 'function' ? maybeTween.getCompleteCallback() : undefined
-			;(tween as Tween<any>).onComplete(() => {
-				;(prevCallback as ((o: any) => void) | undefined)?.(tween as any)
+		group.forEach(child => {
+			const notifyIfComplete = () => {
 				// After the onComplete callback completes, _isPlaying is updated to false, so if the total number of completed tweens is -1, then they are all complete.
 				const completedGroup = group.filter(tween => !tween.isPlaying())
 				if (completedGroup.length === group.length - 1) callback(group)
+			}
+
+			if ('getCompleteCallback' in child) {
+				const prevCallback = child.getCompleteCallback()
+				child.onComplete(object => {
+					prevCallback?.(object)
+					notifyIfComplete()
+				})
+				return
+			}
+
+			child.onComplete(() => {
+				notifyIfComplete()
 			})
 		})
 	}

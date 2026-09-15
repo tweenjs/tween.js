@@ -2125,6 +2125,38 @@ export const tests = {
 		test.done()
 	},
 
+	'Custom group.onComplete() works with Timeline children without Tween casts'(test: Test): void {
+		const group = new TWEEN.Group()
+		const tweenObj = {x: 0}
+		const timelineObj = {y: 0}
+		const tween = new TWEEN.Tween(tweenObj).to({x: 1}, 100)
+		const timelineChildTween = new TWEEN.Tween(timelineObj).to({y: 1}, 200)
+		const timeline = new TWEEN.Timeline().add(timelineChildTween, 0)
+		let tweenCompleteCount = 0
+		let groupCompleteCount = 0
+
+		tween.onComplete(() => {
+			tweenCompleteCount++
+		})
+		group.add(tween, timeline)
+		group.onComplete(() => {
+			groupCompleteCount++
+		})
+
+		tween.start(0)
+		timeline.start(0)
+
+		group.update(100)
+		test.equal(tweenCompleteCount, 1)
+		test.equal(groupCompleteCount, 0)
+
+		group.update(200)
+		test.equal(tweenCompleteCount, 1)
+		test.equal(groupCompleteCount, 1)
+
+		test.done()
+	},
+
 	'Custom group stores tweens instead of global TWEEN group'(test: Test): void {
 		const group = new TWEEN.Group()
 
