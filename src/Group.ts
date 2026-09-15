@@ -1,6 +1,6 @@
 import now from './Now'
 import type {Tween} from './Tween'
-import {Timeline} from './Timeline'
+import type {Timeline} from './Timeline'
 
 export type GroupChild = Tween<any> | Timeline
 
@@ -92,22 +92,13 @@ export default class Group {
 	onComplete(callback: (object: Array<GroupChild>) => void) {
 		const group = this.getAll()
 		group.forEach(child => {
+			const prevCallback = child.getCompleteCallback()
 			const notifyIfComplete = () => {
 				// After the onComplete callback completes, _isPlaying is updated to false, so if the total number of completed tweens is -1, then they are all complete.
 				const completedGroup = group.filter(tween => !tween.isPlaying())
 				if (completedGroup.length === group.length - 1) callback(group)
 			}
 
-			if (child instanceof Timeline) {
-				const prevCallback = child.getCompleteCallback()
-				child.onComplete(timeline => {
-					prevCallback?.(timeline)
-					notifyIfComplete()
-				})
-				return
-			}
-
-			const prevCallback = child.getCompleteCallback()
 			child.onComplete(object => {
 				prevCallback?.(object)
 				notifyIfComplete()
