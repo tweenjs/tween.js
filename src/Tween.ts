@@ -561,7 +561,7 @@ export class Tween<T extends UnknownProps = any> {
 
 		const calculateElapsedPortion = () => {
 			if (this._duration === 0) return 1
-			if (time >= this._startTime + totalTime) {
+			if (elapsedTime > totalTime) {
 				return 1
 			}
 
@@ -571,7 +571,7 @@ export class Tween<T extends UnknownProps = any> {
 			// const timeIntoCurrentRepeat = elapsedTime % durationAndDelay
 
 			const portion = Math.min(timeIntoCurrentRepeat / this._duration, 1)
-			if ((portion === 0 || 1 - portion <= Number.EPSILON) && time >= this._startTime + this._duration) {
+			if (portion === 0 && elapsedTime === this._duration) {
 				return 1
 			}
 			return portion
@@ -588,7 +588,7 @@ export class Tween<T extends UnknownProps = any> {
 			this._onUpdateCallback(this._object, elapsed)
 		}
 
-		if (this._duration === 0 || time >= this._startTime + this._duration) {
+		if (this._duration === 0 || elapsedTime >= this._duration) {
 			if (this._repeat > 0) {
 				const completeCount = Math.min(Math.trunc((elapsedTime - this._duration) / durationAndDelay) + 1, this._repeat)
 				if (isFinite(this._repeat)) {

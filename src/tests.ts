@@ -1494,11 +1494,10 @@ export const tests = {
 	'Test that TWEEN.Tween.end sets the final values.'(test: Test): void {
 		const object1 = {x: 0, y: -50, z: 1000}
 		const target1 = {x: 50, y: 123, z: '+234'}
-		const fractionalStartTime = 1234.56789
 
 		const tween1 = new TWEEN.Tween(object1).to(target1, 1000)
 
-		tween1.start(fractionalStartTime)
+		tween1.start()
 		tween1.end()
 
 		test.equal(object1.x, 50)
@@ -1523,13 +1522,12 @@ export const tests = {
 
 	'Test that TWEEN.Tween.end calls the onComplete callback of the tween.'(test: Test): void {
 		test.expect(1)
-		const fractionalStartTime = 1234.56789
 
 		const tween1 = new TWEEN.Tween({}).to({}, 1000).onComplete(function (): void {
 			test.ok(true)
 		})
 
-		tween1.start(fractionalStartTime)
+		tween1.start()
 		tween1.end()
 
 		test.done()
