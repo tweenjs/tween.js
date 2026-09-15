@@ -228,6 +228,8 @@ define(['exports'], (function (exports) { 'use strict';
      *
      * Using the TWEEN singleton to manage your tweens can cause issues in large apps with many components.
      * In these cases, you may want to create your own smaller groups of tween
+     *
+     * Groups can also hold `Timeline` instances (timelines are playable, like tweens).
      */
     var Group = /** @class */ (function () {
         function Group() {
@@ -304,14 +306,17 @@ define(['exports'], (function (exports) { 'use strict';
         };
         Group.prototype.onComplete = function (callback) {
             var group = this.getAll();
-            group.forEach(function (tween) {
-                var prevCallback = tween.getCompleteCallback();
-                tween.onComplete(function () {
-                    prevCallback === null || prevCallback === void 0 ? void 0 : prevCallback(tween);
+            group.forEach(function (child) {
+                var prevCallback = child.getCompleteCallback();
+                var notifyIfComplete = function () {
                     // After the onComplete callback completes, _isPlaying is updated to false, so if the total number of completed tweens is -1, then they are all complete.
                     var completedGroup = group.filter(function (tween) { return !tween.isPlaying(); });
                     if (completedGroup.length === group.length - 1)
                         callback(group);
+                };
+                child.onComplete(function (object) {
+                    prevCallback === null || prevCallback === void 0 ? void 0 : prevCallback(object);
+                    notifyIfComplete();
                 });
             });
         };
@@ -473,6 +478,18 @@ define(['exports'], (function (exports) { 'use strict';
         Tween.prototype.getDuration = function () {
             return this._duration;
         };
+        /**
+         * Total duration from `start()` call (including initial delay, repeats
+         * and repeat delays). Used by `Timeline` to compute its own duration.
+         * Returns `Infinity` when the tween repeats forever.
+         */
+        Tween.prototype.getTotalDuration = function () {
+            var _a;
+            if (!isFinite(this._initialRepeat))
+                return Infinity;
+            var repeatDelay = (_a = this._repeatDelayTime) !== null && _a !== void 0 ? _a : this._delayTime;
+            return this._delayTime + this._duration + this._initialRepeat * (this._duration + repeatDelay);
+        };
         Tween.prototype.to = function (target, duration) {
             if (duration === void 0) { duration = 1000; }
             if (this._isPlaying)
@@ -499,7 +516,7 @@ define(['exports'], (function (exports) { 'use strict';
                 return this;
             }
             this._repeat = this._initialRepeat;
-            if (this._reversed) {
+            if (this._yoyo && this._reversed) {
                 // If we were reversed (f.e. using the yoyo feature) then we need to
                 // flip the tween direction back to forward.
                 this._reversed = false;
@@ -667,21 +684,41 @@ define(['exports'], (function (exports) { 'use strict';
             (_a = this._group) === null || _a === void 0 ? void 0 : _a.remove(this);
             return this;
         };
+        /**
+         * @deprecated Timing orchestration is moving to `Timeline` (use a timeline
+         * offset instead). This method keeps working for now and will be removed
+         * in a future major version.
+         */
         Tween.prototype.delay = function (amount) {
             if (amount === void 0) { amount = 0; }
             this._delayTime = amount;
             return this;
         };
+        /**
+         * @deprecated Timing orchestration is moving to `Timeline` (repeat by
+         * adding the tween multiple times, e.g. `timeline.add(tween, {repeat: 3})`,
+         * which clones it internally). This method keeps working for now and will
+         * be removed in a future major version.
+         */
         Tween.prototype.repeat = function (times) {
             if (times === void 0) { times = 0; }
             this._initialRepeat = times;
             this._repeat = times;
             return this;
         };
+        /**
+         * @deprecated Timing orchestration is moving to `Timeline`. This method
+         * keeps working for now and will be removed in a future major version.
+         */
         Tween.prototype.repeatDelay = function (amount) {
             this._repeatDelayTime = amount;
             return this;
         };
+        /**
+         * @deprecated Timing orchestration is moving to `Timeline` (yoyo via
+         * `reverse()` clips, e.g. `timeline.add(tween, {yoyo: true})`). This method
+         * keeps working for now and will be removed in a future major version.
+         */
         Tween.prototype.yoyo = function (yoyo) {
             if (yoyo === void 0) { yoyo = false; }
             this._yoyo = yoyo;
@@ -705,6 +742,55 @@ define(['exports'], (function (exports) { 'use strict';
             }
             this._chainedTweens = tweens;
             return this;
+        };
+        /**
+         * Create an independent copy of this tween: same object, end values,
+         * duration, easing, interpolation, dynamic flag, and callbacks, but no
+         * playback state. `Timeline` uses this when the same tween is added more
+         * than once (e.g. `timeline.add(tween, {repeat: 3})`).
+         *
+         * Start values are snapshotted right away, so every repeated play starts
+         * from the same state even though the object keeps changing.
+         *
+         * Chains are not copied; compose with `Timeline` instead.
+         */
+        Tween.prototype.clone = function () {
+            var cloned = new Tween(this._object);
+            cloned._valuesEnd = this._valuesEnd;
+            cloned._duration = this._duration;
+            cloned._isDynamic = this._isDynamic;
+            cloned._reversed = this._reversed;
+            cloned._easingFunction = this._easingFunction;
+            cloned._interpolationFunction = this._interpolationFunction;
+            // Snapshot start values now (a later start() then preserves them).
+            // Callbacks are attached afterwards so this setup stays silent.
+            cloned.start(0);
+            cloned.stop();
+            cloned._onStartCallback = this._onStartCallback;
+            cloned._onEveryStartCallback = this._onEveryStartCallback;
+            cloned._onUpdateCallback = this._onUpdateCallback;
+            cloned._onRepeatCallback = this._onRepeatCallback;
+            cloned._onCompleteCallback = this._onCompleteCallback;
+            cloned._onStopCallback = this._onStopCallback;
+            return cloned;
+        };
+        /**
+         * Create a new tween that plays this tween backwards: same object, end
+         * values, duration, easing, interpolation, dynamic flag, and callbacks,
+         * but with progress mirrored so it runs from end to start.
+         *
+         * The typical use is a yoyo without `yoyo()`:
+         *
+         * ```js
+         * timeline.add(tween)
+         * timeline.add(tween.reverse())
+         * // or simply: timeline.add(tween, {yoyo: true})
+         * ```
+         */
+        Tween.prototype.reverse = function () {
+            var reversed = this.clone();
+            reversed._reversed = !this._reversed;
+            return reversed;
         };
         Tween.prototype.onStart = function (callback) {
             this._onStartCallback = callback;
@@ -775,7 +861,7 @@ define(['exports'], (function (exports) { 'use strict';
             var calculateElapsedPortion = function () {
                 if (_this._duration === 0)
                     return 1;
-                if (elapsedTime > totalTime) {
+                if (time >= _this._startTime + totalTime) {
                     return 1;
                 }
                 var timesRepeated = Math.trunc(elapsedTime / durationAndDelay);
@@ -783,19 +869,21 @@ define(['exports'], (function (exports) { 'use strict';
                 // TODO use %?
                 // const timeIntoCurrentRepeat = elapsedTime % durationAndDelay
                 var portion = Math.min(timeIntoCurrentRepeat / _this._duration, 1);
-                if (portion === 0 && elapsedTime === _this._duration) {
+                if ((portion === 0 || 1 - portion <= Number.EPSILON) && time >= _this._startTime + _this._duration) {
                     return 1;
                 }
                 return portion;
             };
             var elapsed = calculateElapsedPortion();
-            var value = this._easingFunction(elapsed);
+            // A reversed tween (see reverse()) plays the same values backwards.
+            // Legacy yoyo() swaps values instead, so it is excluded here.
+            var value = this._easingFunction(this._reversed && !this._yoyo ? 1 - elapsed : elapsed);
             // properties transformations
             this._updateProperties(this._object, this._valuesStart, this._valuesEnd, value);
             if (this._onUpdateCallback) {
                 this._onUpdateCallback(this._object, elapsed);
             }
-            if (this._duration === 0 || elapsedTime >= this._duration) {
+            if (this._duration === 0 || time >= this._startTime + this._duration) {
                 if (this._repeat > 0) {
                     var completeCount = Math.min(Math.trunc((elapsedTime - this._duration) / durationAndDelay) + 1, this._repeat);
                     if (isFinite(this._repeat)) {
@@ -892,6 +980,470 @@ define(['exports'], (function (exports) { 'use strict';
         };
         Tween.autoStartOnUpdate = false;
         return Tween;
+    }());
+
+    /**
+     * Tween.js - Licensed under the MIT license
+     * https://github.com/tweenjs/tween.js
+     * ----------------------------------------------
+     *
+     * Timeline: compose Tweens (and nested Timelines) in sequence and in parallel.
+     *
+     * Inspired by trusktr's vision in #647 / #560:
+     * - Tween does tweening, Timeline does orchestration (replaces `.chain`).
+     * - Single class, sequential by default (append), parallel via explicit offset.
+     * - Simple, Three.js ethos: small API, explicit times, no magic.
+     */
+    var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
+        if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+            if (ar || !(i in from)) {
+                if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+                ar[i] = from[i];
+            }
+        }
+        return to.concat(ar || Array.prototype.slice.call(from));
+    };
+    /**
+     * One `add()` call may not expand to more than 72 hours of clips (a full
+     * three-day conference, the longest animation in the universe).
+     */
+    var MAX_TIMELINE_DURATION_MS = 72 * 60 * 60 * 1000;
+    var Timeline = /** @class */ (function () {
+        function Timeline() {
+            this._id = Sequence.nextId();
+            this._entries = [];
+            this._labels = { start: 0, end: 0 };
+            this._duration = 0;
+            this._startTime = 0;
+            this._isPlaying = false;
+            this._isPaused = false;
+            this._pauseStart = 0;
+            this._onStartCallbackFired = false;
+            this._onEveryStartCallbackFired = false;
+            // Empty on purpose. Use `.add()` to compose.
+            // Sequential by default, parallel via explicit offsets, labels, or options.
+        }
+        Timeline.prototype.getId = function () {
+            return this._id;
+        };
+        Timeline.prototype.getCompleteCallback = function () {
+            return this._onCompleteCallback;
+        };
+        Timeline.prototype.isPlaying = function () {
+            return this._isPlaying;
+        };
+        Timeline.prototype.isPaused = function () {
+            return this._isPaused;
+        };
+        /** Duration of the timeline (max child end). */
+        Timeline.prototype.getDuration = function () {
+            return this._duration;
+        };
+        Timeline.prototype.getTotalDuration = function () {
+            return this._duration;
+        };
+        Timeline.prototype.getAll = function () {
+            return this._entries.map(function (entry) { return entry.node; });
+        };
+        Timeline.prototype.has = function (node) {
+            return this._entries.some(function (entry) { return entry.node === node; });
+        };
+        Timeline.prototype._isAddOptions = function (position) {
+            if (typeof position !== 'object' || position === null || Array.isArray(position))
+                return false;
+            if (position instanceof Timeline)
+                return false;
+            // Tween instances are objects too (and have `repeat`/`yoyo` methods),
+            // so detect them by their playback interface first.
+            var maybeTween = position;
+            if (typeof maybeTween.isPlaying === 'function' && typeof maybeTween.getId === 'function')
+                return false;
+            return true;
+        };
+        Timeline.prototype._resolveAt = function (at) {
+            var _a;
+            if (at === undefined)
+                return { offset: this._duration };
+            if (typeof at === 'number')
+                return { offset: at };
+            if (typeof at === 'string')
+                return { offset: (_a = this._labels[at]) !== null && _a !== void 0 ? _a : this._duration };
+            var insertIndex = this._entries.findIndex(function (entry) { return entry.node === at; });
+            if (insertIndex === -1)
+                return { offset: this._duration };
+            return { offset: this._entries[insertIndex].offset, insertIndex: insertIndex };
+        };
+        Timeline.prototype._resolvePosition = function (position) {
+            var _a;
+            if (this._isAddOptions(position)) {
+                var offset = (_a = position.offset) !== null && _a !== void 0 ? _a : 0;
+                if (position.atIndex !== undefined) {
+                    var insertIndex = Math.max(0, Math.min(position.atIndex, this._entries.length));
+                    var baseOffset = insertIndex < this._entries.length ? this._entries[insertIndex].offset : this._duration;
+                    return { offset: baseOffset + offset, shift: position.shift === true, insertIndex: insertIndex };
+                }
+                var resolved_1 = this._resolveAt(position.at);
+                return {
+                    offset: resolved_1.offset + offset,
+                    shift: position.shift === true,
+                    insertIndex: resolved_1.insertIndex,
+                };
+            }
+            var resolved = this._resolveAt(position);
+            return { offset: resolved.offset, shift: false, insertIndex: resolved.insertIndex };
+        };
+        Timeline.prototype.addLabel = function (name, offset) {
+            if (name === 'start' || name === 'end')
+                return this;
+            this._labels[name] = offset;
+            return this;
+        };
+        Timeline.prototype.removeLabel = function (name) {
+            if (name === 'start' || name === 'end')
+                return this;
+            delete this._labels[name];
+            return this;
+        };
+        Timeline.prototype.getLabel = function (name) {
+            return this._labels[name];
+        };
+        Timeline.prototype._recalculateDuration = function () {
+            var max = 0;
+            var infinite = false;
+            for (var _i = 0, _a = this._entries; _i < _a.length; _i++) {
+                var entry = _a[_i];
+                var childTotal = entry.node.getTotalDuration();
+                if (!isFinite(childTotal)) {
+                    infinite = true;
+                    break;
+                }
+                max = Math.max(max, entry.offset + childTotal);
+            }
+            this._duration = infinite ? Infinity : max;
+            this._labels['end'] = this._duration;
+        };
+        /**
+         * Add a Tween or nested Timeline.
+         *
+         * Placement (second argument):
+         * - `add(tween)` appends after the last child (sequential).
+         * - `add(tween, 0)` starts at timeline start (parallel).
+         * - `add(tween, 500)` starts at 500ms.
+         * - `add(tween, 'myLabel')` aligns to a label (`start` and `end` builtin).
+         * - `add(tween, otherTween)` aligns to another child's start.
+         * - `add(tween, {at, atIndex, offset, shift, repeat, yoyo})` for full control.
+         *
+         * Options:
+         * - `at`: a time value, label, or child to align to (default: end).
+         * - `atIndex`: entry index to align to (takes precedence over `at`).
+         * - `offset`: added to the aligned base (default: 0).
+         * - `shift`: shift entries at/after the base later so nothing overlaps.
+         * - `repeat`: total plays; extra plays clone the child (default: 1).
+         * - `yoyo`: alternate plays with reversed clips (see `Tween.reverse()`).
+         *
+         * Adding the same tween more than once clones it (each clip needs
+         * independent playback state); the original object plays first.
+         * `add([a, b])` adds sequentially; `add([a, b], 0)` adds in parallel
+         * (`repeat`/`yoyo` apply per child).
+         */
+        Timeline.prototype.add = function (node, position) {
+            if (Array.isArray(node)) {
+                if (position === undefined)
+                    for (var _i = 0, node_1 = node; _i < node_1.length; _i++) {
+                        var child = node_1[_i];
+                        this.add(child);
+                    }
+                else
+                    for (var _a = 0, node_2 = node; _a < node_2.length; _a++) {
+                        var child = node_2[_a];
+                        this.add(child, position);
+                    }
+                return this;
+            }
+            return this._addSingle(node, position);
+        };
+        Timeline.prototype._shiftEntries = function (offset, amount) {
+            if (amount === 0)
+                return;
+            for (var _i = 0, _a = this._entries; _i < _a.length; _i++) {
+                var entry = _a[_i];
+                if (entry.offset >= offset)
+                    entry.offset += amount;
+            }
+        };
+        Timeline.prototype._addSingle = function (node, position) {
+            var _a, _b;
+            var repeat = this._isAddOptions(position) && position.repeat !== undefined ? position.repeat : 1;
+            if (!Number.isInteger(repeat) || repeat < 1) {
+                throw new Error("Timeline.add() repeat must be a positive integer, got ".concat(repeat, "."));
+            }
+            var yoyo = this._isAddOptions(position) && position.yoyo === true;
+            var resolved = this._resolvePosition(position);
+            // Expand to clips. The original object plays first (unless it is
+            // already placed, in which case every clip is a clone: sharing one
+            // Tween across entries would share its playback state and break).
+            // Odd clips are reversed when yoyo. `{yoyo: true, repeat: 2}` plays
+            // forward, backward, forward, backward.
+            var totalClips = repeat * (yoyo ? 2 : 1);
+            // Fail fast before materializing: a huge repeat must throw instead
+            // of allocating millions of clones.
+            var clipsTotal = totalClips * node.getTotalDuration();
+            if (totalClips > 1 && !(clipsTotal <= MAX_TIMELINE_DURATION_MS)) {
+                throw new Error("Timeline.add() {repeat: ".concat(repeat).concat(yoyo ? ', yoyo: true' : '', "} exceeds the 72 hour cap."));
+            }
+            var clips = [];
+            for (var i = 0; i < totalClips; i++) {
+                if (i === 0 && !this.has(node)) {
+                    clips.push(node);
+                }
+                else if (yoyo && i % 2 === 1) {
+                    if (node instanceof Timeline) {
+                        throw new Error('Timeline.add() yoyo is only supported for Tween children. Reverse nested timelines manually.');
+                    }
+                    clips.push(node.reverse());
+                }
+                else {
+                    clips.push(node instanceof Timeline ? node.clone() : node.clone());
+                }
+            }
+            if (resolved.shift) {
+                var total = clips.reduce(function (sum, clip) { return sum + clip.getTotalDuration(); }, 0);
+                this._shiftEntries(resolved.offset, total);
+            }
+            var cursor = resolved.offset;
+            var newEntries = clips.map(function (clip) {
+                var entry = { node: clip, offset: cursor, started: false };
+                cursor += clip.getTotalDuration();
+                return entry;
+            });
+            if (resolved.insertIndex !== undefined) {
+                (_a = this._entries).splice.apply(_a, __spreadArray([resolved.insertIndex, 0], newEntries, false));
+            }
+            else {
+                (_b = this._entries).push.apply(_b, newEntries);
+            }
+            // Children start lazily when the playhead reaches them (see update),
+            // so start values are captured at the right moment.
+            this._recalculateDuration();
+            return this;
+        };
+        /**
+         * Create an independent copy of this timeline: entries, custom labels,
+         * and callbacks are copied, and every child is cloned, so the copy plays
+         * identically but owns its playback state. Used by
+         * `add(child, {repeat})` expansion for nested timelines.
+         */
+        Timeline.prototype.clone = function () {
+            var cloned = new Timeline();
+            for (var _i = 0, _a = this._entries; _i < _a.length; _i++) {
+                var entry = _a[_i];
+                var child = entry.node;
+                cloned._entries.push({
+                    node: child instanceof Timeline ? child.clone() : child.clone(),
+                    offset: entry.offset,
+                    started: false,
+                });
+            }
+            for (var _b = 0, _c = Object.keys(this._labels); _b < _c.length; _b++) {
+                var name_1 = _c[_b];
+                if (name_1 !== 'start' && name_1 !== 'end')
+                    cloned._labels[name_1] = this._labels[name_1];
+            }
+            cloned._onStartCallback = this._onStartCallback;
+            cloned._onEveryStartCallback = this._onEveryStartCallback;
+            cloned._onUpdateCallback = this._onUpdateCallback;
+            cloned._onCompleteCallback = this._onCompleteCallback;
+            cloned._onStopCallback = this._onStopCallback;
+            cloned._recalculateDuration();
+            return cloned;
+        };
+        Timeline.prototype.remove = function () {
+            var nodes = [];
+            for (var _i = 0; _i < arguments.length; _i++) {
+                nodes[_i] = arguments[_i];
+            }
+            var changed = false;
+            var _loop_1 = function (node) {
+                var index = this_1._entries.findIndex(function (entry) { return entry.node === node; });
+                if (index !== -1) {
+                    this_1._entries.splice(index, 1);
+                    changed = true;
+                }
+            };
+            var this_1 = this;
+            for (var _a = 0, nodes_1 = nodes; _a < nodes_1.length; _a++) {
+                var node = nodes_1[_a];
+                _loop_1(node);
+            }
+            if (changed)
+                this._recalculateDuration();
+            return this;
+        };
+        Timeline.prototype.removeAll = function () {
+            this._entries = [];
+            this._recalculateDuration();
+            return this;
+        };
+        Timeline.prototype.onStart = function (callback) {
+            this._onStartCallback = callback;
+            return this;
+        };
+        Timeline.prototype.onEveryStart = function (callback) {
+            this._onEveryStartCallback = callback;
+            return this;
+        };
+        Timeline.prototype.onUpdate = function (callback) {
+            this._onUpdateCallback = callback;
+            return this;
+        };
+        Timeline.prototype.onComplete = function (callback) {
+            this._onCompleteCallback = callback;
+            return this;
+        };
+        Timeline.prototype.onStop = function (callback) {
+            this._onStopCallback = callback;
+            return this;
+        };
+        /** Convenience: set easing for all child Tweens (recurses into nested Timelines). */
+        Timeline.prototype.easing = function (easingFunction) {
+            for (var _i = 0, _a = this._entries; _i < _a.length; _i++) {
+                var entry = _a[_i];
+                var child = entry.node;
+                if (child instanceof Timeline)
+                    child.easing(easingFunction);
+                else
+                    child.easing(easingFunction);
+            }
+            return this;
+        };
+        /** Convenience: set interpolation for all child Tweens (recurses). */
+        Timeline.prototype.interpolation = function (interpolationFunction) {
+            for (var _i = 0, _a = this._entries; _i < _a.length; _i++) {
+                var entry = _a[_i];
+                var child = entry.node;
+                if (child instanceof Timeline)
+                    child.interpolation(interpolationFunction);
+                else
+                    child.interpolation(interpolationFunction);
+            }
+            return this;
+        };
+        Timeline.prototype.start = function (time) {
+            if (time === void 0) { time = now(); }
+            if (this._isPlaying)
+                return this;
+            this._recalculateDuration();
+            this._isPlaying = true;
+            this._isPaused = false;
+            this._onStartCallbackFired = false;
+            this._onEveryStartCallbackFired = false;
+            this._startTime = time;
+            for (var _i = 0, _a = this._entries; _i < _a.length; _i++) {
+                var entry = _a[_i];
+                if (entry.node.isPlaying())
+                    entry.node.stop();
+            }
+            return this;
+        };
+        Timeline.prototype.stop = function () {
+            if (!this._isPlaying)
+                return this;
+            for (var _i = 0, _a = this._entries; _i < _a.length; _i++) {
+                var entry = _a[_i];
+                if (entry.node.isPlaying())
+                    entry.node.stop();
+            }
+            this._isPlaying = false;
+            this._isPaused = false;
+            if (this._onStopCallback)
+                this._onStopCallback(this);
+            return this;
+        };
+        Timeline.prototype.pause = function (time) {
+            if (time === void 0) { time = now(); }
+            if (this._isPaused || !this._isPlaying)
+                return this;
+            this._isPaused = true;
+            this._pauseStart = time;
+            return this;
+        };
+        Timeline.prototype.resume = function (time) {
+            if (time === void 0) { time = now(); }
+            if (!this._isPaused || !this._isPlaying)
+                return this;
+            this._isPaused = false;
+            this._startTime += time - this._pauseStart;
+            this._pauseStart = 0;
+            return this;
+        };
+        /**
+         * @returns true if still playing after update, false otherwise.
+         * Children use a local clock (0 = timeline start).
+         */
+        Timeline.prototype.update = function (time, autoStart) {
+            if (time === void 0) { time = now(); }
+            if (autoStart === void 0) { autoStart = Timeline.autoStartOnUpdate; }
+            if (this._isPaused)
+                return true;
+            if (!this._isPlaying) {
+                if (autoStart)
+                    this.start(time);
+                else
+                    return false;
+            }
+            if (time < this._startTime)
+                return true;
+            if (!this._onStartCallbackFired) {
+                if (this._onStartCallback)
+                    this._onStartCallback(this);
+                this._onStartCallbackFired = true;
+            }
+            if (!this._onEveryStartCallbackFired) {
+                if (this._onEveryStartCallback)
+                    this._onEveryStartCallback(this);
+                this._onEveryStartCallbackFired = true;
+            }
+            var timelineLocal = time - this._startTime;
+            var effectiveLocal = !isFinite(this._duration) ? timelineLocal : Math.min(timelineLocal, this._duration);
+            for (var _i = 0, _a = this._entries; _i < _a.length; _i++) {
+                var entry = _a[_i];
+                var child = entry.node;
+                if (!entry.started) {
+                    // First start must wait until due; a never-started child left
+                    // behind stays untouched. (Later re-starts are harmless and
+                    // handled below, since Tween keeps its captured setup.)
+                    if (effectiveLocal < entry.offset)
+                        continue;
+                    child.start(entry.offset);
+                    entry.started = true;
+                }
+                else if (!child.isPlaying() && effectiveLocal < entry.offset + child.getTotalDuration()) {
+                    // Re-enter when the playhead is inside the child's range after
+                    // scrubbing back.
+                    child.start(entry.offset);
+                }
+                // Clamp the lower end so reversed/scrubbed playheads snap the
+                // child to its start value instead of freezing on stale values.
+                child.update(effectiveLocal < entry.offset ? entry.offset : effectiveLocal);
+            }
+            if (!isFinite(this._duration)) {
+                if (this._onUpdateCallback)
+                    this._onUpdateCallback(this, 0);
+                return true;
+            }
+            var elapsed = this._duration === 0 ? 1 : effectiveLocal / this._duration;
+            if (this._onUpdateCallback)
+                this._onUpdateCallback(this, elapsed);
+            if (this._duration === 0 || timelineLocal >= this._duration) {
+                if (this._onCompleteCallback)
+                    this._onCompleteCallback(this);
+                this._isPlaying = false;
+                return false;
+            }
+            return true;
+        };
+        Timeline.autoStartOnUpdate = false;
+        return Timeline;
     }());
 
     var VERSION = '25.0.0';
@@ -1165,6 +1717,7 @@ define(['exports'], (function (exports) { 'use strict';
         Sequence: Sequence,
         nextId: nextId,
         Tween: Tween,
+        Timeline: Timeline,
         VERSION: VERSION,
         /**
          * @deprecated The global TWEEN Group will be removed in a following major
@@ -1412,6 +1965,7 @@ define(['exports'], (function (exports) { 'use strict';
     exports.Group = Group;
     exports.Interpolation = Interpolation;
     exports.Sequence = Sequence;
+    exports.Timeline = Timeline;
     exports.Tween = Tween;
     exports.VERSION = VERSION;
     exports.add = add;

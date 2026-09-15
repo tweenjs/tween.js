@@ -102,6 +102,12 @@ declare class Tween<T extends UnknownProps = any> {
     isPlaying(): boolean;
     isPaused(): boolean;
     getDuration(): number;
+    /**
+     * Total duration from `start()` call (including initial delay, repeats
+     * and repeat delays). Used by `Timeline` to compute its own duration.
+     * Returns `Infinity` when the tween repeats forever.
+     */
+    getTotalDuration(): number;
     to(target: UnknownProps, duration?: number): this;
     duration(duration?: number): this;
     dynamic(dynamic?: boolean): this;
@@ -127,13 +133,59 @@ declare class Tween<T extends UnknownProps = any> {
      * Removes the tween from whichever group it is in.
      */
     remove(): this;
+    /**
+     * @deprecated Timing orchestration is moving to `Timeline` (use a timeline
+     * offset instead). This method keeps working for now and will be removed
+     * in a future major version.
+     */
     delay(amount?: number): this;
+    /**
+     * @deprecated Timing orchestration is moving to `Timeline` (repeat by
+     * adding the tween multiple times, e.g. `timeline.add(tween, {repeat: 3})`,
+     * which clones it internally). This method keeps working for now and will
+     * be removed in a future major version.
+     */
     repeat(times?: number): this;
+    /**
+     * @deprecated Timing orchestration is moving to `Timeline`. This method
+     * keeps working for now and will be removed in a future major version.
+     */
     repeatDelay(amount?: number): this;
+    /**
+     * @deprecated Timing orchestration is moving to `Timeline` (yoyo via
+     * `reverse()` clips, e.g. `timeline.add(tween, {yoyo: true})`). This method
+     * keeps working for now and will be removed in a future major version.
+     */
     yoyo(yoyo?: boolean): this;
     easing(easingFunction?: EasingFunction): this;
     interpolation(interpolationFunction?: InterpolationFunction): this;
     chain(...tweens: Array<Tween<any>>): this;
+    /**
+     * Create an independent copy of this tween: same object, end values,
+     * duration, easing, interpolation, dynamic flag, and callbacks, but no
+     * playback state. `Timeline` uses this when the same tween is added more
+     * than once (e.g. `timeline.add(tween, {repeat: 3})`).
+     *
+     * Start values are snapshotted right away, so every repeated play starts
+     * from the same state even though the object keeps changing.
+     *
+     * Chains are not copied; compose with `Timeline` instead.
+     */
+    clone(): Tween<T>;
+    /**
+     * Create a new tween that plays this tween backwards: same object, end
+     * values, duration, easing, interpolation, dynamic flag, and callbacks,
+     * but with progress mirrored so it runs from end to start.
+     *
+     * The typical use is a yoyo without `yoyo()`:
+     *
+     * ```js
+     * timeline.add(tween)
+     * timeline.add(tween.reverse())
+     * // or simply: timeline.add(tween, {yoyo: true})
+     * ```
+     */
+    reverse(): Tween<T>;
     onStart(callback?: (object: T) => void): this;
     onEveryStart(callback?: (object: T) => void): this;
     onUpdate(callback?: (object: T, elapsed: number) => void): this;
@@ -158,19 +210,149 @@ declare class Tween<T extends UnknownProps = any> {
 type UnknownProps = Record<string, any>;
 
 /**
+ * Tween.js - Licensed under the MIT license
+ * https://github.com/tweenjs/tween.js
+ * ----------------------------------------------
+ *
+ * Timeline: compose Tweens (and nested Timelines) in sequence and in parallel.
+ *
+ * Inspired by trusktr's vision in #647 / #560:
+ * - Tween does tweening, Timeline does orchestration (replaces `.chain`).
+ * - Single class, sequential by default (append), parallel via explicit offset.
+ * - Simple, Three.js ethos: small API, explicit times, no magic.
+ */
+
+type TimelineChild = Tween<any> | Timeline;
+type TimelineAt = TimelineChild | number | string;
+type TimelineAddOptions = {
+    at?: TimelineAt;
+    atIndex?: number;
+    offset?: number;
+    shift?: boolean;
+    /**
+     * Total number of times to play the child. Each extra play clones the
+     * child (documented), so every clip has independent playback state.
+     * Must be a positive integer, defaults to 1. One call may not expand
+     * past {@link MAX_TIMELINE_DURATION_MS}.
+     */
+    repeat?: number;
+    /**
+     * Alternate each play with a reversed clip (`child.reverse()`), i.e. a
+     * yoyo without `yoyo()`. Total clips are `repeat * 2`, starting with the
+     * original: `{yoyo: true, repeat: 2}` plays
+     * forward, backward, forward, backward. Only supported for `Tween`
+     * children; nested timelines must be reversed manually.
+     */
+    yoyo?: boolean;
+};
+type TimelinePosition = TimelineAt | TimelineAddOptions;
+declare class Timeline {
+    static autoStartOnUpdate: boolean;
+    private _id;
+    private _entries;
+    private _labels;
+    private _duration;
+    private _startTime;
+    private _isPlaying;
+    private _isPaused;
+    private _pauseStart;
+    private _onStartCallback?;
+    private _onStartCallbackFired;
+    private _onEveryStartCallback?;
+    private _onEveryStartCallbackFired;
+    private _onUpdateCallback?;
+    private _onCompleteCallback?;
+    private _onStopCallback?;
+    constructor();
+    getId(): number;
+    getCompleteCallback(): ((timeline: Timeline) => void) | undefined;
+    isPlaying(): boolean;
+    isPaused(): boolean;
+    /** Duration of the timeline (max child end). */
+    getDuration(): number;
+    getTotalDuration(): number;
+    getAll(): Array<TimelineChild>;
+    has(node: TimelineChild): boolean;
+    private _isAddOptions;
+    private _resolveAt;
+    private _resolvePosition;
+    addLabel(name: string, offset: number): this;
+    removeLabel(name: string): this;
+    getLabel(name: string): number | undefined;
+    private _recalculateDuration;
+    /**
+     * Add a Tween or nested Timeline.
+     *
+     * Placement (second argument):
+     * - `add(tween)` appends after the last child (sequential).
+     * - `add(tween, 0)` starts at timeline start (parallel).
+     * - `add(tween, 500)` starts at 500ms.
+     * - `add(tween, 'myLabel')` aligns to a label (`start` and `end` builtin).
+     * - `add(tween, otherTween)` aligns to another child's start.
+     * - `add(tween, {at, atIndex, offset, shift, repeat, yoyo})` for full control.
+     *
+     * Options:
+     * - `at`: a time value, label, or child to align to (default: end).
+     * - `atIndex`: entry index to align to (takes precedence over `at`).
+     * - `offset`: added to the aligned base (default: 0).
+     * - `shift`: shift entries at/after the base later so nothing overlaps.
+     * - `repeat`: total plays; extra plays clone the child (default: 1).
+     * - `yoyo`: alternate plays with reversed clips (see `Tween.reverse()`).
+     *
+     * Adding the same tween more than once clones it (each clip needs
+     * independent playback state); the original object plays first.
+     * `add([a, b])` adds sequentially; `add([a, b], 0)` adds in parallel
+     * (`repeat`/`yoyo` apply per child).
+     */
+    add(node: TimelineChild | Array<TimelineChild>, position?: TimelinePosition): this;
+    private _shiftEntries;
+    private _addSingle;
+    /**
+     * Create an independent copy of this timeline: entries, custom labels,
+     * and callbacks are copied, and every child is cloned, so the copy plays
+     * identically but owns its playback state. Used by
+     * `add(child, {repeat})` expansion for nested timelines.
+     */
+    clone(): Timeline;
+    remove(...nodes: Array<TimelineChild>): this;
+    removeAll(): this;
+    onStart(callback?: (timeline: Timeline) => void): this;
+    onEveryStart(callback?: (timeline: Timeline) => void): this;
+    onUpdate(callback?: (timeline: Timeline, elapsed: number) => void): this;
+    onComplete(callback?: (timeline: Timeline) => void): this;
+    onStop(callback?: (timeline: Timeline) => void): this;
+    /** Convenience: set easing for all child Tweens (recurses into nested Timelines). */
+    easing(easingFunction: EasingFunction): this;
+    /** Convenience: set interpolation for all child Tweens (recurses). */
+    interpolation(interpolationFunction: InterpolationFunction): this;
+    start(time?: number): this;
+    stop(): this;
+    pause(time?: number): this;
+    resume(time?: number): this;
+    /**
+     * @returns true if still playing after update, false otherwise.
+     * Children use a local clock (0 = timeline start).
+     */
+    update(time?: number, autoStart?: boolean): boolean;
+}
+
+type GroupChild = Tween<any> | Timeline;
+/**
  * Controlling groups of tweens
  *
  * Using the TWEEN singleton to manage your tweens can cause issues in large apps with many components.
  * In these cases, you may want to create your own smaller groups of tween
+ *
+ * Groups can also hold `Timeline` instances (timelines are playable, like tweens).
  */
 declare class Group {
     private _tweens;
     private _tweensAddedDuringUpdate;
-    constructor(...tweens: Tween[]);
-    getAll(): Array<Tween>;
+    constructor(...tweens: Array<GroupChild>);
+    getAll(): Array<GroupChild>;
     removeAll(): void;
-    add(...tweens: Tween[]): void;
-    remove(...tweens: Tween[]): void;
+    add(...tweens: Array<GroupChild>): void;
+    remove(...tweens: Array<GroupChild>): void;
     /** Return true if all tweens in the group are not paused or playing. */
     allStopped(): boolean;
     update(time?: number): void;
@@ -182,7 +364,7 @@ declare class Group {
      * tweens, and do not rely on tweens being automatically added or removed.
      */
     update(time?: number, preserve?: boolean): void;
-    onComplete(callback: (object: Tween[]) => void): void;
+    onComplete(callback: (object: Array<GroupChild>) => void): void;
 }
 
 declare const now: () => number;
@@ -246,7 +428,7 @@ declare const nextId: typeof Sequence.nextId;
  * })
  * ```
  */
-declare const getAll: () => Tween<any>[];
+declare const getAll: () => GroupChild[];
 /**
  * @deprecated The global TWEEN Group will be removed in a following major
  * release. To migrate, create a `new Group()` instead of using `TWEEN` as a
@@ -342,7 +524,7 @@ declare const removeAll: () => void;
  * })
  * ```
  */
-declare const add: (...tweens: Tween<any>[]) => void;
+declare const add: (...tweens: GroupChild[]) => void;
 /**
  * @deprecated The global TWEEN Group will be removed in a following major
  * release. To migrate, create a `new Group()` instead of using `TWEEN` as a
@@ -390,7 +572,7 @@ declare const add: (...tweens: Tween<any>[]) => void;
  * })
  * ```
  */
-declare const remove: (...tweens: Tween<any>[]) => void;
+declare const remove: (...tweens: GroupChild[]) => void;
 /**
  * @deprecated The global TWEEN Group will be removed in a following major
  * release. To migrate, create a `new Group()` instead of using `TWEEN` as a
@@ -477,6 +659,7 @@ declare const exports: {
     Sequence: typeof Sequence;
     nextId: typeof Sequence.nextId;
     Tween: typeof Tween;
+    Timeline: typeof Timeline;
     VERSION: string;
     /**
      * @deprecated The global TWEEN Group will be removed in a following major
@@ -525,7 +708,7 @@ declare const exports: {
      * })
      * ```
      */
-    getAll: () => Tween<any>[];
+    getAll: () => GroupChild[];
     /**
      * @deprecated The global TWEEN Group will be removed in a following major
      * release. To migrate, create a `new Group()` instead of using `TWEEN` as a
@@ -621,7 +804,7 @@ declare const exports: {
      * })
      * ```
      */
-    add: (...tweens: Tween<any>[]) => void;
+    add: (...tweens: GroupChild[]) => void;
     /**
      * @deprecated The global TWEEN Group will be removed in a following major
      * release. To migrate, create a `new Group()` instead of using `TWEEN` as a
@@ -669,7 +852,7 @@ declare const exports: {
      * })
      * ```
      */
-    remove: (...tweens: Tween<any>[]) => void;
+    remove: (...tweens: GroupChild[]) => void;
     /**
      * @deprecated The global TWEEN Group will be removed in a following major
      * release. To migrate, create a `new Group()` instead of using `TWEEN` as a
@@ -723,4 +906,4 @@ declare const exports: {
     };
 };
 
-export { Easing, Group, Interpolation, Sequence, Tween, VERSION, add, exports as default, getAll, nextId, now, remove, removeAll, setNow, update };
+export { Easing, Group, Interpolation, Sequence, Timeline, Tween, VERSION, add, exports as default, getAll, nextId, now, remove, removeAll, setNow, update };
