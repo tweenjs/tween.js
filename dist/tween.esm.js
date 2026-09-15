@@ -859,7 +859,7 @@ var Tween = /** @class */ (function () {
         var calculateElapsedPortion = function () {
             if (_this._duration === 0)
                 return 1;
-            if (time >= _this._startTime + totalTime) {
+            if (elapsedTime > totalTime) {
                 return 1;
             }
             var timesRepeated = Math.trunc(elapsedTime / durationAndDelay);
@@ -867,7 +867,7 @@ var Tween = /** @class */ (function () {
             // TODO use %?
             // const timeIntoCurrentRepeat = elapsedTime % durationAndDelay
             var portion = Math.min(timeIntoCurrentRepeat / _this._duration, 1);
-            if ((portion === 0 || 1 - portion <= Number.EPSILON) && time >= _this._startTime + _this._duration) {
+            if (portion === 0 && elapsedTime === _this._duration) {
                 return 1;
             }
             return portion;
@@ -881,7 +881,7 @@ var Tween = /** @class */ (function () {
         if (this._onUpdateCallback) {
             this._onUpdateCallback(this._object, elapsed);
         }
-        if (this._duration === 0 || time >= this._startTime + this._duration) {
+        if (this._duration === 0 || elapsedTime >= this._duration) {
             if (this._repeat > 0) {
                 var completeCount = Math.min(Math.trunc((elapsedTime - this._duration) / durationAndDelay) + 1, this._repeat);
                 if (isFinite(this._repeat)) {
