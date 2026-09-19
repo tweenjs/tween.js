@@ -244,14 +244,14 @@ var Easing = Object.freeze({
                     return 0;
                 if (amount === 1)
                     return 1;
-                return -(a * Math.pow(2, 10 * (amount - 1)) * Math.sin(((amount - 1) - s) * (2 * Math.PI) / p));
+                return -(a * Math.pow(2, 10 * (amount - 1)) * Math.sin(((amount - 1 - s) * (2 * Math.PI)) / p));
             },
             Out: function (amount) {
                 if (amount === 0)
                     return 0;
                 if (amount === 1)
                     return 1;
-                return a * Math.pow(2, -10 * amount) * Math.sin((amount - s) * (2 * Math.PI) / p) + 1;
+                return a * Math.pow(2, -10 * amount) * Math.sin(((amount - s) * (2 * Math.PI)) / p) + 1;
             },
             InOut: function (amount) {
                 if (amount === 0)
@@ -260,9 +260,9 @@ var Easing = Object.freeze({
                     return 1;
                 amount *= 2;
                 if (amount < 1) {
-                    return -0.5 * (a * Math.pow(2, 10 * (amount - 1)) * Math.sin(((amount - 1) - sIO) * (2 * Math.PI) / pIO));
+                    return -0.5 * (a * Math.pow(2, 10 * (amount - 1)) * Math.sin(((amount - 1 - sIO) * (2 * Math.PI)) / pIO));
                 }
-                return 0.5 * (a * Math.pow(2, -10 * (amount - 1)) * Math.sin(((amount - 1) - sIO) * (2 * Math.PI) / pIO)) + 1;
+                return 0.5 * (a * Math.pow(2, -10 * (amount - 1)) * Math.sin(((amount - 1 - sIO) * (2 * Math.PI)) / pIO)) + 1;
             },
         };
     },

@@ -1497,7 +1497,7 @@ export const tests = {
 
 		const tween1 = new TWEEN.Tween(object1).to(target1, 1000)
 
-		tween1.start()
+		tween1.start(0)
 		tween1.end()
 
 		test.equal(object1.x, 50)
