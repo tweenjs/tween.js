@@ -1386,7 +1386,7 @@ define(['exports'], (function (exports) { 'use strict';
                 this._onStartCallbackFired = true;
             }
             var timelineLocal = time - this._startTime;
-            var effectiveLocal = !isFinite(this._duration) ? timelineLocal : Math.min(timelineLocal, this._duration);
+            var effectiveLocal = Math.min(timelineLocal, this._duration);
             for (var _i = 0, _a = this._entries; _i < _a.length; _i++) {
                 var entry = _a[_i];
                 var child = entry.node;

@@ -443,7 +443,7 @@ export class Timeline {
 
 		const timelineLocal = time - this._startTime
 
-		const effectiveLocal = !isFinite(this._duration) ? timelineLocal : Math.min(timelineLocal, this._duration)
+		const effectiveLocal = Math.min(timelineLocal, this._duration)
 
 		for (const entry of this._entries) {
 			const child = entry.node
