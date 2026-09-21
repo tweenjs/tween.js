@@ -1,5 +1,5 @@
 /**
- * Tween.js - Licensed under the MIT license
+ * @file Tween.js - Licensed under the MIT license
  * https://github.com/tweenjs/tween.js
  * ----------------------------------------------
  *
@@ -18,12 +18,32 @@ import type {EasingFunction} from './Easing'
 import type {InterpolationFunction} from './Interpolation'
 import type {Tween} from './Tween'
 
+/** A Tween or nested Timeline that can be added to a timeline. */
 export type TimelineChild = Tween<any> | Timeline
+
+/**
+ * A position specifier for {@link Timeline.add}:
+ * - A {@link TimelineChild} to align to another child's start.
+ * - A `number` for a millisecond offset.
+ * - A `string` for a named label.
+ */
 export type TimelineAt = TimelineChild | number | string
+
+/** Options for {@link Timeline.add} to control placement and repetition. */
 export type TimelineAddOptions = {
+	/**
+	 * A time value, label, or child to align to. Defaults to the end of the
+	 * timeline.
+	 */
 	at?: TimelineAt
+	/** Entry index to align to (takes precedence over `at`). */
 	atIndex?: number
+	/** Offset added to the aligned base, in milliseconds. Defaults to 0. */
 	offset?: number
+	/**
+	 * When true, shifts entries at and after the insertion point later so
+	 * nothing overlaps.
+	 */
 	shift?: boolean
 	/**
 	 * Total number of times to play the child. Each extra play clones the
@@ -41,6 +61,11 @@ export type TimelineAddOptions = {
 	 */
 	yoyo?: boolean
 }
+
+/**
+ * A position specifier: a {@link TimelineAt} value or a full
+ * {@link TimelineAddOptions} object.
+ */
 export type TimelinePosition = TimelineAt | TimelineAddOptions
 
 /**
@@ -60,7 +85,32 @@ type TimelineEntry = {
 	started: boolean
 }
 
+/**
+ * Timeline composes Tweens (and nested Timelines) in sequence and in
+ * parallel.
+ *
+ * Sequential by default: each `add()` call appends after the last child.
+ * Parallel placement is achieved via explicit offsets:
+ *
+ * ```ts
+ * const tl = new Timeline()
+ * tl.add(tweenA)       // plays at 0ms
+ * tl.add(tweenB, 0)    // plays in parallel at 0ms
+ * tl.add(tweenC, 500)  // starts at 500ms
+ * ```
+ *
+ * Labels allow named reference points:
+ *
+ * ```ts
+ * tl.addLabel('drop', 1000)
+ * tl.add(tweenD, 'drop')
+ * ```
+ */
 export class Timeline {
+	/**
+	 * When true, calling {@link update} on a stopped timeline will
+	 * implicitly call {@link start} first. Defaults to false.
+	 */
 	static autoStartOnUpdate = false
 
 	private _id = Sequence.nextId()
@@ -79,23 +129,31 @@ export class Timeline {
 	private _onCompleteCallback?: (timeline: Timeline) => void
 	private _onStopCallback?: (timeline: Timeline) => void
 
+	/**
+	 * Creates a new empty Timeline. Use {@link add} to compose tweens
+	 * and nested timelines.
+	 */
 	constructor() {
 		// Empty on purpose. Use `.add()` to compose.
 		// Sequential by default, parallel via explicit offsets, labels, or options.
 	}
 
+	/** Returns the unique integer ID of this timeline. */
 	getId(): number {
 		return this._id
 	}
 
+	/** Returns the callback registered via {@link onComplete}, if any. */
 	getCompleteCallback(): ((timeline: Timeline) => void) | undefined {
 		return this._onCompleteCallback
 	}
 
+	/** Returns true while the timeline is playing (including while paused). */
 	isPlaying(): boolean {
 		return this._isPlaying
 	}
 
+	/** Returns true if the timeline is currently paused. */
 	isPaused(): boolean {
 		return this._isPaused
 	}
@@ -105,14 +163,20 @@ export class Timeline {
 		return this._duration
 	}
 
+	/**
+	 * Total duration of all children. Same as {@link getDuration} for
+	 * timelines.
+	 */
 	getTotalDuration(): number {
 		return this._duration
 	}
 
+	/** Returns all child tweens and nested timelines. */
 	getAll(): Array<TimelineChild> {
 		return this._entries.map(entry => entry.node)
 	}
 
+	/** Returns true if the given tween or timeline is a child of this timeline. */
 	has(node: TimelineChild): boolean {
 		return this._entries.some(entry => entry.node === node)
 	}
@@ -159,18 +223,38 @@ export class Timeline {
 		return {offset: resolved.offset, shift: false, insertIndex: resolved.insertIndex}
 	}
 
+	/**
+	 * Adds a named label at a time offset. Labels can be used as position
+	 * references in {@link add}. The built-in labels `"start"` and `"end"`
+	 * cannot be modified.
+	 *
+	 * @param name - Label name (must not be `"start"` or `"end"`).
+	 * @param offset - Time offset in milliseconds.
+	 */
 	addLabel(name: string, offset: number): this {
 		if (name === 'start' || name === 'end') return this
 		this._labels[name] = offset
 		return this
 	}
 
+	/**
+	 * Removes a named label. Built-in `"start"` and `"end"` labels cannot be
+	 * removed.
+	 *
+	 * @param name - Label name to remove.
+	 */
 	removeLabel(name: string): this {
 		if (name === 'start' || name === 'end') return this
 		delete this._labels[name]
 		return this
 	}
 
+	/**
+	 * Returns the time offset for a named label, or `undefined` if the label
+	 * does not exist.
+	 *
+	 * @param name - Label name to look up.
+	 */
 	getLabel(name: string): number | undefined {
 		return this._labels[name]
 	}
@@ -213,6 +297,9 @@ export class Timeline {
 	 * independent playback state); the original object plays first.
 	 * `add([a, b])` adds sequentially; `add([a, b], 0)` adds in parallel
 	 * (`repeat`/`yoyo` apply per child).
+	 *
+	 * @param node - A tween, timeline, or array of tweens/timelines.
+	 * @param position - Optional position specifier (see above).
 	 */
 	add(node: TimelineChild | Array<TimelineChild>, position?: TimelinePosition): this {
 		if (Array.isArray(node)) {
@@ -317,6 +404,11 @@ export class Timeline {
 		return cloned
 	}
 
+	/**
+	 * Removes one or more child tweens/timelines from this timeline.
+	 *
+	 * @param nodes - The children to remove.
+	 */
 	remove(...nodes: Array<TimelineChild>): this {
 		let changed = false
 		for (const node of nodes) {
@@ -330,27 +422,52 @@ export class Timeline {
 		return this
 	}
 
+	/** Removes all children from this timeline. */
 	removeAll(): this {
 		this._entries = []
 		this._recalculateDuration()
 		return this
 	}
 
+	/**
+	 * Sets a callback invoked when the timeline first starts playing (fires
+	 * exactly once per {@link start} call).
+	 *
+	 * @param callback - Called with the timeline instance.
+	 */
 	onStart(callback?: (timeline: Timeline) => void): this {
 		this._onStartCallback = callback
 		return this
 	}
 
+	/**
+	 * Sets a callback invoked on every update tick while the timeline is
+	 * playing.
+	 *
+	 * @param callback - Called with the timeline instance and the elapsed
+	 * portion (0 to 1). For infinite timelines, `elapsed` is always 0.
+	 */
 	onUpdate(callback?: (timeline: Timeline, elapsed: number) => void): this {
 		this._onUpdateCallback = callback
 		return this
 	}
 
+	/**
+	 * Sets a callback invoked when the timeline finishes playing (reaches
+	 * its total duration).
+	 *
+	 * @param callback - Called with the timeline instance.
+	 */
 	onComplete(callback?: (timeline: Timeline) => void): this {
 		this._onCompleteCallback = callback
 		return this
 	}
 
+	/**
+	 * Sets a callback invoked when the timeline is stopped via {@link stop}.
+	 *
+	 * @param callback - Called with the timeline instance.
+	 */
 	onStop(callback?: (timeline: Timeline) => void): this {
 		this._onStopCallback = callback
 		return this
@@ -376,6 +493,17 @@ export class Timeline {
 		return this
 	}
 
+	/**
+	 * Starts the timeline at the given time. Children start lazily when the
+	 * playhead reaches their offset, so start values are captured at the
+	 * right moment even for sequential same-property tweens.
+	 *
+	 * If already playing, this is a no-op. Stops any currently playing
+	 * children.
+	 *
+	 * @param time - The current time in milliseconds (usually from
+	 * `performance.now()` or your own clock). Defaults to `now()`.
+	 */
 	start(time: number = now()): this {
 		if (this._isPlaying) return this
 
@@ -392,6 +520,10 @@ export class Timeline {
 		return this
 	}
 
+	/**
+	 * Stops the timeline and all playing children. Fires the
+	 * {@link onStop} callback if set.
+	 */
 	stop(): this {
 		if (!this._isPlaying) return this
 
@@ -407,6 +539,12 @@ export class Timeline {
 		return this
 	}
 
+	/**
+	 * Pauses the timeline at the given time. The timeline continues to
+	 * report `isPlaying() === true` while paused.
+	 *
+	 * @param time - The current time in milliseconds. Defaults to `now()`.
+	 */
 	pause(time: number = now()): this {
 		if (this._isPaused || !this._isPlaying) return this
 		this._isPaused = true
@@ -414,6 +552,12 @@ export class Timeline {
 		return this
 	}
 
+	/**
+	 * Resumes the timeline from a paused state. The timeline's clock is
+	 * adjusted so children continue from the pause point.
+	 *
+	 * @param time - The current time in milliseconds. Defaults to `now()`.
+	 */
 	resume(time: number = now()): this {
 		if (!this._isPaused || !this._isPlaying) return this
 		this._isPaused = false
@@ -425,6 +569,11 @@ export class Timeline {
 	/**
 	 * @returns true if still playing after update, false otherwise.
 	 * Children use a local clock (0 = timeline start).
+	 *
+	 * @param time - The current time in milliseconds. Defaults to `now()`.
+	 * @param autoStart - When true and the timeline is stopped, implicitly
+	 * call {@link start} first. Defaults to
+	 * {@link Timeline.autoStartOnUpdate}.
 	 */
 	update(time = now(), autoStart = Timeline.autoStartOnUpdate): boolean {
 		if (this._isPaused) return true
@@ -472,7 +621,7 @@ export class Timeline {
 		const elapsed = this._duration === 0 ? 1 : effectiveLocal / this._duration
 		if (this._onUpdateCallback) this._onUpdateCallback(this, elapsed)
 
-		if (this._duration === 0 || timelineLocal >= this._duration) {
+		if (this._duration === 0 || time >= this._startTime + this._duration) {
 			if (this._onCompleteCallback) this._onCompleteCallback(this)
 			this._isPlaying = false
 			return false

@@ -983,7 +983,7 @@ define(['exports'], (function (exports) { 'use strict';
     }());
 
     /**
-     * Tween.js - Licensed under the MIT license
+     * @file Tween.js - Licensed under the MIT license
      * https://github.com/tweenjs/tween.js
      * ----------------------------------------------
      *
@@ -1008,7 +1008,32 @@ define(['exports'], (function (exports) { 'use strict';
      * three-day conference, the longest animation in the universe).
      */
     var MAX_TIMELINE_DURATION_MS = 72 * 60 * 60 * 1000;
+    /**
+     * Timeline composes Tweens (and nested Timelines) in sequence and in
+     * parallel.
+     *
+     * Sequential by default: each `add()` call appends after the last child.
+     * Parallel placement is achieved via explicit offsets:
+     *
+     * ```ts
+     * const tl = new Timeline()
+     * tl.add(tweenA)       // plays at 0ms
+     * tl.add(tweenB, 0)    // plays in parallel at 0ms
+     * tl.add(tweenC, 500)  // starts at 500ms
+     * ```
+     *
+     * Labels allow named reference points:
+     *
+     * ```ts
+     * tl.addLabel('drop', 1000)
+     * tl.add(tweenD, 'drop')
+     * ```
+     */
     var Timeline = /** @class */ (function () {
+        /**
+         * Creates a new empty Timeline. Use {@link add} to compose tweens
+         * and nested timelines.
+         */
         function Timeline() {
             this._id = Sequence.nextId();
             this._entries = [];
@@ -1022,15 +1047,19 @@ define(['exports'], (function (exports) { 'use strict';
             // Empty on purpose. Use `.add()` to compose.
             // Sequential by default, parallel via explicit offsets, labels, or options.
         }
+        /** Returns the unique integer ID of this timeline. */
         Timeline.prototype.getId = function () {
             return this._id;
         };
+        /** Returns the callback registered via {@link onComplete}, if any. */
         Timeline.prototype.getCompleteCallback = function () {
             return this._onCompleteCallback;
         };
+        /** Returns true while the timeline is playing (including while paused). */
         Timeline.prototype.isPlaying = function () {
             return this._isPlaying;
         };
+        /** Returns true if the timeline is currently paused. */
         Timeline.prototype.isPaused = function () {
             return this._isPaused;
         };
@@ -1038,12 +1067,18 @@ define(['exports'], (function (exports) { 'use strict';
         Timeline.prototype.getDuration = function () {
             return this._duration;
         };
+        /**
+         * Total duration of all children. Same as {@link getDuration} for
+         * timelines.
+         */
         Timeline.prototype.getTotalDuration = function () {
             return this._duration;
         };
+        /** Returns all child tweens and nested timelines. */
         Timeline.prototype.getAll = function () {
             return this._entries.map(function (entry) { return entry.node; });
         };
+        /** Returns true if the given tween or timeline is a child of this timeline. */
         Timeline.prototype.has = function (node) {
             return this._entries.some(function (entry) { return entry.node === node; });
         };
@@ -1091,18 +1126,38 @@ define(['exports'], (function (exports) { 'use strict';
             var resolved = this._resolveAt(position);
             return { offset: resolved.offset, shift: false, insertIndex: resolved.insertIndex };
         };
+        /**
+         * Adds a named label at a time offset. Labels can be used as position
+         * references in {@link add}. The built-in labels `"start"` and `"end"`
+         * cannot be modified.
+         *
+         * @param name - Label name (must not be `"start"` or `"end"`).
+         * @param offset - Time offset in milliseconds.
+         */
         Timeline.prototype.addLabel = function (name, offset) {
             if (name === 'start' || name === 'end')
                 return this;
             this._labels[name] = offset;
             return this;
         };
+        /**
+         * Removes a named label. Built-in `"start"` and `"end"` labels cannot be
+         * removed.
+         *
+         * @param name - Label name to remove.
+         */
         Timeline.prototype.removeLabel = function (name) {
             if (name === 'start' || name === 'end')
                 return this;
             delete this._labels[name];
             return this;
         };
+        /**
+         * Returns the time offset for a named label, or `undefined` if the label
+         * does not exist.
+         *
+         * @param name - Label name to look up.
+         */
         Timeline.prototype.getLabel = function (name) {
             return this._labels[name];
         };
@@ -1144,6 +1199,9 @@ define(['exports'], (function (exports) { 'use strict';
          * independent playback state); the original object plays first.
          * `add([a, b])` adds sequentially; `add([a, b], 0)` adds in parallel
          * (`repeat`/`yoyo` apply per child).
+         *
+         * @param node - A tween, timeline, or array of tweens/timelines.
+         * @param position - Optional position specifier (see above).
          */
         Timeline.prototype.add = function (node, position) {
             if (Array.isArray(node)) {
@@ -1249,6 +1307,11 @@ define(['exports'], (function (exports) { 'use strict';
             cloned._recalculateDuration();
             return cloned;
         };
+        /**
+         * Removes one or more child tweens/timelines from this timeline.
+         *
+         * @param nodes - The children to remove.
+         */
         Timeline.prototype.remove = function () {
             var nodes = [];
             for (var _i = 0; _i < arguments.length; _i++) {
@@ -1271,23 +1334,48 @@ define(['exports'], (function (exports) { 'use strict';
                 this._recalculateDuration();
             return this;
         };
+        /** Removes all children from this timeline. */
         Timeline.prototype.removeAll = function () {
             this._entries = [];
             this._recalculateDuration();
             return this;
         };
+        /**
+         * Sets a callback invoked when the timeline first starts playing (fires
+         * exactly once per {@link start} call).
+         *
+         * @param callback - Called with the timeline instance.
+         */
         Timeline.prototype.onStart = function (callback) {
             this._onStartCallback = callback;
             return this;
         };
+        /**
+         * Sets a callback invoked on every update tick while the timeline is
+         * playing.
+         *
+         * @param callback - Called with the timeline instance and the elapsed
+         * portion (0 to 1). For infinite timelines, `elapsed` is always 0.
+         */
         Timeline.prototype.onUpdate = function (callback) {
             this._onUpdateCallback = callback;
             return this;
         };
+        /**
+         * Sets a callback invoked when the timeline finishes playing (reaches
+         * its total duration).
+         *
+         * @param callback - Called with the timeline instance.
+         */
         Timeline.prototype.onComplete = function (callback) {
             this._onCompleteCallback = callback;
             return this;
         };
+        /**
+         * Sets a callback invoked when the timeline is stopped via {@link stop}.
+         *
+         * @param callback - Called with the timeline instance.
+         */
         Timeline.prototype.onStop = function (callback) {
             this._onStopCallback = callback;
             return this;
@@ -1316,6 +1404,17 @@ define(['exports'], (function (exports) { 'use strict';
             }
             return this;
         };
+        /**
+         * Starts the timeline at the given time. Children start lazily when the
+         * playhead reaches their offset, so start values are captured at the
+         * right moment even for sequential same-property tweens.
+         *
+         * If already playing, this is a no-op. Stops any currently playing
+         * children.
+         *
+         * @param time - The current time in milliseconds (usually from
+         * `performance.now()` or your own clock). Defaults to `now()`.
+         */
         Timeline.prototype.start = function (time) {
             if (time === void 0) { time = now(); }
             if (this._isPlaying)
@@ -1332,6 +1431,10 @@ define(['exports'], (function (exports) { 'use strict';
             }
             return this;
         };
+        /**
+         * Stops the timeline and all playing children. Fires the
+         * {@link onStop} callback if set.
+         */
         Timeline.prototype.stop = function () {
             if (!this._isPlaying)
                 return this;
@@ -1346,6 +1449,12 @@ define(['exports'], (function (exports) { 'use strict';
                 this._onStopCallback(this);
             return this;
         };
+        /**
+         * Pauses the timeline at the given time. The timeline continues to
+         * report `isPlaying() === true` while paused.
+         *
+         * @param time - The current time in milliseconds. Defaults to `now()`.
+         */
         Timeline.prototype.pause = function (time) {
             if (time === void 0) { time = now(); }
             if (this._isPaused || !this._isPlaying)
@@ -1354,6 +1463,12 @@ define(['exports'], (function (exports) { 'use strict';
             this._pauseStart = time;
             return this;
         };
+        /**
+         * Resumes the timeline from a paused state. The timeline's clock is
+         * adjusted so children continue from the pause point.
+         *
+         * @param time - The current time in milliseconds. Defaults to `now()`.
+         */
         Timeline.prototype.resume = function (time) {
             if (time === void 0) { time = now(); }
             if (!this._isPaused || !this._isPlaying)
@@ -1366,6 +1481,11 @@ define(['exports'], (function (exports) { 'use strict';
         /**
          * @returns true if still playing after update, false otherwise.
          * Children use a local clock (0 = timeline start).
+         *
+         * @param time - The current time in milliseconds. Defaults to `now()`.
+         * @param autoStart - When true and the timeline is stopped, implicitly
+         * call {@link start} first. Defaults to
+         * {@link Timeline.autoStartOnUpdate}.
          */
         Timeline.prototype.update = function (time, autoStart) {
             if (time === void 0) { time = now(); }
@@ -1416,7 +1536,7 @@ define(['exports'], (function (exports) { 'use strict';
             var elapsed = this._duration === 0 ? 1 : effectiveLocal / this._duration;
             if (this._onUpdateCallback)
                 this._onUpdateCallback(this, elapsed);
-            if (this._duration === 0 || timelineLocal >= this._duration) {
+            if (this._duration === 0 || time >= this._startTime + this._duration) {
                 if (this._onCompleteCallback)
                     this._onCompleteCallback(this);
                 this._isPlaying = false;
@@ -1424,6 +1544,10 @@ define(['exports'], (function (exports) { 'use strict';
             }
             return true;
         };
+        /**
+         * When true, calling {@link update} on a stopped timeline will
+         * implicitly call {@link start} first. Defaults to false.
+         */
         Timeline.autoStartOnUpdate = false;
         return Timeline;
     }());
