@@ -75,8 +75,6 @@ export class Timeline {
 
 	private _onStartCallback?: (timeline: Timeline) => void
 	private _onStartCallbackFired = false
-	private _onEveryStartCallback?: (timeline: Timeline) => void
-	private _onEveryStartCallbackFired = false
 	private _onUpdateCallback?: (timeline: Timeline, elapsed: number) => void
 	private _onCompleteCallback?: (timeline: Timeline) => void
 	private _onStopCallback?: (timeline: Timeline) => void
@@ -312,7 +310,6 @@ export class Timeline {
 			if (name !== 'start' && name !== 'end') cloned._labels[name] = this._labels[name]
 		}
 		cloned._onStartCallback = this._onStartCallback
-		cloned._onEveryStartCallback = this._onEveryStartCallback
 		cloned._onUpdateCallback = this._onUpdateCallback
 		cloned._onCompleteCallback = this._onCompleteCallback
 		cloned._onStopCallback = this._onStopCallback
@@ -341,11 +338,6 @@ export class Timeline {
 
 	onStart(callback?: (timeline: Timeline) => void): this {
 		this._onStartCallback = callback
-		return this
-	}
-
-	onEveryStart(callback?: (timeline: Timeline) => void): this {
-		this._onEveryStartCallback = callback
 		return this
 	}
 
@@ -391,7 +383,6 @@ export class Timeline {
 		this._isPlaying = true
 		this._isPaused = false
 		this._onStartCallbackFired = false
-		this._onEveryStartCallbackFired = false
 		this._startTime = time
 
 		for (const entry of this._entries) {
@@ -448,11 +439,6 @@ export class Timeline {
 		if (!this._onStartCallbackFired) {
 			if (this._onStartCallback) this._onStartCallback(this)
 			this._onStartCallbackFired = true
-		}
-
-		if (!this._onEveryStartCallbackFired) {
-			if (this._onEveryStartCallback) this._onEveryStartCallback(this)
-			this._onEveryStartCallbackFired = true
 		}
 
 		const timelineLocal = time - this._startTime

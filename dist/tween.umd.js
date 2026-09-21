@@ -1023,7 +1023,6 @@
             this._isPaused = false;
             this._pauseStart = 0;
             this._onStartCallbackFired = false;
-            this._onEveryStartCallbackFired = false;
             // Empty on purpose. Use `.add()` to compose.
             // Sequential by default, parallel via explicit offsets, labels, or options.
         }
@@ -1248,7 +1247,6 @@
                     cloned._labels[name_1] = this._labels[name_1];
             }
             cloned._onStartCallback = this._onStartCallback;
-            cloned._onEveryStartCallback = this._onEveryStartCallback;
             cloned._onUpdateCallback = this._onUpdateCallback;
             cloned._onCompleteCallback = this._onCompleteCallback;
             cloned._onStopCallback = this._onStopCallback;
@@ -1284,10 +1282,6 @@
         };
         Timeline.prototype.onStart = function (callback) {
             this._onStartCallback = callback;
-            return this;
-        };
-        Timeline.prototype.onEveryStart = function (callback) {
-            this._onEveryStartCallback = callback;
             return this;
         };
         Timeline.prototype.onUpdate = function (callback) {
@@ -1334,7 +1328,6 @@
             this._isPlaying = true;
             this._isPaused = false;
             this._onStartCallbackFired = false;
-            this._onEveryStartCallbackFired = false;
             this._startTime = time;
             for (var _i = 0, _a = this._entries; _i < _a.length; _i++) {
                 var entry = _a[_i];
@@ -1395,11 +1388,6 @@
                 if (this._onStartCallback)
                     this._onStartCallback(this);
                 this._onStartCallbackFired = true;
-            }
-            if (!this._onEveryStartCallbackFired) {
-                if (this._onEveryStartCallback)
-                    this._onEveryStartCallback(this);
-                this._onEveryStartCallbackFired = true;
             }
             var timelineLocal = time - this._startTime;
             var effectiveLocal = !isFinite(this._duration) ? timelineLocal : Math.min(timelineLocal, this._duration);

@@ -258,8 +258,6 @@ declare class Timeline {
     private _pauseStart;
     private _onStartCallback?;
     private _onStartCallbackFired;
-    private _onEveryStartCallback?;
-    private _onEveryStartCallbackFired;
     private _onUpdateCallback?;
     private _onCompleteCallback?;
     private _onStopCallback?;
@@ -317,7 +315,6 @@ declare class Timeline {
     remove(...nodes: Array<TimelineChild>): this;
     removeAll(): this;
     onStart(callback?: (timeline: Timeline) => void): this;
-    onEveryStart(callback?: (timeline: Timeline) => void): this;
     onUpdate(callback?: (timeline: Timeline, elapsed: number) => void): this;
     onComplete(callback?: (timeline: Timeline) => void): this;
     onStop(callback?: (timeline: Timeline) => void): this;
