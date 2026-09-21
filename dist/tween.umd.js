@@ -1152,16 +1152,10 @@
          */
         Timeline.prototype.add = function (node, position) {
             if (Array.isArray(node)) {
-                if (position === undefined)
-                    for (var _i = 0, node_1 = node; _i < node_1.length; _i++) {
-                        var child = node_1[_i];
-                        this.add(child);
-                    }
-                else
-                    for (var _a = 0, node_2 = node; _a < node_2.length; _a++) {
-                        var child = node_2[_a];
-                        this.add(child, position);
-                    }
+                for (var _i = 0, node_1 = node; _i < node_1.length; _i++) {
+                    var child = node_1[_i];
+                    this.add(child, position);
+                }
                 return this;
             }
             return this._addSingle(node, position);
@@ -1207,7 +1201,7 @@
                     clips.push(node.reverse());
                 }
                 else {
-                    clips.push(node instanceof Timeline ? node.clone() : node.clone());
+                    clips.push(node.clone());
                 }
             }
             if (resolved.shift) {
@@ -1243,7 +1237,7 @@
                 var entry = _a[_i];
                 var child = entry.node;
                 cloned._entries.push({
-                    node: child instanceof Timeline ? child.clone() : child.clone(),
+                    node: child.clone(),
                     offset: entry.offset,
                     started: false,
                 });

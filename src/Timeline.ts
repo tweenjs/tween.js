@@ -218,8 +218,7 @@ export class Timeline {
 	 */
 	add(node: TimelineChild | Array<TimelineChild>, position?: TimelinePosition): this {
 		if (Array.isArray(node)) {
-			if (position === undefined) for (const child of node) this.add(child)
-			else for (const child of node) this.add(child, position)
+			for (const child of node) this.add(child, position)
 			return this
 		}
 		return this._addSingle(node, position)
@@ -263,9 +262,9 @@ export class Timeline {
 						'Timeline.add() yoyo is only supported for Tween children. Reverse nested timelines manually.',
 					)
 				}
-				clips.push((node as Tween<any>).reverse())
+				clips.push(node.reverse())
 			} else {
-				clips.push(node instanceof Timeline ? node.clone() : (node as Tween<any>).clone())
+				clips.push(node.clone())
 			}
 		}
 
@@ -304,7 +303,7 @@ export class Timeline {
 		for (const entry of this._entries) {
 			const child = entry.node
 			cloned._entries.push({
-				node: child instanceof Timeline ? child.clone() : (child as Tween<any>).clone(),
+				node: child.clone(),
 				offset: entry.offset,
 				started: false,
 			})
@@ -370,7 +369,7 @@ export class Timeline {
 		for (const entry of this._entries) {
 			const child = entry.node
 			if (child instanceof Timeline) child.easing(easingFunction)
-			else (child as Tween<any>).easing(easingFunction)
+			else child.easing(easingFunction)
 		}
 		return this
 	}
@@ -380,7 +379,7 @@ export class Timeline {
 		for (const entry of this._entries) {
 			const child = entry.node
 			if (child instanceof Timeline) child.interpolation(interpolationFunction)
-			else (child as Tween<any>).interpolation(interpolationFunction)
+			else child.interpolation(interpolationFunction)
 		}
 		return this
 	}
