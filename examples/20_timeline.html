@@ -19,9 +19,9 @@
 			<p>Sequencing with Timeline: sequential by default, parallel via offsets and labels.</p>
 		</div>
 		<div style="position: absolute; top: 100px; left: 400px">
-			<div id="target1" data-x="0" data-rotation="0" class="box">sequential</div>
-			<div id="target2" data-x="0" data-rotation="0" class="box">parallel</div>
-			<div id="target3" data-x="0" data-rotation="0" class="box">labels + nesting</div>
+			<div id="target1" data-y="0" data-rotation="0" class="box">sequential</div>
+			<div id="target2" data-y="0" data-rotation="0" class="box">parallel</div>
+			<div id="target3" data-y="0" data-rotation="0" class="box">labels + nesting</div>
 		</div>
 
 		<script type="module">
@@ -35,43 +35,38 @@
 			function init() {
 				// 1. Sequential: add() appends after the last child (replaces chain).
 				const target1 = document.getElementById('target1')
-				const seq = new Timeline()
-					.add(new Tween(target1.dataset).to({x: 200}, 800).easing(Easing.Quadratic.InOut))
-					.add(new Tween(target1.dataset).to({x: 0}, 800).easing(Easing.Quadratic.InOut))
-					.onUpdate(function () {
-						updateBox(target1, target1.dataset)
-					})
-				seq.start()
-				timelines.push(seq)
+				const sequence = new Timeline()
+					.add(new Tween(target1.dataset).to({y: 200}, 800).easing(Easing.Quadratic.InOut))
+					.add(new Tween(target1.dataset).to({y: 0}, 800).easing(Easing.Quadratic.InOut))
+					.onUpdate(() => updateBox(target1, target1.dataset))
+				sequence.start()
+				timelines.push(sequence)
 
 				// 2. Parallel: explicit offset 0 starts children together
 				// (two tweens, two different properties of the same box).
 				const target2 = document.getElementById('target2')
-				const par = new Timeline()
-					.add(new Tween(target2.dataset).to({x: 200}, 1000).easing(Easing.Sinusoidal.InOut), 0)
+				const parallel = new Timeline()
+					.add(new Tween(target2.dataset).to({y: 200}, 1000).easing(Easing.Sinusoidal.InOut), 0)
 					.add(new Tween(target2.dataset).to({rotation: 360}, 1000).easing(Easing.Sinusoidal.InOut), 0)
-					.onUpdate(function () {
-						updateBox(target2, target2.dataset)
-					})
-				par.start()
-				timelines.push(par)
+					.add(new Tween(target2.dataset).to({y: 0}, 1000).easing(Easing.Sinusoidal.InOut))
+					.onUpdate(() => updateBox(target2, target2.dataset))
+				parallel.start()
+				timelines.push(parallel)
 
 				// 3. Labels and nesting: an inner timeline inside an outer one.
 				// The spin starts 200ms after the 'moved' label, leaving a gap.
 				const target3 = document.getElementById('target3')
 				const inner = new Timeline()
-					.add(new Tween(target3.dataset).to({x: 200}, 600).easing(Easing.Quadratic.Out), 0)
+					.add(new Tween(target3.dataset).to({y: 200}, 600).easing(Easing.Quadratic.Out), 0)
 					.addLabel('moved', 600)
 					.add(new Tween(target3.dataset).to({rotation: 180}, 600).easing(Easing.Quadratic.InOut), {
 						at: 'moved',
 						offset: 200,
 					})
 					.add(new Tween(target3.dataset).to({rotation: 0}, 600).easing(Easing.Quadratic.InOut))
-					.add(new Tween(target3.dataset).to({x: 0}, 600).easing(Easing.Quadratic.InOut))
+					.add(new Tween(target3.dataset).to({y: 0}, 600).easing(Easing.Quadratic.InOut))
 
-				const outer = new Timeline().add(inner, 0).onUpdate(function () {
-					updateBox(target3, target3.dataset)
-				})
+				const outer = new Timeline().add(inner, 0).onUpdate(() => updateBox(target3, target3.dataset))
 				outer.start()
 				timelines.push(outer)
 			}
@@ -86,7 +81,7 @@
 
 			function updateBox(box, params) {
 				const s = box.style,
-					transform = 'translateX(' + Math.floor(params.x) + 'px) rotate(' + Math.floor(params.rotation) + 'deg)'
+					transform = 'translateY(' + Math.floor(params.y) + 'px) rotate(' + Math.floor(params.rotation) + 'deg)'
 				s.webkitTransform = transform
 				s.mozTransform = transform
 				s.transform = transform

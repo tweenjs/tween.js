@@ -31,7 +31,6 @@
 		"tween",
 		"interpolation"
 	],
-	"dependencies": {},
 	"scripts": {
 		"dev": "(npm run tsc-watch -- --preserveWatchOutput & p1=$!; npm run rollup-build -- --watch & p2=$!; wait $p1 $p2)",
 		"build": "rimraf dist .tmp && node scripts/write-version.js && npm run tsc && npm run rollup-build",
@@ -39,8 +38,10 @@
 		"tsc": "tsc",
 		"tsc-watch": "tsc --watch",
 		"examples": "npx serve .",
-		"test": "npm run build && npm run test-lint && npm run test-unit",
+		"test": "npm run build && npm run test-lint && npm run test-unit && npm run test-e2e",
 		"test-unit": "nodeunit test/unit/nodeunitheadless.cjs",
+		"test-e2e": "playwright test e2e/ --config=e2e/playwright.config.ts",
+		"test-e2e-update-snapshots": "playwright test e2e/ --config=e2e/playwright.config.ts --update-snapshots",
 		"test-lint": "npm run prettier -- --check",
 		"lint": "npm run prettier -- --write",
 		"prettier": "prettier .",
@@ -53,6 +54,7 @@
 	},
 	"author": "tween.js contributors (https://github.com/tweenjs/tween.js/graphs/contributors)",
 	"devDependencies": {
+		"@playwright/test": "^1.63.0",
 		"nodeunit": "^0.11.3",
 		"prettier": "^3.0.0",
 		"rimraf": "^3.0.0",

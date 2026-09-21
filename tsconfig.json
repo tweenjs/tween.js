@@ -14,5 +14,6 @@
 		"ignoreDeprecations": "5.0",
 		"importsNotUsedAsValues": "error"
 	},
+	"include": ["src"], // we don't need to compile e2e/ (playwright handles .ts files there), only src/
 	"exclude": ["node_modules", "examples"]
 }
