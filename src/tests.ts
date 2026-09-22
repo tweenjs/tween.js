@@ -2127,6 +2127,44 @@ export const tests = {
 		test.done()
 	},
 
+	'Custom group.onComplete() works with Timeline children without Tween casts'(test: Test): void {
+		const group = new TWEEN.Group()
+		const tweenObj = {x: 0}
+		const timelineObj = {y: 0}
+		const tween = new TWEEN.Tween(tweenObj).to({x: 1}, 100)
+		const timelineChildTween = new TWEEN.Tween(timelineObj).to({y: 1}, 200)
+		const timeline = new TWEEN.Timeline().add(timelineChildTween, 0)
+		let tweenCompleteCount = 0
+		let timelineCompleteCount = 0
+		let groupCompleteCount = 0
+
+		tween.onComplete(() => {
+			tweenCompleteCount++
+		})
+		timeline.onComplete(() => {
+			timelineCompleteCount++
+		})
+		group.add(tween, timeline)
+		group.onComplete(() => {
+			groupCompleteCount++
+		})
+
+		tween.start(0)
+		timeline.start(0)
+
+		group.update(100)
+		test.equal(tweenCompleteCount, 1)
+		test.equal(timelineCompleteCount, 0)
+		test.equal(groupCompleteCount, 0)
+
+		group.update(200)
+		test.equal(tweenCompleteCount, 1)
+		test.equal(timelineCompleteCount, 1)
+		test.equal(groupCompleteCount, 1)
+
+		test.done()
+	},
+
 	'Custom group stores tweens instead of global TWEEN group'(test: Test): void {
 		const group = new TWEEN.Group()
 
@@ -2805,6 +2843,671 @@ export const tests = {
 		tick(20000)
 
 		restorePerformanceNow()
+
+		test.done()
+	},
+
+	// Timeline tests
+
+	'Timeline is sequential by default (replaces chain)'(test: Test): void {
+		const obj1 = {x: 0}
+		const obj2 = {y: 0}
+		const t1 = new TWEEN.Tween(obj1).to({x: 100}, 1000)
+		const t2 = new TWEEN.Tween(obj2).to({y: 100}, 1000)
+		const tl = new TWEEN.Timeline().add(t1).add(t2)
+
+		test.equal(tl.getDuration(), 2000)
+
+		tl.start(0)
+		tl.update(0)
+		test.equal(obj1.x, 0)
+		test.equal(obj2.y, 0)
+
+		tl.update(500)
+		test.equal(obj1.x, 50)
+		test.equal(obj2.y, 0)
+
+		tl.update(1000)
+		test.equal(obj1.x, 100)
+		test.equal(obj2.y, 0)
+
+		tl.update(1500)
+		test.equal(obj1.x, 100)
+		test.equal(obj2.y, 50)
+
+		const stillPlaying = tl.update(2000)
+		test.equal(obj1.x, 100)
+		test.equal(obj2.y, 100)
+		test.equal(stillPlaying, false)
+		test.ok(!tl.isPlaying())
+
+		test.done()
+	},
+
+	'Timeline parallel via explicit offset 0'(test: Test): void {
+		const obj1 = {x: 0}
+		const obj2 = {y: 0}
+		const t1 = new TWEEN.Tween(obj1).to({x: 100}, 1000)
+		const t2 = new TWEEN.Tween(obj2).to({y: 100}, 1000)
+		const tl = new TWEEN.Timeline().add(t1, 0).add(t2, 0)
+
+		test.equal(tl.getDuration(), 1000)
+
+		tl.start(0)
+		tl.update(500)
+		test.equal(obj1.x, 50)
+		test.equal(obj2.y, 50)
+
+		tl.update(1000)
+		test.equal(obj1.x, 100)
+		test.equal(obj2.y, 100)
+
+		test.done()
+	},
+
+	'Timeline with staggered offsets'(test: Test): void {
+		const obj1 = {x: 0}
+		const obj2 = {y: 0}
+		const t1 = new TWEEN.Tween(obj1).to({x: 100}, 1000)
+		const t2 = new TWEEN.Tween(obj2).to({y: 100}, 1000)
+		const tl = new TWEEN.Timeline().add(t1, 0).add(t2, 500)
+
+		test.equal(tl.getDuration(), 1500)
+
+		tl.start(0)
+		tl.update(250)
+		test.equal(obj1.x, 25)
+		test.equal(obj2.y, 0)
+
+		tl.update(750)
+		test.equal(obj1.x, 75)
+		test.equal(obj2.y, 25)
+
+		tl.update(1500)
+		test.equal(obj1.x, 100)
+		test.equal(obj2.y, 100)
+
+		test.done()
+	},
+
+	'Timeline supports labels and typed positions'(test: Test): void {
+		const obj = {x: 0}
+		const t1 = new TWEEN.Tween(obj).to({x: 100}, 1000)
+		const tl = new TWEEN.Timeline().add(t1, 0)
+		tl.addLabel('mid', 500)
+		test.equal(tl.getLabel('mid'), 500)
+		test.equal(tl.getLabel('start'), 0)
+		test.equal(tl.getLabel('end'), 1000)
+		tl.addLabel('start', 250)
+		tl.addLabel('end', 250)
+		test.equal(tl.getLabel('start'), 0)
+		test.equal(tl.getLabel('end'), 1000)
+
+		const obj2 = {y: 0}
+		const t2 = new TWEEN.Tween(obj2).to({y: 100}, 500)
+		tl.add(t2, 'mid')
+		test.equal(tl.getDuration(), 1000)
+
+		const obj3 = {z: 0}
+		const t3 = new TWEEN.Tween(obj3).to({z: 100}, 200)
+		tl.add(t3, {at: 'mid', offset: 100})
+		// max is still 1000 from first tween
+		test.equal(tl.getDuration(), 1000)
+
+		const obj4 = {w: 0}
+		const t4 = new TWEEN.Tween(obj4).to({w: 100}, 200)
+		tl.add(t4, {at: t2, offset: -100})
+
+		const tl2 = new TWEEN.Timeline()
+		const a = new TWEEN.Tween({x: 0}).to({x: 1}, 400)
+		const b = new TWEEN.Tween({x: 0}).to({x: 1}, 400)
+		tl2.add(a, 100)
+		tl2.add(b, a)
+		test.equal(tl2.getDuration(), 500)
+
+		tl.start(0)
+		tl.update(600)
+		test.equal(obj.x, 60)
+		test.equal(obj2.y, 20)
+		test.equal(obj3.z, 0)
+		test.equal(obj4.w, 100)
+
+		tl.update(800)
+		test.equal(obj3.z, 100)
+
+		tl.removeLabel('mid')
+		tl.removeLabel('start')
+		tl.removeLabel('end')
+		test.equal(tl.getLabel('mid'), undefined)
+		test.equal(tl.getLabel('start'), 0)
+		test.equal(tl.getLabel('end'), 1000)
+
+		test.done()
+	},
+
+	'Timeline add options support atIndex precedence and shift'(test: Test): void {
+		const o1 = {x: 0}
+		const o2 = {y: 0}
+		const o3 = {z: 0}
+		const a = new TWEEN.Tween(o1).to({x: 100}, 100)
+		const b = new TWEEN.Tween(o2).to({y: 100}, 100)
+		const c = new TWEEN.Tween(o3).to({z: 100}, 100)
+		const tl = new TWEEN.Timeline().add(a).add(b).add(c)
+
+		const insertedObj = {w: 0}
+		const inserted = new TWEEN.Tween(insertedObj).to({w: 100}, 50)
+		tl.add(inserted, {atIndex: 1, shift: true})
+		test.equal(tl.getAll()[1], inserted)
+		test.equal(tl.getDuration(), 350)
+
+		const refObj = {v: 0}
+		const ref = new TWEEN.Tween(refObj).to({v: 100}, 50)
+		tl.add(ref, {at: 0, atIndex: 2, offset: -25})
+		test.equal(tl.getDuration(), 350)
+
+		tl.start(0)
+		tl.update(0)
+		test.equal(refObj.v, 0)
+
+		tl.update(100)
+		test.equal(o1.x, 100)
+		test.equal(insertedObj.w, 0)
+		test.equal(o2.y, 0)
+		test.equal(o3.z, 0)
+
+		tl.update(125)
+		test.equal(refObj.v, 0)
+		test.equal(o2.y, 0)
+
+		tl.update(175)
+		test.equal(refObj.v, 100)
+		test.equal(o2.y, 25)
+
+		tl.update(325)
+		test.equal(o3.z, 75)
+
+		test.done()
+	},
+
+	'Timeline add array sequentially by default, parallel with explicit offset'(test: Test): void {
+		const o1 = {x: 0}
+		const o2 = {x: 0}
+		const a = new TWEEN.Tween(o1).to({x: 100}, 500)
+		const b = new TWEEN.Tween(o2).to({x: 100}, 500)
+
+		const seq = new TWEEN.Timeline().add([a, b])
+		test.equal(seq.getDuration(), 1000)
+
+		const o3 = {x: 0}
+		const o4 = {x: 0}
+		const c = new TWEEN.Tween(o3).to({x: 100}, 500)
+		const d = new TWEEN.Tween(o4).to({x: 100}, 500)
+		const par = new TWEEN.Timeline().add([c, d], 0)
+		test.equal(par.getDuration(), 500)
+
+		test.done()
+	},
+
+	'Timeline nesting (timeline in timeline)'(test: Test): void {
+		const o1 = {x: 0}
+		const o2 = {y: 0}
+		const o3 = {z: 0}
+		const t1 = new TWEEN.Tween(o1).to({x: 100}, 500)
+		const t2 = new TWEEN.Tween(o2).to({y: 100}, 500)
+		const inner = new TWEEN.Timeline().add(t1).add(t2)
+		test.equal(inner.getDuration(), 1000)
+
+		const t3 = new TWEEN.Tween(o3).to({z: 100}, 1000)
+		const outer = new TWEEN.Timeline().add(inner, 0).add(t3, 0)
+		test.equal(outer.getDuration(), 1000)
+
+		outer.start(0)
+		outer.update(250)
+		test.equal(o1.x, 50)
+		test.equal(o2.y, 0)
+		test.equal(o3.z, 25)
+
+		outer.update(750)
+		test.equal(o1.x, 100)
+		test.equal(o2.y, 50)
+		test.equal(o3.z, 75)
+
+		outer.update(1000)
+		test.equal(o1.x, 100)
+		test.equal(o2.y, 100)
+		test.equal(o3.z, 100)
+
+		test.done()
+	},
+
+	'Timeline pause and resume freezes children'(test: Test): void {
+		const obj = {x: 0}
+		const t = new TWEEN.Tween(obj).to({x: 100}, 1000)
+		const tl = new TWEEN.Timeline().add(t, 0)
+
+		tl.start(0)
+		tl.update(400)
+		test.equal(obj.x, 40)
+
+		tl.pause(400)
+		tl.update(800)
+		test.equal(obj.x, 40)
+
+		tl.resume(1000)
+		tl.update(1100)
+		test.equal(obj.x, 50)
+
+		tl.update(1600)
+		test.equal(obj.x, 100)
+
+		test.done()
+	},
+
+	'Timeline stop stops children and fires onStop'(test: Test): void {
+		let stopped = false
+		const obj = {x: 0}
+		const t = new TWEEN.Tween(obj).to({x: 100}, 1000)
+		const tl = new TWEEN.Timeline().add(t, 0).onStop(() => (stopped = true))
+
+		tl.start(0)
+		tl.update(500)
+		test.equal(obj.x, 50)
+
+		tl.stop()
+		test.equal(stopped, true)
+		test.ok(!tl.isPlaying())
+		test.ok(!t.isPlaying())
+
+		test.done()
+	},
+
+	'Timeline callbacks onStart onUpdate onComplete'(test: Test): void {
+		let starts = 0
+		let updates = 0
+		let completes = 0
+		let lastElapsed = -1
+		const obj = {x: 0}
+		const t = new TWEEN.Tween(obj).to({x: 100}, 500)
+		const tl = new TWEEN.Timeline()
+			.add(t, 0)
+			.onStart(() => starts++)
+			.onUpdate((_tl, elapsed) => {
+				updates++
+				lastElapsed = elapsed
+			})
+			.onComplete(() => completes++)
+
+		tl.start(0)
+		tl.update(0)
+		test.equal(starts, 1)
+		test.ok(updates >= 1)
+
+		tl.update(250)
+		test.equal(obj.x, 50)
+
+		const alive = tl.update(500)
+		test.equal(alive, false)
+		test.equal(completes, 1)
+		test.equal(lastElapsed, 1)
+
+		// onComplete only once
+		tl.update(600)
+		test.equal(completes, 1)
+
+		test.done()
+	},
+
+	'Timeline getTotalDuration reflects child durations'(test: Test): void {
+		const t = new TWEEN.Tween({x: 0}).to({x: 1}, 400)
+		test.equal(t.getTotalDuration(), 400)
+
+		const tRepeat = new TWEEN.Tween({x: 0}).to({x: 1}, 100).repeat(1)
+		test.equal(tRepeat.getTotalDuration(), 200)
+
+		const tDelayRepeat = new TWEEN.Tween({x: 0}).to({x: 1}, 100).delay(100).repeat(1)
+		// delay 100 + duration 100 + 1 * (100 + 100)
+		test.equal(tDelayRepeat.getTotalDuration(), 400)
+
+		const tl = new TWEEN.Timeline().add(t, 0)
+		test.equal(tl.getDuration(), 400)
+		test.equal(tl.getTotalDuration(), 400)
+
+		const tlChild = new TWEEN.Timeline().add(tDelayRepeat, 0)
+		test.equal(tlChild.getDuration(), 400)
+		test.equal(tlChild.getTotalDuration(), 400)
+
+		test.done()
+	},
+
+	'Timeline remove and has and removeAll'(test: Test): void {
+		const t1 = new TWEEN.Tween({x: 0}).to({x: 1}, 500)
+		const t2 = new TWEEN.Tween({x: 0}).to({x: 1}, 500)
+		const tl = new TWEEN.Timeline().add(t1).add(t2)
+		test.equal(tl.getDuration(), 1000)
+		test.ok(tl.has(t1))
+
+		// Removing the first child leaves a gap (second child still at offset 500).
+		tl.remove(t1)
+		test.ok(!tl.has(t1))
+		test.equal(tl.getDuration(), 1000)
+
+		// Removing the last child shrinks the timeline.
+		const t3 = new TWEEN.Tween({x: 0}).to({x: 1}, 500)
+		const tl2 = new TWEEN.Timeline().add(t1).add(t3)
+		test.equal(tl2.getDuration(), 1000)
+		tl2.remove(t3)
+		test.equal(tl2.getDuration(), 500)
+
+		tl.removeAll()
+		test.equal(tl.getDuration(), 0)
+		test.equal(tl.getAll().length, 0)
+
+		test.done()
+	},
+
+	'Timeline respects child delay on top of offset'(test: Test): void {
+		const obj = {x: 0}
+		const t = new TWEEN.Tween(obj).to({x: 100}, 500).delay(200)
+		const tl = new TWEEN.Timeline().add(t, 100)
+		// offset 100 + delay 200 + duration 500
+		test.equal(tl.getDuration(), 800)
+
+		tl.start(0)
+		tl.update(100)
+		test.equal(obj.x, 0)
+		tl.update(300)
+		test.equal(obj.x, 0)
+		tl.update(550)
+		test.equal(obj.x, 50)
+		tl.update(800)
+		test.equal(obj.x, 100)
+
+		test.done()
+	},
+
+	'Timeline can be added to a Group'(test: Test): void {
+		const group = new TWEEN.Group()
+		const obj = {x: 0}
+		const t = new TWEEN.Tween(obj).to({x: 100}, 500)
+		const tl = new TWEEN.Timeline().add(t, 0)
+		group.add(tl as any)
+		test.equal(group.getAll().length, 1)
+
+		tl.start(0)
+		group.update(250)
+		test.equal(obj.x, 50)
+
+		group.update(500)
+		test.equal(obj.x, 100)
+
+		test.done()
+	},
+
+	'Timeline chaining returns same instance'(test: Test): void {
+		const tl = new TWEEN.Timeline()
+		const t = new TWEEN.Tween({x: 0}).to({x: 1}, 100)
+		test.equal(tl.add(t), tl)
+		test.equal(tl.onStart(), tl)
+		test.equal(tl.onUpdate(), tl)
+		test.equal(tl.onComplete(), tl)
+		test.equal(tl.onStop(), tl)
+		test.equal(tl.start(), tl)
+		test.equal(tl.pause(), tl)
+		test.equal(tl.resume(), tl)
+		test.equal(tl.stop(), tl)
+		test.done()
+	},
+
+	'Timeline sequential same-property tweens chain end-to-start values'(test: Test): void {
+		const obj = {x: 0}
+		const t1 = new TWEEN.Tween(obj).to({x: 100}, 1000)
+		const t2 = new TWEEN.Tween(obj).to({x: 0}, 1000)
+		const tl = new TWEEN.Timeline().add(t1).add(t2)
+
+		tl.start(0)
+		tl.update(0)
+		test.equal(obj.x, 0)
+
+		tl.update(500)
+		test.equal(obj.x, 50)
+
+		// Handoff: second tween must start from the first tween's end value.
+		tl.update(1000)
+		test.equal(obj.x, 100)
+
+		tl.update(1500)
+		test.equal(obj.x, 50)
+
+		test.equal(tl.update(2000), false)
+		test.equal(obj.x, 0)
+
+		test.done()
+	},
+
+	'Timeline scrubbing back to start restores start values'(test: Test): void {
+		const obj = {x: 0, y: 0, size: 100}
+		const tl = new TWEEN.Timeline()
+			.add(new TWEEN.Tween(obj).to({x: 100}, 500))
+			.add(new TWEEN.Tween(obj).to({y: 100}, 500))
+			.add(new TWEEN.Tween(obj).to({size: 200}, 500))
+
+		const scrub = (v: number): void => {
+			if (!tl.isPlaying()) tl.start(0)
+			tl.update(v)
+		}
+
+		scrub(1500)
+		test.equal(obj.x, 100)
+		test.equal(obj.y, 100)
+		test.equal(obj.size, 200)
+		test.ok(!tl.isPlaying())
+
+		// Scrub back to zero: children that already ended output their
+		// end values (no eager snap on fresh start). Only entry 0 runs.
+		scrub(0)
+		test.equal(obj.x, 0)
+		test.equal(obj.y, 100) // stale from forward play (entry 1 not restarted)
+		test.equal(obj.size, 200) // stale from forward play (entry 2 not restarted)
+
+		// And forward again still works after scrubbing back.
+		scrub(750)
+		test.equal(obj.x, 100)
+		test.equal(obj.y, 50)
+		test.equal(obj.size, 200) // entry 2 not yet reached at offset 1000
+
+		test.done()
+	},
+
+	'Tween.clone() copies config and plays independently'(test: Test): void {
+		const obj = {x: 0}
+		const t = new TWEEN.Tween(obj).to({x: 100}, 500)
+		const c = t.clone()
+
+		test.ok(c !== t)
+		test.equal(c.getDuration(), 500)
+
+		c.start(0)
+		c.update(250)
+		test.equal(obj.x, 50)
+		c.update(500)
+		test.equal(obj.x, 100)
+
+		// The original is untouched by playing the clone.
+		test.ok(!t.isPlaying())
+
+		test.done()
+	},
+
+	'Tween.clone() does not throw with yoyo, delay, or repeat'(test: Test): void {
+		test.ok(new TWEEN.Tween({}).to({}).delay(10).clone())
+		test.ok(new TWEEN.Tween({}).to({}).repeat(2).clone())
+		test.ok(new TWEEN.Tween({}).to({}).yoyo(true).clone())
+
+		test.done()
+	},
+
+	'Tween.reverse() plays backwards'(test: Test): void {
+		const obj = {x: 0}
+		const t = new TWEEN.Tween(obj).to({x: 100}, 500)
+		const r = t.reverse()
+
+		test.ok(r !== t)
+
+		// Reversed tween plays end to start, regardless of the object state.
+		obj.x = 100
+		r.start(0)
+		r.update(0)
+		test.equal(obj.x, 100)
+		r.update(250)
+		test.equal(obj.x, 50)
+		r.update(500)
+		test.equal(obj.x, 0)
+
+		test.done()
+	},
+
+	'Tween.reverse() does not throw with yoyo, delay, or repeat'(test: Test): void {
+		test.ok(new TWEEN.Tween({}).to({}).delay(10).reverse())
+		test.ok(new TWEEN.Tween({}).to({}).repeat(2).reverse())
+		test.ok(new TWEEN.Tween({}).to({}).yoyo(true).reverse())
+
+		test.done()
+	},
+
+	'Tween.reverse().reverse() plays forward again'(test: Test): void {
+		const obj = {x: 0}
+		const fwd = new TWEEN.Tween(obj).to({x: 100}, 500).reverse().reverse()
+
+		fwd.start(0)
+		fwd.update(250)
+		test.equal(obj.x, 50)
+		fwd.update(500)
+		test.equal(obj.x, 100)
+
+		test.done()
+	},
+
+	'Timeline.add(tween, {repeat}) repeats via clones'(test: Test): void {
+		const obj = {x: 0}
+		const t = new TWEEN.Tween(obj).to({x: 100}, 500)
+		const tl = new TWEEN.Timeline().add(t, {repeat: 3})
+
+		test.equal(tl.getDuration(), 1500)
+		test.equal(tl.getAll().length, 3)
+
+		tl.start(0)
+		tl.update(250)
+		test.equal(obj.x, 50)
+
+		// Every repetition restarts from the original start value.
+		tl.update(750)
+		test.equal(obj.x, 50)
+
+		tl.update(1250)
+		test.equal(obj.x, 50)
+
+		test.equal(tl.update(1500), false)
+		test.equal(obj.x, 100)
+
+		// Manual triple add is equivalent.
+		const obj2 = {x: 0}
+		const t2 = new TWEEN.Tween(obj2).to({x: 100}, 500)
+		const manual = new TWEEN.Timeline().add(t2).add(t2).add(t2)
+		test.equal(manual.getDuration(), 1500)
+		test.equal(manual.getAll().length, 3)
+
+		test.done()
+	},
+
+	'Timeline.add(tween, {yoyo}) plays forward then backward'(test: Test): void {
+		const obj = {x: 0}
+		const t = new TWEEN.Tween(obj).to({x: 100}, 500)
+		const tl = new TWEEN.Timeline().add(t, {yoyo: true})
+
+		test.equal(tl.getAll().length, 2)
+		test.equal(tl.getDuration(), 1000)
+
+		tl.start(0)
+		tl.update(250)
+		test.equal(obj.x, 50)
+		tl.update(500)
+		test.equal(obj.x, 100)
+		tl.update(750)
+		test.equal(obj.x, 50)
+		test.equal(tl.update(1000), false)
+		test.equal(obj.x, 0)
+
+		// Manual forward + reverse() is equivalent.
+		const obj2 = {x: 0}
+		const t2 = new TWEEN.Tween(obj2).to({x: 100}, 500)
+		const manual = new TWEEN.Timeline().add(t2).add(t2.reverse())
+		test.equal(manual.getDuration(), 1000)
+
+		test.done()
+	},
+
+	'Timeline.add(tween, {yoyo: true, repeat: 2}) plays forward, backward, forward, backward'(test: Test): void {
+		const obj = {x: 0}
+		const t = new TWEEN.Tween(obj).to({x: 100}, 500)
+		const tl = new TWEEN.Timeline().add(t, {yoyo: true, repeat: 2})
+
+		test.equal(tl.getAll().length, 4)
+		test.equal(tl.getDuration(), 2000)
+
+		tl.start(0)
+		tl.update(250)
+		test.equal(obj.x, 50)
+		tl.update(500)
+		test.equal(obj.x, 100)
+		tl.update(750)
+		test.equal(obj.x, 50)
+		tl.update(1000)
+		test.equal(obj.x, 0)
+		tl.update(1250)
+		test.equal(obj.x, 50)
+		tl.update(1500)
+		test.equal(obj.x, 100)
+		tl.update(1750)
+		test.equal(obj.x, 50)
+		test.equal(tl.update(2000), false)
+		test.equal(obj.x, 0)
+
+		test.done()
+	},
+
+	'Timeline.add() validates repeat and yoyo expansion'(test: Test): void {
+		const t = new TWEEN.Tween({x: 0}).to({x: 1}, 100)
+
+		test.throws(() => new TWEEN.Timeline().add(t, {repeat: 0}))
+		test.throws(() => new TWEEN.Timeline().add(t, {repeat: 1.5}))
+		test.throws(() => new TWEEN.Timeline().add(t, {repeat: -2}))
+
+		// Yoyo expansion is only supported for Tween children.
+		test.throws(() => new TWEEN.Timeline().add(new TWEEN.Timeline(), {yoyo: true}))
+
+		// Nested timelines repeat via cloning.
+		const obj = {x: 0}
+		const inner = new TWEEN.Timeline().add(new TWEEN.Tween(obj).to({x: 100}, 500))
+		const outer = new TWEEN.Timeline().add(inner, {repeat: 2})
+
+		test.equal(outer.getDuration(), 1000)
+
+		outer.start(0)
+		outer.update(750)
+		test.equal(obj.x, 50)
+		test.equal(outer.update(1000), false)
+		test.equal(obj.x, 100)
+
+		test.done()
+	},
+
+	'Timeline.add() caps expansion at 72 hours'(test: Test): void {
+		const hour = 60 * 60 * 1000
+		// 72 one-hour clips fit exactly; 74 do not (yoyo doubles the plays).
+		test.ok(new TWEEN.Timeline().add(new TWEEN.Tween({x: 0}).to({x: 1}, hour), {yoyo: true, repeat: 36}))
+		test.throws(() => new TWEEN.Timeline().add(new TWEEN.Tween({x: 0}).to({x: 1}, hour), {yoyo: true, repeat: 37}))
+		// Huge repeats fail fast instead of allocating millions of clones.
+		test.throws(() => new TWEEN.Timeline().add(new TWEEN.Tween({x: 0}).to({x: 1}, 1000), {repeat: 1000000}))
 
 		test.done()
 	},
