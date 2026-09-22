@@ -393,8 +393,8 @@ const trickyObjTween = new Tween({
 })
 	.to({propertyA: 100, propertyB: 200})
 	.onUpdate(function (object) {
-		object.setA(object.propertyA)
-		object.setB(object.propertyB)
+		trickyObj.setA(object.propertyA)
+		trickyObj.setB(object.propertyB)
 	})
 ```
 
