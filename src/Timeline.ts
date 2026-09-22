@@ -122,6 +122,8 @@ export class Timeline {
 	private _isPlaying = false
 	private _isPaused = false
 	private _pauseStart = 0
+	private _nextStartTime: number | undefined
+	private _lastUpdateTime = -Infinity
 
 	private _onStartCallback?: (timeline: Timeline) => void
 	private _onStartCallbackFired = false
@@ -511,7 +513,13 @@ export class Timeline {
 		this._isPlaying = true
 		this._isPaused = false
 		this._onStartCallbackFired = false
-		this._startTime = time
+		// Snap to the ideal cycle boundary when restarting a finished
+		// timeline, so repeated timelines stay in sync with longer ones.
+		// Only when the caller's time is at or past the boundary;
+		// a time before the boundary means a deliberate scrub-back.
+		this._startTime = this._nextStartTime !== undefined && time >= this._nextStartTime ? this._nextStartTime : time
+		this._nextStartTime = undefined
+		this._lastUpdateTime = -Infinity
 
 		for (const entry of this._entries) {
 			if (entry.node.isPlaying()) entry.node.stop()
@@ -594,23 +602,39 @@ export class Timeline {
 
 		const effectiveLocal = Math.min(timelineLocal, this._duration)
 
+		// Detect scrub-back vs forward play: only eagerly restart/clamp
+		// late-offset children when the playhead moved backward. On
+		// forward playback (including auto-restart), children start
+		// lazily so same-property tweens chain correctly.
+		const scrubbingBack = time < this._lastUpdateTime
+		this._lastUpdateTime = time
+
 		for (const entry of this._entries) {
 			const child = entry.node
 			if (!entry.started) {
-				// First start must wait until due; a never-started child left
-				// behind stays untouched. (Later re-starts are harmless and
-				// handled below, since Tween keeps its captured setup.)
+				// First start must wait until due; a never-started child
+				// left behind stays untouched.
 				if (effectiveLocal < entry.offset) continue
 				child.start(entry.offset)
 				entry.started = true
 			} else if (!child.isPlaying() && effectiveLocal < entry.offset + child.getTotalDuration()) {
-				// Re-enter when the playhead is inside the child's range after
-				// scrubbing back.
-				child.start(entry.offset)
+				// On scrub-back, eagerly re-enter children past the playhead
+				// so they snap to their start values. On forward playback
+				// only re-enter when the playhead has reached the child.
+				if (scrubbingBack || effectiveLocal >= entry.offset) {
+					child.start(entry.offset)
+				}
 			}
-			// Clamp the lower end so reversed/scrubbed playheads snap the
-			// child to its start value instead of freezing on stale values.
-			child.update(effectiveLocal < entry.offset ? entry.offset : effectiveLocal)
+			// On scrub-back, clamp late children to their offset so they
+			// output start values. On forward playback let the child
+			// start lazily (no output until playhead reaches offset).
+			if (scrubbingBack && effectiveLocal < entry.offset) {
+				child.update(entry.offset)
+			} else if (!scrubbingBack && effectiveLocal < entry.offset && !child.isPlaying()) {
+				// Forward play: child hasn't been reached yet, skip.
+			} else {
+				child.update(effectiveLocal)
+			}
 		}
 
 		if (!isFinite(this._duration)) {
@@ -623,6 +647,10 @@ export class Timeline {
 
 		if (this._duration === 0 || time >= this._startTime + this._duration) {
 			if (this._onCompleteCallback) this._onCompleteCallback(this)
+			// Store the ideal next-cycle boundary so start() snaps to it
+			// instead of the overshooting wall-clock time. This keeps
+			// repeated timelines precisely aligned with longer ones.
+			this._nextStartTime = this._startTime + this._duration
 			this._isPlaying = false
 			return false
 		}

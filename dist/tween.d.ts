@@ -303,6 +303,8 @@ declare class Timeline {
     private _isPlaying;
     private _isPaused;
     private _pauseStart;
+    private _nextStartTime;
+    private _lastUpdateTime;
     private _onStartCallback?;
     private _onStartCallbackFired;
     private _onUpdateCallback?;

@@ -48,7 +48,7 @@
 				const parallel = new Timeline()
 					.add(new Tween(target2.dataset).to({y: 200}, 1000).easing(Easing.Sinusoidal.InOut), 0)
 					.add(new Tween(target2.dataset).to({rotation: 360}, 1000).easing(Easing.Sinusoidal.InOut), 0)
-					.add(new Tween(target2.dataset).to({y: 0}, 1000).easing(Easing.Sinusoidal.InOut))
+					.add(new Tween(target2.dataset).to({y: 100}, 1000).easing(Easing.Sinusoidal.InOut))
 					.onUpdate(() => updateBox(target2, target2.dataset))
 				parallel.start()
 				timelines.push(parallel)
@@ -63,10 +63,12 @@
 						at: 'moved',
 						offset: 200,
 					})
+
+				const outer = new Timeline()
+					.add(inner)
 					.add(new Tween(target3.dataset).to({rotation: 0}, 600).easing(Easing.Quadratic.InOut))
 					.add(new Tween(target3.dataset).to({y: 0}, 600).easing(Easing.Quadratic.InOut))
-
-				const outer = new Timeline().add(inner, 0).onUpdate(() => updateBox(target3, target3.dataset))
+					.onUpdate(() => updateBox(target3, target3.dataset))
 				outer.start()
 				timelines.push(outer)
 			}

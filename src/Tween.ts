@@ -229,9 +229,7 @@ export class Tween<T extends UnknownProps = any> {
 				}
 
 				if (isInterpolationList) {
-					// if (_valuesStart[property] === undefined) { // handle end values only the first time. NOT NEEDED? setupProperties is now guarded by _propertiesAreSetUp.
 					_valuesEnd[property] = temp
-					// }
 				}
 			}
 

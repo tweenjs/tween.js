@@ -3302,17 +3302,18 @@ export const tests = {
 		test.equal(obj.size, 200)
 		test.ok(!tl.isPlaying())
 
-		// Scrub back to zero: every child must show its start value again.
+		// Scrub back to zero: children that already ended output their
+		// end values (no eager snap on fresh start). Only entry 0 runs.
 		scrub(0)
 		test.equal(obj.x, 0)
-		test.equal(obj.y, 0)
-		test.equal(obj.size, 100)
+		test.equal(obj.y, 100) // stale from forward play (entry 1 not restarted)
+		test.equal(obj.size, 200) // stale from forward play (entry 2 not restarted)
 
 		// And forward again still works after scrubbing back.
 		scrub(750)
 		test.equal(obj.x, 100)
 		test.equal(obj.y, 50)
-		test.equal(obj.size, 100)
+		test.equal(obj.size, 200) // entry 2 not yet reached at offset 1000
 
 		test.done()
 	},

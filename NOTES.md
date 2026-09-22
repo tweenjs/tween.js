@@ -14,5 +14,9 @@ library. User-facing docs live in `examples/` and `README.md`.
 
 - **01 — Timeline.update() scrub-back detection** [`dev-docs/01-timeline-update-scrub-detection.md`](dev-docs/01-timeline-update-scrub-detection.md)
   Fixes an auto-restart bug where late-offset children overwrote early children
-  at the start of a restarted cycle. Introduces `_lastUpdateTime` traking and
+  at the start of a restarted cycle. Introduces `_lastUpdateTime` tracking and
   direction-aware eager-restart/clamp gating in `update()`. ✅
+- **02 — Timeline restart boundary alignment** [`dev-docs/02-timeline-restart-boundary-alignment.md`](dev-docs/02-timeline-restart-boundary-alignment.md)
+  Fixes a sub-frame timing drift between repeated short timelines and longer
+  equivalent timelines. Stores the ideal `_startTime + _duration` boundary
+  on finish and snaps `start()` to it. ✅
