@@ -160,6 +160,8 @@ function animate(time) {
 }
 ```
 
+If a Tween is not started, `tween.update(time)` does nothing by default. Call .start or .resume. Calling `tween.update(time, true)` with `true` as the second argument will auto-start a Tween.
+
 ### `pause`
 
 While an tween is running (i.e. it has already been `start`ed and may have
