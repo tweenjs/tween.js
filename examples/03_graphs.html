@@ -89,6 +89,25 @@
 				target.appendChild(createGraph(group, 'Bounce.In', TWEEN.Easing.Bounce.In))
 				target.appendChild(createGraph(group, 'Bounce.Out', TWEEN.Easing.Bounce.Out))
 				target.appendChild(createGraph(group, 'Bounce.InOut', TWEEN.Easing.Bounce.InOut))
+
+				target.appendChild(document.createElement('br'))
+
+				const customBack = TWEEN.Easing.generateBack(3)
+				target.appendChild(createGraph(group, 'generateBack(3).In', customBack.In))
+				target.appendChild(createGraph(group, 'generateBack(3).Out', customBack.Out))
+				target.appendChild(createGraph(group, 'generateBack(3).InOut', customBack.InOut))
+
+				const customElastic = TWEEN.Easing.generateElastic(1.5, 0.4)
+				target.appendChild(createGraph(group, 'generateElastic(1.5,0.4).In', customElastic.In))
+				target.appendChild(createGraph(group, 'generateElastic(1.5,0.4).Out', customElastic.Out))
+				target.appendChild(createGraph(group, 'generateElastic(1.5,0.4).InOut', customElastic.InOut))
+
+				target.appendChild(document.createElement('br'))
+
+				const steps4 = TWEEN.Easing.generateSteps(4)
+				target.appendChild(createGraph(group, 'generateSteps(4).In', steps4.In))
+				target.appendChild(createGraph(group, 'generateSteps(4).Out', steps4.Out))
+				target.appendChild(createGraph(group, 'generateSteps(4).InOut', steps4.InOut))
 			}
 
 			function animate(time) {
