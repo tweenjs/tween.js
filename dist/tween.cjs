@@ -734,6 +734,11 @@ var Tween = /** @class */ (function () {
         this._interpolationFunction = interpolationFunction;
         return this;
     };
+    /**
+     * @deprecated Sequencing is moving to `Timeline` (add tweens to a
+     * timeline to play them in order). This method keeps working for now and
+     * will be removed in a future major version.
+     */
     // eslint-disable-next-line
     Tween.prototype.chain = function () {
         var tweens = [];
@@ -1167,12 +1172,11 @@ var Timeline = /** @class */ (function () {
         var infinite = false;
         for (var _i = 0, _a = this._entries; _i < _a.length; _i++) {
             var entry = _a[_i];
-            var childTotal = entry.node.getTotalDuration();
-            if (!isFinite(childTotal)) {
+            if (!isFinite(entry.duration)) {
                 infinite = true;
                 break;
             }
-            max = Math.max(max, entry.offset + childTotal);
+            max = Math.max(max, entry.offset + entry.duration);
         }
         this._duration = infinite ? Infinity : max;
         this._labels['end'] = this._duration;
@@ -1264,8 +1268,9 @@ var Timeline = /** @class */ (function () {
         }
         var cursor = resolved.offset;
         var newEntries = clips.map(function (clip) {
-            var entry = { node: clip, offset: cursor, started: false };
-            cursor += clip.getTotalDuration();
+            var duration = clip.getTotalDuration();
+            var entry = { node: clip, offset: cursor, duration: duration, started: false };
+            cursor += duration;
             return entry;
         });
         if (resolved.insertIndex !== undefined) {
@@ -1293,6 +1298,7 @@ var Timeline = /** @class */ (function () {
             cloned._entries.push({
                 node: child.clone(),
                 offset: entry.offset,
+                duration: entry.duration,
                 started: false,
             });
         }
@@ -1531,7 +1537,7 @@ var Timeline = /** @class */ (function () {
                 child.start(entry.offset);
                 entry.started = true;
             }
-            else if (!child.isPlaying() && effectiveLocal < entry.offset + child.getTotalDuration()) {
+            else if (!child.isPlaying() && effectiveLocal < entry.offset + entry.duration) {
                 // On scrub-back, eagerly re-enter children past the playhead
                 // so they snap to their start values. On forward playback
                 // only re-enter when the playhead has reached the child.

@@ -423,6 +423,11 @@ export class Tween<T extends UnknownProps = any> {
 		return this
 	}
 
+	/**
+	 * @deprecated Sequencing is moving to `Timeline` (add tweens to a
+	 * timeline to play them in order). This method keeps working for now and
+	 * will be removed in a future major version.
+	 */
 	// eslint-disable-next-line
 	chain(...tweens: Array<Tween<any>>): this {
 		this._chainedTweens = tweens

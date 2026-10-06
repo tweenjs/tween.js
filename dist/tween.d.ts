@@ -159,6 +159,11 @@ declare class Tween<T extends UnknownProps = any> {
     yoyo(yoyo?: boolean): this;
     easing(easingFunction?: EasingFunction): this;
     interpolation(interpolationFunction?: InterpolationFunction): this;
+    /**
+     * @deprecated Sequencing is moving to `Timeline` (add tweens to a
+     * timeline to play them in order). This method keeps working for now and
+     * will be removed in a future major version.
+     */
     chain(...tweens: Array<Tween<any>>): this;
     /**
      * Create an independent copy of this tween: same object, end values,

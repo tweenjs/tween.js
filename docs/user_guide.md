@@ -160,6 +160,10 @@ function animate(time) {
 }
 ```
 
+If a Tween is not started, `tween.update(time)` does nothing by default. Call `.start` or `.resume` first so a tween is playing.
+
+Calling `tween.update(time, true)` with `true` as the second argument will auto-start a Tween (not recommended).
+
 ### `pause`
 
 While an tween is running (i.e. it has already been `start`ed and may have
@@ -206,6 +210,8 @@ tweenA.chain(tweenB, tweenC)
 ```
 
 > **Warning** Calling `tweenA.chain(tweenB)` actually modifies tweenA so that tweenB is always started when tweenA finishes. The return value of `chain` is just tweenA, not a new tween.
+
+> **Deprecated** Prefer a `Timeline` to sequence tweens (`timeline.add(tweenA).add(tweenB)`); see Timeline.
 
 ### `repeat`
 
@@ -414,7 +420,6 @@ Timeline APIs:
   - `timeline.interpolation(fn)`
 - Callbacks:
   - `timeline.onStart(fn)`
-  - `timeline.onEveryStart(fn)`
   - `timeline.onUpdate(fn)`
   - `timeline.onComplete(fn)`
   - `timeline.onStop(fn)`
@@ -545,8 +550,8 @@ const trickyObjTween = new Tween({
 })
 	.to({propertyA: 100, propertyB: 200})
 	.onUpdate(function (object) {
-		object.setA(object.propertyA)
-		object.setB(object.propertyB)
+		trickyObj.setA(object.propertyA)
+		trickyObj.setB(object.propertyB)
 	})
 ```
 

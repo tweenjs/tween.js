@@ -3080,6 +3080,87 @@ export const tests = {
 		test.done()
 	},
 
+	'Timeline nesting two levels deep (multiple timelines inside timelines)'(test: Test): void {
+		const o = {x: 0, y: 0}
+		// innerA: sequential same-property tweens (0-200: x 0->50, 200-400: x 50->100)
+		const innerA = new TWEEN.Timeline()
+			.add(new TWEEN.Tween(o).to({x: 50}, 200))
+			.add(new TWEEN.Tween(o).to({x: 100}, 200))
+		// innerB: parallel with innerA (y 0->100 over 400)
+		const innerB = new TWEEN.Timeline().add(new TWEEN.Tween(o).to({y: 100}, 400), 0)
+		const mid = new TWEEN.Timeline().add(innerA, 0).add(innerB, 0)
+		test.equal(mid.getDuration(), 400)
+
+		const outer = new TWEEN.Timeline().add(mid, 0).add(new TWEEN.Tween(o).to({y: 0}, 100))
+		test.equal(outer.getDuration(), 500)
+
+		outer.start(0)
+		outer.update(100)
+		test.equal(o.x, 25)
+		test.equal(o.y, 25)
+
+		outer.update(300)
+		test.equal(o.x, 75)
+		test.equal(o.y, 75)
+
+		// The final tween starts exactly here, capturing y at its current 100.
+		outer.update(400)
+		test.equal(o.x, 100)
+		test.equal(o.y, 100)
+
+		test.equal(outer.update(500), false)
+		test.equal(o.x, 100)
+		test.equal(o.y, 0)
+
+		test.done()
+	},
+
+	'Timeline scrubbing back across a nested timeline'(test: Test): void {
+		const o = {x: 0}
+		const inner = new TWEEN.Timeline().add(new TWEEN.Tween(o).to({x: 100}, 400))
+		const outer = new TWEEN.Timeline().add(inner, 100)
+		test.equal(outer.getDuration(), 500)
+
+		outer.start(0)
+		outer.update(300)
+		test.equal(o.x, 50) // inner local time 200/400
+
+		outer.update(200)
+		test.equal(o.x, 25) // scrub back mid-child
+
+		outer.update(50)
+		test.equal(o.x, 0) // before the nested timeline's offset: snapped to start
+
+		outer.update(500)
+		test.equal(o.x, 100)
+		test.equal(outer.update(500), false)
+
+		test.done()
+	},
+
+	'Timeline pause and resume freezes nested timelines'(test: Test): void {
+		const o = {x: 0}
+		const inner = new TWEEN.Timeline().add(new TWEEN.Tween(o).to({x: 100}, 400))
+		const outer = new TWEEN.Timeline().add(inner, 0)
+
+		outer.start(0)
+		outer.update(200)
+		test.equal(o.x, 50)
+
+		outer.pause(200)
+		outer.update(600)
+		test.equal(o.x, 50)
+
+		outer.resume(600)
+		outer.update(700)
+		test.equal(o.x, 75)
+
+		test.equal(outer.update(800), false)
+		test.equal(o.x, 100)
+
+		test.done()
+	},
+
 	'Timeline pause and resume freezes children'(test: Test): void {
 		const obj = {x: 0}
 		const t = new TWEEN.Tween(obj).to({x: 100}, 1000)

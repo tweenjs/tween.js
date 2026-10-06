@@ -77,6 +77,11 @@ const MAX_TIMELINE_DURATION_MS = 72 * 60 * 60 * 1000
 type TimelineEntry = {
 	node: TimelineChild
 	offset: number
+	// Total duration captured when the entry was created. Children are
+	// snapshot at add time (like the clone-based repeat expansion), so the
+	// hot update() loop reads this instead of recomputing
+	// child.getTotalDuration() every frame.
+	duration: number
 	// Whether the child was ever started. Only the first start captures
 	// start values, so it must happen exactly when the playhead reaches the
 	// child (lazy start: sequential same-property tweens then chain
@@ -265,12 +270,11 @@ export class Timeline {
 		let max = 0
 		let infinite = false
 		for (const entry of this._entries) {
-			const childTotal = entry.node.getTotalDuration()
-			if (!isFinite(childTotal)) {
+			if (!isFinite(entry.duration)) {
 				infinite = true
 				break
 			}
-			max = Math.max(max, entry.offset + childTotal)
+			max = Math.max(max, entry.offset + entry.duration)
 		}
 		this._duration = infinite ? Infinity : max
 		this._labels['end'] = this._duration
@@ -362,8 +366,9 @@ export class Timeline {
 
 		let cursor = resolved.offset
 		const newEntries: Array<TimelineEntry> = clips.map(clip => {
-			const entry: TimelineEntry = {node: clip, offset: cursor, started: false}
-			cursor += clip.getTotalDuration()
+			const duration = clip.getTotalDuration()
+			const entry: TimelineEntry = {node: clip, offset: cursor, duration, started: false}
+			cursor += duration
 			return entry
 		})
 
@@ -392,6 +397,7 @@ export class Timeline {
 			cloned._entries.push({
 				node: child.clone(),
 				offset: entry.offset,
+				duration: entry.duration,
 				started: false,
 			})
 		}
@@ -617,7 +623,7 @@ export class Timeline {
 				if (effectiveLocal < entry.offset) continue
 				child.start(entry.offset)
 				entry.started = true
-			} else if (!child.isPlaying() && effectiveLocal < entry.offset + child.getTotalDuration()) {
+			} else if (!child.isPlaying() && effectiveLocal < entry.offset + entry.duration) {
 				// On scrub-back, eagerly re-enter children past the playhead
 				// so they snap to their start values. On forward playback
 				// only re-enter when the playhead has reached the child.
