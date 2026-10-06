@@ -15,7 +15,6 @@ import Sequence from './Sequence'
 import now from './Now'
 
 import type {EasingFunction} from './Easing'
-import type {InterpolationFunction} from './Interpolation'
 import type {Tween} from './Tween'
 
 /** A Tween or nested Timeline that can be added to a timeline. */
@@ -45,6 +44,8 @@ export type TimelineAddOptions = {
 	 * nothing overlaps.
 	 */
 	shift?: boolean
+	/** When adding an array, offsets each child start by this amount. */
+	stagger?: number
 	/**
 	 * Total number of times to play the child. Each extra play clones the
 	 * child (documented), so every clip has independent playback state.
@@ -289,13 +290,14 @@ export class Timeline {
 	 * - `add(tween, 500)` starts at 500ms.
 	 * - `add(tween, 'myLabel')` aligns to a label (`start` and `end` builtin).
 	 * - `add(tween, otherTween)` aligns to another child's start.
-	 * - `add(tween, {at, atIndex, offset, shift, repeat, yoyo})` for full control.
+	 * - `add(tween, {at, atIndex, offset, shift, stagger, repeat, yoyo})` for full control.
 	 *
 	 * Options:
 	 * - `at`: a time value, label, or child to align to (default: end).
 	 * - `atIndex`: entry index to align to (takes precedence over `at`).
 	 * - `offset`: added to the aligned base (default: 0).
 	 * - `shift`: shift entries at/after the base later so nothing overlaps.
+	 * - `stagger`: when adding an array, offset each child start by this amount.
 	 * - `repeat`: total plays; extra plays clone the child (default: 1).
 	 * - `yoyo`: alternate plays with reversed clips (see `Tween.reverse()`).
 	 *
@@ -309,6 +311,23 @@ export class Timeline {
 	 */
 	add(node: TimelineChild | Array<TimelineChild>, position?: TimelinePosition): this {
 		if (Array.isArray(node)) {
+			const options = this._isAddOptions(position) ? position : undefined
+			if (options?.stagger !== undefined) {
+				const {stagger, ...basePosition} = options
+				const baseOffset = this._resolvePosition(basePosition).offset
+
+				node.forEach((child, index) => {
+					this._addSingle(child, {
+						...basePosition,
+						at: baseOffset + index * stagger,
+						atIndex: undefined,
+						offset: 0,
+						shift: basePosition.shift === true && index === 0,
+					})
+				})
+				return this
+			}
+
 			for (const child of node) this.add(child, position)
 			return this
 		}
@@ -481,22 +500,15 @@ export class Timeline {
 		return this
 	}
 
-	/** Convenience: set easing for all child Tweens (recurses into nested Timelines). */
-	easing(easingFunction: EasingFunction): this {
+	/** Convenience: set easing for all direct child Tweens. */
+	easingAll(easingFunction: EasingFunction, recurse = false): this {
 		for (const entry of this._entries) {
 			const child = entry.node
-			if (child instanceof Timeline) child.easing(easingFunction)
-			else child.easing(easingFunction)
-		}
-		return this
-	}
-
-	/** Convenience: set interpolation for all child Tweens (recurses). */
-	interpolation(interpolationFunction: InterpolationFunction): this {
-		for (const entry of this._entries) {
-			const child = entry.node
-			if (child instanceof Timeline) child.interpolation(interpolationFunction)
-			else child.interpolation(interpolationFunction)
+			if (child instanceof Timeline) {
+				if (recurse) child.easingAll(easingFunction, true)
+			} else {
+				child.easing(easingFunction)
+			}
 		}
 		return this
 	}

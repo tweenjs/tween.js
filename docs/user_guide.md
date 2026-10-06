@@ -188,6 +188,8 @@ tween.pause()
 
 ### `chain`
 
+> **Deprecated** Prefer a `Timeline` to sequence tweens (`timeline.add(tweenA).add(tweenB)`); see Timeline.
+
 Things get more interesting when you sequence different tweens in order, i.e. setup one tween to start once a previous one has finished. We call this _chaining tweens_, and it's done with the `chain` method. Thus, to make `tweenB` start after `tweenA` finishes:
 
 ```javascript
@@ -211,9 +213,9 @@ tweenA.chain(tweenB, tweenC)
 
 > **Warning** Calling `tweenA.chain(tweenB)` actually modifies tweenA so that tweenB is always started when tweenA finishes. The return value of `chain` is just tweenA, not a new tween.
 
-> **Deprecated** Prefer a `Timeline` to sequence tweens (`timeline.add(tweenA).add(tweenB)`); see Timeline.
-
 ### `repeat`
+
+> **Deprecated** Prefer `timeline.add(tween, {repeat: 3})` (total plays) instead; see Timeline.
 
 If you wanted a tween to repeat forever you could chain it to itself, but a better way is to use the `repeat` method. It accepts a parameter that describes how many repetitions you want after the first tween is completed:
 
@@ -225,9 +227,9 @@ tween.repeat(Infinity) // repeats forever
 The total number of tweens will be the repeat parameter plus one for the initial tween.
 Check the [Repeat](../examples/08_repeat.html) example.
 
-> **Deprecated** Prefer `timeline.add(tween, {repeat: 3})` (total plays) instead; see Timeline.
-
 ### `yoyo`
+
+> **Deprecated** Prefer explicit forward/backward tweens in a Timeline instead, e.g. `timeline.add(tween)` + `timeline.add(tween.reverse())` or the `timeline.add(tween, {yoyo: true})` shortcut; see Timeline.
 
 This function only has effect if used along with `repeat`. When active, the behaviour of the tween will be _like a yoyo_, i.e. it will bounce to and from the start and end values, instead of just repeating the same sequence from the beginning:
 
@@ -236,9 +238,9 @@ tween.yoyo(false) // default value, animation will only go from start to end val
 tween.yoyo(true) // tween will 'yoyo' between start and end values
 ```
 
-> **Deprecated** Prefer explicit forward/backward tweens in a Timeline instead, e.g. `timeline.add(tween)` + `timeline.add(tween.reverse())` or the `timeline.add(tween, {yoyo: true})` shortcut; see Timeline.
-
 ### `delay`
+
+> **Deprecated** Prefer a timeline offset (`timeline.add(tween, 1000)`) instead; see Timeline.
 
 More complex arrangements might require delaying a tween before it actually starts running. You can do that using the `delay` method:
 
@@ -249,9 +251,9 @@ tween.start()
 
 will start executing 1 second after the `start` method has been called.
 
-> **Deprecated** Prefer a timeline offset (`timeline.add(tween, 1000)`) instead; see Timeline.
-
 ### `repeatDelay`
+
+> **Deprecated** Prefer Timeline composition instead; see Timeline.
 
 Normally the `delay` time is applied between repetitions of a tween, but if a value is provided to the `repeatDelay` function then that value will determine the total time elapsed between repetitions of a tween.
 
@@ -264,8 +266,6 @@ tween.start()
 ```
 
 The first iteration of the tween will happen after one second, the second iteration will happen a half second after the first iteration ends, the third iteration will happen a half second after the second iteration ends, etc. If you want to delay the initial iteration but you don't want any delay between iterations, then make sure to call `tween.repeatDelay(0)`.
-
-> **Deprecated** Prefer Timeline composition instead; see Timeline.
 
 ### `dynamic`
 
@@ -373,6 +373,7 @@ timeline.add(tweenD, 'intro') // align to label
 timeline.add(tweenE, {at: 'intro', offset: 100}) // 400ms
 timeline.add(tweenF, {at: tweenD, offset: -100}) // 100ms before tweenD
 timeline.add(tweenH, tweenD) // align to tweenD's start
+timeline.add([tweenI, tweenJ, tweenK], {at: 'intro', stagger: 150}) // 150ms between starts
 timeline.add(tweenG, {atIndex: 2, shift: true}) // insert before child #3 and shift later children
 ```
 
@@ -394,6 +395,8 @@ Timeline APIs:
     expansion (see below)
   - `timeline.add(child, {atIndex, offset, shift, repeat, yoyo})` targets a
     child by index; `atIndex` takes precedence over `at`
+  - `timeline.add([a, b, c], {at, stagger})` starts array children at the same
+    base placement plus `stagger * index`
   - `timeline.add(child, {repeat: 3})` plays the child 3 times in a row (see
     repeats below)
   - `timeline.add(child, {yoyo: true})` plays forward then backward (see yoyo
@@ -416,8 +419,7 @@ Timeline APIs:
   - `timeline.resume()`
   - `timeline.stop()`
 - Child-wide convenience APIs:
-  - `timeline.easing(fn)`
-  - `timeline.interpolation(fn)`
+  - `timeline.easingAll(fn, recurse?)`
 - Callbacks:
   - `timeline.onStart(fn)`
   - `timeline.onUpdate(fn)`

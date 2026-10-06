@@ -252,6 +252,8 @@ type TimelineAddOptions = {
      * nothing overlaps.
      */
     shift?: boolean;
+    /** When adding an array, offsets each child start by this amount. */
+    stagger?: number;
     /**
      * Total number of times to play the child. Each extra play clones the
      * child (documented), so every clip has independent playback state.
@@ -375,13 +377,14 @@ declare class Timeline {
      * - `add(tween, 500)` starts at 500ms.
      * - `add(tween, 'myLabel')` aligns to a label (`start` and `end` builtin).
      * - `add(tween, otherTween)` aligns to another child's start.
-     * - `add(tween, {at, atIndex, offset, shift, repeat, yoyo})` for full control.
+     * - `add(tween, {at, atIndex, offset, shift, stagger, repeat, yoyo})` for full control.
      *
      * Options:
      * - `at`: a time value, label, or child to align to (default: end).
      * - `atIndex`: entry index to align to (takes precedence over `at`).
      * - `offset`: added to the aligned base (default: 0).
      * - `shift`: shift entries at/after the base later so nothing overlaps.
+     * - `stagger`: when adding an array, offset each child start by this amount.
      * - `repeat`: total plays; extra plays clone the child (default: 1).
      * - `yoyo`: alternate plays with reversed clips (see `Tween.reverse()`).
      *
@@ -439,10 +442,8 @@ declare class Timeline {
      * @param callback - Called with the timeline instance.
      */
     onStop(callback?: (timeline: Timeline) => void): this;
-    /** Convenience: set easing for all child Tweens (recurses into nested Timelines). */
-    easing(easingFunction: EasingFunction): this;
-    /** Convenience: set interpolation for all child Tweens (recurses). */
-    interpolation(interpolationFunction: InterpolationFunction): this;
+    /** Convenience: set easing for all direct child Tweens. */
+    easingAll(easingFunction: EasingFunction, recurse?: boolean): this;
     /**
      * Starts the timeline at the given time. Children start lazily when the
      * playhead reaches their offset, so start values are captured at the

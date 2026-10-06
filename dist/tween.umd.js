@@ -868,7 +868,7 @@
             var calculateElapsedPortion = function () {
                 if (_this._duration === 0)
                     return 1;
-                if (time >= _this._startTime + totalTime) {
+                if (elapsedTime > totalTime) {
                     return 1;
                 }
                 var timesRepeated = Math.trunc(elapsedTime / durationAndDelay);
@@ -876,7 +876,7 @@
                 // TODO use %?
                 // const timeIntoCurrentRepeat = elapsedTime % durationAndDelay
                 var portion = Math.min(timeIntoCurrentRepeat / _this._duration, 1);
-                if ((portion === 0 || 1 - portion <= Number.EPSILON) && time >= _this._startTime + _this._duration) {
+                if (portion === 0 && elapsedTime === _this._duration) {
                     return 1;
                 }
                 return portion;
@@ -890,7 +890,7 @@
             if (this._onUpdateCallback) {
                 this._onUpdateCallback(this._object, elapsed);
             }
-            if (this._duration === 0 || time >= this._startTime + this._duration) {
+            if (this._duration === 0 || elapsedTime >= this._duration) {
                 if (this._repeat > 0) {
                     var completeCount = Math.min(Math.trunc((elapsedTime - this._duration) / durationAndDelay) + 1, this._repeat);
                     if (isFinite(this._repeat)) {
@@ -1001,6 +1001,28 @@
      * - Single class, sequential by default (append), parallel via explicit offset.
      * - Simple, Three.js ethos: small API, explicit times, no magic.
      */
+    var __assign = (this && this.__assign) || function () {
+        __assign = Object.assign || function(t) {
+            for (var s, i = 1, n = arguments.length; i < n; i++) {
+                s = arguments[i];
+                for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                    t[p] = s[p];
+            }
+            return t;
+        };
+        return __assign.apply(this, arguments);
+    };
+    var __rest = (this && this.__rest) || function (s, e) {
+        var t = {};
+        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
+            t[p] = s[p];
+        if (s != null && typeof Object.getOwnPropertySymbols === "function")
+            for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
+                if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
+                    t[p[i]] = s[p[i]];
+            }
+        return t;
+    };
     var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
         if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
             if (ar || !(i in from)) {
@@ -1192,13 +1214,14 @@
          * - `add(tween, 500)` starts at 500ms.
          * - `add(tween, 'myLabel')` aligns to a label (`start` and `end` builtin).
          * - `add(tween, otherTween)` aligns to another child's start.
-         * - `add(tween, {at, atIndex, offset, shift, repeat, yoyo})` for full control.
+         * - `add(tween, {at, atIndex, offset, shift, stagger, repeat, yoyo})` for full control.
          *
          * Options:
          * - `at`: a time value, label, or child to align to (default: end).
          * - `atIndex`: entry index to align to (takes precedence over `at`).
          * - `offset`: added to the aligned base (default: 0).
          * - `shift`: shift entries at/after the base later so nothing overlaps.
+         * - `stagger`: when adding an array, offset each child start by this amount.
          * - `repeat`: total plays; extra plays clone the child (default: 1).
          * - `yoyo`: alternate plays with reversed clips (see `Tween.reverse()`).
          *
@@ -1211,7 +1234,17 @@
          * @param position - Optional position specifier (see above).
          */
         Timeline.prototype.add = function (node, position) {
+            var _this = this;
             if (Array.isArray(node)) {
+                var options = this._isAddOptions(position) ? position : undefined;
+                if ((options === null || options === void 0 ? void 0 : options.stagger) !== undefined) {
+                    var stagger_1 = options.stagger, basePosition_1 = __rest(options, ["stagger"]);
+                    var baseOffset_1 = this._resolvePosition(basePosition_1).offset;
+                    node.forEach(function (child, index) {
+                        _this._addSingle(child, __assign(__assign({}, basePosition_1), { at: baseOffset_1 + index * stagger_1, atIndex: undefined, offset: 0, shift: basePosition_1.shift === true && index === 0 }));
+                    });
+                    return this;
+                }
                 for (var _i = 0, node_1 = node; _i < node_1.length; _i++) {
                     var child = node_1[_i];
                     this.add(child, position);
@@ -1389,27 +1422,19 @@
             this._onStopCallback = callback;
             return this;
         };
-        /** Convenience: set easing for all child Tweens (recurses into nested Timelines). */
-        Timeline.prototype.easing = function (easingFunction) {
+        /** Convenience: set easing for all direct child Tweens. */
+        Timeline.prototype.easingAll = function (easingFunction, recurse) {
+            if (recurse === void 0) { recurse = false; }
             for (var _i = 0, _a = this._entries; _i < _a.length; _i++) {
                 var entry = _a[_i];
                 var child = entry.node;
-                if (child instanceof Timeline)
+                if (child instanceof Timeline) {
+                    if (recurse)
+                        child.easingAll(easingFunction, true);
+                }
+                else {
                     child.easing(easingFunction);
-                else
-                    child.easing(easingFunction);
-            }
-            return this;
-        };
-        /** Convenience: set interpolation for all child Tweens (recurses). */
-        Timeline.prototype.interpolation = function (interpolationFunction) {
-            for (var _i = 0, _a = this._entries; _i < _a.length; _i++) {
-                var entry = _a[_i];
-                var child = entry.node;
-                if (child instanceof Timeline)
-                    child.interpolation(interpolationFunction);
-                else
-                    child.interpolation(interpolationFunction);
+                }
             }
             return this;
         };

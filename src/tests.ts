@@ -1494,11 +1494,10 @@ export const tests = {
 	'Test that TWEEN.Tween.end sets the final values.'(test: Test): void {
 		const object1 = {x: 0, y: -50, z: 1000}
 		const target1 = {x: 50, y: 123, z: '+234'}
-		const fractionalStartTime = 1234.56789
 
 		const tween1 = new TWEEN.Tween(object1).to(target1, 1000)
 
-		tween1.start(fractionalStartTime)
+		tween1.start(0)
 		tween1.end()
 
 		test.equal(object1.x, 50)
@@ -1523,13 +1522,12 @@ export const tests = {
 
 	'Test that TWEEN.Tween.end calls the onComplete callback of the tween.'(test: Test): void {
 		test.expect(1)
-		const fractionalStartTime = 1234.56789
 
 		const tween1 = new TWEEN.Tween({}).to({}, 1000).onComplete(function (): void {
 			test.ok(true)
 		})
 
-		tween1.start(fractionalStartTime)
+		tween1.start(0)
 		tween1.end()
 
 		test.done()
@@ -3029,7 +3027,9 @@ export const tests = {
 		test.done()
 	},
 
-	'Timeline add array sequentially by default, parallel with explicit offset'(test: Test): void {
+	'Timeline add array sequentially by default, parallel with explicit offset, and stagger with options'(
+		test: Test,
+	): void {
 		const o1 = {x: 0}
 		const o2 = {x: 0}
 		const a = new TWEEN.Tween(o1).to({x: 100}, 500)
@@ -3044,6 +3044,31 @@ export const tests = {
 		const d = new TWEEN.Tween(o4).to({x: 100}, 500)
 		const par = new TWEEN.Timeline().add([c, d], 0)
 		test.equal(par.getDuration(), 500)
+
+		const o5 = {x: 0}
+		const o6 = {x: 0}
+		const o7 = {x: 0}
+		const e = new TWEEN.Tween(o5).to({x: 100}, 500)
+		const f = new TWEEN.Tween(o6).to({x: 100}, 500)
+		const g = new TWEEN.Tween(o7).to({x: 100}, 500)
+		const staggered = new TWEEN.Timeline().add([e, f, g], {at: 0, stagger: 250})
+		test.equal(staggered.getDuration(), 1000)
+
+		staggered.start(0)
+		staggered.update(250)
+		test.equal(o5.x, 50)
+		test.equal(o6.x, 0)
+		test.equal(o7.x, 0)
+
+		staggered.update(500)
+		test.equal(o5.x, 100)
+		test.equal(o6.x, 50)
+		test.equal(o7.x, 0)
+
+		staggered.update(1000)
+		test.equal(o5.x, 100)
+		test.equal(o6.x, 100)
+		test.equal(o7.x, 100)
 
 		test.done()
 	},
@@ -3234,6 +3259,36 @@ export const tests = {
 		// onComplete only once
 		tl.update(600)
 		test.equal(completes, 1)
+
+		test.done()
+	},
+
+	'Timeline easingAll applies to direct children and optionally recurses'(test: Test): void {
+		const outerObj = {x: 0}
+		const innerObj = {x: 0}
+		const inner = new TWEEN.Timeline().add(new TWEEN.Tween(innerObj).to({x: 100}, 100), 0)
+		const tl = new TWEEN.Timeline().add(new TWEEN.Tween(outerObj).to({x: 100}, 100), 0).add(inner, 0)
+
+		test.equal((tl as any).interpolation, undefined)
+		test.equal(tl.easingAll(TWEEN.Easing.Quadratic.In), tl)
+
+		tl.start(0)
+		tl.update(50)
+		test.equal(outerObj.x, 25)
+		test.equal(innerObj.x, 50)
+
+		const outerObj2 = {x: 0}
+		const innerObj2 = {x: 0}
+		const inner2 = new TWEEN.Timeline().add(new TWEEN.Tween(innerObj2).to({x: 100}, 100), 0)
+		const tl2 = new TWEEN.Timeline()
+			.add(new TWEEN.Tween(outerObj2).to({x: 100}, 100), 0)
+			.add(inner2, 0)
+			.easingAll(TWEEN.Easing.Quadratic.In, true)
+
+		tl2.start(0)
+		tl2.update(50)
+		test.equal(outerObj2.x, 25)
+		test.equal(innerObj2.x, 25)
 
 		test.done()
 	},

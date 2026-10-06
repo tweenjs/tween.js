@@ -30,3 +30,7 @@ library. User-facing docs live in `examples/` and `README.md`.
 - **05 — Timeline entry duration cache** [`dev-docs/05-timeline-entry-duration-cache.md`](dev-docs/05-timeline-entry-duration-cache.md)
   Hot-path fix: durations captured per entry at add time instead of recomputed
   every frame; verified snapshot-neutral. ✅
+- **06 — Timeline API review follow-ups** [`dev-docs/06-timeline-api-review-followups.md`](dev-docs/06-timeline-api-review-followups.md)
+  Renames array-add staggering to `stagger`, removes Timeline interpolation,
+  renames `easing()` to `easingAll(recurse?)`, and moves guide deprecation
+  callouts directly under each legacy Tween API heading. ✅
