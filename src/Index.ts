@@ -13,6 +13,7 @@ import Interpolation from './Interpolation'
 import now, {setNow} from './Now'
 import Sequence from './Sequence'
 import Tween from './Tween'
+import Timeline from './Timeline'
 import VERSION from './Version'
 import {mainGroup} from './mainGroup'
 
@@ -282,6 +283,7 @@ export {
 	Sequence,
 	nextId,
 	Tween,
+	Timeline,
 	VERSION,
 	getAll,
 	removeAll,
@@ -299,6 +301,7 @@ const exports = {
 	Sequence,
 	nextId,
 	Tween,
+	Timeline,
 	VERSION,
 
 	/**
