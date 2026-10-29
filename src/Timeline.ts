@@ -500,7 +500,13 @@ export class Timeline {
 		return this
 	}
 
-	/** Convenience: set easing for all direct child Tweens. */
+	/**
+	 * Convenience: set easing for all direct child Tweens.
+	 *
+	 * @param easingFunction - The easing function to apply.
+	 * @param recurse - If `true`, also applies the easing to Tweens inside nested
+	 * child Timelines. Defaults to `false`, in which case nested Timelines are skipped.
+	 */
 	easingAll(easingFunction: EasingFunction, recurse = false): this {
 		for (const entry of this._entries) {
 			const child = entry.node
