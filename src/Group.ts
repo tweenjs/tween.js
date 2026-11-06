@@ -1,21 +1,26 @@
 import now from './Now'
 import type {Tween} from './Tween'
+import type {Timeline} from './Timeline'
+
+export type GroupChild = Tween<any> | Timeline
 
 /**
  * Controlling groups of tweens
  *
  * Using the TWEEN singleton to manage your tweens can cause issues in large apps with many components.
  * In these cases, you may want to create your own smaller groups of tween
+ *
+ * Groups can also hold `Timeline` instances (timelines are playable, like tweens).
  */
 export default class Group {
-	private _tweens: Record<string, Tween> = {}
-	private _tweensAddedDuringUpdate: Record<string, Tween> = {}
+	private _tweens: Record<string, GroupChild> = {}
+	private _tweensAddedDuringUpdate: Record<string, GroupChild> = {}
 
-	constructor(...tweens: Tween[]) {
+	constructor(...tweens: Array<GroupChild>) {
 		this.add(...tweens)
 	}
 
-	getAll(): Array<Tween> {
+	getAll(): Array<GroupChild> {
 		return Object.keys(this._tweens).map(tweenId => this._tweens[tweenId])
 	}
 
@@ -23,7 +28,7 @@ export default class Group {
 		this._tweens = {}
 	}
 
-	add(...tweens: Tween[]): void {
+	add(...tweens: Array<GroupChild>): void {
 		for (const tween of tweens) {
 			// Remove from any other group first, a tween can only be in one group at a time.
 			// @ts-expect-error library internal access
@@ -37,7 +42,7 @@ export default class Group {
 		}
 	}
 
-	remove(...tweens: Tween[]): void {
+	remove(...tweens: Array<GroupChild>): void {
 		for (const tween of tweens) {
 			// @ts-expect-error library internal access
 			tween._group = undefined
@@ -84,15 +89,19 @@ export default class Group {
 			tweenIds = Object.keys(this._tweensAddedDuringUpdate)
 		}
 	}
-	onComplete(callback: (object: Tween[]) => void) {
+	onComplete(callback: (object: Array<GroupChild>) => void) {
 		const group = this.getAll()
-		group.forEach(tween => {
-			const prevCallback = tween.getCompleteCallback()
-			tween.onComplete(() => {
-				prevCallback?.(tween)
+		group.forEach(child => {
+			const prevCallback = child.getCompleteCallback()
+			const notifyIfComplete = () => {
 				// After the onComplete callback completes, _isPlaying is updated to false, so if the total number of completed tweens is -1, then they are all complete.
 				const completedGroup = group.filter(tween => !tween.isPlaying())
 				if (completedGroup.length === group.length - 1) callback(group)
+			}
+
+			child.onComplete(object => {
+				prevCallback?.(object)
+				notifyIfComplete()
 			})
 		})
 	}
