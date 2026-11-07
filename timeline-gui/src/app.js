@@ -26,7 +26,10 @@ import {
 	findClip,
 	flattenTracks,
 	generateCode,
+	getCompletions,
 	getModelDuration,
+	highlightCode,
+	extractPrefix,
 	moveClip,
 	parseCode,
 	pxToTime,
@@ -65,6 +68,8 @@ const els = {
 	reset: $('btn-reset'),
 	inspector: $('inspector-body'),
 	codeIn: $('code-in'),
+	codeHl: $('code-hl'),
+	codeHlCode: $('code-hl-code'),
 	codeError: $('code-error'),
 	applyCode: $('btn-apply-code'),
 	revertCode: $('btn-revert-code'),
@@ -499,10 +504,21 @@ function setCodeError(msg) {
 function renderCode() {
 	const text = generateCode(model, state)
 	els.codeIn.value = text
+	syncHighlight()
 	codeDirty = false
 	setCodeError(null)
 	saveCode(text)
 }
+
+/** Refresh the read-only highlight layer behind the code textarea. */
+function syncHighlight() {
+	els.codeHlCode.innerHTML = highlightCode(els.codeIn.value)
+}
+
+els.codeIn.addEventListener('scroll', () => {
+	els.codeHl.scrollTop = els.codeIn.scrollTop
+	els.codeHl.scrollLeft = els.codeIn.scrollLeft
+})
 
 function renderAll() {
 	renderRuler()
@@ -694,6 +710,109 @@ els.copyCode.onclick = async () => {
 els.codeIn.addEventListener('input', () => {
 	codeDirty = true
 	els.applyCode.classList.add('active')
+	syncHighlight()
+	refreshAutocomplete()
+})
+
+// ---- autocomplete (Tween / Timeline / Easing) ----
+
+let acItems = []
+let acActive = 0
+let acPrefixStart = 0
+
+function closeAutocomplete() {
+	acItems = []
+	els.acPopup.hidden = true
+	els.acPopup.innerHTML = ''
+}
+
+/** Caret coordinates relative to the code wrap, via an offscreen mirror. */
+function caretCoords() {
+	const ta = els.codeIn
+	let mirror = document.getElementById('ac-mirror')
+	if (!mirror) {
+		mirror = document.createElement('div')
+		mirror.id = 'ac-mirror'
+		mirror.setAttribute('aria-hidden', 'true')
+		els.codeIn.parentElement.appendChild(mirror)
+	}
+	const style = getComputedStyle(ta)
+	for (const prop of [
+		'font',
+		'paddingTop',
+		'paddingRight',
+		'paddingBottom',
+		'paddingLeft',
+		'whiteSpace',
+		'tabSize',
+		'letterSpacing',
+		'borderTopWidth',
+		'borderLeftWidth',
+	]) {
+		mirror.style[prop] = style[prop]
+	}
+	mirror.style.width = `${ta.clientWidth}px`
+	mirror.textContent = ta.value.slice(0, ta.selectionStart)
+	const marker = document.createElement('span')
+	marker.textContent = '​'
+	mirror.appendChild(marker)
+	const lineH = parseFloat(style.lineHeight || '18')
+	return {
+		left: marker.offsetLeft - ta.scrollLeft,
+		top: marker.offsetTop - ta.scrollTop + lineH,
+		lineH,
+	}
+}
+
+function refreshAutocomplete() {
+	const ta = els.codeIn
+	const prefix = extractPrefix(ta.value.slice(0, ta.selectionStart))
+	if (!prefix) {
+		closeAutocomplete()
+		return
+	}
+	const items = getCompletions(prefix)
+	if (items.length === 0) {
+		closeAutocomplete()
+		return
+	}
+	const segment = prefix.includes('.') ? prefix.slice(prefix.lastIndexOf('.') + 1) : prefix
+	acItems = items
+	acActive = 0
+	acPrefixStart = ta.selectionStart - segment.length
+	els.acPopup.innerHTML = ''
+	items.forEach((label, i) => {
+		const div = document.createElement('div')
+		div.className = 'ac-item' + (i === 0 ? ' active' : '')
+		div.textContent = label
+		div.addEventListener('mousedown', e => {
+			e.preventDefault()
+			acceptCompletion(i)
+		})
+		els.acPopup.appendChild(div)
+	})
+	const {left, top} = caretCoords()
+	const wrapWidth = ta.parentElement.clientWidth
+	els.acPopup.style.left = `${Math.max(0, Math.min(left, wrapWidth - 160))}px`
+	els.acPopup.style.top = `${top}px`
+	els.acPopup.hidden = false
+}
+
+function acceptCompletion(index = acActive) {
+	const ta = els.codeIn
+	const label = acItems[index]
+	if (label === undefined) return
+	ta.value = ta.value.slice(0, acPrefixStart) + label + ta.value.slice(ta.selectionStart)
+	ta.selectionStart = ta.selectionEnd = acPrefixStart + label.length
+	codeDirty = true
+	els.applyCode.classList.add('active')
+	syncHighlight()
+	closeAutocomplete()
+	ta.focus()
+}
+
+els.codeIn.addEventListener('blur', () => {
+	closeAutocomplete()
 })
 
 async function copyText(text) {
@@ -710,6 +829,26 @@ async function copyText(text) {
 }
 
 document.addEventListener('keydown', e => {
+	if (e.target === els.codeIn && !els.acPopup.hidden) {
+		if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+			e.preventDefault()
+			acActive = (acActive + (e.key === 'ArrowDown' ? 1 : acItems.length - 1)) % acItems.length
+			els.acPopup.querySelectorAll('.ac-item').forEach((el, i) => {
+				el.classList.toggle('active', i === acActive)
+			})
+			return
+		}
+		if (e.key === 'Enter' || e.key === 'Tab') {
+			e.preventDefault()
+			acceptCompletion()
+			return
+		}
+		if (e.key === 'Escape') {
+			e.preventDefault()
+			closeAutocomplete()
+			return
+		}
+	}
 	if (e.target === els.codeIn && e.key === 'Tab') {
 		e.preventDefault()
 		const ta = els.codeIn
@@ -718,6 +857,7 @@ document.addEventListener('keydown', e => {
 		ta.selectionStart = ta.selectionEnd = start + 2
 		codeDirty = true
 		els.applyCode.classList.add('active')
+		syncHighlight()
 		return
 	}
 	if (e.target === els.codeIn && (e.metaKey || e.ctrlKey) && e.key === 'Enter') {

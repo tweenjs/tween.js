@@ -349,6 +349,30 @@ const LABEL_RE = new RegExp(
 const IMPORT_RE = /^import\s+[\s\S]*?;?\s*$/
 const START_RE = /^(\w+)\.start\(\)\s*;?\s*$/
 
+function escapeHtml(s) {
+	return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+}
+
+/**
+ * Syntax-highlight GUI code for the editor overlay: escapes HTML, then
+ * wraps comments, strings, numbers, and keywords in spans. The trailing
+ * newline keeps the backing `<pre>` exactly as tall as the textarea.
+ */
+export function highlightCode(text) {
+	const re =
+		/(\/\/[^\n]*)|('(?:[^'\\\n]|\\.)*'|"(?:[^"\\\n]|\\.)*")|\b(\d+(?:\.\d+)?)\b|\b(const|new|import|from|return|function)\b/g
+	const src = String(text)
+	let out = ''
+	let last = 0
+	for (let m = re.exec(src); m; m = re.exec(src)) {
+		out += escapeHtml(src.slice(last, m.index))
+		const cls = m[1] ? 'tok-com' : m[2] ? 'tok-str' : m[3] ? 'tok-num' : 'tok-kw'
+		out += `<span class="${cls}">${escapeHtml(m[0])}</span>`
+		last = m.index + m[0].length
+	}
+	return out + escapeHtml(src.slice(last)) + '\n'
+}
+
 function evalObject(src, lineNo, what) {
 	let value
 	try {
@@ -510,4 +534,58 @@ export function parseCode(text) {
 	}
 	const clips = timelines.get('tl').items.map(item => buildClip(item.child, item.offset))
 	return {model: {labels, clips}, state}
+}
+
+/** Easing categories from EASING_NAMES: {Linear:['None'], ...}. */
+export function easingTree() {
+	const tree = {}
+	for (const name of EASING_NAMES) {
+		const [cat, variant] = name.split('.')
+		;(tree[cat] ??= []).push(variant)
+	}
+	return tree
+}
+
+const AC_TOP = ['Tween', 'Timeline', 'Easing']
+
+/**
+ * Completion labels for a `extractPrefix` prefix: top-level names, or
+ * Easing categories/variants after `Easing.` / `Easing.<Cat>.`.
+ */
+export function getCompletions(prefix) {
+	const parts = prefix.split('.')
+	if (parts.length === 1) {
+		const q = parts[0].toLowerCase()
+		return AC_TOP.filter(name => name.toLowerCase().startsWith(q))
+	}
+	if (parts[0] !== 'Easing') return []
+	const tree = easingTree()
+	if (parts.length === 2) {
+		const q = parts[1].toLowerCase()
+		return Object.keys(tree).filter(cat => cat.toLowerCase().startsWith(q))
+	}
+	if (parts.length === 3) {
+		const variants = tree[parts[1]]
+		if (!variants) return []
+		const q = parts[2].toLowerCase()
+		return variants.filter(v => v.toLowerCase().startsWith(q))
+	}
+	return []
+}
+
+/**
+ * Completion prefix from the text before the caret (identifier path with
+ * optional trailing dot), or null inside `//` comments, strings, or when
+ * there is no identifier fragment.
+ */
+export function extractPrefix(before) {
+	const line = String(before).split('\n').pop()
+	const m = /([A-Za-z_$][\w$]*(?:\.[A-Za-z_$][\w$]*)*(?:\.)?)$/.exec(line)
+	if (!m) return null
+	const head = line.slice(0, line.length - m[1].length)
+	if (head.includes('//')) return null
+	const singles = (head.match(/'/g) || []).length
+	const doubles = (head.match(/"/g) || []).length
+	if (singles % 2 === 1 || doubles % 2 === 1) return null
+	return m[1]
 }

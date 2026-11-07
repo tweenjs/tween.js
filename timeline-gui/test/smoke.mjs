@@ -11,9 +11,13 @@ import {
 	defaultState,
 	deleteClip,
 	duplicateClip,
+	easingTree,
+	extractPrefix,
 	flattenTracks,
 	generateCode,
+	getCompletions,
 	getModelDuration,
+	highlightCode,
 	moveClip,
 	parseCode,
 	pxToTime,
@@ -133,6 +137,35 @@ check('declared-but-never-added tween is an error', () => {
 		`const tl = new Timeline();`,
 	].join('\n')
 	assert.throws(() => parseCode(code), /never added/)
+})
+
+check('highlight escapes HTML and wraps tokens', () => {
+	const html = highlightCode('const s = "<x>"; // hi\nconst n = new Tween(state).to({"a":1}, 100);')
+	assert.ok(!html.includes('<x>') && html.includes('&lt;x&gt;'))
+	assert.match(html, /<span class="tok-kw">const<\/span>/)
+	assert.match(html, /<span class="tok-str">"&lt;x&gt;"<\/span>/)
+	assert.match(html, /<span class="tok-com">\/\/ hi<\/span>/)
+	assert.match(html, /<span class="tok-num">100<\/span>/)
+	assert.ok(html.endsWith('\n'))
+})
+
+check('completions cover Tween/Timeline/Easing tree', () => {
+	assert.deepEqual(getCompletions('Twe'), ['Tween'])
+	assert.deepEqual(getCompletions('t'), ['Tween', 'Timeline'])
+	assert.deepEqual(getCompletions('Easing.'), Object.keys(easingTree()))
+	assert.deepEqual(getCompletions('Easing.Quad'), ['Quadratic'])
+	assert.deepEqual(getCompletions('Easing.Quadratic.'), ['In', 'Out', 'InOut'])
+	assert.deepEqual(getCompletions('Easing.Quadratic.X'), [])
+	assert.deepEqual(getCompletions('Foo'), [])
+	assert.deepEqual(getCompletions('tl.'), [])
+})
+
+check('prefix extraction skips comments and strings', () => {
+	assert.equal(extractPrefix('const t = new Twe'), 'Twe')
+	assert.equal(extractPrefix('x = Easing.'), 'Easing.')
+	assert.equal(extractPrefix('new Timeline'), 'Timeline')
+	assert.equal(extractPrefix('// mov'), null)
+	assert.equal(extractPrefix('"ab'), null)
 })
 
 check('addNestedTimeline appends at end', () => {

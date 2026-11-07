@@ -42,7 +42,9 @@ No `npm install` needed inside `timeline-gui/` — there are no dependencies.
   track edits rewrite the code. Only the generated statement shapes (one
   per line; trailing `// name` comments label tracks) are accepted;
   invalid code stops playback and shows the error. The code (not a model
-  dump) is what persists to `localStorage`.
+  dump) is what persists to `localStorage`. Highlighting via an editable
+  overlay (transparent textarea over highlighted HTML); autocomplete for
+  `Tween`/`Timeline`/`Easing` (Tab/Enter accept, Up/Down cycle, Esc closes).
 - **Live stage**: a preview box driven by the same timeline being edited.
 
 ## Layout

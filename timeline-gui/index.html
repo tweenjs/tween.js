@@ -69,18 +69,22 @@
 
 				<section class="code">
 					<div class="toolbar">
-						<strong>Code ↔ timeline</strong>
+						<strong>Code</strong>
 						<span class="spacer"></span>
 						<button id="btn-apply-code">Apply code</button>
 						<button id="btn-revert-code">Revert</button>
 						<button id="btn-copy-code">Copy</button>
 					</div>
 					<div id="code-error" hidden></div>
-					<textarea id="code-in" spellcheck="false"></textarea>
+					<div id="code-wrap">
+						<pre id="code-hl" aria-hidden="true"><code id="code-hl-code"></code></pre>
+						<textarea id="code-in" spellcheck="false"></textarea>
+						<div id="ac-popup" hidden></div>
+					</div>
 					<p class="hint">
 						Edit the code, then Apply (Ctrl/Cmd+Enter) — tracks update from code, and track edits rewrite the code. One
-						statement per line; trailing <code>// name</code> comments label the tracks. Invalid code stops playback and
-						shows the error here.
+						statement per line; trailing <code>// name</code> comments label the tracks. Tab/Enter accept, Up/Down
+						cycle, Esc closes. Invalid code stops playback and shows the error here.
 					</p>
 				</section>
 			</div>
