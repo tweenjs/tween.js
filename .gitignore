@@ -6,3 +6,6 @@ build/npm*
 node_modules
 npm-debug.log
 test-results/
+.zcodeignore
+.browsers
+pnpm-lock.yaml
