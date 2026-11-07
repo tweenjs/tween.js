@@ -15,7 +15,8 @@
 	"type": "module",
 	"scripts": {
 		"dev": "npx --yes serve .",
-		"test": "node --check src/model.js && node --check src/app.js && node test/smoke.mjs",
+		"test": "node --check src/model.js && node --check src/app.js && node test/smoke.mjs && npm run test:e2e",
+		"test:e2e": "playwright test tests/e2e --config=tests/e2e/playwright.config.ts",
 		"vendor": "cp ../dist/tween.esm.js vendor/tween/tween.esm.js"
 	}
 }

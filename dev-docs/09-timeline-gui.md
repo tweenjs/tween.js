@@ -104,7 +104,12 @@ track/inspector edits regenerate it.
 - `src/app.js` — transport, ruler scrub, clip drag-move + edge-resize,
   inspector, stage preview, code box (highlight, autocomplete, persistence).
 - `src/styles.css` — dark track-editor theme.
-- `test/smoke.mjs` — model tests: `node test/smoke.mjs`.
+- `test/smoke.mjs` — 16 model tests: `node test/smoke.mjs`.
+- `tests/e2e/` — isolated, reusable browser tests: 5 functional specs
+  (render, state-reset regression, replay, gestures, stale-storage) + 2
+  visual snapshots, with a shared rAF-hijack helper and GUI page helpers.
+  Own Playwright config serving the folder on :3334; run last in
+  `npm test` via `npm run test:e2e`.
 - `vendor/speed-highlight/` — pinned vendored highlighter (see GUI README
   for the refresh command).
 - `vendor/tween/tween.esm.js` — copy of the `dist/` build so the GUI runs
@@ -115,9 +120,11 @@ track/inspector edits regenerate it.
 - 16 model smoke tests pass, including code round-trip (names, offsets,
   labels, state), edited-code parsing, invalid-code and literal-parser
   rejections, completion/prefix cases, and the vendor-vs-dist check.
-- Headless-Chromium verification: popup shows/accepts for `Twe`,
-  `Easing.`, `tl.`, and Ctrl+Space; popup flips above the caret at
-  end-of-file; Tab-accepted text undoes natively; Undo/Redo restores
+- Headless-Chromium verification, committed as `timeline-gui/tests/e2e/`
+  (5 functional + 2 visual snapshot tests, reusable rAF-hijack and page
+  helpers, own config serving the folder on :3334): popup shows/accepts
+  for `Twe`, `Easing.`, `tl.`, and Ctrl+Space; popup flips above the caret
+  at end-of-file; Tab-accepted text undoes natively; Undo/Redo restores
   track edits (button and shortcut).
 - End-to-end regression for the poisoned-state bug (all-green only after
   the fix): play to the end, drag a clip, assert the code box still shows

@@ -68,7 +68,10 @@ the same).
 - `src/model.js` — pure: clips, labels, time↔px, CRUD, codegen + code parser.
 - `src/app.js` — DOM wiring: transport, tracks, inspector, code box, persistence.
 - `src/styles.css` — dark track-editor theme.
-- `test/smoke.mjs` — model tests: `node test/smoke.mjs`.
+- `test/smoke.mjs` — model tests.
+- `tests/e2e/` — isolated, reusable browser tests (spec + `helpers/` +
+  own Playwright config serving this folder on :3334): `npm run test:e2e`
+  (uses the repo's Playwright install), chained at the end of `npm test`.
 - `vendor/tween/tween.esm.js` — copy of the repo `dist/` build so the GUI
   runs from any static root. Refresh after rebuilding the lib with
   `npm run vendor`; the smoke test fails if the copy drifts from `dist/`.
