@@ -253,6 +253,15 @@ More languages: [English](./README.md), [简体中文](./README_zh-CN.md)
 			Animate an array of values<br />
 			(<a href="examples/16_animate_an_array_of_values.html">source</a>)
 		</td>
+		<td>
+			<a href="http://tweenjs.github.io/tween.js/examples/24_timescaler.html">
+				<img width="100" height="50" src="assets/examples/24_timescaler.png" alt="TimeScaler" />
+			</a>
+		</td>
+		<td>
+			TimeScaler<br />
+			(<a href="examples/24_timescaler.html">source</a>)
+		</td>
 	</tr>
 </table>
 
