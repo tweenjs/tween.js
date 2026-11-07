@@ -13,6 +13,8 @@ library. User-facing docs live in `examples/` and `README.md`.
   `prettier` (f.e. 3.9.x vs the lockfile's 3.2.2) formats CSS differently than
   CI, and untracked tool caches (f.e. `.rumdl_cache/`) fail
   `prettier . --check` locally but never exist in CI.
+- Install tooling project-wide, never system-wide (f.e. browsers via
+  `PLAYWRIGHT_BROWSERS_PATH=.browsers/`, which is gitignored).
 
 ## Implementation notes
 
@@ -34,3 +36,9 @@ library. User-facing docs live in `examples/` and `README.md`.
   Renames array-add staggering to `stagger`, removes Timeline interpolation,
   renames `easing()` to `easingAll(recurse?)`, and moves guide deprecation
   callouts directly under each legacy Tween API heading. ✅
+- **09 — Timeline GUI** [`dev-docs/09-timeline-gui.md`](dev-docs/09-timeline-gui.md)
+  Vanilla ESM track editor in `timeline-gui/` (tracks, ruler/labels,
+  explicit-clock scrub, inspector, live stage). Code is the interchange
+  format: editable box with `parseCode`, strict no-`eval` literal parser,
+  vendored speed-highlight overlay, `Tween`/`Timeline`/`Easing`
+  autocomplete. No core library changes. ✅
