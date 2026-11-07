@@ -41,4 +41,5 @@ library. User-facing docs live in `examples/` and `README.md`.
   explicit-clock scrub, inspector, live stage). Code is the interchange
   format: editable box with `parseCode`, strict no-`eval` literal parser,
   vendored speed-highlight overlay, `Tween`/`Timeline`/`Easing`
-  autocomplete. No core library changes. ✅
+  autocomplete. No core library changes. How to run/test/check: see
+  `dev-docs/09-timeline-gui.md` §How to run / test / check. ✅

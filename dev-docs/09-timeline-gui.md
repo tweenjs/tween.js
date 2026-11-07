@@ -115,6 +115,39 @@ track/inspector edits regenerate it.
 - `vendor/tween/tween.esm.js` — copy of the `dist/` build so the GUI runs
   from any static root (`npm run vendor` refreshes it; smoke-tested).
 
+## How to run / test / check
+
+Run (any static root works — the lib is vendored):
+
+```sh
+npm run build            # repo root: rebuilds dist/
+cd timeline-gui
+npm run vendor            # refresh vendor/tween/tween.esm.js from dist
+npx --yes serve .         # then open the shown URL
+# ...or open the folder with VS Code's Live Server.
+# NOTE: file:// does not work — browsers block ES modules there, so the
+# page shows a boot banner instead of running silently broken.
+```
+
+Test (all green required):
+
+```sh
+cd timeline-gui
+npm test         # node --check both sources, 16 smoke tests, then e2e
+npm run test:e2e  # browser tests only (5 functional + 2 visual snapshots)
+```
+
+The e2e suite uses the repo's Playwright install with project-scoped
+browsers (`PLAYWRIGHT_BROWSERS_PATH=.browsers/`, never system-wide).
+
+Check (lint/format):
+
+```sh
+npx prettier --check timeline-gui/   # from the repo root
+# Judge lint only after `npm clean-install`: a looser locally installed
+# prettier formats CSS differently than CI.
+```
+
 ## Verification
 
 - 16 model smoke tests pass, including code round-trip (names, offsets,
