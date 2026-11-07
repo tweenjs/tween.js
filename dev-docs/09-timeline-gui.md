@@ -61,9 +61,9 @@ track/inspector edits regenerate it.
 - `localStorage` (key `tweenjs-timeline-gui-v3`) stores the code text, not
   a model dump; unparseable stored code falls back to the demo. The key
   was bumped from v2 to drop entries poisoned by the bug below.
-- Generated code always emits the *initial* state, never the live object:
+- Generated code always emits the _initial_ state, never the live object:
   codegen reads a separate `initialState` (set on boot/reset/Apply/Undo),
-  and `rebuild()` resets the live object to it *before* building tweens.
+  and `rebuild()` resets the live object to it _before_ building tweens.
   Previously the live (possibly end-of-play) object was serialized, so a
   rebuild after playback persisted end values as start values — fresh
   tweens captured them and only the tween starting at 0 ever animated
