@@ -28,6 +28,12 @@ npx --yes serve .
 
 No `npm install` needed inside `timeline-gui/` — there are no dependencies.
 
+Opening `index.html` directly does **not** work: browsers refuse to load
+ES modules from `file://` URLs, so the page stays empty. If you see the
+red boot banner instead of tracks, serve the folder over HTTP as above
+(in VS Code, the Live Server extension&#39;s “Open with Live Server” does
+the same).
+
 ## What it does
 
 - **Tracks view**: one row per timeline entry, positioned by offset/duration

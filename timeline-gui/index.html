@@ -38,6 +38,11 @@
 		</header>
 
 		<main>
+			<div id="boot-error" hidden>
+				Timeline GUI failed to start. ES modules do not run from <code>file://</code> URLs — serve this folder over HTTP
+				instead, e.g. run <code>npx --yes serve .</code> inside <code>timeline-gui/</code> and open the shown localhost
+				URL (or use VS Code&#39;s Live Server extension).
+			</div>
 			<div>
 				<section class="stage-wrap">
 					<div id="stage"><div id="box">box</div></div>
@@ -99,6 +104,15 @@
 			</aside>
 		</main>
 
+		<script>
+			window.__guiBooted = false
+			setTimeout(function () {
+				if (!window.__guiBooted) {
+					var el = document.getElementById('boot-error')
+					if (el) el.hidden = false
+				}
+			}, 2500)
+		</script>
 		<script type="module" src="./src/app.js"></script>
 	</body>
 </html>

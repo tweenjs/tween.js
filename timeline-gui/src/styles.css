@@ -419,6 +419,20 @@ section.code {
 	overflow: hidden;
 }
 
+#boot-error {
+	background: #3a1d1d;
+	border: 1px solid var(--playhead);
+	color: #ffb4b4;
+	border-radius: var(--radius);
+	padding: 8px 12px;
+	margin: 14px 14px 0;
+	font-size: 12px;
+}
+
+#boot-error code {
+	font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
 #code-error {
 	background: #3a1d1d;
 	border: 1px solid var(--playhead);

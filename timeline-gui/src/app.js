@@ -1009,3 +1009,4 @@ bootModel()
 ensureStarted()
 tl.update(0)
 renderAll()
+window.__guiBooted = true
