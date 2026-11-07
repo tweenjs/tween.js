@@ -58,8 +58,16 @@ track/inspector edits regenerate it.
 - Invalid code never runs: Apply failure stops the rAF loop, stops the
   timeline, shows the error, and disables play/pause/stop/scrub until the
   code is fixed (track edits regenerate valid code, which also recovers).
-- `localStorage` (key `tweenjs-timeline-gui-v2`) stores the code text, not
-  a model dump; unparseable stored code falls back to the demo.
+- `localStorage` (key `tweenjs-timeline-gui-v3`) stores the code text, not
+  a model dump; unparseable stored code falls back to the demo. The key
+  was bumped from v2 to drop entries poisoned by the bug below.
+- Generated code always emits the *initial* state, never the live object:
+  codegen reads a separate `initialState` (set on boot/reset/Apply/Undo),
+  and `rebuild()` resets the live object to it *before* building tweens.
+  Previously the live (possibly end-of-play) object was serialized, so a
+  rebuild after playback persisted end values as start values — fresh
+  tweens captured them and only the tween starting at 0 ever animated
+  again. Storage v3 plus this reset also self-heals poisoned models.
 
 ## Editor: highlighting + autocomplete
 
@@ -81,6 +89,12 @@ track/inspector edits regenerate it.
   `value =` assignments would clear the undo stack; regeneration skips
   identical text for the same reason). Track edits push code snapshots to
   an Undo/Redo history (buttons + Cmd/Ctrl+Z outside editable fields).
+- Drag gestures never re-render mid-gesture: the tracks pointerdown used
+  to call `renderTracks()` after `setPointerCapture`, which detached the
+  clip (implicitly releasing capture) and silenced the move/up handlers —
+  clips neither moved nor resized and nested rows never collapsed. The
+  handler now marks selection directly and listens for move/up/cancel on
+  `window`; `rebuild()` (with the state reset above) runs on pointerup.
 
 ## Layout
 
@@ -105,6 +119,12 @@ track/inspector edits regenerate it.
   `Easing.`, `tl.`, and Ctrl+Space; popup flips above the caret at
   end-of-file; Tab-accepted text undoes natively; Undo/Redo restores
   track edits (button and shortcut).
+- End-to-end regression for the poisoned-state bug (all-green only after
+  the fix): play to the end, drag a clip, assert the code box still shows
+  the initial `{"x":0,"y":0,"rotation":0,"scale":1,"opacity":1}` state line,
+  reload, and assert the spin tween runs mid-replay; stale v2 entries are
+  ignored. Drag/resize/collapse-toggled-by-click verified on top-level,
+  nested, and edge-handle targets.
 - Playback verified against `dist/tween.cjs`: default model (4000ms,
   mid-play, scrub-back, replay) and parsed-model edits take effect.
 - `prettier --check timeline-gui/` passes; all DOM ids referenced from

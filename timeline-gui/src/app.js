@@ -41,7 +41,7 @@ import {
 } from './model.js'
 
 const NAME_COL = 130
-const STORAGE_KEY = 'tweenjs-timeline-gui-v2'
+const STORAGE_KEY = 'tweenjs-timeline-gui-v3'
 
 const $ = id => document.getElementById(id)
 const els = {
@@ -91,6 +91,7 @@ function resolveEasing(name) {
 
 let model = defaultModel()
 let state = defaultState()
+let initialState = defaultState()
 let pxPerMs = 0.1
 let speed = 1
 let loop = true
@@ -130,6 +131,7 @@ function bootModel() {
 			const parsed = parseCode(stored)
 			model = parsed.model
 			state = parsed.state
+			initialState = {...state}
 			return
 		} catch {
 			// Stored code predates the grammar: fall through to the demo.
@@ -137,6 +139,7 @@ function bootModel() {
 	}
 	model = defaultModel()
 	state = defaultState()
+	initialState = {...state}
 }
 
 // ---- timeline build + explicit-clock playback ----
@@ -236,6 +239,10 @@ function stop() {
 function rebuild(keepPlaying = false) {
 	const wasRaf = rafId !== 0
 	stopRaf()
+	// Reset the animated object first: fresh tweens capture start values on
+	// their first update, and capturing a mid-flight object would freeze
+	// them at end values (and poison the generated code + saved model).
+	state = {...initialState}
 	tl = buildTimeline()
 	tl.start(0)
 	tl.update(currentMs)
@@ -517,7 +524,7 @@ function setCodeError(msg) {
 }
 
 function renderCode() {
-	const text = generateCode(model, state)
+	const text = generateCode(model, initialState)
 	// Keep the user's text (and the native undo stack) when identical.
 	if (els.codeIn.value !== text) els.codeIn.value = text
 	syncHighlight()
@@ -538,6 +545,7 @@ function applySnapshot(code) {
 	const parsed = parseCode(code)
 	model = parsed.model
 	state = parsed.state
+	initialState = {...state}
 	currentMs = Math.min(currentMs, getModelDuration(model))
 	selected = null
 	tl = null
@@ -550,14 +558,14 @@ function applySnapshot(code) {
 function undoModel() {
 	if (undoStack.length === 0) return
 	stopRaf()
-	redoStack.push(generateCode(model, state))
+	redoStack.push(generateCode(model, initialState))
 	applySnapshot(undoStack.pop())
 }
 
 function redoModel() {
 	if (redoStack.length === 0) return
 	stopRaf()
-	undoStack.push(generateCode(model, state))
+	undoStack.push(generateCode(model, initialState))
 	applySnapshot(redoStack.pop())
 }
 
@@ -632,15 +640,16 @@ els.tracks.addEventListener('pointerdown', e => {
 	if (!found) return
 	const {clip} = found
 	selected = {type: 'clip', id: clip.id}
-	if (clip.kind === 'timeline' && !e.target.classList.contains('resize')) {
-		// Single click toggles collapse; drag still moves.
-	}
 	const resizing = clip.kind === 'tween' && e.target.classList.contains('resize')
 	const startX = e.clientX
 	const origOffset = clip.offset
 	const origDuration = clipDuration(clip)
-	el.setPointerCapture(e.pointerId)
-	renderTracks()
+	// NOTE: no renderTracks() here and no setPointerCapture on `el`:
+	// re-rendering would detach `el` mid-gesture (implicitly releasing
+	// capture), silencing the move/up handlers below. Mark selection
+	// directly and listen on window instead.
+	els.tracks.querySelectorAll('.clip.selected').forEach(n => n.classList.remove('selected'))
+	el.classList.add('selected')
 	renderInspector()
 	const move = ev => {
 		const dMs = pxToTime(ev.clientX - startX, pxPerMs)
@@ -656,15 +665,17 @@ els.tracks.addEventListener('pointerdown', e => {
 		els.readout.textContent = `${clip.name}: offset=${Math.round(clip.offset)}ms dur=${Math.round(clipDuration(clip))}ms`
 	}
 	const up = ev => {
-		el.removeEventListener('pointermove', move)
-		el.removeEventListener('pointerup', up)
+		window.removeEventListener('pointermove', move)
+		window.removeEventListener('pointerup', up)
+		window.removeEventListener('pointercancel', up)
 		// Click (no drag) on a nested clip toggles collapse.
 		if (Math.abs(ev.clientX - startX) < 3 && clip.kind === 'timeline') toggleCollapsed(model, clip.id)
 		else if (clip.offset !== origOffset || clipDuration(clip) !== origDuration) pushHistory()
 		rebuild()
 	}
-	el.addEventListener('pointermove', move)
-	el.addEventListener('pointerup', up)
+	window.addEventListener('pointermove', move)
+	window.addEventListener('pointerup', up)
+	window.addEventListener('pointercancel', up)
 })
 
 els.slider.addEventListener('input', () => {
@@ -747,6 +758,7 @@ els.reset.onclick = () => {
 	pushHistory()
 	model = defaultModel()
 	state = defaultState()
+	initialState = {...state}
 	currentMs = 0
 	selected = null
 	tl = null
@@ -769,6 +781,7 @@ function applyCode() {
 	}
 	model = parsed.model
 	state = parsed.state
+	initialState = {...state}
 	pushHistory()
 	currentMs = Math.min(currentMs, getModelDuration(model))
 	selected = null
