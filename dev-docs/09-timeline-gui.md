@@ -17,11 +17,14 @@ Visual track editor for tween.js `Timeline`s in `timeline-gui/`
 
 ## Decisions
 
-- **Vanilla ESM, no install step.** `timeline-gui/` has no `node_modules`;
-  it imports the built lib via import map (`../dist/tween.esm.js`).
-  Serve from the repo root so `../dist` resolves. The single
-  third-party file set (speed-highlight, CC0-1.0) is vendored, not
-  installed; `timeline-gui/vendor/` is prettier-ignored.
+- **Vanilla ESM, no install step.** `timeline-gui/` has no `node_modules`.
+  The built lib is vendored (`vendor/tween/tween.esm.js`, copied from
+  `dist/`) and imported via import map, so any static server root works —
+  the repo root, the `timeline-gui/` folder itself, or any subpath host.
+  Refresh the copy with `npm run vendor` after rebuilding the lib (a
+  smoke test fails on drift). Third-party code (speed-highlight, CC0-1.0)
+  is likewise vendored, not installed; `timeline-gui/vendor/` is
+  prettier-ignored.
 - **Editor-first, own model.** The GUI keeps a plain model (`src/model.js`,
   no DOM) and builds a real `Timeline` from it for playback. Per user
   choice, **no core library changes** were made — no `Timeline.getEntries()`
@@ -90,12 +93,14 @@ track/inspector edits regenerate it.
 - `test/smoke.mjs` — model tests: `node test/smoke.mjs`.
 - `vendor/speed-highlight/` — pinned vendored highlighter (see GUI README
   for the refresh command).
+- `vendor/tween/tween.esm.js` — copy of the `dist/` build so the GUI runs
+  from any static root (`npm run vendor` refreshes it; smoke-tested).
 
 ## Verification
 
-- 15 model smoke tests pass, including code round-trip (names, offsets,
+- 16 model smoke tests pass, including code round-trip (names, offsets,
   labels, state), edited-code parsing, invalid-code and literal-parser
-  rejections, and completion/prefix cases.
+  rejections, completion/prefix cases, and the vendor-vs-dist check.
 - Headless-Chromium verification: popup shows/accepts for `Twe`,
   `Easing.`, `tl.`, and Ctrl+Space; popup flips above the caret at
   end-of-file; Tab-accepted text undoes natively; Undo/Redo restores

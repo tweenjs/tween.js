@@ -3,6 +3,9 @@
  * Run: `node test/smoke.mjs` from timeline-gui/.
  */
 import assert from 'node:assert/strict'
+import {readFileSync} from 'node:fs'
+import {dirname, join} from 'node:path'
+import {fileURLToPath} from 'node:url'
 import {
 	addNestedTimeline,
 	addTweenClip,
@@ -175,6 +178,13 @@ check('addNestedTimeline appends at end', () => {
 	const nested = addNestedTimeline(m)
 	assert.equal(nested.offset, dur)
 	assert.equal(nested.children.length, 1)
+})
+
+check('vendored lib matches the dist build', () => {
+	const here = dirname(fileURLToPath(import.meta.url))
+	const vendored = readFileSync(join(here, '..', 'vendor', 'tween', 'tween.esm.js'), 'utf8')
+	const dist = readFileSync(join(here, '..', '..', 'dist', 'tween.esm.js'), 'utf8')
+	assert.equal(vendored, dist)
 })
 
 console.log(`\n${passed} smoke tests passed`)

@@ -10,18 +10,22 @@ driven by the vision in
 
 ## Run it
 
-`tween.esm.js` is imported from the repo `dist/` build via a relative
-import map (`../dist/tween.esm.js`), so serve from the **repo root**
-and open the `timeline-gui/` path:
+The GUI vendors the built lib (`vendor/tween/tween.esm.js`, copied from
+the repo `dist/` build), so **any static server root works** — the repo
+root, the `timeline-gui/` folder itself (f.e. VS Code Live Server / Live
+Preview on this folder), or any subpath host:
 
 ```sh
-# from the repo root
+# from the repo root (also refreshes the vendored copy)
 npm run build
+cd timeline-gui && npm run vendor
+
+# serve from anywhere that covers timeline-gui/
 npx --yes serve .
-# open http://localhost:3000/timeline-gui/
+# open http://localhost:3000/ (or http://localhost:3000/timeline-gui/
+# when serving the repo root)
 ```
 
-(or `npm run dev` inside `timeline-gui/`, which serves the parent dir).
 No `npm install` needed inside `timeline-gui/` — there are no dependencies.
 
 ## What it does
@@ -53,14 +57,17 @@ No `npm install` needed inside `timeline-gui/` — there are no dependencies.
 
 ## Layout
 
-- `index.html` — page shell, import map (`@tweenjs/tween.js` → `../dist`).
+- `index.html` — page shell, import map (`@tweenjs/tween.js` →
+  `./vendor/tween/tween.esm.js`).
 - `src/model.js` — pure: clips, labels, time↔px, CRUD, codegen + code parser.
 - `src/app.js` — DOM wiring: transport, tracks, inspector, code box, persistence.
 - `src/styles.css` — dark track-editor theme.
 - `test/smoke.mjs` — model tests: `node test/smoke.mjs`.
-- `vendor/speed-highlight/` — vendored `@speed-highlight/core` v2.1.0
-  (CC0-1.0, zero deps): `index.js`, JS grammar + sub-grammars, dark theme.
-  Refresh with:
+- `vendor/tween/tween.esm.js` — copy of the repo `dist/` build so the GUI
+  runs from any static root. Refresh after rebuilding the lib with
+  `npm run vendor`; the smoke test fails if the copy drifts from `dist/`.
+- `vendor/speed-highlight/` — pinned vendored highlighter (CC0-1.0, zero
+  deps); refresh with:
   `for f in index.js languages/js.js languages/jsdoc.js languages/todo.js languages/regex.js themes/dark.css; do curl -sL -o vendor/speed-highlight/$f https://cdn.jsdelivr.net/npm/@speed-highlight/core@2.1.0/dist/$f; done`
 
 ## Scope notes

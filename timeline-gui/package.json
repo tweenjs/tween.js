@@ -14,7 +14,8 @@
 	"author": "tween.js contributors (https://github.com/tweenjs/tween.js/graphs/contributors)",
 	"type": "module",
 	"scripts": {
-		"dev": "npx --yes serve ..",
-		"test": "node --check src/model.js && node --check src/app.js && node test/smoke.mjs"
+		"dev": "npx --yes serve .",
+		"test": "node --check src/model.js && node --check src/app.js && node test/smoke.mjs",
+		"vendor": "cp ../dist/tween.esm.js vendor/tween/tween.esm.js"
 	}
 }
