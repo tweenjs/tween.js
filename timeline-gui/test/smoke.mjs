@@ -17,7 +17,6 @@ import {
 	generateCode,
 	getCompletions,
 	getModelDuration,
-	highlightCode,
 	moveClip,
 	parseCode,
 	pxToTime,
@@ -139,14 +138,14 @@ check('declared-but-never-added tween is an error', () => {
 	assert.throws(() => parseCode(code), /never added/)
 })
 
-check('highlight escapes HTML and wraps tokens', () => {
-	const html = highlightCode('const s = "<x>"; // hi\nconst n = new Tween(state).to({"a":1}, 100);')
-	assert.ok(!html.includes('<x>') && html.includes('&lt;x&gt;'))
-	assert.match(html, /<span class="tok-kw">const<\/span>/)
-	assert.match(html, /<span class="tok-str">"&lt;x&gt;"<\/span>/)
-	assert.match(html, /<span class="tok-com">\/\/ hi<\/span>/)
-	assert.match(html, /<span class="tok-num">100<\/span>/)
-	assert.ok(html.endsWith('\n'))
+check('safe literal parser accepts JSON superset, rejects code', () => {
+	const good = generateCode(defaultModel(), defaultState())
+	const edited = good.replace('.to({"x":260}, 800)', `.to({'x': 1, y: [0, 50], s: 'a\\nb', o: {k: 2}}, 400)`)
+	const {model} = parseCode(edited)
+	assert.deepEqual(model.clips[0].to, {x: 1, y: [0, 50], s: 'a\nb', o: {k: 2}})
+	for (const bad of ['{x: foo}', '{x: (function(){})()}', '{__proto__: {x: 1}}', '{x: 1} + 2', '{x: }']) {
+		assert.throws(() => parseCode(good.replace('{"x":260}', bad)), /not a valid object/)
+	}
 })
 
 check('completions cover Tween/Timeline/Easing tree', () => {
@@ -157,13 +156,15 @@ check('completions cover Tween/Timeline/Easing tree', () => {
 	assert.deepEqual(getCompletions('Easing.Quadratic.'), ['In', 'Out', 'InOut'])
 	assert.deepEqual(getCompletions('Easing.Quadratic.X'), [])
 	assert.deepEqual(getCompletions('Foo'), [])
-	assert.deepEqual(getCompletions('tl.'), [])
+	assert.ok(getCompletions('tl.').includes('addLabel'))
+	assert.deepEqual(getCompletions('tl.a'), ['add', 'addLabel'])
 })
 
 check('prefix extraction skips comments and strings', () => {
 	assert.equal(extractPrefix('const t = new Twe'), 'Twe')
 	assert.equal(extractPrefix('x = Easing.'), 'Easing.')
 	assert.equal(extractPrefix('new Timeline'), 'Timeline')
+	assert.equal(extractPrefix('new '), null)
 	assert.equal(extractPrefix('// mov'), null)
 	assert.equal(extractPrefix('"ab'), null)
 })

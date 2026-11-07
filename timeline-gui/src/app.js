@@ -12,6 +12,7 @@
  * - No changes to the core library were needed.
  */
 import {Easing, Timeline, Tween} from '@tweenjs/tween.js'
+import {highlightHTML} from '../vendor/speed-highlight/index.js'
 import {
 	EASING_NAMES,
 	PRESETS,
@@ -23,13 +24,12 @@ import {
 	defaultState,
 	deleteClip,
 	duplicateClip,
+	extractPrefix,
 	findClip,
 	flattenTracks,
 	generateCode,
 	getCompletions,
 	getModelDuration,
-	highlightCode,
-	extractPrefix,
 	moveClip,
 	parseCode,
 	pxToTime,
@@ -65,11 +65,14 @@ const els = {
 	addLabel: $('btn-add-label'),
 	dup: $('btn-dup'),
 	del: $('btn-del'),
+	undo: $('btn-undo'),
+	redo: $('btn-redo'),
 	reset: $('btn-reset'),
 	inspector: $('inspector-body'),
 	codeIn: $('code-in'),
 	codeHl: $('code-hl'),
 	codeHlCode: $('code-hl-code'),
+	acPopup: $('ac-popup'),
 	codeError: $('code-error'),
 	applyCode: $('btn-apply-code'),
 	revertCode: $('btn-revert-code'),
@@ -99,6 +102,9 @@ let wallStart = 0
 let playBase = 0
 let codeDirty = false
 let codeError = null
+let lastCanonical = ''
+let undoStack = []
+let redoStack = []
 
 function loadCode() {
 	try {
@@ -349,6 +355,7 @@ function renderInspector() {
 			field(
 				'Name',
 				textInput(label.name, v => {
+					pushHistory()
 					label.name = v
 					selected.name = v
 					rebuild()
@@ -359,6 +366,7 @@ function renderInspector() {
 			field(
 				'Offset (ms)',
 				numberInput(label.offset, v => {
+					pushHistory()
 					label.offset = Math.max(0, Math.round(v))
 					rebuild()
 				}),
@@ -367,6 +375,7 @@ function renderInspector() {
 		const del = document.createElement('button')
 		del.textContent = 'Delete label'
 		del.onclick = () => {
+			pushHistory()
 			model.labels = model.labels.filter(l => l !== label)
 			selected = null
 			rebuild()
@@ -385,6 +394,7 @@ function renderInspector() {
 		field(
 			'Name',
 			textInput(clip.name, v => {
+				pushHistory()
 				updateClip(model, clip.id, {name: v})
 				rebuild()
 			}),
@@ -394,6 +404,7 @@ function renderInspector() {
 		field(
 			'Offset (ms)',
 			numberInput(clip.offset, v => {
+				pushHistory()
 				moveClip(model, clip.id, v)
 				rebuild()
 			}),
@@ -404,6 +415,7 @@ function renderInspector() {
 			field(
 				'Duration (ms)',
 				numberInput(clip.duration, v => {
+					pushHistory()
 					resizeClip(model, clip.id, v)
 					rebuild()
 				}),
@@ -418,6 +430,7 @@ function renderInspector() {
 			sel.appendChild(opt)
 		}
 		sel.onchange = () => {
+			pushHistory()
 			updateClip(model, clip.id, {easing: sel.value})
 			rebuild()
 		}
@@ -430,6 +443,7 @@ function renderInspector() {
 			try {
 				const to = JSON.parse(area.value)
 				if (to === null || typeof to !== 'object' || Array.isArray(to)) throw new Error('object expected')
+				pushHistory()
 				updateClip(model, clip.id, {to})
 				rebuild()
 			} catch {
@@ -449,6 +463,7 @@ function renderInspector() {
 		add.textContent = '+ child tween'
 		add.style.marginLeft = '6px'
 		add.onclick = () => {
+			pushHistory()
 			clip.children.push({
 				kind: 'tween',
 				id: createId(),
@@ -503,16 +518,69 @@ function setCodeError(msg) {
 
 function renderCode() {
 	const text = generateCode(model, state)
-	els.codeIn.value = text
+	// Keep the user's text (and the native undo stack) when identical.
+	if (els.codeIn.value !== text) els.codeIn.value = text
 	syncHighlight()
 	codeDirty = false
 	setCodeError(null)
+	lastCanonical = text
 	saveCode(text)
 }
 
+/** Record the pre-change model so Undo can restore it. Call before mutating. */
+function pushHistory() {
+	undoStack.push(lastCanonical)
+	if (undoStack.length > 50) undoStack.shift()
+	redoStack = []
+}
+
+function applySnapshot(code) {
+	const parsed = parseCode(code)
+	model = parsed.model
+	state = parsed.state
+	currentMs = Math.min(currentMs, getModelDuration(model))
+	selected = null
+	tl = null
+	codeDirty = false
+	ensureStarted()
+	tl.update(currentMs)
+	renderAll()
+}
+
+function undoModel() {
+	if (undoStack.length === 0) return
+	stopRaf()
+	redoStack.push(generateCode(model, state))
+	applySnapshot(undoStack.pop())
+}
+
+function redoModel() {
+	if (redoStack.length === 0) return
+	stopRaf()
+	undoStack.push(generateCode(model, state))
+	applySnapshot(redoStack.pop())
+}
+
+function updateUndoButtons() {
+	els.undo.disabled = undoStack.length === 0
+	els.redo.disabled = redoStack.length === 0
+}
+
+let hlToken = 0
+
 /** Refresh the read-only highlight layer behind the code textarea. */
-function syncHighlight() {
-	els.codeHlCode.innerHTML = highlightCode(els.codeIn.value)
+async function syncHighlight() {
+	const my = ++hlToken
+	let html
+	try {
+		html = await highlightHTML(els.codeIn.value, 'js', {block: false})
+	} catch {
+		return
+	}
+	if (my !== hlToken) return
+	els.codeHlCode.innerHTML = html + '\n'
+	els.codeHl.scrollTop = els.codeIn.scrollTop
+	els.codeHl.scrollLeft = els.codeIn.scrollLeft
 }
 
 els.codeIn.addEventListener('scroll', () => {
@@ -528,6 +596,7 @@ function renderAll() {
 	renderStage()
 	renderInspector()
 	renderCode()
+	updateUndoButtons()
 }
 
 // ---- interactions ----
@@ -591,6 +660,7 @@ els.tracks.addEventListener('pointerdown', e => {
 		el.removeEventListener('pointerup', up)
 		// Click (no drag) on a nested clip toggles collapse.
 		if (Math.abs(ev.clientX - startX) < 3 && clip.kind === 'timeline') toggleCollapsed(model, clip.id)
+		else if (clip.offset !== origOffset || clipDuration(clip) !== origDuration) pushHistory()
 		rebuild()
 	}
 	el.addEventListener('pointermove', move)
@@ -625,6 +695,7 @@ els.zoom.onchange = () => {
 }
 
 els.add.onclick = () => {
+	pushHistory()
 	const preset = PRESETS[model.clips.length % PRESETS.length]
 	const clip = addTweenClip(model, {name: preset.name, to: preset.to})
 	selected = {type: 'clip', id: clip.id}
@@ -632,12 +703,14 @@ els.add.onclick = () => {
 }
 
 els.addNested.onclick = () => {
+	pushHistory()
 	const clip = addNestedTimeline(model)
 	selected = {type: 'clip', id: clip.id}
 	rebuild()
 }
 
 els.addLabel.onclick = () => {
+	pushHistory()
 	const n = model.labels.length + 1
 	model.labels.push({name: `label-${n}`, offset: Math.round(currentMs)})
 	selected = {type: 'label', name: `label-${n}`}
@@ -646,24 +719,32 @@ els.addLabel.onclick = () => {
 
 els.dup.onclick = () => {
 	if (selected && selected.type === 'clip') {
+		pushHistory()
 		const copy = duplicateClip(model, selected.id)
 		if (copy) {
 			selected = {type: 'clip', id: copy.id}
 			rebuild()
+		} else {
+			undoStack.pop()
 		}
 	}
 }
 
 els.del.onclick = () => {
 	if (!selected) return
+	pushHistory()
 	if (selected.type === 'clip') deleteClip(model, selected.id)
 	else model.labels = model.labels.filter(l => l.name !== selected.name)
 	selected = null
 	rebuild()
 }
 
+els.undo.onclick = () => undoModel()
+els.redo.onclick = () => redoModel()
+
 els.reset.onclick = () => {
 	stopRaf()
+	pushHistory()
 	model = defaultModel()
 	state = defaultState()
 	currentMs = 0
@@ -688,6 +769,7 @@ function applyCode() {
 	}
 	model = parsed.model
 	state = parsed.state
+	pushHistory()
 	currentMs = Math.min(currentMs, getModelDuration(model))
 	selected = null
 	tl = null
@@ -708,9 +790,7 @@ els.copyCode.onclick = async () => {
 }
 
 els.codeIn.addEventListener('input', () => {
-	codeDirty = true
-	els.applyCode.classList.add('active')
-	syncHighlight()
+	markCodeDirty()
 	refreshAutocomplete()
 })
 
@@ -764,6 +844,37 @@ function caretCoords() {
 	}
 }
 
+function markCodeDirty() {
+	codeDirty = true
+	els.applyCode.classList.add('active')
+	syncHighlight()
+}
+
+function showPopup(items, prefixStart) {
+	const ta = els.codeIn
+	acItems = items
+	acActive = 0
+	acPrefixStart = prefixStart
+	els.acPopup.innerHTML = ''
+	items.forEach((label, i) => {
+		const div = document.createElement('div')
+		div.className = 'ac-item' + (i === 0 ? ' active' : '')
+		div.textContent = label
+		div.addEventListener('mousedown', e => {
+			e.preventDefault()
+			acceptCompletion(i)
+		})
+		els.acPopup.appendChild(div)
+	})
+	const {left, top, lineH} = caretCoords()
+	const wrap = ta.parentElement
+	els.acPopup.style.left = `${Math.max(0, Math.min(left, wrap.clientWidth - 160))}px`
+	els.acPopup.hidden = false
+	// Flip above the caret when the popup would overflow the wrap.
+	const over = top + els.acPopup.offsetHeight - wrap.clientHeight
+	els.acPopup.style.top = `${over > 0 ? Math.max(0, top - lineH - els.acPopup.offsetHeight) : top}px`
+}
+
 function refreshAutocomplete() {
 	const ta = els.codeIn
 	const prefix = extractPrefix(ta.value.slice(0, ta.selectionStart))
@@ -777,36 +888,41 @@ function refreshAutocomplete() {
 		return
 	}
 	const segment = prefix.includes('.') ? prefix.slice(prefix.lastIndexOf('.') + 1) : prefix
-	acItems = items
-	acActive = 0
-	acPrefixStart = ta.selectionStart - segment.length
-	els.acPopup.innerHTML = ''
-	items.forEach((label, i) => {
-		const div = document.createElement('div')
-		div.className = 'ac-item' + (i === 0 ? ' active' : '')
-		div.textContent = label
-		div.addEventListener('mousedown', e => {
-			e.preventDefault()
-			acceptCompletion(i)
-		})
-		els.acPopup.appendChild(div)
-	})
-	const {left, top} = caretCoords()
-	const wrapWidth = ta.parentElement.clientWidth
-	els.acPopup.style.left = `${Math.max(0, Math.min(left, wrapWidth - 160))}px`
-	els.acPopup.style.top = `${top}px`
-	els.acPopup.hidden = false
+	showPopup(items, ta.selectionStart - segment.length)
+}
+
+/** Ctrl+Space: complete at the caret, or offer top-level names. */
+function showAllCompletions() {
+	const ta = els.codeIn
+	const prefix = extractPrefix(ta.value.slice(0, ta.selectionStart))
+	if (prefix) {
+		refreshAutocomplete()
+		return
+	}
+	showPopup(['Tween', 'Timeline', 'Easing'], ta.selectionStart)
+}
+
+/**
+ * Insert text like a user edit so native undo (Cmd/Ctrl+Z) keeps working.
+ * Programmatic `value =` assignments would clear the undo stack.
+ */
+function insertTextUndoable(text) {
+	const ta = els.codeIn
+	ta.focus()
+	if (!document.execCommand('insertText', false, text)) {
+		const {selectionStart: s, selectionEnd: e, value} = ta
+		ta.value = value.slice(0, s) + text + value.slice(e)
+		ta.selectionStart = ta.selectionEnd = s + text.length
+	}
 }
 
 function acceptCompletion(index = acActive) {
 	const ta = els.codeIn
 	const label = acItems[index]
 	if (label === undefined) return
-	ta.value = ta.value.slice(0, acPrefixStart) + label + ta.value.slice(ta.selectionStart)
-	ta.selectionStart = ta.selectionEnd = acPrefixStart + label.length
-	codeDirty = true
-	els.applyCode.classList.add('active')
-	syncHighlight()
+	ta.selectionStart = acPrefixStart
+	insertTextUndoable(label)
+	markCodeDirty()
 	closeAutocomplete()
 	ta.focus()
 }
@@ -849,15 +965,15 @@ document.addEventListener('keydown', e => {
 			return
 		}
 	}
+	if (e.target === els.codeIn && e.key === ' ' && (e.ctrlKey || e.metaKey)) {
+		e.preventDefault()
+		showAllCompletions()
+		return
+	}
 	if (e.target === els.codeIn && e.key === 'Tab') {
 		e.preventDefault()
-		const ta = els.codeIn
-		const {selectionStart: start, selectionEnd: end, value} = ta
-		ta.value = value.slice(0, start) + '  ' + value.slice(end)
-		ta.selectionStart = ta.selectionEnd = start + 2
-		codeDirty = true
-		els.applyCode.classList.add('active')
-		syncHighlight()
+		insertTextUndoable('  ')
+		markCodeDirty()
 		return
 	}
 	if (e.target === els.codeIn && (e.metaKey || e.ctrlKey) && e.key === 'Enter') {
@@ -866,6 +982,17 @@ document.addEventListener('keydown', e => {
 		return
 	}
 	if (e.target.matches('input, textarea, select')) return
+	if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'z') {
+		e.preventDefault()
+		if (e.shiftKey) redoModel()
+		else undoModel()
+		return
+	}
+	if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'y') {
+		e.preventDefault()
+		redoModel()
+		return
+	}
 	if (e.code === 'Space') {
 		e.preventDefault()
 		if (codeError) return

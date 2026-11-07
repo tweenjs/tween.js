@@ -349,36 +349,150 @@ const LABEL_RE = new RegExp(
 const IMPORT_RE = /^import\s+[\s\S]*?;?\s*$/
 const START_RE = /^(\w+)\.start\(\)\s*;?\s*$/
 
-function escapeHtml(s) {
-	return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-}
-
 /**
- * Syntax-highlight GUI code for the editor overlay: escapes HTML, then
- * wraps comments, strings, numbers, and keywords in spans. The trailing
- * newline keeps the backing `<pre>` exactly as tall as the textarea.
+ * Strict object-literal parser: plain objects, arrays, strings
+ * (single/double quoted, standard escapes), and finite numbers only.
+ * No code execution — arbitrary identifiers, calls, or operators throw.
  */
-export function highlightCode(text) {
-	const re =
-		/(\/\/[^\n]*)|('(?:[^'\\\n]|\\.)*'|"(?:[^"\\\n]|\\.)*")|\b(\d+(?:\.\d+)?)\b|\b(const|new|import|from|return|function)\b/g
-	const src = String(text)
-	let out = ''
-	let last = 0
-	for (let m = re.exec(src); m; m = re.exec(src)) {
-		out += escapeHtml(src.slice(last, m.index))
-		const cls = m[1] ? 'tok-com' : m[2] ? 'tok-str' : m[3] ? 'tok-num' : 'tok-kw'
-		out += `<span class="${cls}">${escapeHtml(m[0])}</span>`
-		last = m.index + m[0].length
+function parseLiteral(src) {
+	let i = 0
+	const fail = msg => {
+		throw new Error(`${msg} (at ${i})`)
 	}
-	return out + escapeHtml(src.slice(last)) + '\n'
+	const skipWs = () => {
+		while (i < src.length && /\s/.test(src[i])) i++
+	}
+	const parseValue = () => {
+		skipWs()
+		const ch = src[i]
+		if (ch === '{') return parseObject()
+		if (ch === '[') return parseArray()
+		if (ch === '"' || ch === "'") return parseString()
+		if (ch === '-' || (ch >= '0' && ch <= '9')) return parseNumber()
+		fail(ch === undefined ? 'unexpected end' : `unexpected ${JSON.stringify(ch)}`)
+	}
+	const parseString = () => {
+		const quote = src[i++]
+		let out = ''
+		for (;;) {
+			if (i >= src.length) fail('unterminated string')
+			const ch = src[i++]
+			if (ch === quote) return out
+			if (ch !== '\\') {
+				if (ch === '\n' || ch === '\r') fail('unterminated string')
+				out += ch
+				continue
+			}
+			if (i >= src.length) fail('unterminated string')
+			const esc = src[i++]
+			if (esc === 'u') {
+				const hex = src.slice(i, i + 4)
+				if (!/^[0-9a-fA-F]{4}$/.test(hex)) fail('bad unicode escape')
+				out += String.fromCharCode(parseInt(hex, 16))
+				i += 4
+			} else if (esc === 'n') out += '\n'
+			else if (esc === 'r') out += '\r'
+			else if (esc === 't') out += '\t'
+			else if (esc === 'b') out += '\b'
+			else if (esc === 'f') out += '\f'
+			else if (esc === 'v') out += '\v'
+			else if (esc === '0') out += '\0'
+			else if (esc === quote || esc === '\\' || esc === '/') out += esc
+			else fail(`bad escape \\${esc}`)
+		}
+	}
+	const parseNumber = () => {
+		const m = /-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?/y
+		m.lastIndex = i
+		const match = m.exec(src)
+		if (!match) fail('invalid number')
+		i += match[0].length
+		const value = Number(match[0])
+		if (!Number.isFinite(value)) fail('number out of range')
+		return value
+	}
+	const parseKey = () => {
+		skipWs()
+		const ch = src[i]
+		if (ch === '"' || ch === "'") return parseString()
+		const m = /[A-Za-z_$][\w$]*/y
+		m.lastIndex = i
+		const match = m.exec(src)
+		if (!match) fail('expected a key')
+		i += match[0].length
+		return match[0]
+	}
+	const parseObject = () => {
+		i++ // {
+		const obj = {}
+		skipWs()
+		if (src[i] === '}') {
+			i++
+			return obj
+		}
+		for (;;) {
+			const key = parseKey()
+			if (key === '__proto__') fail('forbidden key "__proto__"')
+			skipWs()
+			if (src[i] !== ':') fail('expected ":"')
+			i++
+			obj[key] = parseValue()
+			skipWs()
+			if (src[i] === ',') {
+				i++
+				skipWs()
+				if (src[i] === '}') {
+					i++
+					return obj
+				}
+				continue
+			}
+			if (src[i] === '}') {
+				i++
+				return obj
+			}
+			fail('expected "," or "}"')
+		}
+	}
+	const parseArray = () => {
+		i++ // [
+		const arr = []
+		skipWs()
+		if (src[i] === ']') {
+			i++
+			return arr
+		}
+		for (;;) {
+			arr.push(parseValue())
+			skipWs()
+			if (src[i] === ',') {
+				i++
+				skipWs()
+				if (src[i] === ']') {
+					i++
+					return arr
+				}
+				continue
+			}
+			if (src[i] === ']') {
+				i++
+				return arr
+			}
+			fail('expected "," or "]"')
+		}
+	}
+	const value = parseValue()
+	skipWs()
+	if (i !== src.length) fail(`unexpected trailing ${JSON.stringify(src.slice(i, i + 10))}`)
+	return value
 }
 
 function evalObject(src, lineNo, what) {
 	let value
 	try {
-		value = new Function(`return (${src});`)()
-	} catch {
-		throw new Error(`line ${lineNo}: ${what} is not a valid object.`)
+		value = parseLiteral(src)
+	} catch (err) {
+		throw new Error(`line ${lineNo}: ${what} is not a valid object (${err.message}).`)
 	}
 	if (value === null || typeof value !== 'object' || Array.isArray(value)) {
 		throw new Error(`line ${lineNo}: ${what} must be an object.`)
@@ -433,8 +547,7 @@ export function parseCode(text) {
 			const keys = Object.keys(to)
 			if (keys.length === 0) fail(lineNo, 'to needs at least one property.')
 			for (const key of keys) {
-				if (typeof to[key] !== 'number' && typeof to[key] !== 'string')
-					fail(lineNo, `to.${key} must be a number or string.`)
+				if (!isTweenValue(to[key])) fail(lineNo, `to.${key} must be a number, string, or array/object of those.`)
 			}
 			tweens.set(name, {obj, to, duration, easing, name: (comment || '').trim() || name})
 			continue
@@ -536,6 +649,15 @@ export function parseCode(text) {
 	return {model: {labels, clips}, state}
 }
 
+function isTweenValue(v) {
+	if (typeof v === 'number') return Number.isFinite(v)
+	if (typeof v === 'string') return true
+	if (Array.isArray(v)) return v.every(isTweenValue)
+	return v !== null && typeof v === 'object' && Object.values(v).every(isTweenValue)
+}
+
+// ---- autocomplete (pure logic; DOM popup lives in app.js) ----
+
 /** Easing categories from EASING_NAMES: {Linear:['None'], ...}. */
 export function easingTree() {
 	const tree = {}
@@ -548,15 +670,46 @@ export function easingTree() {
 
 const AC_TOP = ['Tween', 'Timeline', 'Easing']
 
+/** `Timeline` instance methods, completed after `tl.`. */
+const TL_METHODS = [
+	'add',
+	'addLabel',
+	'remove',
+	'removeAll',
+	'start',
+	'stop',
+	'pause',
+	'resume',
+	'onStart',
+	'onUpdate',
+	'onComplete',
+	'onStop',
+	'getDuration',
+	'getTotalDuration',
+	'getAll',
+	'has',
+	'clone',
+	'easingAll',
+	'isPlaying',
+	'isPaused',
+	'getId',
+	'getLabel',
+]
+
 /**
- * Completion labels for a `extractPrefix` prefix: top-level names, or
- * Easing categories/variants after `Easing.` / `Easing.<Cat>.`.
+ * Completion labels for a `extractPrefix` prefix: top-level names,
+ * `Easing` categories/variants after `Easing.` / `Easing.<Cat>.`,
+ * and `Timeline` methods after `tl.`.
  */
 export function getCompletions(prefix) {
 	const parts = prefix.split('.')
 	if (parts.length === 1) {
 		const q = parts[0].toLowerCase()
 		return AC_TOP.filter(name => name.toLowerCase().startsWith(q))
+	}
+	if (parts[0] === 'tl' && parts.length === 2) {
+		const q = parts[1].toLowerCase()
+		return TL_METHODS.filter(name => name.toLowerCase().startsWith(q))
 	}
 	if (parts[0] !== 'Easing') return []
 	const tree = easingTree()

@@ -34,26 +34,34 @@ No `npm install` needed inside `timeline-gui/` — there are no dependencies.
   with `tl.start(0)` + `tl.update(v)` (the pattern from
   `examples/21_timeline_slider.html`, cf. issue #560), so scrubbing,
   pause, speed, and loop are exact.
-- **Editing:** drag clips to move, drag the right edge to resize, inspector
+- **Editing**: drag clips to move, drag the right edge to resize, inspector
   for name/offset/duration/easing/target values, duplicate/delete, add
   tween / nested timeline / label at the playhead.
 - **Code ↔ timeline (two-way binding, cf. timeline-css)**: the code box is
   editable — Apply (Ctrl/Cmd+Enter) parses it back into tracks, while
   track edits rewrite the code. Only the generated statement shapes (one
   per line; trailing `// name` comments label tracks) are accepted;
-  invalid code stops playback and shows the error. The code (not a model
-  dump) is what persists to `localStorage`. Highlighting via an editable
-  overlay (transparent textarea over highlighted HTML); autocomplete for
-  `Tween`/`Timeline`/`Easing` (Tab/Enter accept, Up/Down cycle, Esc closes).
+  invalid code stops playback and shows the error. Object literals are
+  parsed by a strict built-in parser (no `eval`). The code (not a model
+  dump) is what persists to `localStorage`. Highlighting via vendored
+  [speed-highlight](https://github.com/speed-highlight/core) (CC0-1.0);
+  autocomplete for `Tween`/`Timeline`/`Easing` (+ `Easing` tree, `tl.`
+  methods; Tab/Enter accept, Up/Down cycle, Esc closes, Ctrl+Space
+  suggests). Undo/Redo buttons (or Cmd/Ctrl+Z outside the code box)
+  restore track edits; text edits undo natively.
 - **Live stage**: a preview box driven by the same timeline being edited.
 
 ## Layout
 
 - `index.html` — page shell, import map (`@tweenjs/tween.js` → `../dist`).
 - `src/model.js` — pure: clips, labels, time↔px, CRUD, codegen + code parser.
-- `src/app.js` — DOM wiring: transport, tracks, inspector, persistence.
+- `src/app.js` — DOM wiring: transport, tracks, inspector, code box, persistence.
 - `src/styles.css` — dark track-editor theme.
 - `test/smoke.mjs` — model tests: `node test/smoke.mjs`.
+- `vendor/speed-highlight/` — vendored `@speed-highlight/core` v2.1.0
+  (CC0-1.0, zero deps): `index.js`, JS grammar + sub-grammars, dark theme.
+  Refresh with:
+  `for f in index.js languages/js.js languages/jsdoc.js languages/todo.js languages/regex.js themes/dark.css; do curl -sL -o vendor/speed-highlight/$f https://cdn.jsdelivr.net/npm/@speed-highlight/core@2.1.0/dist/$f; done`
 
 ## Scope notes
 

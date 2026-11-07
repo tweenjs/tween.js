@@ -5,6 +5,7 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>tween.js — Timeline GUI</title>
 		<link rel="stylesheet" href="./src/styles.css" />
+		<link rel="stylesheet" href="./vendor/speed-highlight/themes/dark.css" />
 		<script type="importmap">
 			{
 				"imports": {
@@ -50,6 +51,8 @@
 						<button id="btn-add-label">+ label</button>
 						<button id="btn-dup">Duplicate</button>
 						<button id="btn-del">Delete</button>
+						<button id="btn-undo" title="Undo track edit">Undo</button>
+						<button id="btn-redo" title="Redo track edit">Redo</button>
 						<span class="spacer"></span>
 						<button id="btn-reset">Reset demo</button>
 					</div>
@@ -83,8 +86,9 @@
 					</div>
 					<p class="hint">
 						Edit the code, then Apply (Ctrl/Cmd+Enter) — tracks update from code, and track edits rewrite the code. One
-						statement per line; trailing <code>// name</code> comments label the tracks. Tab/Enter accept, Up/Down
-						cycle, Esc closes. Invalid code stops playback and shows the error here.
+						statement per line; trailing <code>// name</code> comments label the tracks. Tab/Enter accept, Ctrl+Space
+						suggests, Up/Down cycle, Esc closes. Invalid code stops playback and shows the error here. Undo/Redo (or
+						Cmd/Ctrl+Z outside the code box) restores track edits; text edits undo natively in the box.
 					</p>
 				</section>
 			</div>

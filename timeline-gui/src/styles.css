@@ -367,7 +367,6 @@ section.code {
 	color: transparent;
 	caret-color: var(--accent-2);
 	resize: vertical;
-	overflow: auto;
 }
 
 #code-in::selection {
@@ -381,23 +380,6 @@ section.code {
 
 #code-hl-code {
 	color: var(--text);
-}
-
-.tok-kw {
-	color: #c792ea;
-}
-
-.tok-str {
-	color: #9ecb7f;
-}
-
-.tok-num {
-	color: #f78c6c;
-}
-
-.tok-com {
-	color: #636d83;
-	font-style: italic;
 }
 
 #ac-popup {
