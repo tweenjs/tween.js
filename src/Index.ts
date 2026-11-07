@@ -14,6 +14,7 @@ import now, {setNow} from './Now'
 import Sequence from './Sequence'
 import Tween from './Tween'
 import Timeline from './Timeline'
+import TimeScaler from './TimeScaler'
 import VERSION from './Version'
 import {mainGroup} from './mainGroup'
 
@@ -284,6 +285,7 @@ export {
 	nextId,
 	Tween,
 	Timeline,
+	TimeScaler,
 	VERSION,
 	getAll,
 	removeAll,
@@ -302,6 +304,7 @@ const exports = {
 	nextId,
 	Tween,
 	Timeline,
+	TimeScaler,
 	VERSION,
 
 	/**
