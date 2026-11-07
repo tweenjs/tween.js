@@ -1422,7 +1422,13 @@
             this._onStopCallback = callback;
             return this;
         };
-        /** Convenience: set easing for all direct child Tweens. */
+        /**
+         * Convenience: set easing for all direct child Tweens.
+         *
+         * @param easingFunction - The easing function to apply.
+         * @param recurse - If `true`, also applies the easing to Tweens inside nested
+         * child Timelines. Defaults to `false`, in which case nested Timelines are skipped.
+         */
         Timeline.prototype.easingAll = function (easingFunction, recurse) {
             if (recurse === void 0) { recurse = false; }
             for (var _i = 0, _a = this._entries; _i < _a.length; _i++) {
@@ -1610,6 +1616,527 @@
         Timeline.autoStartOnUpdate = false;
         return Timeline;
     }());
+
+    /**
+     * Curve/Path primitives for tween.js, adapted from Three.js (MIT License).
+     * https://github.com/mrdoob/three.js — src/extras/core/Curve.js and
+     * src/extras/curves/* — Copyright (c) 2010-2026 three.js authors.
+     *
+     * Why this exists (see https://github.com/tweenjs/tween.js/issues/721):
+     * array `to()` values blur the concept of a Tween (see
+     * https://github.com/tweenjs/tween.js/issues/655). Instead, keep Tween
+     * simple (a scalar 0 -> 1 progress) and sample a decoupled Curve/Path:
+     *
+     * ```js
+     * import {Tween, Easing, CatmullRomCurve} from '@tweenjs/tween.js'
+     *
+     * const curve = new CatmullRomCurve([{x: 0, y: 0}, {x: 100, y: 0}, {x: 100, y: 100}])
+     * const position = {x: 0, y: 0}
+     * const progress = {t: 0}
+     *
+     * new Tween(progress)
+     * 	.to({t: 1}, 2000)
+     * 	.easing(Easing.Linear.None)
+     * 	.onUpdate(() => curve.getPoint(progress.t, position))
+     * 	.start()
+     * ```
+     *
+     * Points are plain objects (`{x, y}` or `{x, y, z}`) so they work with any
+     * renderer or physics engine — no `THREE.Vector` dependency. When an
+     * `optionalTarget` is given, it is mutated and returned, so a tweened
+     * object can be used directly as the target.
+     */
+    var __extends = (this && this.__extends) || (function () {
+        var extendStatics = function (d, b) {
+            extendStatics = Object.setPrototypeOf ||
+                ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+                function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+            return extendStatics(d, b);
+        };
+        return function (d, b) {
+            if (typeof b !== "function" && b !== null)
+                throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+            extendStatics(d, b);
+            function __() { this.constructor = d; }
+            d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+        };
+    })();
+    function getZ(p) {
+        var _a;
+        return (_a = p.z) !== null && _a !== void 0 ? _a : 0;
+    }
+    function clonePoint(p) {
+        var out = { x: p.x, y: p.y };
+        if ('z' in p)
+            out.z = p.z;
+        return out;
+    }
+    function copyPoint(target, source) {
+        target.x = source.x;
+        target.y = source.y;
+        // Never add a `z` key to a 2D target; only refresh it when present so
+        // 2D points stay 2D (nodeunit diffs are by reference, extra keys fail).
+        if ('z' in target)
+            target.z = getZ(source);
+        return target;
+    }
+    function distanceBetween(a, b) {
+        var dx = b.x - a.x;
+        var dy = b.y - a.y;
+        var dz = getZ(b) - getZ(a);
+        return Math.sqrt(dx * dx + dy * dy + dz * dz);
+    }
+    /**
+     * Abstract base class for analytic curves. Subclasses implement `getPoint(t)`.
+     * Arc-length helpers (`getPointAt`, `getTangentAt`, …) are shared here and
+     * mirror the Three.js `Curve` API.
+     */
+    var Curve = /** @class */ (function () {
+        function Curve() {
+            this.type = 'Curve';
+            /**
+             * Divisions used when caching cumulative segment lengths via `getLengths()`.
+             * Increase it for very large curves when using `getPointAt()`/`getSpacedPoints()`.
+             */
+            this.arcLengthDivisions = 200;
+            /** Set to `true` when curve parameters change, to invalidate the length cache. */
+            this.needsUpdate = false;
+            this.cacheArcLengths = null;
+        }
+        /**
+         * Like `getPoint()`, but `u` is mapped to arc length, so samples are
+         * equidistant along the curve.
+         */
+        Curve.prototype.getPointAt = function (u, optionalTarget) {
+            var t = this.getUtoTmapping(u);
+            return this.getPoint(t, optionalTarget);
+        };
+        /** Sample the curve via `getPoint()` into `divisions + 1` points. */
+        Curve.prototype.getPoints = function (divisions) {
+            if (divisions === void 0) { divisions = 5; }
+            var points = [];
+            for (var d = 0; d <= divisions; d++)
+                points.push(this.getPoint(d / divisions));
+            return points;
+        };
+        /** Sample the curve via `getPointAt()` into `divisions + 1` equidistant points. */
+        Curve.prototype.getSpacedPoints = function (divisions) {
+            if (divisions === void 0) { divisions = 5; }
+            var points = [];
+            for (var d = 0; d <= divisions; d++)
+                points.push(this.getPointAt(d / divisions));
+            return points;
+        };
+        /** Total arc length of the curve. */
+        Curve.prototype.getLength = function () {
+            var lengths = this.getLengths();
+            return lengths[lengths.length - 1];
+        };
+        /** Cumulative segment lengths of the curve. */
+        Curve.prototype.getLengths = function (divisions) {
+            if (divisions === void 0) { divisions = this.arcLengthDivisions; }
+            if (this.cacheArcLengths && this.cacheArcLengths.length === divisions + 1 && !this.needsUpdate)
+                return this.cacheArcLengths;
+            this.needsUpdate = false;
+            var cache = [];
+            var current;
+            var last = this.getPoint(0);
+            var sum = 0;
+            cache.push(0);
+            for (var p = 1; p <= divisions; p++) {
+                current = this.getPoint(p / divisions);
+                sum += distanceBetween(current, last);
+                cache.push(sum);
+                last = current;
+            }
+            this.cacheArcLengths = cache;
+            return cache;
+        };
+        /** Invalidate the cached lengths (call after changing curve parameters). */
+        Curve.prototype.updateArcLengths = function () {
+            this.needsUpdate = true;
+            this.getLengths();
+        };
+        /**
+         * Map an arc-length factor `u` in `[0, 1]` to the `t` that samples the
+         * same distance. Used by `getPointAt()`/`getTangentAt()`.
+         */
+        Curve.prototype.getUtoTmapping = function (u, distance) {
+            if (distance === void 0) { distance = null; }
+            var arcLengths = this.getLengths();
+            var il = arcLengths.length;
+            var targetArcLength = distance !== null && distance !== void 0 ? distance : u * arcLengths[il - 1];
+            // Binary search for the largest index smaller than the target length.
+            var low = 0;
+            var high = il - 1;
+            var i = 0;
+            while (low <= high) {
+                i = Math.floor(low + (high - low) / 2);
+                var comparison = arcLengths[i] - targetArcLength;
+                if (comparison < 0)
+                    low = i + 1;
+                else if (comparison > 0)
+                    high = i - 1;
+                else {
+                    high = i;
+                    break;
+                }
+            }
+            i = high;
+            if (arcLengths[i] === targetArcLength)
+                return i / (il - 1);
+            var lengthBefore = arcLengths[i];
+            var lengthAfter = arcLengths[i + 1];
+            var segmentLength = lengthAfter - lengthBefore;
+            var segmentFraction = (targetArcLength - lengthBefore) / segmentLength;
+            return (i + segmentFraction) / (il - 1);
+        };
+        /**
+         * Unit tangent for factor `t`, via a small finite difference. Returns a
+         * fresh point unless `optionalTarget` is given.
+         */
+        Curve.prototype.getTangent = function (t, optionalTarget) {
+            var delta = 0.0001;
+            var t1 = Math.max(t - delta, 0);
+            var t2 = Math.min(t + delta, 1);
+            var pt1 = this.getPoint(t1);
+            var pt2 = this.getPoint(t2);
+            var tangent = (optionalTarget !== null && optionalTarget !== void 0 ? optionalTarget : clonePoint(pt1));
+            var dx = pt2.x - pt1.x;
+            var dy = pt2.y - pt1.y;
+            var dz = getZ(pt2) - getZ(pt1);
+            var len = Math.sqrt(dx * dx + dy * dy + dz * dz) || 1;
+            tangent.x = dx / len;
+            tangent.y = dy / len;
+            // Only refresh `z` when the output already carries it; never widen 2D points.
+            if ('z' in tangent)
+                tangent.z = dz / len;
+            return tangent;
+        };
+        /** Like `getTangent()`, but for the arc-length factor `u`. */
+        Curve.prototype.getTangentAt = function (u, optionalTarget) {
+            var t = this.getUtoTmapping(u);
+            return this.getTangent(t, optionalTarget);
+        };
+        /** Copy shared settings from another curve. */
+        Curve.prototype.copy = function (source) {
+            this.arcLengthDivisions = source.arcLengthDivisions;
+            this.cacheArcLengths = null;
+            return this;
+        };
+        return Curve;
+    }());
+    /** Straight segment between two points. */
+    var LineCurve = /** @class */ (function (_super) {
+        __extends(LineCurve, _super);
+        function LineCurve(v1, v2) {
+            var _this = _super.call(this) || this;
+            _this.v1 = v1;
+            _this.v2 = v2;
+            _this.type = 'LineCurve';
+            return _this;
+        }
+        LineCurve.prototype.getPoint = function (t, optionalTarget) {
+            var point = (optionalTarget !== null && optionalTarget !== void 0 ? optionalTarget : clonePoint(this.v1));
+            point.x = this.v1.x + (this.v2.x - this.v1.x) * t;
+            point.y = this.v1.y + (this.v2.y - this.v1.y) * t;
+            if ('z' in point)
+                point.z = getZ(this.v1) + (getZ(this.v2) - getZ(this.v1)) * t;
+            return point;
+        };
+        LineCurve.prototype.copy = function (source) {
+            _super.prototype.copy.call(this, source);
+            this.v1 = clonePoint(source.v1);
+            this.v2 = clonePoint(source.v2);
+            return this;
+        };
+        LineCurve.prototype.clone = function () {
+            return new LineCurve(clonePoint(this.v1), clonePoint(this.v2)).copy(this);
+        };
+        return LineCurve;
+    }(Curve));
+    function quadraticBezier(p0, p1, p2, t) {
+        var oneMinusT = 1 - t;
+        return oneMinusT * oneMinusT * p0 + 2 * oneMinusT * t * p1 + t * t * p2;
+    }
+    function cubicBezier(p0, p1, p2, p3, t) {
+        var oneMinusT = 1 - t;
+        var a = oneMinusT * oneMinusT * oneMinusT * p0;
+        var b = 3 * oneMinusT * oneMinusT * t * p1;
+        var c = 3 * oneMinusT * t * t * p2;
+        var d = t * t * t * p3;
+        return a + b + c + d;
+    }
+    /** Quadratic Bézier curve through three control points. */
+    var QuadraticBezierCurve = /** @class */ (function (_super) {
+        __extends(QuadraticBezierCurve, _super);
+        function QuadraticBezierCurve(v0, v1, v2) {
+            var _this = _super.call(this) || this;
+            _this.v0 = v0;
+            _this.v1 = v1;
+            _this.v2 = v2;
+            _this.type = 'QuadraticBezierCurve';
+            return _this;
+        }
+        QuadraticBezierCurve.prototype.getPoint = function (t, optionalTarget) {
+            var point = (optionalTarget !== null && optionalTarget !== void 0 ? optionalTarget : clonePoint(this.v0));
+            point.x = quadraticBezier(this.v0.x, this.v1.x, this.v2.x, t);
+            point.y = quadraticBezier(this.v0.y, this.v1.y, this.v2.y, t);
+            if ('z' in point)
+                point.z = quadraticBezier(getZ(this.v0), getZ(this.v1), getZ(this.v2), t);
+            return point;
+        };
+        QuadraticBezierCurve.prototype.copy = function (source) {
+            _super.prototype.copy.call(this, source);
+            this.v0 = clonePoint(source.v0);
+            this.v1 = clonePoint(source.v1);
+            this.v2 = clonePoint(source.v2);
+            return this;
+        };
+        QuadraticBezierCurve.prototype.clone = function () {
+            return new QuadraticBezierCurve(clonePoint(this.v0), clonePoint(this.v1), clonePoint(this.v2)).copy(this);
+        };
+        return QuadraticBezierCurve;
+    }(Curve));
+    /** Cubic Bézier curve through four control points. */
+    var CubicBezierCurve = /** @class */ (function (_super) {
+        __extends(CubicBezierCurve, _super);
+        function CubicBezierCurve(v0, v1, v2, v3) {
+            var _this = _super.call(this) || this;
+            _this.v0 = v0;
+            _this.v1 = v1;
+            _this.v2 = v2;
+            _this.v3 = v3;
+            _this.type = 'CubicBezierCurve';
+            return _this;
+        }
+        CubicBezierCurve.prototype.getPoint = function (t, optionalTarget) {
+            var point = (optionalTarget !== null && optionalTarget !== void 0 ? optionalTarget : clonePoint(this.v0));
+            point.x = cubicBezier(this.v0.x, this.v1.x, this.v2.x, this.v3.x, t);
+            point.y = cubicBezier(this.v0.y, this.v1.y, this.v2.y, this.v3.y, t);
+            if ('z' in point)
+                point.z = cubicBezier(getZ(this.v0), getZ(this.v1), getZ(this.v2), getZ(this.v3), t);
+            return point;
+        };
+        CubicBezierCurve.prototype.copy = function (source) {
+            _super.prototype.copy.call(this, source);
+            this.v0 = clonePoint(source.v0);
+            this.v1 = clonePoint(source.v1);
+            this.v2 = clonePoint(source.v2);
+            this.v3 = clonePoint(source.v3);
+            return this;
+        };
+        CubicBezierCurve.prototype.clone = function () {
+            return new CubicBezierCurve(clonePoint(this.v0), clonePoint(this.v1), clonePoint(this.v2), clonePoint(this.v3)).copy(this);
+        };
+        return CubicBezierCurve;
+    }(Curve));
+    function catmullRomInterpolate(p0, p1, p2, p3, t, tension) {
+        var v0 = (p2 - p0) * tension;
+        var v1 = (p3 - p1) * tension;
+        var t2 = t * t;
+        var t3 = t2 * t;
+        return (2 * p1 - 2 * p2 + v0 + v1) * t3 + (-3 * p1 + 3 * p2 - 2 * v0 - v1) * t2 + v0 * t + p1;
+    }
+    function nonUniformCatmullRomInterpolate(p0, p1, p2, p3, t, dt0, dt1, dt2) {
+        // Centripetal/chordal tangents, adapted from Three.js CatmullRomCurve3.
+        var t1 = (p1 - p0) / dt0 - (p2 - p0) / (dt0 + dt1) + (p2 - p1) / dt1;
+        var t2 = (p2 - p1) / dt1 - (p3 - p1) / (dt1 + dt2) + (p3 - p2) / dt2;
+        t1 *= dt1;
+        t2 *= dt1;
+        var c0 = p1;
+        var c1 = t1;
+        var c2 = -3 * p1 + 3 * p2 - 2 * t1 - t2;
+        var c3 = 2 * p1 - 2 * p2 + t1 + t2;
+        return c0 + c1 * t + c2 * t * t + c3 * t * t * t;
+    }
+    /**
+     * Smooth spline through a list of points. `centripetal` (default) avoids
+     * cusps and self-intersections on unevenly spaced points.
+     */
+    var CatmullRomCurve = /** @class */ (function (_super) {
+        __extends(CatmullRomCurve, _super);
+        function CatmullRomCurve(points, closed, curveType, tension) {
+            if (points === void 0) { points = []; }
+            if (closed === void 0) { closed = false; }
+            if (curveType === void 0) { curveType = 'centripetal'; }
+            if (tension === void 0) { tension = 0.5; }
+            var _this = _super.call(this) || this;
+            _this.points = points;
+            _this.closed = closed;
+            _this.curveType = curveType;
+            _this.tension = tension;
+            _this.type = 'CatmullRomCurve';
+            return _this;
+        }
+        CatmullRomCurve.prototype.getPoint = function (t, optionalTarget) {
+            var points = this.points;
+            var l = points.length;
+            if (l === 0)
+                throw new Error('CatmullRomCurve needs at least one point.');
+            if (l === 1)
+                return copyPoint((optionalTarget !== null && optionalTarget !== void 0 ? optionalTarget : clonePoint(points[0])), points[0]);
+            if (l === 2) {
+                // Degrade to a line so two-point paths still animate.
+                var point_1 = (optionalTarget !== null && optionalTarget !== void 0 ? optionalTarget : clonePoint(points[0]));
+                point_1.x = points[0].x + (points[1].x - points[0].x) * t;
+                point_1.y = points[0].y + (points[1].y - points[0].y) * t;
+                if ('z' in point_1)
+                    point_1.z = getZ(points[0]) + (getZ(points[1]) - getZ(points[0])) * t;
+                return point_1;
+            }
+            var point = (optionalTarget !== null && optionalTarget !== void 0 ? optionalTarget : clonePoint(points[0]));
+            var p = (l - (this.closed ? 0 : 1)) * t;
+            var intPoint = Math.floor(p);
+            var weight = p - intPoint;
+            if (this.closed) {
+                intPoint += intPoint > 0 ? 0 : (Math.floor(Math.abs(intPoint) / l) + 1) * l;
+            }
+            else if (weight === 0 && intPoint === l - 1) {
+                intPoint = l - 2;
+                weight = 1;
+            }
+            var p0;
+            var p3;
+            if (this.closed || intPoint > 0) {
+                p0 = points[(intPoint - 1) % l];
+            }
+            else {
+                // Extrapolate the first point.
+                p0 = {
+                    x: 2 * points[0].x - points[1].x,
+                    y: 2 * points[0].y - points[1].y,
+                    z: 2 * getZ(points[0]) - getZ(points[1]),
+                };
+            }
+            var p1 = points[intPoint % l];
+            var p2 = points[(intPoint + 1) % l];
+            if (this.closed || intPoint + 2 < l) {
+                p3 = points[(intPoint + 2) % l];
+            }
+            else {
+                // Extrapolate the last point.
+                var n = l - 1;
+                p3 = {
+                    x: 2 * points[n].x - points[n - 1].x,
+                    y: 2 * points[n].y - points[n - 1].y,
+                    z: 2 * getZ(points[n]) - getZ(points[n - 1]),
+                };
+            }
+            if (this.curveType === 'centripetal' || this.curveType === 'chordal') {
+                var pow = this.curveType === 'chordal' ? 0.5 : 0.25;
+                var dt0 = Math.pow(Math.pow(distanceBetween(p0, p1), 2), pow);
+                var dt1 = Math.pow(Math.pow(distanceBetween(p1, p2), 2), pow);
+                var dt2 = Math.pow(Math.pow(distanceBetween(p2, p3), 2), pow);
+                if (dt1 < 1e-4)
+                    dt1 = 1.0;
+                if (dt0 < 1e-4)
+                    dt0 = dt1;
+                if (dt2 < 1e-4)
+                    dt2 = dt1;
+                point.x = nonUniformCatmullRomInterpolate(p0.x, p1.x, p2.x, p3.x, weight, dt0, dt1, dt2);
+                point.y = nonUniformCatmullRomInterpolate(p0.y, p1.y, p2.y, p3.y, weight, dt0, dt1, dt2);
+                if ('z' in point)
+                    point.z = nonUniformCatmullRomInterpolate(getZ(p0), getZ(p1), getZ(p2), getZ(p3), weight, dt0, dt1, dt2);
+            }
+            else {
+                point.x = catmullRomInterpolate(p0.x, p1.x, p2.x, p3.x, weight, this.tension);
+                point.y = catmullRomInterpolate(p0.y, p1.y, p2.y, p3.y, weight, this.tension);
+                if ('z' in point)
+                    point.z = catmullRomInterpolate(getZ(p0), getZ(p1), getZ(p2), getZ(p3), weight, this.tension);
+            }
+            return point;
+        };
+        CatmullRomCurve.prototype.copy = function (source) {
+            _super.prototype.copy.call(this, source);
+            this.points = source.points.map(function (p) { return clonePoint(p); });
+            this.closed = source.closed;
+            this.curveType = source.curveType;
+            this.tension = source.tension;
+            return this;
+        };
+        CatmullRomCurve.prototype.clone = function () {
+            return new CatmullRomCurve([], this.closed, this.curveType, this.tension).copy(this);
+        };
+        return CatmullRomCurve;
+    }(Curve));
+    /**
+     * A path made of chained curves. `t` in `[0, 1]` is distributed by arc
+     * length, so a Tween driving `t` moves at near-constant speed when sampled
+     * with `getPointAt()`, and proportionally through each child with `getPoint()`.
+     */
+    var CurvePath = /** @class */ (function (_super) {
+        __extends(CurvePath, _super);
+        function CurvePath(curves) {
+            if (curves === void 0) { curves = []; }
+            var _this = _super.call(this) || this;
+            _this.type = 'CurvePath';
+            _this.curves = [];
+            _this.autoClose = false;
+            _this.curves = curves;
+            return _this;
+        }
+        /** Add a curve to the end of the path. */
+        CurvePath.prototype.add = function (curve) {
+            this.curves.push(curve);
+            this.updateArcLengths();
+            return this;
+        };
+        /** Connect the end of the path back to the start with a line. */
+        CurvePath.prototype.closePath = function () {
+            if (this.curves.length === 0)
+                return this;
+            var start = this.curves[0].getPoint(0);
+            var end = this.curves[this.curves.length - 1].getPoint(1);
+            if (distanceBetween(start, end) > Number.EPSILON)
+                this.add(new LineCurve(clonePoint(end), clonePoint(start)));
+            this.autoClose = true;
+            return this;
+        };
+        /** Length of each child curve (cached until the path changes). */
+        CurvePath.prototype.getCurveLengths = function () {
+            return this.curves.map(function (curve) { return curve.getLength(); });
+        };
+        CurvePath.prototype.getPoint = function (t, optionalTarget) {
+            if (this.curves.length === 0)
+                throw new Error('CurvePath needs at least one curve. Use path.add(curve).');
+            if (this.curves.length === 1)
+                return this.curves[0].getPoint(t, optionalTarget);
+            // Distribute `t` by arc length so short segments are not over-weighted.
+            var lengths = this.getCurveLengths();
+            var total = lengths.reduce(function (sum, len) { return sum + len; }, 0);
+            var target = t * total;
+            var i = 0;
+            while (i < lengths.length - 1 && target > lengths[i]) {
+                target -= lengths[i];
+                i++;
+            }
+            var fraction = lengths[i] === 0 ? 0 : target / lengths[i];
+            return this.curves[i].getPoint(fraction, optionalTarget);
+        };
+        CurvePath.prototype.getLength = function () {
+            return this.getCurveLengths().reduce(function (sum, len) { return sum + len; }, 0);
+        };
+        CurvePath.prototype.updateArcLengths = function () {
+            this.needsUpdate = true;
+            for (var _i = 0, _a = this.curves; _i < _a.length; _i++) {
+                var curve = _a[_i];
+                curve.updateArcLengths();
+            }
+            _super.prototype.updateArcLengths.call(this);
+        };
+        CurvePath.prototype.copy = function (source) {
+            _super.prototype.copy.call(this, source);
+            this.curves = source.curves.map(function (curve) { return curve.clone(); });
+            this.autoClose = source.autoClose;
+            return this;
+        };
+        CurvePath.prototype.clone = function () {
+            return new CurvePath().copy(this);
+        };
+        return CurvePath;
+    }(Curve));
+    var Path = CurvePath;
 
     var VERSION = '25.0.0';
 
@@ -1883,6 +2410,13 @@
         nextId: nextId,
         Tween: Tween,
         Timeline: Timeline,
+        Curve: Curve,
+        LineCurve: LineCurve,
+        QuadraticBezierCurve: QuadraticBezierCurve,
+        CubicBezierCurve: CubicBezierCurve,
+        CatmullRomCurve: CatmullRomCurve,
+        CurvePath: CurvePath,
+        Path: Path,
         VERSION: VERSION,
         /**
          * @deprecated The global TWEEN Group will be removed in a following major
@@ -2126,9 +2660,16 @@
         update: update,
     };
 
+    exports.CatmullRomCurve = CatmullRomCurve;
+    exports.CubicBezierCurve = CubicBezierCurve;
+    exports.Curve = Curve;
+    exports.CurvePath = CurvePath;
     exports.Easing = Easing;
     exports.Group = Group;
     exports.Interpolation = Interpolation;
+    exports.LineCurve = LineCurve;
+    exports.Path = Path;
+    exports.QuadraticBezierCurve = QuadraticBezierCurve;
     exports.Sequence = Sequence;
     exports.Timeline = Timeline;
     exports.Tween = Tween;
