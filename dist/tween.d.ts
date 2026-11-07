@@ -442,7 +442,13 @@ declare class Timeline {
      * @param callback - Called with the timeline instance.
      */
     onStop(callback?: (timeline: Timeline) => void): this;
-    /** Convenience: set easing for all direct child Tweens. */
+    /**
+     * Convenience: set easing for all direct child Tweens.
+     *
+     * @param easingFunction - The easing function to apply.
+     * @param recurse - If `true`, also applies the easing to Tweens inside nested
+     * child Timelines. Defaults to `false`, in which case nested Timelines are skipped.
+     */
     easingAll(easingFunction: EasingFunction, recurse?: boolean): this;
     /**
      * Starts the timeline at the given time. Children start lazily when the
@@ -528,6 +534,178 @@ declare class Sequence {
     private static _nextId;
     static nextId(): number;
 }
+
+/**
+ * Curve/Path primitives for tween.js, adapted from Three.js (MIT License).
+ * https://github.com/mrdoob/three.js — src/extras/core/Curve.js and
+ * src/extras/curves/* — Copyright (c) 2010-2026 three.js authors.
+ *
+ * Why this exists (see https://github.com/tweenjs/tween.js/issues/721):
+ * array `to()` values blur the concept of a Tween (see
+ * https://github.com/tweenjs/tween.js/issues/655). Instead, keep Tween
+ * simple (a scalar 0 -> 1 progress) and sample a decoupled Curve/Path:
+ *
+ * ```js
+ * import {Tween, Easing, CatmullRomCurve} from '@tweenjs/tween.js'
+ *
+ * const curve = new CatmullRomCurve([{x: 0, y: 0}, {x: 100, y: 0}, {x: 100, y: 100}])
+ * const position = {x: 0, y: 0}
+ * const progress = {t: 0}
+ *
+ * new Tween(progress)
+ * 	.to({t: 1}, 2000)
+ * 	.easing(Easing.Linear.None)
+ * 	.onUpdate(() => curve.getPoint(progress.t, position))
+ * 	.start()
+ * ```
+ *
+ * Points are plain objects (`{x, y}` or `{x, y, z}`) so they work with any
+ * renderer or physics engine — no `THREE.Vector` dependency. When an
+ * `optionalTarget` is given, it is mutated and returned, so a tweened
+ * object can be used directly as the target.
+ */
+/** A 2D point sampled or driven by a curve. */
+type Point2D = {
+    x: number;
+    y: number;
+};
+/** A 3D point sampled or driven by a curve. */
+type Point3D = {
+    x: number;
+    y: number;
+    z: number;
+};
+/** Any point a curve can sample. Missing `z` is treated as `0`. */
+type Point = Point2D | Point3D;
+/**
+ * Abstract base class for analytic curves. Subclasses implement `getPoint(t)`.
+ * Arc-length helpers (`getPointAt`, `getTangentAt`, …) are shared here and
+ * mirror the Three.js `Curve` API.
+ */
+declare abstract class Curve<T extends Point = Point> {
+    type: string;
+    /**
+     * Divisions used when caching cumulative segment lengths via `getLengths()`.
+     * Increase it for very large curves when using `getPointAt()`/`getSpacedPoints()`.
+     */
+    arcLengthDivisions: number;
+    /** Set to `true` when curve parameters change, to invalidate the length cache. */
+    needsUpdate: boolean;
+    private cacheArcLengths;
+    /**
+     * Position on the curve for interpolation factor `t` in `[0, 1]`.
+     * When `optionalTarget` is given it is mutated and returned.
+     */
+    abstract getPoint(t: number, optionalTarget?: T): T;
+    /**
+     * Like `getPoint()`, but `u` is mapped to arc length, so samples are
+     * equidistant along the curve.
+     */
+    getPointAt(u: number, optionalTarget?: T): T;
+    /** Sample the curve via `getPoint()` into `divisions + 1` points. */
+    getPoints(divisions?: number): Array<T>;
+    /** Sample the curve via `getPointAt()` into `divisions + 1` equidistant points. */
+    getSpacedPoints(divisions?: number): Array<T>;
+    /** Total arc length of the curve. */
+    getLength(): number;
+    /** Cumulative segment lengths of the curve. */
+    getLengths(divisions?: number): Array<number>;
+    /** Invalidate the cached lengths (call after changing curve parameters). */
+    updateArcLengths(): void;
+    /**
+     * Map an arc-length factor `u` in `[0, 1]` to the `t` that samples the
+     * same distance. Used by `getPointAt()`/`getTangentAt()`.
+     */
+    getUtoTmapping(u: number, distance?: number | null): number;
+    /**
+     * Unit tangent for factor `t`, via a small finite difference. Returns a
+     * fresh point unless `optionalTarget` is given.
+     */
+    getTangent(t: number, optionalTarget?: T): T;
+    /** Like `getTangent()`, but for the arc-length factor `u`. */
+    getTangentAt(u: number, optionalTarget?: T): T;
+    /** Copy shared settings from another curve. */
+    copy(source: Curve<T>): this;
+    abstract clone(): Curve<T>;
+}
+/** Straight segment between two points. */
+declare class LineCurve<T extends Point = Point> extends Curve<T> {
+    v1: T;
+    v2: T;
+    type: string;
+    constructor(v1: T, v2: T);
+    getPoint(t: number, optionalTarget?: T): T;
+    copy(source: LineCurve<T>): this;
+    clone(): LineCurve<T>;
+}
+/** Quadratic Bézier curve through three control points. */
+declare class QuadraticBezierCurve<T extends Point = Point> extends Curve<T> {
+    v0: T;
+    v1: T;
+    v2: T;
+    type: string;
+    constructor(v0: T, v1: T, v2: T);
+    getPoint(t: number, optionalTarget?: T): T;
+    copy(source: QuadraticBezierCurve<T>): this;
+    clone(): QuadraticBezierCurve<T>;
+}
+/** Cubic Bézier curve through four control points. */
+declare class CubicBezierCurve<T extends Point = Point> extends Curve<T> {
+    v0: T;
+    v1: T;
+    v2: T;
+    v3: T;
+    type: string;
+    constructor(v0: T, v1: T, v2: T, v3: T);
+    getPoint(t: number, optionalTarget?: T): T;
+    copy(source: CubicBezierCurve<T>): this;
+    clone(): CubicBezierCurve<T>;
+}
+type CatmullRomCurveType = 'centripetal' | 'chordal' | 'catmullrom';
+/**
+ * Smooth spline through a list of points. `centripetal` (default) avoids
+ * cusps and self-intersections on unevenly spaced points.
+ */
+declare class CatmullRomCurve<T extends Point = Point> extends Curve<T> {
+    points: Array<T>;
+    closed: boolean;
+    curveType: CatmullRomCurveType;
+    tension: number;
+    type: string;
+    constructor(points?: Array<T>, closed?: boolean, curveType?: CatmullRomCurveType, tension?: number);
+    getPoint(t: number, optionalTarget?: T): T;
+    copy(source: CatmullRomCurve<T>): this;
+    clone(): CatmullRomCurve<T>;
+}
+/**
+ * A path made of chained curves. `t` in `[0, 1]` is distributed by arc
+ * length, so a Tween driving `t` moves at near-constant speed when sampled
+ * with `getPointAt()`, and proportionally through each child with `getPoint()`.
+ */
+declare class CurvePath<T extends Point = Point> extends Curve<T> {
+    type: string;
+    curves: Array<Curve<T>>;
+    autoClose: boolean;
+    constructor(curves?: Array<Curve<T>>);
+    /** Add a curve to the end of the path. */
+    add(curve: Curve<T>): this;
+    /** Connect the end of the path back to the start with a line. */
+    closePath(): this;
+    /** Length of each child curve (cached until the path changes). */
+    getCurveLengths(): Array<number>;
+    getPoint(t: number, optionalTarget?: T): T;
+    getLength(): number;
+    updateArcLengths(): void;
+    copy(source: CurvePath<T>): this;
+    clone(): CurvePath<T>;
+}
+/**
+ * Alias matching the `Curve`/`Path` naming in
+ * https://github.com/tweenjs/tween.js/issues/721. A `Path` is a `CurvePath`:
+ * an ordered list of curves sampled with a single `t` in `[0, 1]`.
+ */
+type Path<T extends Point = Point> = CurvePath<T>;
+declare const Path: typeof CurvePath;
 
 declare const VERSION = "25.0.0";
 
@@ -811,6 +989,13 @@ declare const exports: {
     nextId: typeof Sequence.nextId;
     Tween: typeof Tween;
     Timeline: typeof Timeline;
+    Curve: typeof Curve;
+    LineCurve: typeof LineCurve;
+    QuadraticBezierCurve: typeof QuadraticBezierCurve;
+    CubicBezierCurve: typeof CubicBezierCurve;
+    CatmullRomCurve: typeof CatmullRomCurve;
+    CurvePath: typeof CurvePath;
+    Path: typeof CurvePath;
     VERSION: string;
     /**
      * @deprecated The global TWEEN Group will be removed in a following major
@@ -1057,4 +1242,4 @@ declare const exports: {
     };
 };
 
-export { Easing, Group, Interpolation, Sequence, Timeline, Tween, VERSION, add, exports as default, getAll, nextId, now, remove, removeAll, setNow, update };
+export { CatmullRomCurve, CubicBezierCurve, Curve, CurvePath, Easing, Group, Interpolation, LineCurve, Path, QuadraticBezierCurve, Sequence, Timeline, Tween, VERSION, add, exports as default, getAll, nextId, now, remove, removeAll, setNow, update };
