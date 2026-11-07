@@ -456,7 +456,10 @@ features or fixes) in `src/tests.ts` to be accepted. See
 
 # People
 
-Maintainers: [Joe Pea (@trusktr)](https://github.com/trusktr).
+Maintainers:
+
+- [Joe Pea (@trusktr)](https://github.com/trusktr)
+- [Dav (@dalisoft)](https://github.com/dalisoft)
 
 [All contributors](http://github.com/tweenjs/tween.js/contributors).
 
