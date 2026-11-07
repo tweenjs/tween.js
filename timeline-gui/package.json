@@ -1,0 +1,20 @@
+{
+	"name": "tweenjs-timeline-gui",
+	"version": "0.0.1",
+	"description": "A Timeline GUI for tween.js",
+	"homepage": "https://github.com/tweenjs/tween.js#readme",
+	"bugs": {
+		"url": "https://github.com/tweenjs/tween.js/issues"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/tweenjs/tween.js.git"
+	},
+	"license": "MIT",
+	"author": "tween.js contributors (https://github.com/tweenjs/tween.js/graphs/contributors)",
+	"type": "module",
+	"scripts": {
+		"dev": "npx --yes serve ..",
+		"test": "node --check src/model.js && node --check src/app.js && node test/smoke.mjs"
+	}
+}
