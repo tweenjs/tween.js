@@ -483,6 +483,50 @@ Check [Timeline](../examples/20_timeline.html),
 [Timeline slider](../examples/21_timeline_slider.html), and
 [Timeline repeat](../examples/22_timeline_repeat.html) for working examples.
 
+## TimeScaler (slow motion, fast-forward, freeze)
+
+`Tween` has no time-scaling logic of its own (see #655): it just maps the
+time values you pass to `update()` into progress. To play animations in
+slow motion, fast-forward, or frozen, map your source clock through a
+`TimeScaler` first and pass the scaled time on. This works with `Tween`,
+`Group`, and `Timeline` — anything that takes a time value:
+
+```js
+import {TimeScaler, Tween} from '@tweenjs/tween.js'
+
+const scaler = new TimeScaler(1)
+tween.start(scaler.update(performance.now()))
+
+function animate(time) {
+	requestAnimationFrame(animate)
+	tween.update(scaler.update(time))
+}
+
+// Dynamic scale, no Tween changes needed:
+scaler.setScale(0.5) // slow motion
+scaler.setScale(0) // freeze (resume never jumps)
+scaler.setScale(2) // fast-forward
+```
+
+APIs:
+
+- `new TimeScaler(scale?)` — initial scale, defaults to `1` (unscaled)
+- `scaler.setScale(scale)` / `scaler.getScale()` — change or read the
+  scale live; applies from the next frame on
+- `scaler.update(rawTime?)` — map a source reading (defaults to `now()`)
+  to scaled time; pass the result to `tween.update()`, `group.update()`,
+  or `timeline.update()`. The first call returns its input, so starting
+  with `scaler.update(t0)` keeps the clocks aligned.
+- `scaler.getTime()` — last scaled time returned
+- `scaler.reset()` — forget the anchor so the next `update()` re-anchors
+  (useful when restarting from scratch)
+
+Negative scales run the scaled clock backwards. With scale `1` the scaler
+is the identity, so wrapping an existing loop is a drop-in change.
+
+Check [TimeScaler](../examples/24_timescaler.html) for a working example
+with a live scale slider.
+
 ## Changing the easing function (AKA make it bouncy)
 
 Tween.js will perform the interpolation between values (i.e. the easing) in a linear manner, so the change will be directly proportional to the elapsed time. This is predictable but also quite uninteresting visually wise. Worry not--this behaviour can be easily changed using the `easing` method. For example:
