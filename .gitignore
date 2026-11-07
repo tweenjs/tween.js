@@ -3,6 +3,8 @@
 .vscode
 .tmp
 .browsers
+# npm (package-lock.json) is the standard; never commit pnpm's lockfile.
+pnpm-lock.yaml
 build/npm*
 node_modules
 npm-debug.log
