@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>tween.js — Timeline GUI</title>
+		<link rel="stylesheet" href="./src/styles.css" />
+		<link rel="stylesheet" href="./vendor/speed-highlight/themes/dark.css" />
+		<script type="importmap">
+			{
+				"imports": {
+					"@tweenjs/tween.js": "./vendor/tween/tween.esm.js"
+				}
+			}
+		</script>
+	</head>
+	<body>
+		<header class="top">
+			<h1>Timeline GUI <span>for tween.js</span></h1>
+			<button id="btn-play" title="Play">▶</button>
+			<button id="btn-pause" title="Pause">⏸</button>
+			<button id="btn-stop" title="Stop">⏹</button>
+			<button id="btn-loop" title="Toggle loop">🔁</button>
+			<select id="sel-speed" title="Playback speed">
+				<option value="0.25">0.25×</option>
+				<option value="0.5">0.5×</option>
+				<option value="1" selected>1×</option>
+				<option value="2">2×</option>
+			</select>
+			<select id="sel-zoom" title="Zoom">
+				<option value="0.03">Zoom out</option>
+				<option value="0.06">Zoom −</option>
+				<option value="0.1" selected>Zoom 1×</option>
+				<option value="0.2">Zoom +</option>
+				<option value="0.4">Zoom ++</option>
+			</select>
+			<span id="readout">0ms / 0ms</span>
+		</header>
+
+		<main>
+			<div id="boot-error" hidden>
+				Timeline GUI failed to start. ES modules do not run from <code>file://</code> URLs — serve this folder over HTTP
+				instead, e.g. run <code>npx --yes serve .</code> inside <code>timeline-gui/</code> and open the shown localhost
+				URL (or use VS Code&#39;s Live Server extension).
+			</div>
+			<div>
+				<section class="stage-wrap">
+					<div id="stage"><div id="box">box</div></div>
+					<div id="state-readout"></div>
+				</section>
+
+				<section class="tl-wrap">
+					<div class="toolbar">
+						<button id="btn-add">+ tween</button>
+						<button id="btn-add-nested">+ nested</button>
+						<button id="btn-add-label">+ label</button>
+						<button id="btn-dup">Duplicate</button>
+						<button id="btn-del">Delete</button>
+						<button id="btn-undo" title="Undo track edit">Undo</button>
+						<button id="btn-redo" title="Redo track edit">Redo</button>
+						<span class="spacer"></span>
+						<button id="btn-reset">Reset demo</button>
+					</div>
+					<div class="tl-scroll" id="tl-scroll">
+						<div id="ruler" title="Click or drag to scrub"></div>
+						<div id="tracks"></div>
+						<div id="playhead"></div>
+					</div>
+					<div id="scrubber">
+						<input id="slider" type="range" min="0" max="1000" step="1" value="0" />
+					</div>
+					<p class="hint">
+						Drag clips to move them · drag the right edge to resize · drag the ruler or slider to scrub (explicit clock,
+						cf. <code>examples/21_timeline_slider.html</code>).
+					</p>
+				</section>
+
+				<section class="code">
+					<div class="toolbar">
+						<strong>Code</strong>
+						<span class="spacer"></span>
+						<button id="btn-apply-code">Apply code</button>
+						<button id="btn-revert-code">Revert</button>
+						<button id="btn-copy-code">Copy</button>
+					</div>
+					<div id="code-error" hidden></div>
+					<div id="code-wrap">
+						<pre id="code-hl" aria-hidden="true"><code id="code-hl-code"></code></pre>
+						<textarea id="code-in" spellcheck="false"></textarea>
+						<div id="ac-popup" hidden></div>
+					</div>
+					<p class="hint">
+						Edit the code, then Apply (Ctrl/Cmd+Enter) — tracks update from code, and track edits rewrite the code. One
+						statement per line; trailing <code>// name</code> comments label the tracks. Tab/Enter accept, Ctrl+Space
+						suggests, Up/Down cycle, Esc closes. Invalid code stops playback and shows the error here. Undo/Redo (or
+						Cmd/Ctrl+Z outside the code box) restores track edits; text edits undo natively in the box.
+					</p>
+				</section>
+			</div>
+
+			<aside class="inspector">
+				<h2>Inspector</h2>
+				<div id="inspector-body"></div>
+			</aside>
+		</main>
+
+		<script>
+			window.__guiBooted = false
+			setTimeout(function () {
+				if (!window.__guiBooted) {
+					var el = document.getElementById('boot-error')
+					if (el) el.hidden = false
+				}
+			}, 2500)
+		</script>
+		<script type="module" src="./src/app.js"></script>
+	</body>
+</html>
