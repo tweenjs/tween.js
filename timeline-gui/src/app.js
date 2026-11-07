@@ -2,10 +2,13 @@
  * Timeline GUI — vanilla ESM editor for tween.js Timelines.
  *
  * Design (see dev-docs/09):
- * - The GUI owns a plain JSON model (./model.js) as source of truth.
- * - Playback builds a real `Timeline` from the model and drives it with
- *   an explicit clock (`tl.start(0)` + `tl.update(v)`), the scrub pattern
- *   from `examples/21_timeline_slider.html` (cf. issue #560).
+ * - The GUI owns a model (./model.js) and builds a real `Timeline` from
+ *   it for playback, driven with an explicit clock (`tl.start(0)` +
+ *   `tl.update(v)`), the scrub pattern from
+ *   `examples/21_timeline_slider.html` (cf. issue #560).
+ * - Code is the interchange format (cf. timeline-css): the code box
+ *   renders the model and parses edits back into it. Invalid code stops
+ *   playback and shows an error instead of running.
  * - No changes to the core library were needed.
  */
 import {Easing, Timeline, Tween} from '@tweenjs/tween.js'
@@ -14,19 +17,18 @@ import {
 	PRESETS,
 	addNestedTimeline,
 	addTweenClip,
-	adoptIds,
 	clipDuration,
 	createId,
 	defaultModel,
+	defaultState,
 	deleteClip,
 	duplicateClip,
-	exportJSON,
 	findClip,
 	flattenTracks,
 	generateCode,
 	getModelDuration,
-	importJSON,
 	moveClip,
+	parseCode,
 	pxToTime,
 	resizeClip,
 	tickStep,
@@ -36,7 +38,7 @@ import {
 } from './model.js'
 
 const NAME_COL = 130
-const STORAGE_KEY = 'tweenjs-timeline-gui-v1'
+const STORAGE_KEY = 'tweenjs-timeline-gui-v2'
 
 const $ = id => document.getElementById(id)
 const els = {
@@ -62,11 +64,11 @@ const els = {
 	del: $('btn-del'),
 	reset: $('btn-reset'),
 	inspector: $('inspector-body'),
-	code: $('code-out'),
-	jsonIn: $('json-in'),
-	copyJs: $('btn-copy-js'),
-	copyJson: $('btn-copy-json'),
-	loadJson: $('btn-load-json'),
+	codeIn: $('code-in'),
+	codeError: $('code-error'),
+	applyCode: $('btn-apply-code'),
+	revertCode: $('btn-revert-code'),
+	copyCode: $('btn-copy-code'),
 }
 
 function resolveEasing(name) {
@@ -79,7 +81,8 @@ function resolveEasing(name) {
 
 // ---- state ----
 
-let model = load() || defaultModel()
+let model = defaultModel()
+let state = defaultState()
 let pxPerMs = 0.1
 let speed = 1
 let loop = true
@@ -89,27 +92,40 @@ let tl = null
 let rafId = 0
 let wallStart = 0
 let playBase = 0
+let codeDirty = false
+let codeError = null
 
-const state = {x: 0, y: 0, rotation: 0, scale: 1, opacity: 1}
-
-function load() {
+function loadCode() {
 	try {
-		const raw = localStorage.getItem(STORAGE_KEY)
-		if (!raw) return null
-		const data = importJSON(raw)
-		adoptIds(data)
-		return data
+		return localStorage.getItem(STORAGE_KEY)
 	} catch {
 		return null
 	}
 }
 
-function save() {
+function saveCode(text) {
 	try {
-		localStorage.setItem(STORAGE_KEY, exportJSON(model))
+		localStorage.setItem(STORAGE_KEY, text)
 	} catch {
 		// Storage full or unavailable: the GUI still works in-memory.
 	}
+}
+
+/** Restore model + state from stored code, or fall back to the demo. */
+function bootModel() {
+	const stored = loadCode()
+	if (stored) {
+		try {
+			const parsed = parseCode(stored)
+			model = parsed.model
+			state = parsed.state
+			return
+		} catch {
+			// Stored code predates the grammar: fall through to the demo.
+		}
+	}
+	model = defaultModel()
+	state = defaultState()
 }
 
 // ---- timeline build + explicit-clock playback ----
@@ -137,8 +153,9 @@ function ensureStarted() {
 	if (!tl.isPlaying()) tl.start(0)
 }
 
-/** Drive the timeline to local time v (ms). */
+/** Drive the timeline to local time v (ms). Does nothing while code is invalid. */
 function scrub(v) {
+	if (codeError) return
 	const duration = getModelDuration(model)
 	currentMs = Math.max(0, Math.min(v, duration))
 	ensureStarted()
@@ -211,7 +228,6 @@ function rebuild(keepPlaying = false) {
 	tl = buildTimeline()
 	tl.start(0)
 	tl.update(currentMs)
-	save()
 	renderAll()
 	if (keepPlaying || wasRaf) play()
 }
@@ -300,9 +316,14 @@ function renderTransport() {
 }
 
 function renderStage() {
-	els.box.style.transform = `translate(${Math.round(state.x)}px, ${Math.round(state.y)}px) rotate(${Math.round(state.rotation)}deg) scale(${state.scale})`
-	els.box.style.opacity = String(state.opacity)
-	els.stateReadout.textContent = `x=${Math.round(state.x)} y=${Math.round(state.y)} rot=${Math.round(state.rotation)} scale=${state.scale.toFixed(2)} opacity=${Number(state.opacity).toFixed(2)}`
+	const x = Number(state.x) || 0
+	const y = Number(state.y) || 0
+	const rotation = Number(state.rotation) || 0
+	const scale = Number(state.scale) || 0
+	const opacity = state.opacity === undefined ? 1 : Number(state.opacity) || 0
+	els.box.style.transform = `translate(${Math.round(x)}px, ${Math.round(y)}px) rotate(${Math.round(rotation)}deg) scale(${scale})`
+	els.box.style.opacity = String(opacity)
+	els.stateReadout.textContent = `x=${Math.round(x)} y=${Math.round(y)} rot=${Math.round(rotation)} scale=${scale.toFixed(2)} opacity=${opacity.toFixed(2)}`
 }
 
 function renderInspector() {
@@ -463,9 +484,24 @@ function numberInput(value, onChange) {
 	return input
 }
 
+function setCodeError(msg) {
+	codeError = msg
+	els.codeError.hidden = !msg
+	els.codeError.textContent = msg || ''
+	const blocked = !!msg
+	els.play.disabled = blocked
+	els.pause.disabled = blocked
+	els.stop.disabled = blocked
+	els.slider.disabled = blocked
+	els.applyCode.classList.toggle('active', codeDirty && !msg)
+}
+
 function renderCode() {
-	els.code.textContent = generateCode(model)
-	if (!els.jsonIn.value) els.jsonIn.value = exportJSON(model)
+	const text = generateCode(model, state)
+	els.codeIn.value = text
+	codeDirty = false
+	setCodeError(null)
+	saveCode(text)
 }
 
 function renderAll() {
@@ -613,41 +649,52 @@ els.del.onclick = () => {
 els.reset.onclick = () => {
 	stopRaf()
 	model = defaultModel()
+	state = defaultState()
 	currentMs = 0
 	selected = null
 	tl = null
-	save()
 	ensureStarted()
 	tl.update(0)
 	renderAll()
 }
 
-els.copyJs.onclick = async () => {
-	await copyText(generateCode(model))
-}
-
-els.copyJson.onclick = async () => {
-	await copyText(exportJSON(model))
-}
-
-els.loadJson.onclick = () => {
+/** Push code edits into the model + tracks. Invalid code stops playback. */
+function applyCode() {
+	let parsed
 	try {
-		model = importJSON(els.jsonIn.value)
-		adoptIds(model)
-		currentMs = 0
-		selected = null
-		tl = null
-		ensureStarted()
-		tl.update(0)
-		save()
-		renderAll()
-		els.jsonIn.style.borderColor = ''
-		els.jsonIn.title = ''
+		parsed = parseCode(els.codeIn.value)
 	} catch (err) {
-		els.jsonIn.style.borderColor = 'var(--playhead)'
-		els.jsonIn.title = String(err && err.message ? err.message : err)
+		stopRaf()
+		if (tl) tl.stop()
+		codeDirty = true
+		setCodeError(String((err && err.message) || err))
+		return
 	}
+	model = parsed.model
+	state = parsed.state
+	currentMs = Math.min(currentMs, getModelDuration(model))
+	selected = null
+	tl = null
+	codeDirty = false
+	ensureStarted()
+	tl.update(currentMs)
+	renderAll()
 }
+
+els.applyCode.onclick = applyCode
+
+els.revertCode.onclick = () => {
+	renderAll()
+}
+
+els.copyCode.onclick = async () => {
+	await copyText(els.codeIn.value)
+}
+
+els.codeIn.addEventListener('input', () => {
+	codeDirty = true
+	els.applyCode.classList.add('active')
+})
 
 async function copyText(text) {
 	try {
@@ -663,9 +710,25 @@ async function copyText(text) {
 }
 
 document.addEventListener('keydown', e => {
+	if (e.target === els.codeIn && e.key === 'Tab') {
+		e.preventDefault()
+		const ta = els.codeIn
+		const {selectionStart: start, selectionEnd: end, value} = ta
+		ta.value = value.slice(0, start) + '  ' + value.slice(end)
+		ta.selectionStart = ta.selectionEnd = start + 2
+		codeDirty = true
+		els.applyCode.classList.add('active')
+		return
+	}
+	if (e.target === els.codeIn && (e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+		e.preventDefault()
+		applyCode()
+		return
+	}
 	if (e.target.matches('input, textarea, select')) return
 	if (e.code === 'Space') {
 		e.preventDefault()
+		if (codeError) return
 		if (rafId) pause()
 		else play()
 	} else if (e.key === 'Delete' || e.key === 'Backspace') {
@@ -675,6 +738,7 @@ document.addEventListener('keydown', e => {
 
 // ---- boot ----
 
+bootModel()
 ensureStarted()
 tl.update(0)
 renderAll()

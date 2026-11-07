@@ -69,17 +69,19 @@
 
 				<section class="code">
 					<div class="toolbar">
-						<strong>Export</strong>
+						<strong>Code ↔ timeline</strong>
 						<span class="spacer"></span>
-						<button id="btn-copy-js">Copy JS</button>
-						<button id="btn-copy-json">Copy JSON</button>
-						<button id="btn-load-json">Load JSON ↓</button>
+						<button id="btn-apply-code">Apply code</button>
+						<button id="btn-revert-code">Revert</button>
+						<button id="btn-copy-code">Copy</button>
 					</div>
-					<pre id="code-out"></pre>
-					<div class="field">
-						<label for="json-in">Model JSON (paste to import, then “Load JSON”)</label>
-						<textarea id="json-in" rows="6" spellcheck="false"></textarea>
-					</div>
+					<div id="code-error" hidden></div>
+					<textarea id="code-in" spellcheck="false"></textarea>
+					<p class="hint">
+						Edit the code, then Apply (Ctrl/Cmd+Enter) — tracks update from code, and track edits rewrite the code. One
+						statement per line; trailing <code>// name</code> comments label the tracks. Invalid code stops playback and
+						shows the error here.
+					</p>
 				</section>
 			</div>
 

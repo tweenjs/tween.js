@@ -329,15 +329,43 @@ section.code {
 	border-top: 1px solid var(--border);
 }
 
-section.code pre {
+section.code pre,
+#code-in {
+	width: 100%;
 	background: #17181d;
 	border: 1px solid var(--border);
 	border-radius: var(--radius);
+	color: var(--text);
+	font:
+		11px/1.5 ui-monospace,
+		SFMono-Regular,
+		Menlo,
+		monospace;
 	padding: 12px;
+	white-space: pre;
+}
+
+section.code pre {
 	overflow-x: auto;
-	font-size: 11px;
 	max-height: 260px;
 	overflow-y: auto;
+}
+
+#code-in {
+	min-height: 320px;
+	resize: vertical;
+}
+
+#code-error {
+	background: #3a1d1d;
+	border: 1px solid var(--playhead);
+	color: #ffb4b4;
+	border-radius: var(--radius);
+	padding: 8px 12px;
+	margin-bottom: 8px;
+	font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+	font-size: 11px;
+	white-space: pre-wrap;
 }
 
 .hint {

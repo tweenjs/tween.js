@@ -37,15 +37,18 @@ No `npm install` needed inside `timeline-gui/` — there are no dependencies.
 - **Editing:** drag clips to move, drag the right edge to resize, inspector
   for name/offset/duration/easing/target values, duplicate/delete, add
   tween / nested timeline / label at the playhead.
-- **Two-way binding seed**: export runnable tween.js code (`Copy JS`) or the
-  model as JSON (`Copy JSON`), and re-import edited JSON (`Load JSON`).
-  Models persist to `localStorage`.
+- **Code ↔ timeline (two-way binding, cf. timeline-css)**: the code box is
+  editable — Apply (Ctrl/Cmd+Enter) parses it back into tracks, while
+  track edits rewrite the code. Only the generated statement shapes (one
+  per line; trailing `// name` comments label tracks) are accepted;
+  invalid code stops playback and shows the error. The code (not a model
+  dump) is what persists to `localStorage`.
 - **Live stage**: a preview box driven by the same timeline being edited.
 
 ## Layout
 
 - `index.html` — page shell, import map (`@tweenjs/tween.js` → `../dist`).
-- `src/model.js` — pure model (no DOM): clips, labels, time↔px, JSON/codegen.
+- `src/model.js` — pure: clips, labels, time↔px, CRUD, codegen + code parser.
 - `src/app.js` — DOM wiring: transport, tracks, inspector, persistence.
 - `src/styles.css` — dark track-editor theme.
 - `test/smoke.mjs` — model tests: `node test/smoke.mjs`.
