@@ -45,7 +45,7 @@ new Tween(progress)
   `Interpolation.Bezier` for the same control values (14 digits),
   `CatmullRomCurve(points, false, 'catmullrom', 0.5)` hits the same knots
   as `Interpolation.CatmullRom`, and a `CurvePath` of `LineCurve`s equals
-  `Interpolation.Linear` for evenly spaced values. All 1134 unit assertions pass; `npm run build` is clean.
+  `Interpolation.Linear` for evenly spaced values. All 1156 unit assertions pass; `npm run build` is clean.
 
 Deferred (not in this change):
 
@@ -61,4 +61,4 @@ the object's final value, not the value at assert time. Snapshot scalars
 (`position.x`) or compare before further updates when asserting animated
 state.
 
-✅ Implemented (on `feat/curve-path`, local only — not pushed)
+✅ Implemented — PR [#725](https://github.com/tweenjs/tween.js/pull/725) open (`feat/curve-path` → `main`)
