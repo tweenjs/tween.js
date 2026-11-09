@@ -38,6 +38,8 @@ new Tween(progress)
   with a 0 → 1 tween that restarts in `onComplete` (no deprecated
   `repeat`/`yoyo` in new sample code). Layout follows `06`: relative
   `#info`, zeroed body margin, 13px padded `#target`.
+- `examples/24_lume_curve.html` samples a closed 3D curve into a Lume line
+  and animates a sphere with `getPointAt`, using a pinned CDN import map.
 - Tests: five `Curve` cases in `src/tests.ts` (endpoints, control-point
   interpolation, path chaining by length, the 0 → 1 demo pattern, 3D
   sampling), plus three `Interpolation`-equivalence cases locking the
