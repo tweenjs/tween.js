@@ -263,6 +263,17 @@ More languages: [English](./README.md), [简体中文](./README_zh-CN.md)
 			(<a href="examples/23_curve_path.html">source</a>)
 		</td>
 	</tr>
+	<tr>
+		<td>
+			<a href="http://tweenjs.github.io/tween.js/examples/24_lume_curve.html">
+				<img width="100" height="50" src="https://tweenjs.github.io/tween.js/assets/examples/24_lume_curve.png" alt="Lume 3D curve" />
+			</a>
+		</td>
+		<td>
+			Lume 3D curve<br />
+			(<a href="examples/24_lume_curve.html">source</a>)
+		</td>
+	</tr>
 </table>
 
 # Installation

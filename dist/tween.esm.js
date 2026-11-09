@@ -1905,7 +1905,17 @@ var QuadraticBezierCurve = /** @class */ (function (_super) {
     };
     return QuadraticBezierCurve;
 }(Curve));
-/** Cubic Bézier curve from `v0` to `v3`, shaped by control points `v1` and `v2`. */
+/**
+ * Cubic Bézier curve from `v0` to `v3`, shaped by control points `v1` and `v2`:
+ *
+ *     v1 (control)       v2 (control)
+ *     /                       \
+ *    /       ~~~~~~~~~         \
+ *   v0 ~~~~~~         ~~~~~~~~ v3
+ *
+ * The control points set the endpoint directions; the curve generally does
+ * not pass through them.
+ */
 var CubicBezierCurve = /** @class */ (function (_super) {
     __extends(CubicBezierCurve, _super);
     function CubicBezierCurve(v0, v1, v2, v3) {
