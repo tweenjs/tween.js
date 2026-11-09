@@ -149,8 +149,11 @@ export abstract class Curve<T extends Point = Point> {
 	}
 
 	/**
-	 * Map an arc-length factor `u` in `[0, 1]` to the `t` that samples the
-	 * same distance. Used by `getPointAt()`/`getTangentAt()`.
+	 * Map a fraction `u` of the curve's length to its parameter `t`. Equal
+	 * changes in `t` need not cover equal distances, so `getPointAt()` and
+	 * `getTangentAt()` use this mapping for approximately uniform travel.
+	 * The mapping interpolates between cached length samples; `distance`, if
+	 * provided, takes precedence over `u` and specifies an absolute distance.
 	 */
 	getUtoTmapping(u: number, distance: number | null = null): number {
 		const arcLengths = this.getLengths()
@@ -273,7 +276,17 @@ function cubicBezier(p0: number, p1: number, p2: number, p3: number, t: number):
 	return a + b + c + d
 }
 
-/** Quadratic Bézier curve through three control points. */
+/**
+ * Quadratic Bézier curve from `v0` to `v2`, pulled toward `v1`:
+ *
+ *        v1 (control)
+ *       /  \
+ *      /    \
+ *     v0 ~~~ v2
+ *
+ * The two endpoints and one control point define the quadratic polynomial.
+ * The curve generally does not pass through `v1`.
+ */
 export class QuadraticBezierCurve<T extends Point = Point> extends Curve<T> {
 	override type = 'QuadraticBezierCurve'
 
@@ -306,7 +319,7 @@ export class QuadraticBezierCurve<T extends Point = Point> extends Curve<T> {
 	}
 }
 
-/** Cubic Bézier curve through four control points. */
+/** Cubic Bézier curve from `v0` to `v3`, shaped by control points `v1` and `v2`. */
 export class CubicBezierCurve<T extends Point = Point> extends Curve<T> {
 	override type = 'CubicBezierCurve'
 

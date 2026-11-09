@@ -1754,8 +1754,11 @@ define(['exports'], (function (exports) { 'use strict';
             this.getLengths();
         };
         /**
-         * Map an arc-length factor `u` in `[0, 1]` to the `t` that samples the
-         * same distance. Used by `getPointAt()`/`getTangentAt()`.
+         * Map a fraction `u` of the curve's length to its parameter `t`. Equal
+         * changes in `t` need not cover equal distances, so `getPointAt()` and
+         * `getTangentAt()` use this mapping for approximately uniform travel.
+         * The mapping interpolates between cached length samples; `distance`, if
+         * provided, takes precedence over `u` and specifies an absolute distance.
          */
         Curve.prototype.getUtoTmapping = function (u, distance) {
             if (distance === void 0) { distance = null; }
@@ -1863,7 +1866,17 @@ define(['exports'], (function (exports) { 'use strict';
         var d = t * t * t * p3;
         return a + b + c + d;
     }
-    /** Quadratic Bézier curve through three control points. */
+    /**
+     * Quadratic Bézier curve from `v0` to `v2`, pulled toward `v1`:
+     *
+     *        v1 (control)
+     *       /  \
+     *      /    \
+     *     v0 ~~~ v2
+     *
+     * The two endpoints and one control point define the quadratic polynomial.
+     * The curve generally does not pass through `v1`.
+     */
     var QuadraticBezierCurve = /** @class */ (function (_super) {
         __extends(QuadraticBezierCurve, _super);
         function QuadraticBezierCurve(v0, v1, v2) {
@@ -1894,7 +1907,7 @@ define(['exports'], (function (exports) { 'use strict';
         };
         return QuadraticBezierCurve;
     }(Curve));
-    /** Cubic Bézier curve through four control points. */
+    /** Cubic Bézier curve from `v0` to `v3`, shaped by control points `v1` and `v2`. */
     var CubicBezierCurve = /** @class */ (function (_super) {
         __extends(CubicBezierCurve, _super);
         function CubicBezierCurve(v0, v1, v2, v3) {
