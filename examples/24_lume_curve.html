@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>Tween.js / a path in space</title>
+		<style>
+			* {
+				box-sizing: border-box;
+			}
+			body {
+				margin: 0;
+				min-height: 100vh;
+				color: #493d67;
+				font-family: system-ui, sans-serif;
+				background: radial-gradient(ellipse at 50% 30%, #fff8f9, #eee6fa 52%, #d7e8f4);
+			}
+			main {
+				height: 100vh;
+				min-height: 540px;
+				display: grid;
+				grid-template-rows: auto minmax(320px, 1fr) auto;
+				text-align: center;
+				overflow: hidden;
+			}
+			header {
+				padding: 2rem 1rem 0;
+			}
+			.eyebrow {
+				color: #8a71a1;
+				font-size: 0.72rem;
+				font-weight: 700;
+				letter-spacing: 0.22em;
+				text-transform: uppercase;
+			}
+			h1 {
+				margin: 0.35rem 0;
+				font-family: Georgia, serif;
+				font-size: clamp(2.2rem, 5vw, 4rem);
+				font-weight: 400;
+			}
+			p {
+				margin: 0;
+				line-height: 1.5;
+			}
+			.stage {
+				position: relative;
+				min-height: 0;
+			}
+			lume-scene {
+				display: block;
+				position: absolute;
+				inset: 0;
+				width: 100%;
+				height: 100%;
+				touch-action: none;
+			}
+			footer {
+				padding: 0 1rem 1.5rem;
+				color: #76698a;
+				font-size: 0.85rem;
+			}
+			a {
+				color: inherit;
+			}
+		</style>
+		<!-- Lume's pinned CDN import map: https://docs.lume.io/guide/install/ -->
+		<script type="importmap">
+			{
+				"imports": {
+					"@tweenjs/tween.js": "../dist/tween.esm.js",
+					"lume": "https://ga.jspm.io/npm:lume@0.3.0-alpha.31/dist/index.js"
+				},
+				"scopes": {
+					"https://ga.jspm.io/": {
+						"@lume/autolayout": "https://ga.jspm.io/npm:@lume/autolayout@0.10.1/dist/AutoLayout.js",
+						"@lume/custom-attributes/dist/index.js": "https://ga.jspm.io/npm:@lume/custom-attributes@0.2.3/dist/index.js",
+						"@lume/element": "https://ga.jspm.io/npm:@lume/element@0.11.4/dist/index.js",
+						"@lume/eventful": "https://ga.jspm.io/npm:@lume/eventful@0.3.2/dist/index.js",
+						"@lume/kiwi": "https://ga.jspm.io/npm:@lume/kiwi@0.4.1/dist/kiwi.js",
+						"@lume/three-projected-material/dist/ProjectedMaterial.js": "https://ga.jspm.io/npm:@lume/three-projected-material@0.3.1/dist/ProjectedMaterial.js",
+						"classy-solid": "https://ga.jspm.io/npm:classy-solid@0.3.1/dist/index.js",
+						"element-behaviors": "https://ga.jspm.io/npm:element-behaviors@5.0.3/dist/index.js",
+						"james-bond": "https://ga.jspm.io/npm:james-bond@0.7.2/dist/index.js",
+						"lowclass": "https://ga.jspm.io/npm:lowclass@7.0.1/dist/index.js",
+						"regexr": "https://ga.jspm.io/npm:regexr@2.0.4/dist/index.js",
+						"solid-js": "https://ga.jspm.io/npm:solid-js@1.8.5/dist/solid.js",
+						"solid-js/html": "https://ga.jspm.io/npm:solid-js@1.8.5/html/dist/html.js",
+						"solid-js/store": "https://ga.jspm.io/npm:solid-js@1.8.5/store/dist/store.js",
+						"solid-js/web": "https://ga.jspm.io/npm:solid-js@1.8.5/web/dist/web.js",
+						"three": "https://ga.jspm.io/npm:three@0.158.0/build/three.module.js",
+						"three/": "https://ga.jspm.io/npm:three@0.158.0/"
+					}
+				}
+			}
+		</script>
+	</head>
+	<body>
+		<main>
+			<header>
+				<p class="eyebrow">Tween.js × Lume</p>
+				<h1>A path in space</h1>
+				<p>A little orbit, drawn with a 3D curve.</p>
+			</header>
+			<div class="stage">
+				<lume-scene webgl perspective="800">
+					<lume-camera-rig id="camera" align-point="0.5 0.5" distance="900"></lume-camera-rig>
+					<lume-ambient-light intensity="0.7"></lume-ambient-light>
+					<lume-point-light
+						align-point="0.5 0.5"
+						position="200 -250 350"
+						intensity="1000"
+						color="#ffe7f3"
+					></lume-point-light>
+					<lume-point-light
+						align-point="0.5 0.5"
+						position="-250 100 200"
+						intensity="700"
+						color="#d5e5ff"
+					></lume-point-light>
+					<lume-line id="path" align-point="0.5 0.5" color="#b087d0"></lume-line>
+					<lume-sphere
+						id="orb"
+						align-point="0.5 0.5"
+						mount-point="0.5 0.5 0.5"
+						size="38 38 38"
+						color="#f4a8c3"
+					></lume-sphere>
+				</lume-scene>
+			</div>
+			<footer>
+				Drag to explore · Scroll to zoom<br /><a href="https://github.com/tweenjs/tween.js">Tween.js</a> +
+				<a href="https://lume.io">Lume</a>
+			</footer>
+		</main>
+		<script type="module">
+			import 'lume'
+			import {CatmullRomCurve, Tween} from '@tweenjs/tween.js'
+
+			const curve = new CatmullRomCurve(
+				[
+					{x: -230, y: 20, z: 0},
+					{x: -140, y: -120, z: 120},
+					{x: 40, y: -100, z: 190},
+					{x: 220, y: -25, z: 40},
+					{x: 155, y: 110, z: -130},
+					{x: -40, y: 135, z: -190},
+					{x: -190, y: 90, z: -100},
+				],
+				true,
+			)
+
+			const path = document.querySelector('#path')
+			const orb = document.querySelector('#orb')
+			path.points = curve.getPoints(240).flatMap(({x, y, z}) => [x, y, z])
+			const scene = document.querySelector('lume-scene')
+			const camera = document.querySelector('#camera')
+			new ResizeObserver(() => {
+				if (scene.clientWidth) camera.distance = 900 * Math.max(1, 540 / scene.clientWidth)
+			}).observe(scene)
+
+			const progress = {t: 0}
+			const position = {x: 0, y: 0, z: 0}
+			function placeOrb() {
+				curve.getPointAt(progress.t, position)
+				orb.position = [position.x, position.y, position.z]
+			}
+			placeOrb()
+
+			if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+				const tween = new Tween(progress).to({t: 1}, 9000).onUpdate(placeOrb).start()
+				function animate(time) {
+					if (!tween.update(time)) tween.start(time)
+					requestAnimationFrame(animate)
+				}
+				requestAnimationFrame(animate)
+			}
+		</script>
+	</body>
+</html>

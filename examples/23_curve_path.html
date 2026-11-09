@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<title>Tween.js / curve path</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+		<style>
+			body {
+				margin: 0px;
+			}
+
+			#target {
+				font-size: 13px;
+				padding: 0px 32px;
+			}
+		</style>
+		<link href="css/style.css" media="screen" rel="stylesheet" type="text/css" />
+		<script type="importmap">
+			{
+				"imports": {
+					"@tweenjs/tween.js": "../dist/tween.esm.js"
+				}
+			}
+		</script>
+	</head>
+	<body>
+		<div id="info" style="position: relative">
+			<h1><a href="http://github.com/tweenjs/tween.js">tween.js</a></h1>
+			<h2>23 _ curve path</h2>
+			<p>
+				A <code>Tween</code> animates <code>t</code> from 0 to 1, and the curve maps <code>t</code> to a position. Same
+				pattern replaces array <code>to()</code> values (see <code>06_array_interpolation</code>).
+			</p>
+		</div>
+		<div id="target"></div>
+
+		<script type="module">
+			import {Tween, Group, Easing, CatmullRomCurve, CubicBezierCurve, LineCurve, CurvePath} from '@tweenjs/tween.js'
+			import {toPhysicalPx} from './js/toPhysicalPx.js'
+
+			const group = new Group()
+			const target = document.getElementById('target')
+			if (!target) throw 'missing element'
+
+			target.appendChild(
+				makeDemo(
+					'CatmullRomCurve',
+					new CatmullRomCurve([
+						{x: 20, y: 80},
+						{x: 90, y: 20},
+						{x: 160, y: 140},
+						{x: 220, y: 80},
+					]),
+				),
+			)
+			target.appendChild(
+				makeDemo(
+					'CurvePath (line + cubic)',
+					new CurvePath([
+						new LineCurve({x: 20, y: 130}, {x: 90, y: 130}),
+						new CubicBezierCurve({x: 90, y: 130}, {x: 130, y: 130}, {x: 130, y: 30}, {x: 220, y: 30}),
+					]),
+				),
+			)
+
+			animate()
+
+			function makeDemo(text, curve, width = 240, height = 160) {
+				const div = document.createElement('div')
+				div.style.display = 'inline-block'
+				div.style.width = width + 20 + 'px'
+
+				const canvas = document.createElement('canvas')
+				canvas.style.width = width + 'px'
+				canvas.style.height = height + 'px'
+				canvas.width = toPhysicalPx(width)
+				canvas.height = toPhysicalPx(height)
+
+				const context = canvas.getContext('2d')
+				if (!context) throw 'doh'
+
+				// Static path shape, sampled once.
+				const drawPath = () => {
+					context.fillStyle = 'rgb(250,250,250)'
+					context.fillRect(0, 0, toPhysicalPx(width), toPhysicalPx(height))
+					context.lineWidth = toPhysicalPx(2)
+					context.strokeStyle = 'rgba(127,127,255,0.9)'
+					context.beginPath()
+					for (const [i, p] of curve.getPoints(100).entries()) {
+						if (i === 0) context.moveTo(toPhysicalPx(p.x), toPhysicalPx(p.y))
+						else context.lineTo(toPhysicalPx(p.x), toPhysicalPx(p.y))
+					}
+					context.stroke()
+				}
+				drawPath()
+
+				// Moving dot, driven by a 0 -> 1 tween.
+				const start = curve.getPoint(0)
+				const position = {x: start.x, y: start.y}
+				const progress = {t: 0}
+
+				const drawDot = () => {
+					drawPath()
+					context.fillStyle = 'rgb(255,127,127)'
+					context.beginPath()
+					context.arc(toPhysicalPx(position.x), toPhysicalPx(position.y), toPhysicalPx(5), 0, Math.PI * 2)
+					context.fill()
+				}
+
+				const tween = new Tween(progress, group)
+					.to({t: 1}, 3000)
+					.easing(Easing.Linear.None)
+					.onUpdate(() => {
+						curve.getPoint(progress.t, position)
+						drawDot()
+					})
+					.onComplete(() => tween.start())
+				tween.start()
+
+				div.appendChild(document.createTextNode(text))
+				div.appendChild(document.createElement('br'))
+				div.appendChild(canvas)
+
+				return div
+			}
+
+			function animate(time) {
+				requestAnimationFrame(animate)
+				group.update(time)
+			}
+		</script>
+	</body>
+</html>
