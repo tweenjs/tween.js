@@ -517,14 +517,13 @@ APIs:
   source-clock delta, and can itself be animated with a `Tween`
 - `scaler.start(rawTime?)` — anchor both clocks to the same source time
   (defaults to `now()`). Pass the same time to `tween.start()` so even the
-  interval before the first animation frame is scaled.
+  interval before the first animation frame is scaled. Call it again to
+  re-anchor when restarting from scratch.
 - `scaler.update(rawTime?)` — map a source reading (defaults to `now()`)
   to scaled time; pass the result to `tween.update()`, `group.update()`,
   or `timeline.update()`. Without `start()`, the first call anchors both
   clocks and returns its input.
 - `scaler.getTime()` — last scaled time returned or anchored by `start()`
-- `scaler.reset()` — forget the anchor so the next `update()` re-anchors
-  (useful when restarting from scratch)
 
 Negative scales run the scaled clock backwards. A constant scale of `1`
 is the identity. After changing the scale back to `1`, the scaled clock

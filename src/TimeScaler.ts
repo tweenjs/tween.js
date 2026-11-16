@@ -92,16 +92,6 @@ export class TimeScaler {
 	}
 
 	/**
-	 * Forgets the last source time, so the next `update()` re-anchors to
-	 * its input instead of advancing from the previous one. Restarting a
-	 * tween from scratch after a seek is the typical use.
-	 */
-	reset(): this {
-		this._lastRawTime = undefined
-		return this
-	}
-
-	/**
 	 * Maps a source-clock reading to the scaled clock. Call once per frame
 	 * with the same value you would otherwise pass to `Tween.update()`,
 	 * `Group.update()`, or `Timeline.update()`, and pass the result on.

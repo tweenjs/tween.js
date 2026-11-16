@@ -3666,8 +3666,8 @@ export const tests = {
 
 		scaler.start(3000)
 		test.equal(scaler.update(3200), 3100)
-		scaler.reset()
-		test.equal(scaler.update(5000), 5000)
+		scaler.start(5000)
+		test.equal(scaler.update(5200), 5100)
 
 		test.done()
 	},
@@ -3783,7 +3783,7 @@ export const tests = {
 		test.done()
 	},
 
-	'TimeScaler reset re-anchors the clock for replay'(test: Test): void {
+	'TimeScaler start re-anchors the clock for replay'(test: Test): void {
 		const scaler = new TWEEN.TimeScaler(2)
 
 		const obj = {x: 0}
@@ -3793,11 +3793,13 @@ export const tests = {
 		t.update(scaler.update(5250))
 		test.equal(obj.x, 50)
 
-		scaler.reset()
+		const restartTime = 9000
+		scaler.start(restartTime)
 		obj.x = 0
 		const t2 = new TWEEN.Tween(obj).to({x: 100}, 1000)
-		t2.start(scaler.update(9000))
+		t2.start(restartTime)
 		test.equal(scaler.getTime(), 9000)
+		test.equal(scaler.scale, 2)
 		t2.update(scaler.update(9250))
 		test.equal(obj.x, 50)
 

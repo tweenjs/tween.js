@@ -29,12 +29,12 @@ scaler.scale = 2 // fast-forward
   `(raw - lastRaw) * scale`: `0` freezes, `0..1` slows, `>1` speeds up,
   negative runs the scaled clock backwards. `start(raw)` anchors both clocks
   immediately; use the same raw time to start a tween so the first frame's
-  elapsed time is scaled. Without `start()`, the first `update(raw)` anchors
-  both clocks and returns its input.
+  elapsed time is scaled. Call `start(raw)` again to re-anchor for replay.
+  Without `start()`, the first `update(raw)` anchors both clocks and returns
+  its input.
 - Minimal API: `new TimeScaler(scale?)`, `scale` (a tweenable property),
   `start(rawTime?)`, `update(rawTime?)` (both default to `now()`),
-  `getTime()` (last scaled time or start time), `reset()`
-  (forget the anchor so the next `update()` re-anchors for replay).
+  `getTime()` (last scaled time or start time).
   `scale` applies to the next delta; raw time kept flowing while
   frozen, so resume never jumps.
 - Demo: `examples/25_timescaler.html` drives one box with a tween that loops
@@ -46,7 +46,7 @@ scaler.scale = 2 // fast-forward
   can animate the scale from `0` to `1`. The scaler is updated before that
   tween each frame so the sampled scale applies to the next interval.
 - Tests cover delayed first frames, explicit and default anchoring, identity,
-  2x, half speed, freeze/resume, mid-flight and tweened scale changes, reset,
+  2x, half speed, freeze/resume, mid-flight and tweened scale changes, replay,
   negative scale, `Group` + `Timeline` driving, and looping.
 
 Deferred (not in this change):
