@@ -29,7 +29,7 @@
 
 	const coords = {x: 0, y: 0} // 从 (0, 0) 开始
 
-	const tween = new Tween(coords, false) // 创建一个修改"坐标"的新 tween。
+	const tween = new Tween(coords) // 创建一个修改"坐标"的新 tween。
 		.to({x: 300, y: 200}, 1000) // 在 1 秒内移动到 (300, 200)。
 		.easing(Easing.Quadratic.InOut) // 使用缓动函数使动画流畅。
 		.onUpdate(() => {
@@ -323,12 +323,12 @@ npm install @tweenjs/tween.js
 如果你使用 [Node.js](https://nodejs.org/)、[Parcel](https://parceljs.org/)、[Webpack](https://webpack.js.org/)、[Rollup](https://rollupjs.org/)、[Vite](https://vitejs.dev/) 或其他构建工具，那么你可以使用 `npm install @tweenjs/tween.js` 安装，然后将库 `import` 到你的 JavaScript（或 TypeScript）文件中，构建工具会知道如何从 `node_modules` 找到源代码，而无需创建 `importmap` 脚本：
 
 ```javascript
-import {Tween, Group} from '@tweenjs/tween.js'
+import {Tween} from '@tweenjs/tween.js'
 ```
 
 但是请注意，这种方法需要始终运行构建工具才能使你的应用程序工作，而 `importmap` 方法无需任何构建工具即可作为简单的静态 HTML 站点工作。
 
-要管理多个补间，请使用 `new Group()` 创建一个组。请参阅[控制补间组](docs/user_guide_zh-CN.md#控制补间组)。
+使用 `tween.update()` 直接更新单个补间。需要一起管理多个补间时，再使用 `new Group()` 创建一个组。请参阅[控制补间组](docs/user_guide_zh-CN.md#控制补间组)。
 
 ## 手动构建
 

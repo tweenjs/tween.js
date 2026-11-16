@@ -29,7 +29,7 @@ More languages: [English](./README.md), [简体中文](./README_zh-CN.md)
 
 	const coords = {x: 0, y: 0} // Start at (0, 0)
 
-	const tween = new Tween(coords, false) // Create a new tween that modifies 'coords'.
+	const tween = new Tween(coords) // Create a new tween that modifies 'coords'.
 		.to({x: 300, y: 200}, 1000) // Move to (300, 200) in 1 second.
 		.easing(Easing.Quadratic.InOut) // Use an easing function to make the animation smooth.
 		.onUpdate(() => {
@@ -355,14 +355,15 @@ TypeScript) file, and the build tool will know how to find the source code from
 `node_modules` without needing to create an `importmap` script:
 
 ```javascript
-import {Tween, Group} from '@tweenjs/tween.js'
+import {Tween} from '@tweenjs/tween.js'
 ```
 
 However, note that this approach requires always running a build tool for your
 app to work, while the `importmap` approach will simply work without any build
 tools as a simple static HTML site.
 
-To manage multiple tweens, create a group with `new Group()`. See
+Update a single tween directly with `tween.update()`. When you need to manage
+multiple tweens together, create a group with `new Group()`. See
 [Controlling groups of tweens](docs/user_guide.md#controlling-groups-of-tweens).
 
 ## Manual build
