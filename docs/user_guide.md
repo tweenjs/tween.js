@@ -483,6 +483,59 @@ Check [Timeline](../examples/20_timeline.html),
 [Timeline slider](../examples/21_timeline_slider.html), and
 [Timeline repeat](../examples/22_timeline_repeat.html) for working examples.
 
+## TimeScaler (slow motion, fast-forward, freeze)
+
+`Tween` has no time-scaling logic of its own (see #655): it just maps the
+time values you pass to `update()` into progress. To play animations in
+slow motion, fast-forward, or frozen, map your source clock through a
+`TimeScaler` first and pass the scaled time on. This works with `Tween`,
+`Group`, and `Timeline` — anything that takes a time value:
+
+```js
+import {TimeScaler, Tween} from '@tweenjs/tween.js'
+
+const scaler = new TimeScaler(1)
+const startTime = performance.now()
+scaler.start(startTime)
+tween.start(startTime)
+
+function animate(time) {
+	requestAnimationFrame(animate)
+	tween.update(scaler.update(time))
+}
+
+// Dynamic scale, no Tween changes needed:
+scaler.scale = 0.5 // slow motion
+scaler.scale = 0 // freeze (resume never jumps)
+scaler.scale = 2 // fast-forward
+```
+
+APIs:
+
+- `new TimeScaler(scale?)` — initial scale, defaults to `1` (unscaled)
+- `scaler.scale` — change or read the scale live; it applies to the next
+  source-clock delta, and can itself be animated with a `Tween`
+- `scaler.start(rawTime?)` — anchor both clocks to the same source time
+  (defaults to `now()`). Pass the same time to `tween.start()` so even the
+  interval before the first animation frame is scaled. Call it again to
+  re-anchor when restarting from scratch.
+- `scaler.update(rawTime?)` — map a source reading (defaults to `now()`)
+  to scaled time; pass the result to `tween.update()`, `group.update()`,
+  or `timeline.update()`. Without `start()`, the first call anchors both
+  clocks and returns its input.
+- `scaler.getTime()` — last scaled time returned or anchored by `start()`
+
+Negative scales run the scaled clock backwards. A constant scale of `1`
+is the identity. After changing the scale back to `1`, the scaled clock
+retains its accumulated offset.
+
+When animating `scaler.scale` with a separate tween on the raw clock, update
+the scaler first, then update the scale tween. Each sampled scale then
+applies to the following source-clock interval.
+
+Check [TimeScaler](../examples/25_timescaler.html) for a working example
+with a live scale slider and an animated scale.
+
 ## Changing the easing function (AKA make it bouncy)
 
 Tween.js will perform the interpolation between values (i.e. the easing) in a linear manner, so the change will be directly proportional to the elapsed time. This is predictable but also quite uninteresting visually wise. Worry not--this behaviour can be easily changed using the `easing` method. For example:

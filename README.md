@@ -273,6 +273,15 @@ More languages: [English](./README.md), [简体中文](./README_zh-CN.md)
 			Lume 3D curve<br />
 			(<a href="examples/24_lume_curve.html">source</a>)
 		</td>
+		<td>
+			<a href="http://tweenjs.github.io/tween.js/examples/25_timescaler.html">
+				<img width="100" height="50" src="assets/examples/25_timescaler.png" alt="TimeScaler" />
+			</a>
+		</td>
+		<td>
+			TimeScaler<br />
+			(<a href="examples/25_timescaler.html">source</a>)
+		</td>
 	</tr>
 </table>
 

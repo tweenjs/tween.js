@@ -40,3 +40,7 @@ library. User-facing docs live in `examples/` and `README.md`.
   progress sampled via `getPoint(t, target)`. Standing rules: outputs never
   gain a `z` key (2D stays 2D), and nodeunit assertion messages are lazy —
   snapshot animated values before asserting. ✅
+- **08 — TimeScaler decoupled clock (#722)** [`dev-docs/08-timescaler.md`](dev-docs/08-timescaler.md)
+  Scales a monotonic source clock into tween times (`scale`, `start`, `update`)
+  so `Tween`/`Group`/`Timeline` stay scale-free per #655. Constant
+  scale 1 is the identity; 0 freezes, negatives run backwards. ✅

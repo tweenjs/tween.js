@@ -14,6 +14,7 @@ import now, {setNow} from './Now'
 import Sequence from './Sequence'
 import Tween from './Tween'
 import Timeline from './Timeline'
+import TimeScaler from './TimeScaler'
 import Curve, {CatmullRomCurve, CubicBezierCurve, CurvePath, LineCurve, Path, QuadraticBezierCurve} from './Curve'
 import VERSION from './Version'
 import {mainGroup} from './mainGroup'
@@ -289,6 +290,7 @@ export {
 	nextId,
 	Tween,
 	Timeline,
+	TimeScaler,
 	Curve,
 	LineCurve,
 	QuadraticBezierCurve,
@@ -314,6 +316,7 @@ const exports = {
 	nextId,
 	Tween,
 	Timeline,
+	TimeScaler,
 	Curve,
 	LineCurve,
 	QuadraticBezierCurve,

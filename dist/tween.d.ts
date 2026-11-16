@@ -536,6 +536,92 @@ declare class Sequence {
 }
 
 /**
+ * @file Tween.js - Licensed under the MIT license
+ * https://github.com/tweenjs/tween.js
+ * ----------------------------------------------
+ *
+ * TimeScaler: a decoupled clock that scales time.
+ *
+ * Tween stays a scalar progress animator with no time-scaling logic of its
+ * own (see #655). To run tweens in slow motion, fast-forward, or frozen,
+ * feed them scaled times instead of raw times:
+ *
+ * ```ts
+ * const scaler = new TimeScaler(1)
+ * const tween = new Tween(obj).to({x: 100}, 1000)
+ * const startTime = performance.now()
+ * scaler.start(startTime)
+ * tween.start(startTime)
+ *
+ * function animate(time) {
+ * 	requestAnimationFrame(animate)
+ * 	tween.update(scaler.update(time))
+ * }
+ *
+ * // Later: slow motion, freeze, resume — no Tween changes needed.
+ * scaler.scale = 0.5
+ * scaler.scale = 0
+ * scaler.scale = 2
+ * ```
+ *
+ * Works with `Tween`, `Group`, and `Timeline`: anything that takes a time
+ * value can take `scaler.update(rawTime)`.
+ */
+/**
+ * Scales a monotonic source clock (for example `requestAnimationFrame`
+ * timestamps) into a scaled clock for driving tweens.
+ *
+ * With a constant scale of `1` this is the identity (`update(t) === t`),
+ * so wrapping an existing loop is a drop-in change. Other scales advance
+ * the scaled clock by `(raw - lastRaw) * scale` per update: `0` freezes it, values between
+ * `0` and `1` slow it down, values above `1` speed it up, and negative
+ * values run it backwards.
+ */
+declare class TimeScaler {
+    private _scale;
+    private _lastRawTime;
+    private _scaledTime;
+    /**
+     * Creates a scaler with the given initial scale. Defaults to `1`
+     * (unscaled).
+     *
+     * @param scale - Initial scale factor. Defaults to `1`.
+     */
+    constructor(scale?: number);
+    /**
+     * Sets the scale factor applied to source-clock deltas from now on.
+     * Past output is not rewritten; the next `update()` advances from the
+     * last scaled time using the new scale.
+     */
+    set scale(scale: number);
+    /** Returns the current scale factor. */
+    get scale(): number;
+    /**
+     * Re-anchors both clocks to a source time, so elapsed time is scaled from
+     * this point even when the first update happens in a later frame. Pass the
+     * same time to the tween's `start()` to keep their clocks aligned.
+     */
+    start(rawTime?: number): this;
+    /**
+     * Returns the last scaled time (the value the previous `update()`
+     * returned, or the time passed to `start()`, or `0` before either call).
+     */
+    getTime(): number;
+    /**
+     * Maps a source-clock reading to the scaled clock. Call once per frame
+     * with the same value you would otherwise pass to `Tween.update()`,
+     * `Group.update()`, or `Timeline.update()`, and pass the result on.
+     *
+     * Without `start()`, the first call anchors both clocks and returns its
+     * input unchanged. Otherwise, calls add `(rawTime - lastRawTime) * scale`.
+     *
+     * @param rawTime - Source time in milliseconds (usually from
+     * `performance.now()` or your own clock). Defaults to `now()`.
+     */
+    update(rawTime?: number): number;
+}
+
+/**
  * Curve/Path primitives for tween.js, adapted from Three.js (MIT License).
  * https://github.com/mrdoob/three.js — src/extras/core/Curve.js and
  * src/extras/curves/* — Copyright (c) 2010-2026 three.js authors.
@@ -1021,6 +1107,7 @@ declare const exports: {
     nextId: typeof Sequence.nextId;
     Tween: typeof Tween;
     Timeline: typeof Timeline;
+    TimeScaler: typeof TimeScaler;
     Curve: typeof Curve;
     LineCurve: typeof LineCurve;
     QuadraticBezierCurve: typeof QuadraticBezierCurve;
@@ -1274,4 +1361,4 @@ declare const exports: {
     };
 };
 
-export { CatmullRomCurve, CubicBezierCurve, Curve, CurvePath, Easing, Group, Interpolation, LineCurve, Path, QuadraticBezierCurve, Sequence, Timeline, Tween, VERSION, add, exports as default, getAll, nextId, now, remove, removeAll, setNow, update };
+export { CatmullRomCurve, CubicBezierCurve, Curve, CurvePath, Easing, Group, Interpolation, LineCurve, Path, QuadraticBezierCurve, Sequence, TimeScaler, Timeline, Tween, VERSION, add, exports as default, getAll, nextId, now, remove, removeAll, setNow, update };
