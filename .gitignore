@@ -9,5 +9,6 @@ build/npm*
 node_modules
 npm-debug.log
 test-results/
+.browsers/
 .zcodeignore
 .claude

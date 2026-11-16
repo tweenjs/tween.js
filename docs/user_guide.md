@@ -524,7 +524,7 @@ APIs:
 Negative scales run the scaled clock backwards. With scale `1` the scaler
 is the identity, so wrapping an existing loop is a drop-in change.
 
-Check [TimeScaler](../examples/24_timescaler.html) for a working example
+Check [TimeScaler](../examples/25_timescaler.html) for a working example
 with a live scale slider.
 
 ## Changing the easing function (AKA make it bouncy)
