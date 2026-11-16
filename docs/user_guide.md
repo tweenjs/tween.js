@@ -93,7 +93,7 @@ You'll see this a lot in the examples, so it's good to be familiar with it! Chec
 
 ## Animating with tween.js
 
-Tween.js doesn't run by itself. You need to tell it when to run, by explicitly calling the `update` method of each tween, or the `update` method of a `Group` that has multiple tweens (more on Groups below). The recommended method is to do this inside your main animation loop, which should be called with `requestAnimationFrame` for getting the best graphics performance:
+Tween.js doesn't run by itself. For a single tween, call its `update` method directly. When you need to update multiple tweens together, use a `Group` and call its `update` method instead (more on Groups below). The recommended method is to do this inside your main animation loop, which should be called with `requestAnimationFrame` for getting the best graphics performance:
 
 We've seen this example before:
 

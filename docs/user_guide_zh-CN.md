@@ -93,7 +93,7 @@ const tween = new Tween(position).to({x: 200}, 1000).start()
 
 ## 使用 tween.js 进行动画
 
-Tween.js 不会自行运行。你需要通过显式调用每个补间的 `update` 方法或具有多个补间的 `Group` 的 `update` 方法来告诉它何时运行（下面会详细介绍 Groups）。推荐的方法是在你的主动画循环中执行此操作，该循环应使用 `requestAnimationFrame` 调用以获得最佳图形性能：
+Tween.js 不会自行运行。对于单个补间，直接调用它的 `update` 方法即可。需要一起更新多个补间时，使用 `Group` 并调用它的 `update` 方法（下面会详细介绍 Groups）。推荐的方法是在你的主动画循环中执行此操作，该循环应使用 `requestAnimationFrame` 调用以获得最佳图形性能：
 
 我们之前已经看过这个示例：
 

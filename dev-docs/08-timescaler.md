@@ -34,7 +34,7 @@ TimeScaler(scale?)`, `setScale()`/`getScale()`, `update(rawTime?)`
   (forget the anchor so the next `update()` re-anchors for replay).
   `setScale` applies from the next delta on; raw time kept flowing while
   frozen, so resume never jumps.
-- Demo: `examples/24_timescaler.html` drives one box with a tween that loops
+- Demo: `examples/25_timescaler.html` drives one box with a tween that loops
   forever via the `update() === false → start()` pattern from example 22
   (restarting inside `onComplete` cannot work: `start()` is a no-op while
   the tween is still flagged playing, and `update()` clears the flag right

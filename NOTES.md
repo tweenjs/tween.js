@@ -34,6 +34,12 @@ library. User-facing docs live in `examples/` and `README.md`.
   Renames array-add staggering to `stagger`, removes Timeline interpolation,
   renames `easing()` to `easingAll(recurse?)`, and moves guide deprecation
   callouts directly under each legacy Tween API heading. ✅
+- **07 — Curve/Path primitives (#721)** [`dev-docs/07-curve-path.md`](dev-docs/07-curve-path.md)
+  Dependency-free `Curve` base plus Line/Bezier/CatmullRom/`CurvePath`
+  (`Path` alias) over plain `{x, y[, z]}` points; Tween drives a 0 → 1
+  progress sampled via `getPoint(t, target)`. Standing rules: outputs never
+  gain a `z` key (2D stays 2D), and nodeunit assertion messages are lazy —
+  snapshot animated values before asserting. ✅
 - **08 — TimeScaler decoupled clock (#722)** [`dev-docs/08-timescaler.md`](dev-docs/08-timescaler.md)
   Scales a monotonic source clock into tween times (`setScale`, `update`,
   `reset`) so `Tween`/`Group`/`Timeline` stay scale-free per #655. Scale 1
