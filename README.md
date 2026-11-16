@@ -355,12 +355,15 @@ TypeScript) file, and the build tool will know how to find the source code from
 `node_modules` without needing to create an `importmap` script:
 
 ```javascript
-import * as TWEEN from '@tweenjs/tween.js'
+import {Tween, Group} from '@tweenjs/tween.js'
 ```
 
 However, note that this approach requires always running a build tool for your
 app to work, while the `importmap` approach will simply work without any build
 tools as a simple static HTML site.
+
+To manage multiple tweens, create a group with `new Group()`. See
+[Controlling groups of tweens](docs/user_guide.md#controlling-groups-of-tweens).
 
 ## Manual build
 
@@ -374,25 +377,15 @@ npm install
 npm run build
 ```
 
-This will create some builds in the `dist` directory. There are currently two different builds of the library:
+This will create a build in the `dist` directory:
 
-- ES6 Module in `/dist/tween.esm.js` (recommended)
-- UMD in `/dist/tween.umd.js` (deprecated, will be removed in a future major version)
+- ES6 Module in `/dist/tween.esm.js`
 
-You are now able to copy one of those two files into your project, and use like this (recommended):
+You are now able to copy this file into your project and use it like this:
 
 ```html
 <script type="module">
 	import {Tween} from 'path/to/tween.esm.js'
-</script>
-```
-
-or (deprecated, to be removed in future major):
-
-```html
-<script src="path/to/tween.umd.js"></script>
-<script>
-	const {Tween} = TWEEN
 </script>
 ```
 
@@ -401,40 +394,6 @@ where `path/to` is replaced with the location where you placed the file.
 > [!Note]
 > You can also download these files from unpkg, for example here:
 > https://unpkg.com/browse/@tweenjs/tween.js@23.1.3/dist/
-
-## Global variable from CDN (deprecated)
-
-> [!Note]
-> This method is deprecated and will be removed in a future major version!
-
-Install a global `TWEEN` variable from a content-delivery network (CDN) using the UMD file.
-
-From cdnjs:
-
-```html
-<script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/23.1.3/tween.umd.js"></script>
-```
-
-Or from unpkg.com:
-
-```html
-<script src="https://unpkg.com/@tweenjs/tween.js@^23.1.3/dist/tween.umd.js"></script>
-```
-
-Then use the `TWEEN` variable in any script:
-
-```html
-<script>
-	const {Tween, Easing, Group /*, ...*/} = TWEEN
-
-	const tween = new Tween(someObject)
-	// ...
-</script>
-```
-
-> [!Note]
-> unpkg.com supports a semver version in the URL, where the `^` in the
-> URL tells unpkg to give you the latest version 20.x.x.
 
 ## CommonJS (deprecated)
 
@@ -445,7 +404,7 @@ Skip this section if you don't know what CommonJS is!
 
 Any of the above methods work in older systems that still use CommonJS. Repeat
 any of the above methods but using `dist/tween.cjs` instead of
-`dist/tween.esm.js` or `dist/tween.umd.js`.
+`dist/tween.esm.js`.
 
 # Documentation
 
