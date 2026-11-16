@@ -593,13 +593,16 @@ declare abstract class Curve<T extends Point = Point> {
     needsUpdate: boolean;
     private cacheArcLengths;
     /**
-     * Position on the curve for interpolation factor `t` in `[0, 1]`.
+     * Position at parameter `t` in `[0, 1]`: 0 is the start and 1 is the end.
+     * Think of `t` as the horizontal axis of a graph of position versus
+     * parameter, not necessarily the point's x-coordinate. The curve's formula
+     * determines how all spatial coordinates change as `t` advances.
      * When `optionalTarget` is given it is mutated and returned.
      */
     abstract getPoint(t: number, optionalTarget?: T): T;
     /**
-     * Like `getPoint()`, but `u` is mapped to arc length, so samples are
-     * equidistant along the curve.
+     * Like `getPoint()`, but `u` is a fraction of the total distance along the
+     * curve. Equal steps in `u` give approximately equal distances along it.
      */
     getPointAt(u: number, optionalTarget?: T): T;
     /** Sample the curve via `getPoint()` into `divisions + 1` points. */
@@ -614,8 +617,14 @@ declare abstract class Curve<T extends Point = Point> {
     updateArcLengths(): void;
     /**
      * Map a fraction `u` of the curve's length to its parameter `t`. Equal
-     * changes in `t` need not cover equal distances, so `getPointAt()` and
-     * `getTangentAt()` use this mapping for approximately uniform travel.
+     * changes in `t` need not cover equal distances: where the position changes
+     * more rapidly with `t` (in any spatial direction), the distance fraction
+     * `u` increases more rapidly too. For example, a quadratic Bézier through
+     * endpoints (0, 0) and (100, 0), with control point (0, 0), has
+     * x = 100t² and y = 0. At t = 0.5 it is only 25% along its length, even
+     * though the curve is straight.
+     * `getPointAt()` and `getTangentAt()` use this mapping for approximately
+     * uniform travel.
      * The mapping interpolates between cached length samples; `distance`, if
      * provided, takes precedence over `u` and specifies an absolute distance.
      */
