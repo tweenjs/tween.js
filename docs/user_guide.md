@@ -495,7 +495,9 @@ slow motion, fast-forward, or frozen, map your source clock through a
 import {TimeScaler, Tween} from '@tweenjs/tween.js'
 
 const scaler = new TimeScaler(1)
-tween.start(scaler.update(performance.now()))
+const startTime = performance.now()
+scaler.start(startTime)
+tween.start(startTime)
 
 function animate(time) {
 	requestAnimationFrame(animate)
@@ -503,29 +505,37 @@ function animate(time) {
 }
 
 // Dynamic scale, no Tween changes needed:
-scaler.setScale(0.5) // slow motion
-scaler.setScale(0) // freeze (resume never jumps)
-scaler.setScale(2) // fast-forward
+scaler.scale = 0.5 // slow motion
+scaler.scale = 0 // freeze (resume never jumps)
+scaler.scale = 2 // fast-forward
 ```
 
 APIs:
 
 - `new TimeScaler(scale?)` — initial scale, defaults to `1` (unscaled)
-- `scaler.setScale(scale)` / `scaler.getScale()` — change or read the
-  scale live; applies from the next frame on
+- `scaler.scale` — change or read the scale live; it applies to the next
+  source-clock delta, and can itself be animated with a `Tween`
+- `scaler.start(rawTime?)` — anchor both clocks to the same source time
+  (defaults to `now()`). Pass the same time to `tween.start()` so even the
+  interval before the first animation frame is scaled.
 - `scaler.update(rawTime?)` — map a source reading (defaults to `now()`)
   to scaled time; pass the result to `tween.update()`, `group.update()`,
-  or `timeline.update()`. The first call returns its input, so starting
-  with `scaler.update(t0)` keeps the clocks aligned.
-- `scaler.getTime()` — last scaled time returned
+  or `timeline.update()`. Without `start()`, the first call anchors both
+  clocks and returns its input.
+- `scaler.getTime()` — last scaled time returned or anchored by `start()`
 - `scaler.reset()` — forget the anchor so the next `update()` re-anchors
   (useful when restarting from scratch)
 
-Negative scales run the scaled clock backwards. With scale `1` the scaler
-is the identity, so wrapping an existing loop is a drop-in change.
+Negative scales run the scaled clock backwards. A constant scale of `1`
+is the identity. After changing the scale back to `1`, the scaled clock
+retains its accumulated offset.
+
+When animating `scaler.scale` with a separate tween on the raw clock, update
+the scaler first, then update the scale tween. Each sampled scale then
+applies to the following source-clock interval.
 
 Check [TimeScaler](../examples/25_timescaler.html) for a working example
-with a live scale slider.
+with a live scale slider and an animated scale.
 
 ## Changing the easing function (AKA make it bouncy)
 

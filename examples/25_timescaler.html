@@ -21,6 +21,7 @@
 				<code>tween.timeScale</code> needed.
 			</p>
 			<p><input id="scale" type="range" min="0" max="2" step="0.1" value="1" /> <span id="scaleValue">1x</span></p>
+			<p><button id="ramp">Animate scale from 0 to 1</button></p>
 		</div>
 		<div style="position: absolute; top: 100px; left: 400px">
 			<div id="target" data-x="0" class="box">1x</div>
@@ -33,6 +34,7 @@
 			const slider = document.getElementById('scale')
 			const scaleValue = document.getElementById('scaleValue')
 			const scaler = new TimeScaler(1)
+			const scaleTween = new Tween(scaler).to({scale: 1}, 4000)
 
 			const tween = new Tween(target.dataset)
 				.to({x: 400}, 2000)
@@ -42,18 +44,26 @@
 				})
 
 			slider.addEventListener('input', function () {
+				scaler.update(performance.now())
+				scaleTween.stop()
 				const v = parseFloat(this.value)
-				scaler.setScale(v)
+				scaler.scale = v
 				scaleValue.textContent = v.toFixed(1) + 'x'
 				target.textContent = v.toFixed(1) + 'x'
 			})
 
-			init()
-			animate()
+			document.getElementById('ramp').addEventListener('click', function () {
+				const time = performance.now()
+				scaler.update(time)
+				scaleTween.stop()
+				scaler.scale = 0
+				scaleTween.start(time, true)
+			})
 
-			function init() {
-				tween.start(scaler.update(performance.now()))
-			}
+			const startTime = performance.now()
+			scaler.start(startTime)
+			tween.start(startTime)
+			requestAnimationFrame(animate)
 
 			function animate(time) {
 				requestAnimationFrame(animate)
@@ -63,6 +73,12 @@
 				if (tween.update(scaled) === false) {
 					target.dataset.x = 0
 					tween.start(scaled)
+				}
+				if (scaleTween.isPlaying()) {
+					scaleTween.update(time)
+					slider.value = scaler.scale
+					scaleValue.textContent = scaler.scale.toFixed(1) + 'x'
+					target.textContent = scaler.scale.toFixed(1) + 'x'
 				}
 			}
 

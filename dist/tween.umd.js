@@ -1631,7 +1631,9 @@
      * ```ts
      * const scaler = new TimeScaler(1)
      * const tween = new Tween(obj).to({x: 100}, 1000)
-     * tween.start(scaler.update(performance.now()))
+     * const startTime = performance.now()
+     * scaler.start(startTime)
+     * tween.start(startTime)
      *
      * function animate(time) {
      * 	requestAnimationFrame(animate)
@@ -1639,9 +1641,9 @@
      * }
      *
      * // Later: slow motion, freeze, resume — no Tween changes needed.
-     * scaler.setScale(0.5)
-     * scaler.setScale(0)
-     * scaler.setScale(2)
+     * scaler.scale = 0.5
+     * scaler.scale = 0
+     * scaler.scale = 2
      * ```
      *
      * Works with `Tween`, `Group`, and `Timeline`: anything that takes a time
@@ -1651,9 +1653,9 @@
      * Scales a monotonic source clock (for example `requestAnimationFrame`
      * timestamps) into a scaled clock for driving tweens.
      *
-     * With scale `1` this is the identity (`update(t) === t`), so wrapping an
-     * existing loop is a drop-in change. Other scales advance the scaled clock
-     * by `(raw - lastRaw) * scale` per update: `0` freezes it, values between
+     * With a constant scale of `1` this is the identity (`update(t) === t`),
+     * so wrapping an existing loop is a drop-in change. Other scales advance
+     * the scaled clock by `(raw - lastRaw) * scale` per update: `0` freezes it, values between
      * `0` and `1` slow it down, values above `1` speed it up, and negative
      * values run it backwards.
      */
@@ -1671,24 +1673,26 @@
             this._scaledTime = 0;
             this._scale = scale;
         }
+        Object.defineProperty(TimeScaler.prototype, "scale", {
+            /** Returns the current scale factor. */
+            get: function () {
+                return this._scale;
+            },
+            /**
+             * Sets the scale factor applied to source-clock deltas from now on.
+             * Past output is not rewritten; the next `update()` advances from the
+             * last scaled time using the new scale.
+             */
+            set: function (scale) {
+                this._scale = scale;
+            },
+            enumerable: false,
+            configurable: true
+        });
         /**
-         * Sets the scale factor applied to source-clock deltas from now on.
-         * Past output is not rewritten; the next `update()` advances from the
-         * last scaled time using the new scale.
-         *
-         * @param scale - New scale factor (`0` freezes, negative runs backwards).
-         */
-        TimeScaler.prototype.setScale = function (scale) {
-            this._scale = scale;
-            return this;
-        };
-        /** Returns the current scale factor. */
-        TimeScaler.prototype.getScale = function () {
-            return this._scale;
-        };
-        /**
-         * Anchors both clocks to a source time, so elapsed time is scaled from
-         * this point even when the first update happens in a later frame.
+         * Re-anchors both clocks to a source time, so elapsed time is scaled from
+         * this point even when the first update happens in a later frame. Pass the
+         * same time to the tween's `start()` to keep their clocks aligned.
          */
         TimeScaler.prototype.start = function (rawTime) {
             if (rawTime === void 0) { rawTime = now(); }
@@ -1698,7 +1702,7 @@
         };
         /**
          * Returns the last scaled time (the value the previous `update()`
-         * returned, or `0` before the first update).
+         * returned, or the time passed to `start()`, or `0` before either call).
          */
         TimeScaler.prototype.getTime = function () {
             return this._scaledTime;
@@ -1717,8 +1721,8 @@
          * with the same value you would otherwise pass to `Tween.update()`,
          * `Group.update()`, or `Timeline.update()`, and pass the result on.
          *
-         * The first call anchors both clocks and returns its input unchanged;
-         * later calls add `(rawTime - lastRawTime) * scale`.
+         * Without `start()`, the first call anchors both clocks and returns its
+         * input unchanged. Otherwise, calls add `(rawTime - lastRawTime) * scale`.
          *
          * @param rawTime - Source time in milliseconds (usually from
          * `performance.now()` or your own clock). Defaults to `now()`.
