@@ -13,6 +13,8 @@ library. User-facing docs live in `examples/` and `README.md`.
   `prettier` (f.e. 3.9.x vs the lockfile's 3.2.2) formats CSS differently than
   CI, and untracked tool caches (f.e. `.rumdl_cache/`) fail
   `prettier . --check` locally but never exist in CI.
+- Install tooling project-wide, never system-wide (f.e. browsers via
+  `PLAYWRIGHT_BROWSERS_PATH=.browsers/`, which is gitignored).
 
 ## Implementation notes
 
@@ -44,3 +46,10 @@ library. User-facing docs live in `examples/` and `README.md`.
   Scales a monotonic source clock into tween times (`scale`, `start`, `update`)
   so `Tween`/`Group`/`Timeline` stay scale-free per #655. Constant
   scale 1 is the identity; 0 freezes, negatives run backwards. ✅
+- **09 — Timeline GUI** [`dev-docs/09-timeline-gui.md`](dev-docs/09-timeline-gui.md)
+  Vanilla ESM track editor in `timeline-gui/` (tracks, ruler/labels,
+  explicit-clock scrub, inspector, live stage). Code is the interchange
+  format: editable box with `parseCode`, strict no-`eval` literal parser,
+  vendored speed-highlight overlay, `Tween`/`Timeline`/`Easing`
+  autocomplete. No core library changes. How to run/test/check: see
+  `dev-docs/09-timeline-gui.md` §How to run / test / check. ✅
