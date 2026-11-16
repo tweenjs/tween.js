@@ -14,12 +14,18 @@ import now, {setNow} from './Now'
 import Sequence from './Sequence'
 import Tween from './Tween'
 import Timeline from './Timeline'
+import TimeScaler from './TimeScaler'
+import Curve, {CatmullRomCurve, CubicBezierCurve, CurvePath, LineCurve, Path, QuadraticBezierCurve} from './Curve'
 import VERSION from './Version'
 import {mainGroup} from './mainGroup'
 
 const nextId = Sequence.nextId
 
 /**
+ * @deprecated The global TWEEN Group will be removed in a following major
+ * release. To migrate, create a `new Group()` instead of using `TWEEN` as a
+ * group.
+ 
  * Controlling groups of tweens
  *
  * Using the TWEEN singleton to manage your tweens can cause issues in large apps with many components.
@@ -284,6 +290,14 @@ export {
 	nextId,
 	Tween,
 	Timeline,
+	TimeScaler,
+	Curve,
+	LineCurve,
+	QuadraticBezierCurve,
+	CubicBezierCurve,
+	CatmullRomCurve,
+	CurvePath,
+	Path,
 	VERSION,
 	getAll,
 	removeAll,
@@ -302,6 +316,14 @@ const exports = {
 	nextId,
 	Tween,
 	Timeline,
+	TimeScaler,
+	Curve,
+	LineCurve,
+	QuadraticBezierCurve,
+	CubicBezierCurve,
+	CatmullRomCurve,
+	CurvePath,
+	Path,
 	VERSION,
 
 	/**

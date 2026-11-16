@@ -3647,6 +3647,418 @@ export const tests = {
 
 		test.done()
 	},
+
+	// TimeScaler tests (see #722: decoupled time scaling, Tween stays simple).
+
+	'TimeScaler scales the elapsed time before the first animation frame'(test: Test): void {
+		const startTime = 1000
+		const scaler = new TWEEN.TimeScaler(0.5)
+		const obj = {x: 0}
+		const tween = new TWEEN.Tween(obj).to({x: 100}, 1000)
+
+		test.equal(scaler.start(startTime), scaler)
+		test.equal(scaler.getTime(), startTime)
+		tween.start(startTime)
+		tween.update(scaler.update(1500))
+		test.equal(obj.x, 25)
+		tween.update(scaler.update(2000))
+		test.equal(obj.x, 50)
+
+		scaler.start(3000)
+		test.equal(scaler.update(3200), 3100)
+		scaler.start(5000)
+		test.equal(scaler.update(5200), 5100)
+
+		test.done()
+	},
+
+	'TimeScaler start defaults to now and anchors frozen and backwards clocks'(test: Test): void {
+		TWEEN.setNow(() => 1000)
+		try {
+			const scaler = new TWEEN.TimeScaler(0)
+			scaler.start()
+			test.equal(scaler.update(1500), 1000)
+			scaler.scale = -1
+			test.equal(scaler.update(1600), 900)
+		} finally {
+			TWEEN.setNow(() => performance.now())
+		}
+
+		test.done()
+	},
+
+	'TimeScaler with scale 1 is the identity and drives a tween normally'(test: Test): void {
+		const scaler = new TWEEN.TimeScaler()
+
+		test.equal(scaler.scale, 1)
+		test.equal(scaler.update(1000), 1000)
+		test.equal(scaler.update(1100), 1100)
+		test.equal(scaler.getTime(), 1100)
+
+		const obj = {x: 0}
+		const t = new TWEEN.Tween(obj).to({x: 100}, 1000)
+		t.start(scaler.update(2000))
+		t.update(scaler.update(2500))
+		test.equal(obj.x, 50)
+		t.update(scaler.update(3000))
+		test.equal(obj.x, 100)
+
+		test.done()
+	},
+
+	'TimeScaler scale 2 runs a tween twice as fast'(test: Test): void {
+		const scaler = new TWEEN.TimeScaler(2)
+		test.equal(scaler.scale, 2)
+
+		const obj = {x: 0}
+		const t = new TWEEN.Tween(obj).to({x: 100}, 1000)
+		t.start(scaler.update(0))
+		t.update(scaler.update(250))
+		test.equal(obj.x, 50)
+		t.update(scaler.update(500))
+		test.equal(obj.x, 100)
+
+		test.done()
+	},
+
+	'TimeScaler scale 0.5 runs a tween at half speed'(test: Test): void {
+		const scaler = new TWEEN.TimeScaler(0.5)
+
+		const obj = {x: 0}
+		const t = new TWEEN.Tween(obj).to({x: 100}, 1000)
+		t.start(scaler.update(0))
+		t.update(scaler.update(500))
+		test.equal(obj.x, 25)
+		t.update(scaler.update(1000))
+		test.equal(obj.x, 50)
+		t.update(scaler.update(2000))
+		test.equal(obj.x, 100)
+
+		test.done()
+	},
+
+	'TimeScaler scale 0 freezes and resume continues without jumping'(test: Test): void {
+		const scaler = new TWEEN.TimeScaler(1)
+
+		const obj = {x: 0}
+		const t = new TWEEN.Tween(obj).to({x: 100}, 1000)
+		t.start(scaler.update(0))
+
+		t.update(scaler.update(400))
+		test.equal(obj.x, 40)
+
+		scaler.scale = 0
+		test.equal(scaler.scale, 0)
+		t.update(scaler.update(900))
+		test.equal(obj.x, 40)
+		test.equal(scaler.getTime(), 400)
+
+		// Resuming does not jump: raw time kept flowing while frozen.
+		scaler.scale = 1
+		t.update(scaler.update(1000))
+		test.equal(obj.x, 50)
+		t.update(scaler.update(1600))
+		test.equal(obj.x, 100)
+
+		test.done()
+	},
+
+	'TimeScaler scale changes speed from then on'(test: Test): void {
+		const scaler = new TWEEN.TimeScaler(1)
+		scaler.scale = 2
+		test.equal(scaler.scale, 2)
+
+		const obj = {x: 0}
+		const t = new TWEEN.Tween(obj).to({x: 100}, 1000)
+		t.start(scaler.update(0))
+
+		// First scaled delta uses the new scale immediately.
+		t.update(scaler.update(100))
+		test.equal(obj.x, 20)
+
+		scaler.scale = 0.5
+		t.update(scaler.update(300))
+		test.equal(obj.x, 30)
+
+		test.done()
+	},
+
+	'TimeScaler start re-anchors the clock for replay'(test: Test): void {
+		const scaler = new TWEEN.TimeScaler(2)
+
+		const obj = {x: 0}
+		const t = new TWEEN.Tween(obj).to({x: 100}, 1000)
+
+		t.start(scaler.update(5000))
+		t.update(scaler.update(5250))
+		test.equal(obj.x, 50)
+
+		const restartTime = 9000
+		scaler.start(restartTime)
+		obj.x = 0
+		const t2 = new TWEEN.Tween(obj).to({x: 100}, 1000)
+		t2.start(restartTime)
+		test.equal(scaler.getTime(), 9000)
+		test.equal(scaler.scale, 2)
+		t2.update(scaler.update(9250))
+		test.equal(obj.x, 50)
+
+		test.done()
+	},
+
+	'TimeScaler negative scale runs the scaled clock backwards'(test: Test): void {
+		const scaler = new TWEEN.TimeScaler(1)
+
+		const obj = {x: 0}
+		const t = new TWEEN.Tween(obj).to({x: 100}, 1000)
+		t.start(scaler.update(0))
+		t.update(scaler.update(500))
+		test.equal(obj.x, 50)
+
+		scaler.scale = -1
+		t.update(scaler.update(600))
+		test.equal(obj.x, 40)
+
+		test.done()
+	},
+
+	'TimeScaler scale can be animated by a separate tween'(test: Test): void {
+		const scaler = new TWEEN.TimeScaler(0)
+		const obj = {x: 0}
+		const tween = new TWEEN.Tween(obj).to({x: 100}, 1000)
+		const scaleTween = new TWEEN.Tween(scaler).to({scale: 1}, 2000)
+		const startTime = 1000
+		scaler.start(startTime)
+		tween.start(startTime)
+		scaleTween.start(startTime)
+
+		tween.update(scaler.update(1500))
+		scaleTween.update(1500)
+		test.equal(obj.x, 0)
+		test.equal(scaler.scale, 0.25)
+		tween.update(scaler.update(2000))
+		scaleTween.update(2000)
+		test.equal(obj.x, 12.5)
+		test.equal(scaler.scale, 0.5)
+		tween.update(scaler.update(2500))
+		scaleTween.update(2500)
+		test.equal(obj.x, 37.5)
+		test.equal(scaler.scale, 0.75)
+		tween.update(scaler.update(3000))
+		scaleTween.update(3000)
+		test.equal(obj.x, 75)
+		test.equal(scaler.scale, 1)
+		tween.update(scaler.update(3250))
+		test.equal(obj.x, 100)
+
+		test.done()
+	},
+
+	'TimeScaler drives a Group and a Timeline'(test: Test): void {
+		const scaler = new TWEEN.TimeScaler(2)
+
+		const group = new TWEEN.Group()
+		const obj = {x: 0}
+		const t = new TWEEN.Tween(obj).to({x: 100}, 1000)
+		group.add(t)
+		t.start(scaler.update(0))
+		group.update(scaler.update(250))
+		test.equal(obj.x, 50)
+
+		const obj2 = {y: 0}
+		const tl = new TWEEN.Timeline().add(new TWEEN.Tween(obj2).to({y: 100}, 1000), 0)
+		tl.start(scaler.update(1000))
+		tl.update(scaler.update(1250))
+		test.equal(obj2.y, 50)
+
+		test.done()
+	},
+
+	'TimeScaler looping restart via update() === false keeps playing'(test: Test): void {
+		const scaler = new TWEEN.TimeScaler(1)
+		const obj = {x: 0}
+		const t = new TWEEN.Tween(obj).to({x: 100}, 1000)
+		const tick = (raw: number): void => {
+			const scaled = scaler.update(raw)
+			if (t.update(scaled) === false) {
+				obj.x = 0
+				t.start(scaled)
+			}
+		}
+
+		t.start(scaler.update(0))
+		tick(500)
+		test.equal(obj.x, 50)
+		tick(1000)
+		// Completed and restarted on the scaled clock: back at start, still playing.
+		test.equal(obj.x, 0)
+		test.ok(t.isPlaying())
+		tick(1500)
+		test.equal(obj.x, 50)
+
+		test.done()
+	},
+	'Curve LineCurve interpolates endpoints and midpoint'(test: Test): void {
+		const curve = new TWEEN.LineCurve({x: 0, y: 0}, {x: 10, y: 20})
+
+		test.deepEqual(curve.getPoint(0), {x: 0, y: 0})
+		test.deepEqual(curve.getPoint(1), {x: 10, y: 20})
+		test.deepEqual(curve.getPoint(0.5), {x: 5, y: 10})
+
+		// optionalTarget is mutated and returned, so a tweened object can drive it.
+		const position = {x: -1, y: -1}
+		const out = curve.getPoint(0.5, position)
+		test.equal(out, position)
+		test.deepEqual(position, {x: 5, y: 10})
+
+		// 3D control points produce 3D samples.
+		const curve3D = new TWEEN.LineCurve({x: 0, y: 0, z: 0}, {x: 10, y: 0, z: 10})
+		test.deepEqual(curve3D.getPoint(0.5), {x: 5, y: 0, z: 5})
+		const pos3D = {x: 0, y: 0, z: 0}
+		curve3D.getPoint(0.5, pos3D)
+		test.deepEqual(pos3D, {x: 5, y: 0, z: 5})
+
+		test.done()
+	},
+
+	'Curve Bezier passes through endpoints'(test: Test): void {
+		const quad = new TWEEN.QuadraticBezierCurve({x: 0, y: 0}, {x: 5, y: 10}, {x: 10, y: 0})
+		test.deepEqual(quad.getPoint(0), {x: 0, y: 0})
+		test.deepEqual(quad.getPoint(1), {x: 10, y: 0})
+		toBeCloseTo(test, quad.getPoint(0.5).x, 5)
+		toBeCloseTo(test, quad.getPoint(0.5).y, 5)
+
+		const cubic = new TWEEN.CubicBezierCurve({x: 0, y: 0}, {x: 0, y: 10}, {x: 10, y: 10}, {x: 10, y: 0})
+		test.deepEqual(cubic.getPoint(0), {x: 0, y: 0})
+		test.deepEqual(cubic.getPoint(1), {x: 10, y: 0})
+
+		test.done()
+	},
+
+	'Curve CatmullRom passes through control points'(test: Test): void {
+		const points = [
+			{x: 0, y: 0},
+			{x: 10, y: 0},
+			{x: 10, y: 10},
+			{x: 0, y: 10},
+		]
+		const curve = new TWEEN.CatmullRomCurve(points)
+
+		test.deepEqual(curve.getPoint(0), {x: 0, y: 0})
+		test.deepEqual(curve.getPoint(1), {x: 0, y: 10})
+		// With 4 points, t = 1/3 and 2/3 land exactly on the inner control points.
+		toBeCloseTo(test, curve.getPoint(1 / 3).x, 10, 6)
+		toBeCloseTo(test, curve.getPoint(1 / 3).y, 0, 6)
+		toBeCloseTo(test, curve.getPoint(2 / 3).x, 10, 6)
+		toBeCloseTo(test, curve.getPoint(2 / 3).y, 10, 6)
+
+		test.equal(curve.getPoints(4).length, 5)
+		test.equal(curve.getSpacedPoints(4).length, 5)
+		test.ok(curve.getLength() > 0)
+
+		test.done()
+	},
+
+	'Curve CurvePath chains curves and distributes t by length'(test: Test): void {
+		const path = new TWEEN.CurvePath([
+			new TWEEN.LineCurve({x: 0, y: 0}, {x: 10, y: 0}),
+			new TWEEN.LineCurve({x: 10, y: 0}, {x: 10, y: 10}),
+		])
+
+		test.deepEqual(path.getPoint(0), {x: 0, y: 0})
+		test.deepEqual(path.getPoint(1), {x: 10, y: 10})
+		// Equal-length segments: halfway lands on the joint.
+		toBeCloseTo(test, path.getPoint(0.5).x, 10, 6)
+		toBeCloseTo(test, path.getPoint(0.5).y, 0, 6)
+		test.ok(path.getLength() > 0)
+		test.deepEqual(path.getCurveLengths(), [10, 10])
+
+		// Path is the alias for CurvePath (see #721 naming).
+		test.equal(TWEEN.Path, TWEEN.CurvePath)
+
+		test.done()
+	},
+
+	'Curve Tween 0->1 drives position along path (demo pattern)'(test: Test): void {
+		const curve = new TWEEN.CatmullRomCurve([
+			{x: 0, y: 0},
+			{x: 10, y: 0},
+			{x: 10, y: 10},
+		])
+		const position = {x: 0, y: 0}
+		const progress = {t: 0}
+
+		const tween = new TWEEN.Tween(progress).to({t: 1}, 1000)
+		tween.onUpdate(() => curve.getPoint(progress.t, position))
+		tween.start(0)
+
+		tween.update(0)
+		test.deepEqual(position, {x: 0, y: 0})
+
+		tween.update(500)
+		test.ok(position.x > 0 && position.y >= 0)
+
+		tween.update(1000)
+		toBeCloseTo(test, position.x, 10, 6)
+		toBeCloseTo(test, position.y, 10, 6)
+
+		test.done()
+	},
+
+	'Curve Bezier curves match Interpolation.Bezier for the same control values'(test: Test): void {
+		const values4 = [0, Math.PI, Math.SQRT2, Math.E]
+		const [a, b, c, d] = values4.map(v => ({x: v, y: 0}))
+		const cubic = new TWEEN.CubicBezierCurve(a, b, c, d)
+
+		const values3 = values4.slice(0, 3)
+		const [p, q, r] = values3.map(v => ({x: v, y: 0}))
+		const quad = new TWEEN.QuadraticBezierCurve(p, q, r)
+
+		for (const k of [0, 0.1, Math.LOG10E, 0.5, 0.9, 1]) {
+			toBeCloseTo(test, cubic.getPoint(k).x, TWEEN.Interpolation.Bezier(values4, k), 14)
+			toBeCloseTo(test, quad.getPoint(k).x, TWEEN.Interpolation.Bezier(values3, k), 14)
+		}
+
+		test.done()
+	},
+
+	'Curve CatmullRomCurve hits the same knots as Interpolation.CatmullRom'(test: Test): void {
+		const values = [0, Math.PI, Math.SQRT2, Math.E]
+		const curve = new TWEEN.CatmullRomCurve(
+			values.map(v => ({x: v, y: 0})),
+			false,
+			'catmullrom',
+			0.5,
+		)
+
+		// Uniform-tension Catmull-Rom distributes knots exactly like the legacy
+		// scalar interpolation: knot i lands at t = i / (n - 1).
+		for (let i = 0; i < values.length; i++) {
+			toBeCloseTo(
+				test,
+				curve.getPoint(i / (values.length - 1)).x,
+				TWEEN.Interpolation.CatmullRom(values, i / (values.length - 1)),
+				12,
+			)
+		}
+
+		test.done()
+	},
+
+	'Curve CurvePath of lines matches Interpolation.Linear for evenly spaced values'(test: Test): void {
+		const values = [0, 10, 20, 30]
+		const points = values.map(v => ({x: v, y: 0}))
+		const path = new TWEEN.CurvePath(points.slice(0, -1).map((p, i) => new TWEEN.LineCurve(p, points[i + 1])))
+
+		// Equal-length segments make arc-length distribution identical to the
+		// legacy uniform per-segment distribution. Unevenly spaced values
+		// intentionally differ: the path moves at near-constant speed.
+		for (const k of [0, 0.25, Math.LOG10E, 0.5, 0.75, 1]) {
+			toBeCloseTo(test, path.getPoint(k).x, TWEEN.Interpolation.Linear(values, k), 12)
+		}
+
+		test.done()
+	},
 }
 
 type Test = {

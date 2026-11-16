@@ -29,7 +29,7 @@
 
 	const coords = {x: 0, y: 0} // 从 (0, 0) 开始
 
-	const tween = new Tween(coords, false) // 创建一个修改"坐标"的新 tween。
+	const tween = new Tween(coords) // 创建一个修改"坐标"的新 tween。
 		.to({x: 300, y: 200}, 1000) // 在 1 秒内移动到 (300, 200)。
 		.easing(Easing.Quadratic.InOut) // 使用缓动函数使动画流畅。
 		.onUpdate(() => {
@@ -323,10 +323,12 @@ npm install @tweenjs/tween.js
 如果你使用 [Node.js](https://nodejs.org/)、[Parcel](https://parceljs.org/)、[Webpack](https://webpack.js.org/)、[Rollup](https://rollupjs.org/)、[Vite](https://vitejs.dev/) 或其他构建工具，那么你可以使用 `npm install @tweenjs/tween.js` 安装，然后将库 `import` 到你的 JavaScript（或 TypeScript）文件中，构建工具会知道如何从 `node_modules` 找到源代码，而无需创建 `importmap` 脚本：
 
 ```javascript
-import * as TWEEN from '@tweenjs/tween.js'
+import {Tween} from '@tweenjs/tween.js'
 ```
 
 但是请注意，这种方法需要始终运行构建工具才能使你的应用程序工作，而 `importmap` 方法无需任何构建工具即可作为简单的静态 HTML 站点工作。
+
+使用 `tween.update()` 直接更新单个补间。需要一起管理多个补间时，再使用 `new Group()` 创建一个组。请参阅[控制补间组](docs/user_guide_zh-CN.md#控制补间组)。
 
 ## 手动构建
 
@@ -339,25 +341,15 @@ npm install
 npm run build
 ```
 
-这将在 `dist` 目录中创建一些构建文件。目前有两种不同的库构建版本：
+这将在 `dist` 目录中创建一个构建文件：
 
-- ES6 模块在 `/dist/tween.esm.js`（推荐）
-- UMD 在 `/dist/tween.umd.js`（已弃用，将在未来的主要版本中删除）
+- ES6 模块在 `/dist/tween.esm.js`
 
-你现在可以将这两个文件中的一个复制到你的项目中，并像这样使用（推荐）：
+你现在可以将此文件复制到你的项目中，并像这样使用：
 
 ```html
 <script type="module">
 	import {Tween} from 'path/to/tween.esm.js'
-</script>
-```
-
-或（已弃用，将在未来的主要版本中删除）：
-
-```html
-<script src="path/to/tween.umd.js"></script>
-<script>
-	const {Tween} = TWEEN
 </script>
 ```
 
@@ -367,39 +359,6 @@ npm run build
 > 你也可以从 unpkg 下载这些文件，例如：
 > https://unpkg.com/browse/@tweenjs/tween.js@23.1.3/dist/
 
-## 从 CDN 使用全局变量（已弃用）
-
-> [!Note]
-> 此方法已弃用，将在未来的主要版本中删除！
-
-使用 UMD 文件从内容分发网络（CDN）安装全局 `TWEEN` 变量。
-
-从 cdnjs：
-
-```html
-<script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/23.1.3/tween.umd.js"></script>
-```
-
-或从 unpkg.com：
-
-```html
-<script src="https://unpkg.com/@tweenjs/tween.js@^23.1.3/dist/tween.umd.js"></script>
-```
-
-然后在任何脚本中使用 `TWEEN` 变量：
-
-```html
-<script>
-	const {Tween, Easing, Group /*, ...*/} = TWEEN
-
-	const tween = new Tween(someObject)
-	// ...
-</script>
-```
-
-> [!Note]
-> unpkg.com 支持 URL 中的 semver 版本，其中 URL 中的 `^` 告诉 unpkg 提供最新版本 20.x.x。
-
 ## CommonJS（已弃用）
 
 如果你不知道 CommonJS 是什么，请跳过此部分！
@@ -407,7 +366,7 @@ npm run build
 > [!Note]
 > 此方法已弃用，将在未来的主要版本中删除！
 
-以上任何方法都适用于仍使用 CommonJS 的旧系统。重复以上任何方法，但使用 `dist/tween.cjs` 而不是 `dist/tween.esm.js` 或 `dist/tween.umd.js`。
+以上任何方法都适用于仍使用 CommonJS 的旧系统。重复以上任何方法，但使用 `dist/tween.cjs` 而不是 `dist/tween.esm.js`。
 
 # 文档
 
