@@ -14,6 +14,7 @@ import now, {setNow} from './Now'
 import Sequence from './Sequence'
 import Tween from './Tween'
 import Timeline from './Timeline'
+import Curve, {CatmullRomCurve, CubicBezierCurve, CurvePath, LineCurve, Path, QuadraticBezierCurve} from './Curve'
 import VERSION from './Version'
 import {mainGroup} from './mainGroup'
 
@@ -284,6 +285,13 @@ export {
 	nextId,
 	Tween,
 	Timeline,
+	Curve,
+	LineCurve,
+	QuadraticBezierCurve,
+	CubicBezierCurve,
+	CatmullRomCurve,
+	CurvePath,
+	Path,
 	VERSION,
 	getAll,
 	removeAll,
@@ -302,6 +310,13 @@ const exports = {
 	nextId,
 	Tween,
 	Timeline,
+	Curve,
+	LineCurve,
+	QuadraticBezierCurve,
+	CubicBezierCurve,
+	CatmullRomCurve,
+	CurvePath,
+	Path,
 	VERSION,
 
 	/**

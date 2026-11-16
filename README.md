@@ -253,6 +253,26 @@ More languages: [English](./README.md), [简体中文](./README_zh-CN.md)
 			Animate an array of values<br />
 			(<a href="examples/16_animate_an_array_of_values.html">source</a>)
 		</td>
+		<td>
+			<a href="http://tweenjs.github.io/tween.js/examples/23_curve_path.html">
+				<img width="100" height="50" src="https://tweenjs.github.io/tween.js/assets/examples/03_graphs.png" alt="Curve path" />
+			</a>
+		</td>
+		<td>
+			Curve path<br />
+			(<a href="examples/23_curve_path.html">source</a>)
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<a href="http://tweenjs.github.io/tween.js/examples/24_lume_curve.html">
+				<img width="100" height="50" src="https://tweenjs.github.io/tween.js/assets/examples/24_lume_curve.png" alt="Lume 3D curve" />
+			</a>
+		</td>
+		<td>
+			Lume 3D curve<br />
+			(<a href="examples/24_lume_curve.html">source</a>)
+		</td>
 	</tr>
 </table>
 
