@@ -21,6 +21,10 @@ import {mainGroup} from './mainGroup'
 const nextId = Sequence.nextId
 
 /**
+ * @deprecated The global TWEEN Group will be removed in a following major
+ * release. To migrate, create a `new Group()` instead of using `TWEEN` as a
+ * group.
+ 
  * Controlling groups of tweens
  *
  * Using the TWEEN singleton to manage your tweens can cause issues in large apps with many components.
