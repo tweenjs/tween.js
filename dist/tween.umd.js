@@ -1687,6 +1687,16 @@
             return this._scale;
         };
         /**
+         * Anchors both clocks to a source time, so elapsed time is scaled from
+         * this point even when the first update happens in a later frame.
+         */
+        TimeScaler.prototype.start = function (rawTime) {
+            if (rawTime === void 0) { rawTime = now(); }
+            this._lastRawTime = rawTime;
+            this._scaledTime = rawTime;
+            return this;
+        };
+        /**
          * Returns the last scaled time (the value the previous `update()`
          * returned, or `0` before the first update).
          */
@@ -1716,8 +1726,7 @@
         TimeScaler.prototype.update = function (rawTime) {
             if (rawTime === void 0) { rawTime = now(); }
             if (this._lastRawTime === undefined) {
-                this._lastRawTime = rawTime;
-                this._scaledTime = rawTime;
+                this.start(rawTime);
                 return this._scaledTime;
             }
             this._scaledTime += (rawTime - this._lastRawTime) * this._scale;

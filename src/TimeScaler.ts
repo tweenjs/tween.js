@@ -74,6 +74,16 @@ export class TimeScaler {
 	}
 
 	/**
+	 * Anchors both clocks to a source time, so elapsed time is scaled from
+	 * this point even when the first update happens in a later frame.
+	 */
+	start(rawTime: number = now()): this {
+		this._lastRawTime = rawTime
+		this._scaledTime = rawTime
+		return this
+	}
+
+	/**
 	 * Returns the last scaled time (the value the previous `update()`
 	 * returned, or `0` before the first update).
 	 */
@@ -104,8 +114,7 @@ export class TimeScaler {
 	 */
 	update(rawTime: number = now()): number {
 		if (this._lastRawTime === undefined) {
-			this._lastRawTime = rawTime
-			this._scaledTime = rawTime
+			this.start(rawTime)
 			return this._scaledTime
 		}
 		this._scaledTime += (rawTime - this._lastRawTime) * this._scale

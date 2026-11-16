@@ -597,6 +597,11 @@ declare class TimeScaler {
     /** Returns the current scale factor. */
     getScale(): number;
     /**
+     * Anchors both clocks to a source time, so elapsed time is scaled from
+     * this point even when the first update happens in a later frame.
+     */
+    start(rawTime?: number): this;
+    /**
      * Returns the last scaled time (the value the previous `update()`
      * returned, or `0` before the first update).
      */

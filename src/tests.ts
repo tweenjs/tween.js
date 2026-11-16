@@ -3650,6 +3650,28 @@ export const tests = {
 
 	// TimeScaler tests (see #722: decoupled time scaling, Tween stays simple).
 
+	'TimeScaler scales the elapsed time before the first animation frame'(test: Test): void {
+		const startTime = 1000
+		const scaler = new TWEEN.TimeScaler(0.5)
+		const obj = {x: 0}
+		const tween = new TWEEN.Tween(obj).to({x: 100}, 1000)
+
+		test.equal(scaler.start(startTime), scaler)
+		test.equal(scaler.getTime(), startTime)
+		tween.start(startTime)
+		tween.update(scaler.update(1500))
+		test.equal(obj.x, 25)
+		tween.update(scaler.update(2000))
+		test.equal(obj.x, 50)
+
+		scaler.start(3000)
+		test.equal(scaler.update(3200), 3100)
+		scaler.reset()
+		test.equal(scaler.update(5000), 5000)
+
+		test.done()
+	},
+
 	'TimeScaler with scale 1 is the identity and drives a tween normally'(test: Test): void {
 		const scaler = new TWEEN.TimeScaler()
 
