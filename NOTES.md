@@ -13,9 +13,11 @@ library. User-facing docs live in `examples/` and `README.md`.
   `prettier` (f.e. 3.9.x vs the lockfile's 3.2.2) formats CSS differently than
   CI, and untracked tool caches (f.e. `.rumdl_cache/`) fail
   `prettier . --check` locally but never exist in CI.
-- `Tween.update(time?)` and `Timeline.update(time?)` advance time only while
-  playing; playback starts exclusively via `start()` / `startFromCurrentValues()`
-  and never implicitly inside `update()`.
+- `Tween.update(time?)`, `Timeline.update(time?)`, and `Group.update(time?)`
+  only advance time; playback starts exclusively via `start()` /
+  `startFromCurrentValues()`, and groups never auto-remove finished or stopped
+  children (remove explicitly via `group.remove(child)`, `tween.remove()`, or
+  `group.removeAll()`).
 
 ## Implementation notes
 
@@ -51,7 +53,7 @@ library. User-facing docs live in `examples/` and `README.md`.
   Drops the `dist/tween.cjs` and `dist/tween.amd.js` Rollup targets, removes
   CJS paths from `package.json` (`main` and `exports["."].require`), and removes
   deprecated CJS docs and the `nodejs-commonjs` example project. ✅
-- **10 — Remove `autoStart` from `update()` (#655)** [`dev-docs/10-remove-update-autostart.md`](dev-docs/10-remove-update-autostart.md)
-  Removes `autoStart` and `autoStartOnUpdate` from `Tween` and `Timeline` (and
-  `Group.update()`'s `!preserve` pass-through) so `update(time?)` only advances
-  time and stopped instances stay stopped. ✅
+- **10 — Remove `autoStart` and `Group.update` `preserve` (#655)** [`dev-docs/10-remove-update-autostart.md`](dev-docs/10-remove-update-autostart.md)
+  Removes `autoStart` and `autoStartOnUpdate` from `Tween` and `Timeline`, and
+  removes `preserve` and auto-removal from `Group.update(time?)`, so `update()`
+  only advances time and never implicitly starts or removes animations. ✅

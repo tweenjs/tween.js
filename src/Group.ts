@@ -57,16 +57,7 @@ export default class Group {
 		return this.getAll().every(tween => !tween.isPlaying())
 	}
 
-	update(time?: number): void
-	/**
-	 * @deprecated The `preserve` parameter is now defaulted to `true` and will
-	 * be removed in a future major release, at which point all tweens of a
-	 * group will always be preserved when calling update. To migrate, always
-	 * use `group.add(tween)` or `group.remove(tween)` to manually add or remove
-	 * tweens, and do not rely on tweens being automatically added or removed.
-	 */
-	update(time?: number, preserve?: boolean): void
-	update(time: number = now(), preserve = true): void {
+	update(time: number = now()): void {
 		let tweenIds = Object.keys(this._tweens)
 
 		if (tweenIds.length === 0) return
@@ -80,9 +71,7 @@ export default class Group {
 			this._tweensAddedDuringUpdate = {}
 
 			for (let i = 0; i < tweenIds.length; i++) {
-				const tween = this._tweens[tweenIds[i]]
-
-				if (tween && tween.update(time) === false && !preserve) this.remove(tween)
+				this._tweens[tweenIds[i]]?.update(time)
 			}
 
 			tweenIds = Object.keys(this._tweensAddedDuringUpdate)

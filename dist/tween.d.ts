@@ -500,14 +500,6 @@ declare class Group {
     /** Return true if all tweens in the group are not paused or playing. */
     allStopped(): boolean;
     update(time?: number): void;
-    /**
-     * @deprecated The `preserve` parameter is now defaulted to `true` and will
-     * be removed in a future major release, at which point all tweens of a
-     * group will always be preserved when calling update. To migrate, always
-     * use `group.add(tween)` or `group.remove(tween)` to manually add or remove
-     * tweens, and do not rely on tweens being automatically added or removed.
-     */
-    update(time?: number, preserve?: boolean): void;
     onComplete(callback: (object: Array<GroupChild>) => void): void;
 }
 
@@ -1054,10 +1046,7 @@ declare const remove: (...tweens: GroupChild[]) => void;
  * })
  * ```
  */
-declare const update: {
-    (time?: number | undefined): void;
-    (time?: number | undefined, preserve?: boolean | undefined): void;
-};
+declare const update: (time?: number) => void;
 
 declare const exports: {
     Easing: Readonly<{
@@ -1342,10 +1331,7 @@ declare const exports: {
      * })
      * ```
      */
-    update: {
-        (time?: number | undefined): void;
-        (time?: number | undefined, preserve?: boolean | undefined): void;
-    };
+    update: (time?: number) => void;
 };
 
 export { CatmullRomCurve, CubicBezierCurve, Curve, CurvePath, Easing, Group, Interpolation, LineCurve, Path, QuadraticBezierCurve, Sequence, TimeScaler, Timeline, Tween, VERSION, add, exports as default, getAll, nextId, now, remove, removeAll, setNow, update };

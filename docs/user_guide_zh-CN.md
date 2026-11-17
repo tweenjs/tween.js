@@ -310,7 +310,7 @@ function animate() {
 
 ### `group.update(time?)`
 
-更新组中的所有补间，带有可选的时间值。如果未提供时间值，则默认为当前时间。
+更新组中的所有补间，带有可选的时间值。如果未提供时间值，则默认为当前时间。已完成或已停止的补间会保留在组中，直到通过 `group.remove(tween)`、`tween.remove()` 或 `group.removeAll()` 显式移除。
 
 ## 更改缓动函数（AKA 使其弹跳）
 

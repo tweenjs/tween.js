@@ -75,32 +75,7 @@ export const tests = {
 		test.done()
 	},
 
-	'TWEEN.update() removes tweens when they are finished only if preserve is set to false'(test: Test): void {
-		TWEEN.removeAll()
-
-		const t1 = new TWEEN.Tween({}, true).to({}, 1000),
-			t2 = new TWEEN.Tween({}, true).to({}, 2000)
-
-		test.equal(TWEEN.getAll().length, 2)
-
-		t1.start(0)
-		t2.start(0)
-
-		test.equal(TWEEN.getAll().length, 2)
-
-		TWEEN.update(0, false)
-		test.equal(TWEEN.getAll().length, 2)
-
-		TWEEN.update(999, false)
-		test.equal(TWEEN.getAll().length, 2)
-
-		TWEEN.update(1000, false)
-		test.equal(TWEEN.getAll().length, 1)
-		test.equal(TWEEN.getAll().indexOf(t1), -1)
-		test.ok(TWEEN.getAll().indexOf(t2) != -1)
-		test.done()
-	},
-	'TWEEN.update() does not remove tweens when they are finished with preserve true (default)'(test: Test): void {
+	'TWEEN.update() does not remove tweens when they are finished'(test: Test): void {
 		TWEEN.removeAll()
 
 		const t1 = new TWEEN.Tween({}, true).to({}, 1000),
@@ -141,11 +116,8 @@ export const tests = {
 		t1.start(0)
 		t2.start(0)
 
-		// To be able to make a tween go backward in time, it must be
-		// updated with preserve set to true (default). Otherwise, the
-		// backward-in-time feature does not apply.
-		TWEEN.update(200, true)
-		TWEEN.update(2500, true)
+		TWEEN.update(200)
+		TWEEN.update(2500)
 
 		test.equal(TWEEN.getAll().length, 2)
 
@@ -154,7 +126,7 @@ export const tests = {
 		t1.start(0)
 		t2.start(0)
 
-		TWEEN.update(750, true)
+		TWEEN.update(750)
 		test.equal(target1.a, 0.75)
 		test.equal(target2.b, 0.375)
 
@@ -566,10 +538,10 @@ export const tests = {
 		test.equal(obj.x, 0)
 
 		tween.start(0)
-		group.update(500, false)
+		group.update(500)
 		test.equal(obj.x, 50)
 		tween.stop()
-		group.update(750, false)
+		group.update(750)
 		test.equal(tween.isPlaying(), false)
 		test.equal(obj.x, 50)
 
@@ -2792,10 +2764,10 @@ export const tests = {
 		t2.start(0)
 		test.notDeepEqual(chasingValue, dynamicTargetValue)
 
-		TWEEN.update(duration / 2, true)
+		TWEEN.update(duration / 2)
 		test.notDeepEqual(chasingValue, dynamicTargetValue)
 
-		TWEEN.update(duration, true)
+		TWEEN.update(duration)
 		test.deepEqual(chasingValue, dynamicTargetValue)
 
 		test.done()
@@ -2816,10 +2788,10 @@ export const tests = {
 		t2.start(0)
 		test.notDeepEqual(chasingValue, dynamicTargetValue)
 
-		TWEEN.update(duration / 2, true)
+		TWEEN.update(duration / 2)
 		test.notDeepEqual(chasingValue, dynamicTargetValue)
 
-		TWEEN.update(duration, true)
+		TWEEN.update(duration)
 		test.deepEqual(chasingValue, dynamicTargetValue)
 
 		test.done()
@@ -2860,7 +2832,7 @@ export const tests = {
 
 		for (let i = 0; i < tweens.length; i++) {
 			const progress = ((i + 1) * duration) / tweens.length
-			TWEEN.update(progress, true)
+			TWEEN.update(progress)
 			test.equal(chasingValue.x, observedValues[i].x)
 		}
 

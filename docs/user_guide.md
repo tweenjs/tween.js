@@ -329,8 +329,10 @@ Remove all tween from a group.
 
 ### `group.update(time?)`
 
-Update all tweens in a group, with an optional time value. If time value is not
-supplied, it default to the current time.
+Update all tweens in a group, with an optional time value. If a time value is
+not supplied, it defaults to the current time. Finished or stopped tweens stay
+in the group until removed explicitly with `group.remove(tween)`,
+`tween.remove()`, or `group.removeAll()`.
 
 ## Timeline (sequencing and overlapping)
 

@@ -286,9 +286,9 @@
         Group.prototype.allStopped = function () {
             return this.getAll().every(function (tween) { return !tween.isPlaying(); });
         };
-        Group.prototype.update = function (time, preserve) {
+        Group.prototype.update = function (time) {
+            var _a;
             if (time === void 0) { time = now(); }
-            if (preserve === void 0) { preserve = true; }
             var tweenIds = Object.keys(this._tweens);
             if (tweenIds.length === 0)
                 return;
@@ -300,9 +300,7 @@
             while (tweenIds.length > 0) {
                 this._tweensAddedDuringUpdate = {};
                 for (var i = 0; i < tweenIds.length; i++) {
-                    var tween = this._tweens[tweenIds[i]];
-                    if (tween && tween.update(time) === false && !preserve)
-                        this.remove(tween);
+                    (_a = this._tweens[tweenIds[i]]) === null || _a === void 0 ? void 0 : _a.update(time);
                 }
                 tweenIds = Object.keys(this._tweensAddedDuringUpdate);
             }
