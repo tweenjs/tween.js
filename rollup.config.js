@@ -19,11 +19,6 @@ export default [
 				exports: 'named',
 			},
 			{
-				file: 'dist/tween.cjs',
-				format: 'cjs',
-				exports: 'named',
-			},
-			{
 				file: 'dist/tween.esm.js',
 				format: 'es',
 				exports: 'named',

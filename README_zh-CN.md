@@ -359,15 +359,6 @@ npm run build
 > 你也可以从 unpkg 下载这些文件，例如：
 > https://unpkg.com/browse/@tweenjs/tween.js@23.1.3/dist/
 
-## CommonJS（已弃用）
-
-如果你不知道 CommonJS 是什么，请跳过此部分！
-
-> [!Note]
-> 此方法已弃用，将在未来的主要版本中删除！
-
-以上任何方法都适用于仍使用 CommonJS 的旧系统。重复以上任何方法，但使用 `dist/tween.cjs` 而不是 `dist/tween.esm.js`。
-
 # 文档
 
 - [用户指南](./docs/user_guide_zh-CN.md)
