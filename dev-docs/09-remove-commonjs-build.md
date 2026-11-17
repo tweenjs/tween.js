@@ -1,13 +1,13 @@
-## Remove legacy CommonJS distribution (`#655`)
+## Remove legacy CommonJS and AMD distributions (`#655`)
 
 Electron has supported native ES modules since Electron 28, resolving the
 remaining blocker recorded in `#655` ("remove legacy CommonJS after Electron
-ESM comes out").
+ESM comes out"). Legacy AMD bundle output is removed alongside it.
 
-- `rollup.config.js`: drops the `dist/tween.cjs` library output while keeping
-  the internal `.tmp/tests.cjs` bundle used by `nodeunit` until unit tests move
-  to `@web/test-runner`.
-- `dist/tween.cjs`: removed from tracked build output.
+- `rollup.config.js`: drops the `dist/tween.cjs` and `dist/tween.amd.js`
+  library outputs while keeping the internal `.tmp/tests.cjs` bundle used by
+  `nodeunit` until unit tests move to `@web/test-runner`.
+- `dist/tween.cjs` & `dist/tween.amd.js`: removed from tracked build output.
 - `package.json`: points `"main"` at `"dist/tween.esm.js"`, removes the
   `"require"` condition from `"exports"`, and places `"types"` ahead of
   `"import"` in `"exports"` so TypeScript `node16`/`nodenext` resolution
