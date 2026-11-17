@@ -5,7 +5,6 @@ JavaScript (TypeScript) tweening engine for easy animations, incorporating optim
 [![NPM Version][npm-image]][npm-url]
 [![CDNJS][cdnjs-image]][cdnjs-url]
 [![NPM Downloads][downloads-image]][downloads-url]
-[![Build and Tests][ci-image]][ci-url]
 
 More languages: [English](./README.md), [简体中文](./README_zh-CN.md)
 
@@ -459,7 +458,5 @@ Maintainers:
 [npm-url]: https://npmjs.org/package/@tweenjs/tween.js
 [downloads-image]: https://img.shields.io/npm/dm/@tweenjs/tween.js.svg
 [downloads-url]: https://npmjs.org/package/@tweenjs/tween.js
-[ci-image]: https://github.com/tweenjs/tween.js/workflows/build%20and%20tests/badge.svg?branch=master
-[ci-url]: https://github.com/tweenjs/tween.js/actions
 [cdnjs-image]: https://img.shields.io/cdnjs/v/tween.js.svg
 [cdnjs-url]: https://cdnjs.com/libraries/tween.js
