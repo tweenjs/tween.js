@@ -405,17 +405,6 @@ where `path/to` is replaced with the location where you placed the file.
 > You can also download these files from unpkg, for example here:
 > https://unpkg.com/browse/@tweenjs/tween.js@23.1.3/dist/
 
-## CommonJS (deprecated)
-
-Skip this section if you don't know what CommonJS is!
-
-> [!Note]
-> This method is deprecated and will be removed in a future major version!
-
-Any of the above methods work in older systems that still use CommonJS. Repeat
-any of the above methods but using `dist/tween.cjs` instead of
-`dist/tween.esm.js`.
-
 # Documentation
 
 - [User guide](./docs/user_guide.md)
