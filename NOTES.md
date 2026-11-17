@@ -44,7 +44,7 @@ library. User-facing docs live in `examples/` and `README.md`.
   Scales a monotonic source clock into tween times (`scale`, `start`, `update`)
   so `Tween`/`Group`/`Timeline` stay scale-free per #655. Constant
   scale 1 is the identity; 0 freezes, negatives run backwards. ✅
-- **09 — Remove legacy CommonJS distribution (#655)** [`dev-docs/09-remove-commonjs-build.md`](dev-docs/09-remove-commonjs-build.md)
-  Drops the `dist/tween.cjs` Rollup target, removes CJS paths from
-  `package.json` (`main` and `exports["."].require`), and removes deprecated CJS
-  docs and the `nodejs-commonjs` example project. ✅
+- **09 — Remove legacy CommonJS and AMD distributions (#655)** [`dev-docs/09-remove-commonjs-build.md`](dev-docs/09-remove-commonjs-build.md)
+  Drops the `dist/tween.cjs` and `dist/tween.amd.js` Rollup targets, removes
+  CJS paths from `package.json` (`main` and `exports["."].require`), and removes
+  deprecated CJS docs and the `nodejs-commonjs` example project. ✅
