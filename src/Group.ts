@@ -81,9 +81,8 @@ export default class Group {
 
 			for (let i = 0; i < tweenIds.length; i++) {
 				const tween = this._tweens[tweenIds[i]]
-				const autoStart = !preserve
 
-				if (tween && tween.update(time, autoStart) === false && !preserve) this.remove(tween)
+				if (tween && tween.update(time) === false && !preserve) this.remove(tween)
 			}
 
 			tweenIds = Object.keys(this._tweensAddedDuringUpdate)

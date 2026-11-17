@@ -301,8 +301,7 @@
                 this._tweensAddedDuringUpdate = {};
                 for (var i = 0; i < tweenIds.length; i++) {
                     var tween = this._tweens[tweenIds[i]];
-                    var autoStart = !preserve;
-                    if (tween && tween.update(time, autoStart) === false && !preserve)
+                    if (tween && tween.update(time) === false && !preserve)
                         this.remove(tween);
                 }
                 tweenIds = Object.keys(this._tweensAddedDuringUpdate);
@@ -827,25 +826,16 @@
          * @returns true if the tween is still playing after the update, false
          * otherwise (calling update on a paused tween still returns true because
          * it is still playing, just paused).
-         *
-         * @param autoStart - When true, calling update will implicitly call start()
-         * as well. Note, if you stop() or end() the tween, but are still calling
-         * update(), it will start again!
          */
-        Tween.prototype.update = function (time, autoStart) {
+        Tween.prototype.update = function (time) {
             var _this = this;
             var _a;
             if (time === void 0) { time = now(); }
-            if (autoStart === void 0) { autoStart = Tween.autoStartOnUpdate; }
             if (this._isPaused)
                 return true;
             var property;
-            if (!this._goToEnd && !this._isPlaying) {
-                if (autoStart)
-                    this.start(time, true);
-                else
-                    return false;
-            }
+            if (!this._goToEnd && !this._isPlaying)
+                return false;
             this._goToEnd = false;
             if (time < this._startTime) {
                 return true;
@@ -985,7 +975,6 @@
             }
             this._valuesEnd[property] = tmp;
         };
-        Tween.autoStartOnUpdate = false;
         return Tween;
     }());
 
@@ -1529,21 +1518,13 @@
          * Children use a local clock (0 = timeline start).
          *
          * @param time - The current time in milliseconds. Defaults to `now()`.
-         * @param autoStart - When true and the timeline is stopped, implicitly
-         * call {@link start} first. Defaults to
-         * {@link Timeline.autoStartOnUpdate}.
          */
-        Timeline.prototype.update = function (time, autoStart) {
+        Timeline.prototype.update = function (time) {
             if (time === void 0) { time = now(); }
-            if (autoStart === void 0) { autoStart = Timeline.autoStartOnUpdate; }
             if (this._isPaused)
                 return true;
-            if (!this._isPlaying) {
-                if (autoStart)
-                    this.start(time);
-                else
-                    return false;
-            }
+            if (!this._isPlaying)
+                return false;
             if (time < this._startTime)
                 return true;
             if (!this._onStartCallbackFired) {
@@ -1609,11 +1590,6 @@
             }
             return true;
         };
-        /**
-         * When true, calling {@link update} on a stopped timeline will
-         * implicitly call {@link start} first. Defaults to false.
-         */
-        Timeline.autoStartOnUpdate = false;
         return Timeline;
     }());
 

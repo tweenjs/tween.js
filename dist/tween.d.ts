@@ -53,7 +53,6 @@ declare const Interpolation: {
  */
 
 declare class Tween<T extends UnknownProps = any> {
-    static autoStartOnUpdate: boolean;
     private _isPaused;
     private _pauseStart;
     private _valuesStart;
@@ -202,12 +201,8 @@ declare class Tween<T extends UnknownProps = any> {
      * @returns true if the tween is still playing after the update, false
      * otherwise (calling update on a paused tween still returns true because
      * it is still playing, just paused).
-     *
-     * @param autoStart - When true, calling update will implicitly call start()
-     * as well. Note, if you stop() or end() the tween, but are still calling
-     * update(), it will start again!
      */
-    update(time?: number, autoStart?: boolean): boolean;
+    update(time?: number): boolean;
     private _updateProperties;
     private _handleRelativeValue;
     private _swapEndStartRepeatValues;
@@ -297,11 +292,6 @@ type TimelinePosition = TimelineAt | TimelineAddOptions;
  * ```
  */
 declare class Timeline {
-    /**
-     * When true, calling {@link update} on a stopped timeline will
-     * implicitly call {@link start} first. Defaults to false.
-     */
-    static autoStartOnUpdate: boolean;
     private _id;
     private _entries;
     private _labels;
@@ -486,11 +476,8 @@ declare class Timeline {
      * Children use a local clock (0 = timeline start).
      *
      * @param time - The current time in milliseconds. Defaults to `now()`.
-     * @param autoStart - When true and the timeline is stopped, implicitly
-     * call {@link start} first. Defaults to
-     * {@link Timeline.autoStartOnUpdate}.
      */
-    update(time?: number, autoStart?: boolean): boolean;
+    update(time?: number): boolean;
 }
 
 type GroupChild = Tween<any> | Timeline;

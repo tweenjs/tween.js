@@ -160,6 +160,8 @@ function animate(time) {
 }
 ```
 
+如果补间尚未开始，`tween.update(time)` 不会执行任何操作并返回 `false`。请先调用 `.start()` 使补间处于播放状态。
+
 ### `pause`
 
 当补间正在运行时（即它已经被 `start` 并且可能已经被 `update` 了多次），它可以被暂停。即使在补间暂停时调用 `update()`，其时间也不会向前移动。`isPlaying` 在补间 `paused` 时仍为 true，其 `update()` 方法继续跟踪时间进度（你可以在补间暂停时继续调用 `update()`）。

@@ -519,9 +519,7 @@ export const tests = {
 		test.done()
 	},
 
-	'Ensure tweens start without calling start() method.'(test: Test): void {
-		TWEEN.Tween.autoStartOnUpdate = true
-
+	'Ensure tweens do not start without calling start() method.'(test: Test): void {
 		const obj = {x: 0},
 			t = new TWEEN.Tween(obj)
 
@@ -530,17 +528,68 @@ export const tests = {
 		t.onStart(() => (started = true))
 		t.onComplete(() => (started = false))
 
-		t.update(0)
+		test.equal(t.update(0), false)
+		test.deepEqual(started, false)
+		test.deepEqual(obj.x, 0)
+		test.equal(t.update(500), false)
+		test.deepEqual(started, false)
+		test.deepEqual(obj.x, 0)
+
+		t.start(0)
+		test.equal(t.update(0), true)
 		test.deepEqual(started, true)
 		test.deepEqual(obj.x, 0)
-		t.update(500)
+		test.equal(t.update(500), true)
 		test.deepEqual(started, true)
 		test.deepEqual(obj.x, 500)
-		t.update(1000)
+
+		t.stop()
+		test.equal(t.update(750), false)
+		test.deepEqual(obj.x, 500)
+
+		t.start(500)
+		test.equal(t.update(1500), false)
 		test.deepEqual(obj.x, 1000)
 		test.deepEqual(started, false)
 
-		TWEEN.Tween.autoStartOnUpdate = false
+		test.done()
+	},
+
+	'Ensure Group.update() and Timeline.update() never start stopped tweens or timelines.'(test: Test): void {
+		const obj = {x: 0}
+		const group = new TWEEN.Group()
+		const tween = new TWEEN.Tween(obj, group).to({x: 100}, 1000)
+
+		group.update(0)
+		group.update(500)
+		test.equal(tween.isPlaying(), false)
+		test.equal(obj.x, 0)
+
+		tween.start(0)
+		group.update(500, false)
+		test.equal(obj.x, 50)
+		tween.stop()
+		group.update(750, false)
+		test.equal(tween.isPlaying(), false)
+		test.equal(obj.x, 50)
+
+		const tlObj = {y: 0}
+		const tl = new TWEEN.Timeline().add(new TWEEN.Tween(tlObj).to({y: 100}, 1000))
+		let tlStarted = false
+		tl.onStart(() => (tlStarted = true))
+
+		test.equal(tl.update(0), false)
+		test.equal(tl.update(500), false)
+		test.equal(tlStarted, false)
+		test.equal(tlObj.y, 0)
+
+		tl.start(0)
+		test.equal(tl.update(500), true)
+		test.equal(tlStarted, true)
+		test.equal(tlObj.y, 50)
+		tl.stop()
+		test.equal(tl.update(750), false)
+		test.equal(tlObj.y, 50)
 
 		test.done()
 	},
