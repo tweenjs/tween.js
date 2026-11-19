@@ -884,20 +884,26 @@
                     if (isFinite(this._repeat)) {
                         this._repeat -= completeCount;
                     }
+                    // After a long gap between updates (for example a background tab)
+                    // one update can finish several cycles. completeCount is only not
+                    // finite when the duration and the repeat delay are both 0.
+                    var cycles = isFinite(completeCount) ? completeCount : 1;
                     // Reassign starting values, restart by making startTime = now
                     for (property in this._valuesStartRepeat) {
                         if (!this._yoyo && typeof this._valuesEnd[property] === 'string') {
                             this._valuesStartRepeat[property] =
                                 // eslint-disable-next-line
                                 // @ts-ignore FIXME?
-                                this._valuesStartRepeat[property] + parseFloat(this._valuesEnd[property]);
+                                this._valuesStartRepeat[property] + parseFloat(this._valuesEnd[property]) * cycles;
                         }
-                        if (this._yoyo) {
+                        // Each finished cycle flips the direction, so an even number of
+                        // cycles leaves it unchanged.
+                        if (this._yoyo && cycles % 2 === 1) {
                             this._swapEndStartRepeatValues(property);
                         }
                         this._valuesStart[property] = this._valuesStartRepeat[property];
                     }
-                    if (this._yoyo) {
+                    if (this._yoyo && cycles % 2 === 1) {
                         this._reversed = !this._reversed;
                     }
                     this._startTime += durationAndDelay * completeCount;

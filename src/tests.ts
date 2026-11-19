@@ -1372,6 +1372,48 @@ export const tests = {
 		test.done()
 	},
 
+	'Test yoyo keeps its direction when one update skips two cycles'(test: Test): void {
+		TWEEN.removeAll()
+
+		const obj = {x: 0},
+			t = new TWEEN.Tween(obj, true).to({x: 100}, 100).repeat(5).yoyo(true)
+
+		t.start(0)
+
+		TWEEN.update(0)
+		test.equal(obj.x, 0)
+
+		// Two cycles (forward, then back) pass in this one update,
+		// so the tween is going forward again.
+		TWEEN.update(225)
+
+		TWEEN.update(230)
+		test.equal(obj.x, 30)
+
+		TWEEN.update(290)
+		test.equal(obj.x, 90)
+		test.done()
+	},
+
+	'Test relative repeat adds the offset once for each skipped cycle'(test: Test): void {
+		TWEEN.removeAll()
+
+		const obj = {x: 0},
+			t = new TWEEN.Tween(obj, true).to({x: '+100'}, 100).repeat(5)
+
+		t.start(0)
+
+		TWEEN.update(0)
+		test.equal(obj.x, 0)
+
+		// Two cycles pass in this one update, so the third cycle starts at 200.
+		TWEEN.update(225)
+
+		TWEEN.update(250)
+		test.equal(obj.x, 250)
+		test.done()
+	},
+
 	'Test yoyo works with arrays'(test: Test): void {
 		TWEEN.removeAll()
 
