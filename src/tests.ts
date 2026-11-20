@@ -4026,6 +4026,51 @@ export const tests = {
 		test.done()
 	},
 
+	'Curve sampling continues past the ends for t and u outside [0, 1]'(test: Test): void {
+		// Back and Elastic easings overshoot, so a 0 -> 1 progress tween can
+		// sample slightly below 0 or above 1.
+		const curve = new TWEEN.CatmullRomCurve([
+			{x: 0, y: 0},
+			{x: 10, y: 0},
+			{x: 10, y: 10},
+		])
+
+		const before = curve.getPoint(-0.05)
+		const after = curve.getPoint(1.05)
+		test.ok(before.x < 0 && Math.abs(before.y) < 1, 'getPoint(-0.05) continues before the first point')
+		test.ok(after.y > 10 && Math.abs(after.x - 10) < 1, 'getPoint(1.05) continues past the last point')
+
+		const beforeAt = curve.getPointAt(-0.05)
+		const afterAt = curve.getPointAt(1.05)
+		test.ok(beforeAt.x < 0, 'getPointAt(-0.05) continues before the first point')
+		test.ok(afterAt.y > 10, 'getPointAt(1.05) continues past the last point')
+		const tangent = curve.getTangentAt(1.05)
+		test.ok(Number.isFinite(tangent.x) && Number.isFinite(tangent.y))
+
+		// LineCurve already extrapolates in getPoint(); getPointAt() now matches it.
+		const line = new TWEEN.LineCurve({x: 0, y: 0}, {x: 10, y: 0})
+		toBeCloseTo(test, line.getPointAt(1.05).x, 10.5, 6)
+		toBeCloseTo(test, line.getPointAt(-0.05).x, -0.5, 6)
+		test.equal(line.getPointAt(1).x, 10)
+
+		// The demo pattern with an overshooting easing.
+		const position = {x: 0, y: 0}
+		const progress = {t: 0}
+		const xs: number[] = []
+		const tween = new TWEEN.Tween(progress).to({t: 1}, 1000).easing(TWEEN.Easing.Back.Out)
+		tween.onUpdate(() => {
+			curve.getPointAt(progress.t, position)
+			xs.push(position.x, position.y)
+		})
+		tween.start(0)
+		for (let time = 0; time <= 1000; time += 50) tween.update(time)
+		test.ok(xs.every(Number.isFinite), 'every sampled position is finite')
+		toBeCloseTo(test, position.x, 10, 6)
+		toBeCloseTo(test, position.y, 10, 6)
+
+		test.done()
+	},
+
 	'Curve Bezier curves match Interpolation.Bezier for the same control values'(test: Test): void {
 		const values4 = [0, Math.PI, Math.SQRT2, Math.E]
 		const [a, b, c, d] = values4.map(v => ({x: v, y: 0}))

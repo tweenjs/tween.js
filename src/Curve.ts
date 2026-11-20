@@ -187,7 +187,9 @@ export abstract class Curve<T extends Point = Point> {
 			}
 		}
 
-		i = high
+		// Outside [0, length] (u < 0 or u > 1), extrapolate from the first or
+		// last sample segment, so `t` continues past 0 or 1 like `getPoint()`.
+		i = Math.min(Math.max(high, 0), il - 2)
 
 		if (arcLengths[i] === targetArcLength) return i / (il - 1)
 
@@ -449,9 +451,11 @@ export class CatmullRomCurve<T extends Point = Point> extends Curve<T> {
 
 		if (this.closed) {
 			intPoint += intPoint > 0 ? 0 : (Math.floor(Math.abs(intPoint) / l) + 1) * l
-		} else if (weight === 0 && intPoint === l - 1) {
-			intPoint = l - 2
-			weight = 1
+		} else if (intPoint < 0 || intPoint > l - 2) {
+			// t = 1, or t outside [0, 1] (e.g. Back/Elastic easing): stay on the
+			// first or last segment and let it continue past the end point.
+			intPoint = intPoint < 0 ? 0 : l - 2
+			weight = p - intPoint
 		}
 
 		let p0: Point
