@@ -57,3 +57,6 @@ library. User-facing docs live in `examples/` and `README.md`.
   Removes `autoStart` and `autoStartOnUpdate` from `Tween` and `Timeline`, and
   removes `preserve` and auto-removal from `Group.update(time?)`, so `update()`
   only advances time and never implicitly starts or removes animations. ✅
+- **11 — Preserve ownership when removing a moved child** [`dev-docs/11-group-removal-ownership.md`](dev-docs/11-group-removal-ownership.md)
+  Keeps late `Group.remove()` calls from clearing a child's newer group, so
+  `Tween.remove()` and subsequent group transfers continue to work. ✅

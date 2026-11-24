@@ -277,7 +277,8 @@
             for (var _a = 0, tweens_2 = tweens; _a < tweens_2.length; _a++) {
                 var tween = tweens_2[_a];
                 // @ts-expect-error library internal access
-                tween._group = undefined;
+                if (tween._group === this)
+                    tween._group = undefined;
                 delete this._tweens[tween.getId()];
                 delete this._tweensAddedDuringUpdate[tween.getId()];
             }
