@@ -2203,6 +2203,36 @@ export const tests = {
 		test.done()
 	},
 
+	'Group.remove() from a previous group preserves Tween.remove()'(test: Test): void {
+		const tween = new TWEEN.Tween({})
+		const previousGroup = new TWEEN.Group(tween)
+		const currentGroup = new TWEEN.Group(tween)
+
+		previousGroup.remove(tween)
+		tween.remove()
+
+		test.equal(previousGroup.getAll().length, 0)
+		test.equal(currentGroup.getAll().length, 0)
+		test.done()
+	},
+
+	'Group.remove() from a previous group preserves later transfers'(test: Test): void {
+		for (const child of [new TWEEN.Tween({}), new TWEEN.Timeline()]) {
+			const previousGroup = new TWEEN.Group(child)
+			const currentGroup = new TWEEN.Group(child)
+
+			previousGroup.remove(child)
+			test.equal(currentGroup.getAll()[0], child)
+
+			const nextGroup = new TWEEN.Group(child)
+			test.equal(previousGroup.getAll().length, 0)
+			test.equal(currentGroup.getAll().length, 0)
+			test.equal(nextGroup.getAll().length, 1)
+			test.equal(nextGroup.getAll()[0], child)
+		}
+		test.done()
+	},
+
 	"Custom group.removeAll() doesn't conflict with global TWEEN group"(test: Test): void {
 		const group = new TWEEN.Group()
 

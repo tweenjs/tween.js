@@ -45,7 +45,7 @@ export default class Group {
 	remove(...tweens: Array<GroupChild>): void {
 		for (const tween of tweens) {
 			// @ts-expect-error library internal access
-			tween._group = undefined
+			if (tween._group === this) tween._group = undefined
 
 			delete this._tweens[tween.getId()]
 			delete this._tweensAddedDuringUpdate[tween.getId()]
