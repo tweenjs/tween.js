@@ -305,6 +305,8 @@
      *
      * Using the TWEEN singleton to manage your tweens can cause issues in large apps with many components.
      * In these cases, you may want to create your own smaller groups of tween
+     *
+     * Groups can also hold `Timeline` instances (timelines are playable, like tweens).
      */
     var Group = /** @class */ (function () {
         function Group() {
@@ -357,9 +359,9 @@
         Group.prototype.allStopped = function () {
             return this.getAll().every(function (tween) { return !tween.isPlaying(); });
         };
-        Group.prototype.update = function (time, preserve) {
+        Group.prototype.update = function (time) {
+            var _a;
             if (time === void 0) { time = now(); }
-            if (preserve === void 0) { preserve = true; }
             var tweenIds = Object.keys(this._tweens);
             if (tweenIds.length === 0)
                 return;
@@ -371,24 +373,24 @@
             while (tweenIds.length > 0) {
                 this._tweensAddedDuringUpdate = {};
                 for (var i = 0; i < tweenIds.length; i++) {
-                    var tween = this._tweens[tweenIds[i]];
-                    var autoStart = !preserve;
-                    if (tween && tween.update(time, autoStart) === false && !preserve)
-                        this.remove(tween);
+                    (_a = this._tweens[tweenIds[i]]) === null || _a === void 0 ? void 0 : _a.update(time);
                 }
                 tweenIds = Object.keys(this._tweensAddedDuringUpdate);
             }
         };
         Group.prototype.onComplete = function (callback) {
             var group = this.getAll();
-            group.forEach(function (tween) {
-                var prevCallback = tween.getCompleteCallback();
-                tween.onComplete(function () {
-                    prevCallback === null || prevCallback === void 0 ? void 0 : prevCallback(tween);
+            group.forEach(function (child) {
+                var prevCallback = child.getCompleteCallback();
+                var notifyIfComplete = function () {
                     // After the onComplete callback completes, _isPlaying is updated to false, so if the total number of completed tweens is -1, then they are all complete.
                     var completedGroup = group.filter(function (tween) { return !tween.isPlaying(); });
                     if (completedGroup.length === group.length - 1)
                         callback(group);
+                };
+                child.onComplete(function (object) {
+                    prevCallback === null || prevCallback === void 0 ? void 0 : prevCallback(object);
+                    notifyIfComplete();
                 });
             });
         };
@@ -550,6 +552,18 @@
         Tween.prototype.getDuration = function () {
             return this._duration;
         };
+        /**
+         * Total duration from `start()` call (including initial delay, repeats
+         * and repeat delays). Used by `Timeline` to compute its own duration.
+         * Returns `Infinity` when the tween repeats forever.
+         */
+        Tween.prototype.getTotalDuration = function () {
+            var _a;
+            if (!isFinite(this._initialRepeat))
+                return Infinity;
+            var repeatDelay = (_a = this._repeatDelayTime) !== null && _a !== void 0 ? _a : this._delayTime;
+            return this._delayTime + this._duration + this._initialRepeat * (this._duration + repeatDelay);
+        };
         Tween.prototype.to = function (target, duration) {
             if (duration === void 0) { duration = 1000; }
             if (this._isPlaying)
@@ -576,7 +590,7 @@
                 return this;
             }
             this._repeat = this._initialRepeat;
-            if (this._reversed) {
+            if (this._yoyo && this._reversed) {
                 // If we were reversed (f.e. using the yoyo feature) then we need to
                 // flip the tween direction back to forward.
                 this._reversed = false;
@@ -638,9 +652,7 @@
                         temp.push(value);
                     }
                     if (isInterpolationList) {
-                        // if (_valuesStart[property] === undefined) { // handle end values only the first time. NOT NEEDED? setupProperties is now guarded by _propertiesAreSetUp.
                         _valuesEnd[property] = temp;
-                        // }
                     }
                 }
                 // handle the deepness of the values
@@ -744,21 +756,41 @@
             (_a = this._group) === null || _a === void 0 ? void 0 : _a.remove(this);
             return this;
         };
+        /**
+         * @deprecated Timing orchestration is moving to `Timeline` (use a timeline
+         * offset instead). This method keeps working for now and will be removed
+         * in a future major version.
+         */
         Tween.prototype.delay = function (amount) {
             if (amount === void 0) { amount = 0; }
             this._delayTime = amount;
             return this;
         };
+        /**
+         * @deprecated Timing orchestration is moving to `Timeline` (repeat by
+         * adding the tween multiple times, e.g. `timeline.add(tween, {repeat: 3})`,
+         * which clones it internally). This method keeps working for now and will
+         * be removed in a future major version.
+         */
         Tween.prototype.repeat = function (times) {
             if (times === void 0) { times = 0; }
             this._initialRepeat = times;
             this._repeat = times;
             return this;
         };
+        /**
+         * @deprecated Timing orchestration is moving to `Timeline`. This method
+         * keeps working for now and will be removed in a future major version.
+         */
         Tween.prototype.repeatDelay = function (amount) {
             this._repeatDelayTime = amount;
             return this;
         };
+        /**
+         * @deprecated Timing orchestration is moving to `Timeline` (yoyo via
+         * `reverse()` clips, e.g. `timeline.add(tween, {yoyo: true})`). This method
+         * keeps working for now and will be removed in a future major version.
+         */
         Tween.prototype.yoyo = function (yoyo) {
             if (yoyo === void 0) { yoyo = false; }
             this._yoyo = yoyo;
@@ -774,6 +806,11 @@
             this._interpolationFunction = interpolationFunction;
             return this;
         };
+        /**
+         * @deprecated Sequencing is moving to `Timeline` (add tweens to a
+         * timeline to play them in order). This method keeps working for now and
+         * will be removed in a future major version.
+         */
         // eslint-disable-next-line
         Tween.prototype.chain = function () {
             var tweens = [];
@@ -782,6 +819,55 @@
             }
             this._chainedTweens = tweens;
             return this;
+        };
+        /**
+         * Create an independent copy of this tween: same object, end values,
+         * duration, easing, interpolation, dynamic flag, and callbacks, but no
+         * playback state. `Timeline` uses this when the same tween is added more
+         * than once (e.g. `timeline.add(tween, {repeat: 3})`).
+         *
+         * Start values are snapshotted right away, so every repeated play starts
+         * from the same state even though the object keeps changing.
+         *
+         * Chains are not copied; compose with `Timeline` instead.
+         */
+        Tween.prototype.clone = function () {
+            var cloned = new Tween(this._object);
+            cloned._valuesEnd = this._valuesEnd;
+            cloned._duration = this._duration;
+            cloned._isDynamic = this._isDynamic;
+            cloned._reversed = this._reversed;
+            cloned._easingFunction = this._easingFunction;
+            cloned._interpolationFunction = this._interpolationFunction;
+            // Snapshot start values now (a later start() then preserves them).
+            // Callbacks are attached afterwards so this setup stays silent.
+            cloned.start(0);
+            cloned.stop();
+            cloned._onStartCallback = this._onStartCallback;
+            cloned._onEveryStartCallback = this._onEveryStartCallback;
+            cloned._onUpdateCallback = this._onUpdateCallback;
+            cloned._onRepeatCallback = this._onRepeatCallback;
+            cloned._onCompleteCallback = this._onCompleteCallback;
+            cloned._onStopCallback = this._onStopCallback;
+            return cloned;
+        };
+        /**
+         * Create a new tween that plays this tween backwards: same object, end
+         * values, duration, easing, interpolation, dynamic flag, and callbacks,
+         * but with progress mirrored so it runs from end to start.
+         *
+         * The typical use is a yoyo without `yoyo()`:
+         *
+         * ```js
+         * timeline.add(tween)
+         * timeline.add(tween.reverse())
+         * // or simply: timeline.add(tween, {yoyo: true})
+         * ```
+         */
+        Tween.prototype.reverse = function () {
+            var reversed = this.clone();
+            reversed._reversed = !this._reversed;
+            return reversed;
         };
         Tween.prototype.onStart = function (callback) {
             this._onStartCallback = callback;
@@ -811,25 +897,16 @@
          * @returns true if the tween is still playing after the update, false
          * otherwise (calling update on a paused tween still returns true because
          * it is still playing, just paused).
-         *
-         * @param autoStart - When true, calling update will implicitly call start()
-         * as well. Note, if you stop() or end() the tween, but are still calling
-         * update(), it will start again!
          */
-        Tween.prototype.update = function (time, autoStart) {
+        Tween.prototype.update = function (time) {
             var _this = this;
             var _a;
             if (time === void 0) { time = now(); }
-            if (autoStart === void 0) { autoStart = Tween.autoStartOnUpdate; }
             if (this._isPaused)
                 return true;
             var property;
-            if (!this._goToEnd && !this._isPlaying) {
-                if (autoStart)
-                    this.start(time, true);
-                else
-                    return false;
-            }
+            if (!this._goToEnd && !this._isPlaying)
+                return false;
             this._goToEnd = false;
             if (time < this._startTime) {
                 return true;
@@ -866,7 +943,9 @@
                 return portion;
             };
             var elapsed = calculateElapsedPortion();
-            var value = this._easingFunction(elapsed);
+            // A reversed tween (see reverse()) plays the same values backwards.
+            // Legacy yoyo() swaps values instead, so it is excluded here.
+            var value = this._easingFunction(this._reversed && !this._yoyo ? 1 - elapsed : elapsed);
             // properties transformations
             this._updateProperties(this._object, this._valuesStart, this._valuesEnd, value);
             if (this._onUpdateCallback) {
@@ -967,9 +1046,1287 @@
             }
             this._valuesEnd[property] = tmp;
         };
-        Tween.autoStartOnUpdate = false;
         return Tween;
     }());
+
+    /**
+     * @file Tween.js - Licensed under the MIT license
+     * https://github.com/tweenjs/tween.js
+     * ----------------------------------------------
+     *
+     * Timeline: compose Tweens (and nested Timelines) in sequence and in parallel.
+     *
+     * Inspired by trusktr's vision in #647 / #560:
+     * - Tween does tweening, Timeline does orchestration (replaces `.chain`).
+     * - Single class, sequential by default (append), parallel via explicit offset.
+     * - Simple, Three.js ethos: small API, explicit times, no magic.
+     */
+    var __assign = (this && this.__assign) || function () {
+        __assign = Object.assign || function(t) {
+            for (var s, i = 1, n = arguments.length; i < n; i++) {
+                s = arguments[i];
+                for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                    t[p] = s[p];
+            }
+            return t;
+        };
+        return __assign.apply(this, arguments);
+    };
+    var __rest = (this && this.__rest) || function (s, e) {
+        var t = {};
+        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
+            t[p] = s[p];
+        if (s != null && typeof Object.getOwnPropertySymbols === "function")
+            for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
+                if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
+                    t[p[i]] = s[p[i]];
+            }
+        return t;
+    };
+    var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
+        if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+            if (ar || !(i in from)) {
+                if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+                ar[i] = from[i];
+            }
+        }
+        return to.concat(ar || Array.prototype.slice.call(from));
+    };
+    /**
+     * One `add()` call may not expand to more than 72 hours of clips (a full
+     * three-day conference, the longest animation in the universe).
+     */
+    var MAX_TIMELINE_DURATION_MS = 72 * 60 * 60 * 1000;
+    /**
+     * Timeline composes Tweens (and nested Timelines) in sequence and in
+     * parallel.
+     *
+     * Sequential by default: each `add()` call appends after the last child.
+     * Parallel placement is achieved via explicit offsets:
+     *
+     * ```ts
+     * const tl = new Timeline()
+     * tl.add(tweenA)       // plays at 0ms
+     * tl.add(tweenB, 0)    // plays in parallel at 0ms
+     * tl.add(tweenC, 500)  // starts at 500ms
+     * ```
+     *
+     * Labels allow named reference points:
+     *
+     * ```ts
+     * tl.addLabel('drop', 1000)
+     * tl.add(tweenD, 'drop')
+     * ```
+     */
+    var Timeline = /** @class */ (function () {
+        /**
+         * Creates a new empty Timeline. Use {@link add} to compose tweens
+         * and nested timelines.
+         */
+        function Timeline() {
+            this._id = Sequence.nextId();
+            this._entries = [];
+            this._labels = { start: 0, end: 0 };
+            this._duration = 0;
+            this._startTime = 0;
+            this._isPlaying = false;
+            this._isPaused = false;
+            this._pauseStart = 0;
+            this._lastUpdateTime = -Infinity;
+            this._onStartCallbackFired = false;
+            // Empty on purpose. Use `.add()` to compose.
+            // Sequential by default, parallel via explicit offsets, labels, or options.
+        }
+        /** Returns the unique integer ID of this timeline. */
+        Timeline.prototype.getId = function () {
+            return this._id;
+        };
+        /** Returns the callback registered via {@link onComplete}, if any. */
+        Timeline.prototype.getCompleteCallback = function () {
+            return this._onCompleteCallback;
+        };
+        /** Returns true while the timeline is playing (including while paused). */
+        Timeline.prototype.isPlaying = function () {
+            return this._isPlaying;
+        };
+        /** Returns true if the timeline is currently paused. */
+        Timeline.prototype.isPaused = function () {
+            return this._isPaused;
+        };
+        /** Duration of the timeline (max child end). */
+        Timeline.prototype.getDuration = function () {
+            return this._duration;
+        };
+        /**
+         * Total duration of all children. Same as {@link getDuration} for
+         * timelines.
+         */
+        Timeline.prototype.getTotalDuration = function () {
+            return this._duration;
+        };
+        /** Returns all child tweens and nested timelines. */
+        Timeline.prototype.getAll = function () {
+            return this._entries.map(function (entry) { return entry.node; });
+        };
+        /** Returns true if the given tween or timeline is a child of this timeline. */
+        Timeline.prototype.has = function (node) {
+            return this._entries.some(function (entry) { return entry.node === node; });
+        };
+        Timeline.prototype._isAddOptions = function (position) {
+            if (typeof position !== 'object' || position === null || Array.isArray(position))
+                return false;
+            if (position instanceof Timeline)
+                return false;
+            // Tween instances are objects too (and have `repeat`/`yoyo` methods),
+            // so detect them by their playback interface first.
+            var maybeTween = position;
+            if (typeof maybeTween.isPlaying === 'function' && typeof maybeTween.getId === 'function')
+                return false;
+            return true;
+        };
+        Timeline.prototype._resolveAt = function (at) {
+            var _a;
+            if (at === undefined)
+                return { offset: this._duration };
+            if (typeof at === 'number')
+                return { offset: at };
+            if (typeof at === 'string')
+                return { offset: (_a = this._labels[at]) !== null && _a !== void 0 ? _a : this._duration };
+            var insertIndex = this._entries.findIndex(function (entry) { return entry.node === at; });
+            if (insertIndex === -1)
+                return { offset: this._duration };
+            return { offset: this._entries[insertIndex].offset, insertIndex: insertIndex };
+        };
+        Timeline.prototype._resolvePosition = function (position) {
+            var _a;
+            if (this._isAddOptions(position)) {
+                var offset = (_a = position.offset) !== null && _a !== void 0 ? _a : 0;
+                if (position.atIndex !== undefined) {
+                    var insertIndex = Math.max(0, Math.min(position.atIndex, this._entries.length));
+                    var baseOffset = insertIndex < this._entries.length ? this._entries[insertIndex].offset : this._duration;
+                    return { offset: baseOffset + offset, shift: position.shift === true, insertIndex: insertIndex };
+                }
+                var resolved_1 = this._resolveAt(position.at);
+                return {
+                    offset: resolved_1.offset + offset,
+                    shift: position.shift === true,
+                    insertIndex: resolved_1.insertIndex,
+                };
+            }
+            var resolved = this._resolveAt(position);
+            return { offset: resolved.offset, shift: false, insertIndex: resolved.insertIndex };
+        };
+        /**
+         * Adds a named label at a time offset. Labels can be used as position
+         * references in {@link add}. The built-in labels `"start"` and `"end"`
+         * cannot be modified.
+         *
+         * @param name - Label name (must not be `"start"` or `"end"`).
+         * @param offset - Time offset in milliseconds.
+         */
+        Timeline.prototype.addLabel = function (name, offset) {
+            if (name === 'start' || name === 'end')
+                return this;
+            this._labels[name] = offset;
+            return this;
+        };
+        /**
+         * Removes a named label. Built-in `"start"` and `"end"` labels cannot be
+         * removed.
+         *
+         * @param name - Label name to remove.
+         */
+        Timeline.prototype.removeLabel = function (name) {
+            if (name === 'start' || name === 'end')
+                return this;
+            delete this._labels[name];
+            return this;
+        };
+        /**
+         * Returns the time offset for a named label, or `undefined` if the label
+         * does not exist.
+         *
+         * @param name - Label name to look up.
+         */
+        Timeline.prototype.getLabel = function (name) {
+            return this._labels[name];
+        };
+        Timeline.prototype._recalculateDuration = function () {
+            var max = 0;
+            var infinite = false;
+            for (var _i = 0, _a = this._entries; _i < _a.length; _i++) {
+                var entry = _a[_i];
+                if (!isFinite(entry.duration)) {
+                    infinite = true;
+                    break;
+                }
+                max = Math.max(max, entry.offset + entry.duration);
+            }
+            this._duration = infinite ? Infinity : max;
+            this._labels['end'] = this._duration;
+        };
+        /**
+         * Add a Tween or nested Timeline.
+         *
+         * Placement (second argument):
+         * - `add(tween)` appends after the last child (sequential).
+         * - `add(tween, 0)` starts at timeline start (parallel).
+         * - `add(tween, 500)` starts at 500ms.
+         * - `add(tween, 'myLabel')` aligns to a label (`start` and `end` builtin).
+         * - `add(tween, otherTween)` aligns to another child's start.
+         * - `add(tween, {at, atIndex, offset, shift, stagger, repeat, yoyo})` for full control.
+         *
+         * Options:
+         * - `at`: a time value, label, or child to align to (default: end).
+         * - `atIndex`: entry index to align to (takes precedence over `at`).
+         * - `offset`: added to the aligned base (default: 0).
+         * - `shift`: shift entries at/after the base later so nothing overlaps.
+         * - `stagger`: when adding an array, offset each child start by this amount.
+         * - `repeat`: total plays; extra plays clone the child (default: 1).
+         * - `yoyo`: alternate plays with reversed clips (see `Tween.reverse()`).
+         *
+         * Adding the same tween more than once clones it (each clip needs
+         * independent playback state); the original object plays first.
+         * `add([a, b])` adds sequentially; `add([a, b], 0)` adds in parallel
+         * (`repeat`/`yoyo` apply per child).
+         *
+         * @param node - A tween, timeline, or array of tweens/timelines.
+         * @param position - Optional position specifier (see above).
+         */
+        Timeline.prototype.add = function (node, position) {
+            var _this = this;
+            if (Array.isArray(node)) {
+                var options = this._isAddOptions(position) ? position : undefined;
+                if ((options === null || options === void 0 ? void 0 : options.stagger) !== undefined) {
+                    var stagger_1 = options.stagger, basePosition_1 = __rest(options, ["stagger"]);
+                    var baseOffset_1 = this._resolvePosition(basePosition_1).offset;
+                    node.forEach(function (child, index) {
+                        _this._addSingle(child, __assign(__assign({}, basePosition_1), { at: baseOffset_1 + index * stagger_1, atIndex: undefined, offset: 0, shift: basePosition_1.shift === true && index === 0 }));
+                    });
+                    return this;
+                }
+                for (var _i = 0, node_1 = node; _i < node_1.length; _i++) {
+                    var child = node_1[_i];
+                    this.add(child, position);
+                }
+                return this;
+            }
+            return this._addSingle(node, position);
+        };
+        Timeline.prototype._shiftEntries = function (offset, amount) {
+            if (amount === 0)
+                return;
+            for (var _i = 0, _a = this._entries; _i < _a.length; _i++) {
+                var entry = _a[_i];
+                if (entry.offset >= offset)
+                    entry.offset += amount;
+            }
+        };
+        Timeline.prototype._addSingle = function (node, position) {
+            var _a, _b;
+            var repeat = this._isAddOptions(position) && position.repeat !== undefined ? position.repeat : 1;
+            if (!Number.isInteger(repeat) || repeat < 1) {
+                throw new Error("Timeline.add() repeat must be a positive integer, got ".concat(repeat, "."));
+            }
+            var yoyo = this._isAddOptions(position) && position.yoyo === true;
+            var resolved = this._resolvePosition(position);
+            // Expand to clips. The original object plays first (unless it is
+            // already placed, in which case every clip is a clone: sharing one
+            // Tween across entries would share its playback state and break).
+            // Odd clips are reversed when yoyo. `{yoyo: true, repeat: 2}` plays
+            // forward, backward, forward, backward.
+            var totalClips = repeat * (yoyo ? 2 : 1);
+            // Fail fast before materializing: a huge repeat must throw instead
+            // of allocating millions of clones.
+            var clipsTotal = totalClips * node.getTotalDuration();
+            if (totalClips > 1 && !(clipsTotal <= MAX_TIMELINE_DURATION_MS)) {
+                throw new Error("Timeline.add() {repeat: ".concat(repeat).concat(yoyo ? ', yoyo: true' : '', "} exceeds the 72 hour cap."));
+            }
+            var clips = [];
+            for (var i = 0; i < totalClips; i++) {
+                if (i === 0 && !this.has(node)) {
+                    clips.push(node);
+                }
+                else if (yoyo && i % 2 === 1) {
+                    if (node instanceof Timeline) {
+                        throw new Error('Timeline.add() yoyo is only supported for Tween children. Reverse nested timelines manually.');
+                    }
+                    clips.push(node.reverse());
+                }
+                else {
+                    clips.push(node.clone());
+                }
+            }
+            if (resolved.shift) {
+                var total = clips.reduce(function (sum, clip) { return sum + clip.getTotalDuration(); }, 0);
+                this._shiftEntries(resolved.offset, total);
+            }
+            var cursor = resolved.offset;
+            var newEntries = clips.map(function (clip) {
+                var duration = clip.getTotalDuration();
+                var entry = { node: clip, offset: cursor, duration: duration, started: false };
+                cursor += duration;
+                return entry;
+            });
+            if (resolved.insertIndex !== undefined) {
+                (_a = this._entries).splice.apply(_a, __spreadArray([resolved.insertIndex, 0], newEntries, false));
+            }
+            else {
+                (_b = this._entries).push.apply(_b, newEntries);
+            }
+            // Children start lazily when the playhead reaches them (see update),
+            // so start values are captured at the right moment.
+            this._recalculateDuration();
+            return this;
+        };
+        /**
+         * Create an independent copy of this timeline: entries, custom labels,
+         * and callbacks are copied, and every child is cloned, so the copy plays
+         * identically but owns its playback state. Used by
+         * `add(child, {repeat})` expansion for nested timelines.
+         */
+        Timeline.prototype.clone = function () {
+            var cloned = new Timeline();
+            for (var _i = 0, _a = this._entries; _i < _a.length; _i++) {
+                var entry = _a[_i];
+                var child = entry.node;
+                cloned._entries.push({
+                    node: child.clone(),
+                    offset: entry.offset,
+                    duration: entry.duration,
+                    started: false,
+                });
+            }
+            for (var _b = 0, _c = Object.keys(this._labels); _b < _c.length; _b++) {
+                var name_1 = _c[_b];
+                if (name_1 !== 'start' && name_1 !== 'end')
+                    cloned._labels[name_1] = this._labels[name_1];
+            }
+            cloned._onStartCallback = this._onStartCallback;
+            cloned._onUpdateCallback = this._onUpdateCallback;
+            cloned._onCompleteCallback = this._onCompleteCallback;
+            cloned._onStopCallback = this._onStopCallback;
+            cloned._recalculateDuration();
+            return cloned;
+        };
+        /**
+         * Removes one or more child tweens/timelines from this timeline.
+         *
+         * @param nodes - The children to remove.
+         */
+        Timeline.prototype.remove = function () {
+            var nodes = [];
+            for (var _i = 0; _i < arguments.length; _i++) {
+                nodes[_i] = arguments[_i];
+            }
+            var changed = false;
+            var _loop_1 = function (node) {
+                var index = this_1._entries.findIndex(function (entry) { return entry.node === node; });
+                if (index !== -1) {
+                    this_1._entries.splice(index, 1);
+                    changed = true;
+                }
+            };
+            var this_1 = this;
+            for (var _a = 0, nodes_1 = nodes; _a < nodes_1.length; _a++) {
+                var node = nodes_1[_a];
+                _loop_1(node);
+            }
+            if (changed)
+                this._recalculateDuration();
+            return this;
+        };
+        /** Removes all children from this timeline. */
+        Timeline.prototype.removeAll = function () {
+            this._entries = [];
+            this._recalculateDuration();
+            return this;
+        };
+        /**
+         * Sets a callback invoked when the timeline first starts playing (fires
+         * exactly once per {@link start} call).
+         *
+         * @param callback - Called with the timeline instance.
+         */
+        Timeline.prototype.onStart = function (callback) {
+            this._onStartCallback = callback;
+            return this;
+        };
+        /**
+         * Sets a callback invoked on every update tick while the timeline is
+         * playing.
+         *
+         * @param callback - Called with the timeline instance and the elapsed
+         * portion (0 to 1). For infinite timelines, `elapsed` is always 0.
+         */
+        Timeline.prototype.onUpdate = function (callback) {
+            this._onUpdateCallback = callback;
+            return this;
+        };
+        /**
+         * Sets a callback invoked when the timeline finishes playing (reaches
+         * its total duration).
+         *
+         * @param callback - Called with the timeline instance.
+         */
+        Timeline.prototype.onComplete = function (callback) {
+            this._onCompleteCallback = callback;
+            return this;
+        };
+        /**
+         * Sets a callback invoked when the timeline is stopped via {@link stop}.
+         *
+         * @param callback - Called with the timeline instance.
+         */
+        Timeline.prototype.onStop = function (callback) {
+            this._onStopCallback = callback;
+            return this;
+        };
+        /**
+         * Convenience: set easing for all direct child Tweens.
+         *
+         * @param easingFunction - The easing function to apply.
+         * @param recurse - If `true`, also applies the easing to Tweens inside nested
+         * child Timelines. Defaults to `false`, in which case nested Timelines are skipped.
+         */
+        Timeline.prototype.easingAll = function (easingFunction, recurse) {
+            if (recurse === void 0) { recurse = false; }
+            for (var _i = 0, _a = this._entries; _i < _a.length; _i++) {
+                var entry = _a[_i];
+                var child = entry.node;
+                if (child instanceof Timeline) {
+                    if (recurse)
+                        child.easingAll(easingFunction, true);
+                }
+                else {
+                    child.easing(easingFunction);
+                }
+            }
+            return this;
+        };
+        /**
+         * Starts the timeline at the given time. Children start lazily when the
+         * playhead reaches their offset, so start values are captured at the
+         * right moment even for sequential same-property tweens.
+         *
+         * If already playing, this is a no-op. Stops any currently playing
+         * children.
+         *
+         * @param time - The current time in milliseconds (usually from
+         * `performance.now()` or your own clock). Defaults to `now()`.
+         */
+        Timeline.prototype.start = function (time) {
+            if (time === void 0) { time = now(); }
+            if (this._isPlaying)
+                return this;
+            this._recalculateDuration();
+            this._isPlaying = true;
+            this._isPaused = false;
+            this._onStartCallbackFired = false;
+            // Snap to the ideal cycle boundary when restarting a finished
+            // timeline, so repeated timelines stay in sync with longer ones.
+            // Only when the caller's time is at or past the boundary;
+            // a time before the boundary means a deliberate scrub-back.
+            this._startTime = this._nextStartTime !== undefined && time >= this._nextStartTime ? this._nextStartTime : time;
+            this._nextStartTime = undefined;
+            this._lastUpdateTime = -Infinity;
+            for (var _i = 0, _a = this._entries; _i < _a.length; _i++) {
+                var entry = _a[_i];
+                if (entry.node.isPlaying())
+                    entry.node.stop();
+            }
+            return this;
+        };
+        /**
+         * Stops the timeline and all playing children. Fires the
+         * {@link onStop} callback if set.
+         */
+        Timeline.prototype.stop = function () {
+            if (!this._isPlaying)
+                return this;
+            for (var _i = 0, _a = this._entries; _i < _a.length; _i++) {
+                var entry = _a[_i];
+                if (entry.node.isPlaying())
+                    entry.node.stop();
+            }
+            this._isPlaying = false;
+            this._isPaused = false;
+            if (this._onStopCallback)
+                this._onStopCallback(this);
+            return this;
+        };
+        /**
+         * Pauses the timeline at the given time. The timeline continues to
+         * report `isPlaying() === true` while paused.
+         *
+         * @param time - The current time in milliseconds. Defaults to `now()`.
+         */
+        Timeline.prototype.pause = function (time) {
+            if (time === void 0) { time = now(); }
+            if (this._isPaused || !this._isPlaying)
+                return this;
+            this._isPaused = true;
+            this._pauseStart = time;
+            return this;
+        };
+        /**
+         * Resumes the timeline from a paused state. The timeline's clock is
+         * adjusted so children continue from the pause point.
+         *
+         * @param time - The current time in milliseconds. Defaults to `now()`.
+         */
+        Timeline.prototype.resume = function (time) {
+            if (time === void 0) { time = now(); }
+            if (!this._isPaused || !this._isPlaying)
+                return this;
+            this._isPaused = false;
+            this._startTime += time - this._pauseStart;
+            this._pauseStart = 0;
+            return this;
+        };
+        /**
+         * @returns true if still playing after update, false otherwise.
+         * Children use a local clock (0 = timeline start).
+         *
+         * @param time - The current time in milliseconds. Defaults to `now()`.
+         */
+        Timeline.prototype.update = function (time) {
+            if (time === void 0) { time = now(); }
+            if (this._isPaused)
+                return true;
+            if (!this._isPlaying)
+                return false;
+            if (time < this._startTime)
+                return true;
+            if (!this._onStartCallbackFired) {
+                if (this._onStartCallback)
+                    this._onStartCallback(this);
+                this._onStartCallbackFired = true;
+            }
+            var timelineLocal = time - this._startTime;
+            var effectiveLocal = Math.min(timelineLocal, this._duration);
+            // Detect scrub-back vs forward play: only eagerly restart/clamp
+            // late-offset children when the playhead moved backward. On
+            // forward playback (including auto-restart), children start
+            // lazily so same-property tweens chain correctly.
+            var scrubbingBack = time < this._lastUpdateTime;
+            this._lastUpdateTime = time;
+            for (var _i = 0, _a = this._entries; _i < _a.length; _i++) {
+                var entry = _a[_i];
+                var child = entry.node;
+                if (!entry.started) {
+                    // First start must wait until due; a never-started child
+                    // left behind stays untouched.
+                    if (effectiveLocal < entry.offset)
+                        continue;
+                    child.start(entry.offset);
+                    entry.started = true;
+                }
+                else if (!child.isPlaying() && effectiveLocal < entry.offset + entry.duration) {
+                    // On scrub-back, eagerly re-enter children past the playhead
+                    // so they snap to their start values. On forward playback
+                    // only re-enter when the playhead has reached the child.
+                    if (scrubbingBack || effectiveLocal >= entry.offset) {
+                        child.start(entry.offset);
+                    }
+                }
+                // On scrub-back, clamp late children to their offset so they
+                // output start values. On forward playback let the child
+                // start lazily (no output until playhead reaches offset).
+                if (scrubbingBack && effectiveLocal < entry.offset) {
+                    child.update(entry.offset);
+                }
+                else if (!scrubbingBack && effectiveLocal < entry.offset && !child.isPlaying()) ;
+                else {
+                    child.update(effectiveLocal);
+                }
+            }
+            if (!isFinite(this._duration)) {
+                if (this._onUpdateCallback)
+                    this._onUpdateCallback(this, 0);
+                return true;
+            }
+            var elapsed = this._duration === 0 ? 1 : effectiveLocal / this._duration;
+            if (this._onUpdateCallback)
+                this._onUpdateCallback(this, elapsed);
+            if (this._duration === 0 || time >= this._startTime + this._duration) {
+                if (this._onCompleteCallback)
+                    this._onCompleteCallback(this);
+                // Store the ideal next-cycle boundary so start() snaps to it
+                // instead of the overshooting wall-clock time. This keeps
+                // repeated timelines precisely aligned with longer ones.
+                this._nextStartTime = this._startTime + this._duration;
+                this._isPlaying = false;
+                return false;
+            }
+            return true;
+        };
+        return Timeline;
+    }());
+
+    /**
+     * @file Tween.js - Licensed under the MIT license
+     * https://github.com/tweenjs/tween.js
+     * ----------------------------------------------
+     *
+     * TimeScaler: a decoupled clock that scales time.
+     *
+     * Tween stays a scalar progress animator with no time-scaling logic of its
+     * own (see #655). To run tweens in slow motion, fast-forward, or frozen,
+     * feed them scaled times instead of raw times:
+     *
+     * ```ts
+     * const scaler = new TimeScaler(1)
+     * const tween = new Tween(obj).to({x: 100}, 1000)
+     * const startTime = performance.now()
+     * scaler.start(startTime)
+     * tween.start(startTime)
+     *
+     * function animate(time) {
+     * 	requestAnimationFrame(animate)
+     * 	tween.update(scaler.update(time))
+     * }
+     *
+     * // Later: slow motion, freeze, resume — no Tween changes needed.
+     * scaler.scale = 0.5
+     * scaler.scale = 0
+     * scaler.scale = 2
+     * ```
+     *
+     * Works with `Tween`, `Group`, and `Timeline`: anything that takes a time
+     * value can take `scaler.update(rawTime)`.
+     */
+    /**
+     * Scales a monotonic source clock (for example `requestAnimationFrame`
+     * timestamps) into a scaled clock for driving tweens.
+     *
+     * With a constant scale of `1` this is the identity (`update(t) === t`),
+     * so wrapping an existing loop is a drop-in change. Other scales advance
+     * the scaled clock by `(raw - lastRaw) * scale` per update: `0` freezes it, values between
+     * `0` and `1` slow it down, values above `1` speed it up, and negative
+     * values run it backwards.
+     */
+    var TimeScaler = /** @class */ (function () {
+        /**
+         * Creates a scaler with the given initial scale. Defaults to `1`
+         * (unscaled).
+         *
+         * @param scale - Initial scale factor. Defaults to `1`.
+         */
+        function TimeScaler(scale) {
+            if (scale === void 0) { scale = 1; }
+            this._scale = 1;
+            this._lastRawTime = undefined;
+            this._scaledTime = 0;
+            this._scale = scale;
+        }
+        Object.defineProperty(TimeScaler.prototype, "scale", {
+            /** Returns the current scale factor. */
+            get: function () {
+                return this._scale;
+            },
+            /**
+             * Sets the scale factor applied to source-clock deltas from now on.
+             * Past output is not rewritten; the next `update()` advances from the
+             * last scaled time using the new scale.
+             */
+            set: function (scale) {
+                this._scale = scale;
+            },
+            enumerable: false,
+            configurable: true
+        });
+        /**
+         * Re-anchors both clocks to a source time, so elapsed time is scaled from
+         * this point even when the first update happens in a later frame. Pass the
+         * same time to the tween's `start()` to keep their clocks aligned.
+         */
+        TimeScaler.prototype.start = function (rawTime) {
+            if (rawTime === void 0) { rawTime = now(); }
+            this._lastRawTime = rawTime;
+            this._scaledTime = rawTime;
+            return this;
+        };
+        /**
+         * Returns the last scaled time (the value the previous `update()`
+         * returned, or the time passed to `start()`, or `0` before either call).
+         */
+        TimeScaler.prototype.getTime = function () {
+            return this._scaledTime;
+        };
+        /**
+         * Maps a source-clock reading to the scaled clock. Call once per frame
+         * with the same value you would otherwise pass to `Tween.update()`,
+         * `Group.update()`, or `Timeline.update()`, and pass the result on.
+         *
+         * Without `start()`, the first call anchors both clocks and returns its
+         * input unchanged. Otherwise, calls add `(rawTime - lastRawTime) * scale`.
+         *
+         * @param rawTime - Source time in milliseconds (usually from
+         * `performance.now()` or your own clock). Defaults to `now()`.
+         */
+        TimeScaler.prototype.update = function (rawTime) {
+            if (rawTime === void 0) { rawTime = now(); }
+            if (this._lastRawTime === undefined) {
+                this.start(rawTime);
+                return this._scaledTime;
+            }
+            this._scaledTime += (rawTime - this._lastRawTime) * this._scale;
+            this._lastRawTime = rawTime;
+            return this._scaledTime;
+        };
+        return TimeScaler;
+    }());
+
+    /**
+     * Curve/Path primitives for tween.js, adapted from Three.js (MIT License).
+     * https://github.com/mrdoob/three.js — src/extras/core/Curve.js and
+     * src/extras/curves/* — Copyright (c) 2010-2026 three.js authors.
+     *
+     * Why this exists (see https://github.com/tweenjs/tween.js/issues/721):
+     * array `to()` values blur the concept of a Tween (see
+     * https://github.com/tweenjs/tween.js/issues/655). Instead, keep Tween
+     * simple (a scalar 0 -> 1 progress) and sample a decoupled Curve/Path:
+     *
+     * ```js
+     * import {Tween, Easing, CatmullRomCurve} from '@tweenjs/tween.js'
+     *
+     * const curve = new CatmullRomCurve([{x: 0, y: 0}, {x: 100, y: 0}, {x: 100, y: 100}])
+     * const position = {x: 0, y: 0}
+     * const progress = {t: 0}
+     *
+     * new Tween(progress)
+     * 	.to({t: 1}, 2000)
+     * 	.easing(Easing.Linear.None)
+     * 	.onUpdate(() => curve.getPoint(progress.t, position))
+     * 	.start()
+     * ```
+     *
+     * Points are plain objects (`{x, y}` or `{x, y, z}`) so they work with any
+     * renderer or physics engine — no `THREE.Vector` dependency. When an
+     * `optionalTarget` is given, it is mutated and returned, so a tweened
+     * object can be used directly as the target.
+     */
+    var __extends = (this && this.__extends) || (function () {
+        var extendStatics = function (d, b) {
+            extendStatics = Object.setPrototypeOf ||
+                ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+                function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+            return extendStatics(d, b);
+        };
+        return function (d, b) {
+            if (typeof b !== "function" && b !== null)
+                throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+            extendStatics(d, b);
+            function __() { this.constructor = d; }
+            d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+        };
+    })();
+    function getZ(p) {
+        var _a;
+        return (_a = p.z) !== null && _a !== void 0 ? _a : 0;
+    }
+    function clonePoint(p) {
+        var out = { x: p.x, y: p.y };
+        if ('z' in p)
+            out.z = p.z;
+        return out;
+    }
+    function copyPoint(target, source) {
+        target.x = source.x;
+        target.y = source.y;
+        // Never add a `z` key to a 2D target; only refresh it when present so
+        // 2D points stay 2D (nodeunit diffs are by reference, extra keys fail).
+        if ('z' in target)
+            target.z = getZ(source);
+        return target;
+    }
+    function distanceBetween(a, b) {
+        var dx = b.x - a.x;
+        var dy = b.y - a.y;
+        var dz = getZ(b) - getZ(a);
+        return Math.sqrt(dx * dx + dy * dy + dz * dz);
+    }
+    /**
+     * Abstract base class for analytic curves. Subclasses implement `getPoint(t)`.
+     * Arc-length helpers (`getPointAt`, `getTangentAt`, …) are shared here and
+     * mirror the Three.js `Curve` API.
+     */
+    var Curve = /** @class */ (function () {
+        function Curve() {
+            this.type = 'Curve';
+            /**
+             * Divisions used when caching cumulative segment lengths via `getLengths()`.
+             * Increase it for very large curves when using `getPointAt()`/`getSpacedPoints()`.
+             */
+            this.arcLengthDivisions = 200;
+            /** Set to `true` when curve parameters change, to invalidate the length cache. */
+            this.needsUpdate = false;
+            this.cacheArcLengths = null;
+        }
+        /**
+         * Like `getPoint()`, but `u` is a fraction of the total distance along the
+         * curve. Equal steps in `u` give approximately equal distances along it.
+         */
+        Curve.prototype.getPointAt = function (u, optionalTarget) {
+            var t = this.getUtoTmapping(u);
+            return this.getPoint(t, optionalTarget);
+        };
+        /** Sample the curve via `getPoint()` into `divisions + 1` points. */
+        Curve.prototype.getPoints = function (divisions) {
+            if (divisions === void 0) { divisions = 5; }
+            var points = [];
+            for (var d = 0; d <= divisions; d++)
+                points.push(this.getPoint(d / divisions));
+            return points;
+        };
+        /** Sample the curve via `getPointAt()` into `divisions + 1` equidistant points. */
+        Curve.prototype.getSpacedPoints = function (divisions) {
+            if (divisions === void 0) { divisions = 5; }
+            var points = [];
+            for (var d = 0; d <= divisions; d++)
+                points.push(this.getPointAt(d / divisions));
+            return points;
+        };
+        /** Total arc length of the curve. */
+        Curve.prototype.getLength = function () {
+            var lengths = this.getLengths();
+            return lengths[lengths.length - 1];
+        };
+        /** Cumulative segment lengths of the curve. */
+        Curve.prototype.getLengths = function (divisions) {
+            if (divisions === void 0) { divisions = this.arcLengthDivisions; }
+            if (this.cacheArcLengths && this.cacheArcLengths.length === divisions + 1 && !this.needsUpdate)
+                return this.cacheArcLengths;
+            this.needsUpdate = false;
+            var cache = [];
+            var current;
+            var last = this.getPoint(0);
+            var sum = 0;
+            cache.push(0);
+            for (var p = 1; p <= divisions; p++) {
+                current = this.getPoint(p / divisions);
+                sum += distanceBetween(current, last);
+                cache.push(sum);
+                last = current;
+            }
+            this.cacheArcLengths = cache;
+            return cache;
+        };
+        /** Invalidate the cached lengths (call after changing curve parameters). */
+        Curve.prototype.updateArcLengths = function () {
+            this.needsUpdate = true;
+            this.getLengths();
+        };
+        /**
+         * Map a fraction `u` of the curve's length to its parameter `t`. Equal
+         * changes in `t` need not cover equal distances: where the position changes
+         * more rapidly with `t` (in any spatial direction), the distance fraction
+         * `u` increases more rapidly too. For example, a quadratic Bézier through
+         * endpoints (0, 0) and (100, 0), with control point (0, 0), has
+         * x = 100t² and y = 0. At t = 0.5 it is only 25% along its length, even
+         * though the curve is straight.
+         * `getPointAt()` and `getTangentAt()` use this mapping for approximately
+         * uniform travel.
+         * The mapping interpolates between cached length samples; `distance`, if
+         * provided, takes precedence over `u` and specifies an absolute distance.
+         */
+        Curve.prototype.getUtoTmapping = function (u, distance) {
+            if (distance === void 0) { distance = null; }
+            var arcLengths = this.getLengths();
+            var il = arcLengths.length;
+            var targetArcLength = distance !== null && distance !== void 0 ? distance : u * arcLengths[il - 1];
+            // Binary search for the largest index smaller than the target length.
+            var low = 0;
+            var high = il - 1;
+            var i = 0;
+            while (low <= high) {
+                i = Math.floor(low + (high - low) / 2);
+                var comparison = arcLengths[i] - targetArcLength;
+                if (comparison < 0)
+                    low = i + 1;
+                else if (comparison > 0)
+                    high = i - 1;
+                else {
+                    high = i;
+                    break;
+                }
+            }
+            i = high;
+            if (arcLengths[i] === targetArcLength)
+                return i / (il - 1);
+            var lengthBefore = arcLengths[i];
+            var lengthAfter = arcLengths[i + 1];
+            var segmentLength = lengthAfter - lengthBefore;
+            var segmentFraction = (targetArcLength - lengthBefore) / segmentLength;
+            return (i + segmentFraction) / (il - 1);
+        };
+        /**
+         * Unit tangent for factor `t`, via a small finite difference. Returns a
+         * fresh point unless `optionalTarget` is given.
+         */
+        Curve.prototype.getTangent = function (t, optionalTarget) {
+            var delta = 0.0001;
+            var t1 = Math.max(t - delta, 0);
+            var t2 = Math.min(t + delta, 1);
+            var pt1 = this.getPoint(t1);
+            var pt2 = this.getPoint(t2);
+            var tangent = (optionalTarget !== null && optionalTarget !== void 0 ? optionalTarget : clonePoint(pt1));
+            var dx = pt2.x - pt1.x;
+            var dy = pt2.y - pt1.y;
+            var dz = getZ(pt2) - getZ(pt1);
+            var len = Math.sqrt(dx * dx + dy * dy + dz * dz) || 1;
+            tangent.x = dx / len;
+            tangent.y = dy / len;
+            // Only refresh `z` when the output already carries it; never widen 2D points.
+            if ('z' in tangent)
+                tangent.z = dz / len;
+            return tangent;
+        };
+        /** Like `getTangent()`, but for the arc-length factor `u`. */
+        Curve.prototype.getTangentAt = function (u, optionalTarget) {
+            var t = this.getUtoTmapping(u);
+            return this.getTangent(t, optionalTarget);
+        };
+        /** Copy shared settings from another curve. */
+        Curve.prototype.copy = function (source) {
+            this.arcLengthDivisions = source.arcLengthDivisions;
+            this.cacheArcLengths = null;
+            return this;
+        };
+        return Curve;
+    }());
+    /** Straight segment between two points. */
+    var LineCurve = /** @class */ (function (_super) {
+        __extends(LineCurve, _super);
+        function LineCurve(v1, v2) {
+            var _this = _super.call(this) || this;
+            _this.v1 = v1;
+            _this.v2 = v2;
+            _this.type = 'LineCurve';
+            return _this;
+        }
+        LineCurve.prototype.getPoint = function (t, optionalTarget) {
+            var point = (optionalTarget !== null && optionalTarget !== void 0 ? optionalTarget : clonePoint(this.v1));
+            point.x = this.v1.x + (this.v2.x - this.v1.x) * t;
+            point.y = this.v1.y + (this.v2.y - this.v1.y) * t;
+            if ('z' in point)
+                point.z = getZ(this.v1) + (getZ(this.v2) - getZ(this.v1)) * t;
+            return point;
+        };
+        LineCurve.prototype.copy = function (source) {
+            _super.prototype.copy.call(this, source);
+            this.v1 = clonePoint(source.v1);
+            this.v2 = clonePoint(source.v2);
+            return this;
+        };
+        LineCurve.prototype.clone = function () {
+            return new LineCurve(clonePoint(this.v1), clonePoint(this.v2)).copy(this);
+        };
+        return LineCurve;
+    }(Curve));
+    function quadraticBezier(p0, p1, p2, t) {
+        var oneMinusT = 1 - t;
+        return oneMinusT * oneMinusT * p0 + 2 * oneMinusT * t * p1 + t * t * p2;
+    }
+    function cubicBezier(p0, p1, p2, p3, t) {
+        var oneMinusT = 1 - t;
+        var a = oneMinusT * oneMinusT * oneMinusT * p0;
+        var b = 3 * oneMinusT * oneMinusT * t * p1;
+        var c = 3 * oneMinusT * t * t * p2;
+        var d = t * t * t * p3;
+        return a + b + c + d;
+    }
+    /**
+     * Quadratic Bézier curve from `v0` to `v2`, pulled toward `v1`:
+     *
+     *        v1 (control)
+     *       /  \
+     *      /    \
+     *     v0 ~~~ v2
+     *
+     * The two endpoints and one control point define the quadratic polynomial.
+     * The curve generally does not pass through `v1`.
+     */
+    var QuadraticBezierCurve = /** @class */ (function (_super) {
+        __extends(QuadraticBezierCurve, _super);
+        function QuadraticBezierCurve(v0, v1, v2) {
+            var _this = _super.call(this) || this;
+            _this.v0 = v0;
+            _this.v1 = v1;
+            _this.v2 = v2;
+            _this.type = 'QuadraticBezierCurve';
+            return _this;
+        }
+        QuadraticBezierCurve.prototype.getPoint = function (t, optionalTarget) {
+            var point = (optionalTarget !== null && optionalTarget !== void 0 ? optionalTarget : clonePoint(this.v0));
+            point.x = quadraticBezier(this.v0.x, this.v1.x, this.v2.x, t);
+            point.y = quadraticBezier(this.v0.y, this.v1.y, this.v2.y, t);
+            if ('z' in point)
+                point.z = quadraticBezier(getZ(this.v0), getZ(this.v1), getZ(this.v2), t);
+            return point;
+        };
+        QuadraticBezierCurve.prototype.copy = function (source) {
+            _super.prototype.copy.call(this, source);
+            this.v0 = clonePoint(source.v0);
+            this.v1 = clonePoint(source.v1);
+            this.v2 = clonePoint(source.v2);
+            return this;
+        };
+        QuadraticBezierCurve.prototype.clone = function () {
+            return new QuadraticBezierCurve(clonePoint(this.v0), clonePoint(this.v1), clonePoint(this.v2)).copy(this);
+        };
+        return QuadraticBezierCurve;
+    }(Curve));
+    /**
+     * Cubic Bézier curve from `v0` to `v3`, shaped by control points `v1` and `v2`:
+     *
+     *     v1 (control)       v2 (control)
+     *     /                       \
+     *    /       ~~~~~~~~~         \
+     *   v0 ~~~~~~         ~~~~~~~~ v3
+     *
+     * The control points set the endpoint directions; the curve generally does
+     * not pass through them.
+     */
+    var CubicBezierCurve = /** @class */ (function (_super) {
+        __extends(CubicBezierCurve, _super);
+        function CubicBezierCurve(v0, v1, v2, v3) {
+            var _this = _super.call(this) || this;
+            _this.v0 = v0;
+            _this.v1 = v1;
+            _this.v2 = v2;
+            _this.v3 = v3;
+            _this.type = 'CubicBezierCurve';
+            return _this;
+        }
+        CubicBezierCurve.prototype.getPoint = function (t, optionalTarget) {
+            var point = (optionalTarget !== null && optionalTarget !== void 0 ? optionalTarget : clonePoint(this.v0));
+            point.x = cubicBezier(this.v0.x, this.v1.x, this.v2.x, this.v3.x, t);
+            point.y = cubicBezier(this.v0.y, this.v1.y, this.v2.y, this.v3.y, t);
+            if ('z' in point)
+                point.z = cubicBezier(getZ(this.v0), getZ(this.v1), getZ(this.v2), getZ(this.v3), t);
+            return point;
+        };
+        CubicBezierCurve.prototype.copy = function (source) {
+            _super.prototype.copy.call(this, source);
+            this.v0 = clonePoint(source.v0);
+            this.v1 = clonePoint(source.v1);
+            this.v2 = clonePoint(source.v2);
+            this.v3 = clonePoint(source.v3);
+            return this;
+        };
+        CubicBezierCurve.prototype.clone = function () {
+            return new CubicBezierCurve(clonePoint(this.v0), clonePoint(this.v1), clonePoint(this.v2), clonePoint(this.v3)).copy(this);
+        };
+        return CubicBezierCurve;
+    }(Curve));
+    function catmullRomInterpolate(p0, p1, p2, p3, t, tension) {
+        var v0 = (p2 - p0) * tension;
+        var v1 = (p3 - p1) * tension;
+        var t2 = t * t;
+        var t3 = t2 * t;
+        return (2 * p1 - 2 * p2 + v0 + v1) * t3 + (-3 * p1 + 3 * p2 - 2 * v0 - v1) * t2 + v0 * t + p1;
+    }
+    function nonUniformCatmullRomInterpolate(p0, p1, p2, p3, t, dt0, dt1, dt2) {
+        // Centripetal/chordal tangents, adapted from Three.js CatmullRomCurve3.
+        var t1 = (p1 - p0) / dt0 - (p2 - p0) / (dt0 + dt1) + (p2 - p1) / dt1;
+        var t2 = (p2 - p1) / dt1 - (p3 - p1) / (dt1 + dt2) + (p3 - p2) / dt2;
+        t1 *= dt1;
+        t2 *= dt1;
+        var c0 = p1;
+        var c1 = t1;
+        var c2 = -3 * p1 + 3 * p2 - 2 * t1 - t2;
+        var c3 = 2 * p1 - 2 * p2 + t1 + t2;
+        return c0 + c1 * t + c2 * t * t + c3 * t * t * t;
+    }
+    /**
+     * Smooth spline through a list of points. `centripetal` (default) avoids
+     * cusps and self-intersections on unevenly spaced points.
+     */
+    var CatmullRomCurve = /** @class */ (function (_super) {
+        __extends(CatmullRomCurve, _super);
+        function CatmullRomCurve(points, closed, curveType, tension) {
+            if (points === void 0) { points = []; }
+            if (closed === void 0) { closed = false; }
+            if (curveType === void 0) { curveType = 'centripetal'; }
+            if (tension === void 0) { tension = 0.5; }
+            var _this = _super.call(this) || this;
+            _this.points = points;
+            _this.closed = closed;
+            _this.curveType = curveType;
+            _this.tension = tension;
+            _this.type = 'CatmullRomCurve';
+            return _this;
+        }
+        CatmullRomCurve.prototype.getPoint = function (t, optionalTarget) {
+            var points = this.points;
+            var l = points.length;
+            if (l === 0)
+                throw new Error('CatmullRomCurve needs at least one point.');
+            if (l === 1)
+                return copyPoint((optionalTarget !== null && optionalTarget !== void 0 ? optionalTarget : clonePoint(points[0])), points[0]);
+            if (l === 2) {
+                // Degrade to a line so two-point paths still animate.
+                var point_1 = (optionalTarget !== null && optionalTarget !== void 0 ? optionalTarget : clonePoint(points[0]));
+                point_1.x = points[0].x + (points[1].x - points[0].x) * t;
+                point_1.y = points[0].y + (points[1].y - points[0].y) * t;
+                if ('z' in point_1)
+                    point_1.z = getZ(points[0]) + (getZ(points[1]) - getZ(points[0])) * t;
+                return point_1;
+            }
+            var point = (optionalTarget !== null && optionalTarget !== void 0 ? optionalTarget : clonePoint(points[0]));
+            var p = (l - (this.closed ? 0 : 1)) * t;
+            var intPoint = Math.floor(p);
+            var weight = p - intPoint;
+            if (this.closed) {
+                intPoint += intPoint > 0 ? 0 : (Math.floor(Math.abs(intPoint) / l) + 1) * l;
+            }
+            else if (weight === 0 && intPoint === l - 1) {
+                intPoint = l - 2;
+                weight = 1;
+            }
+            var p0;
+            var p3;
+            if (this.closed || intPoint > 0) {
+                p0 = points[(intPoint - 1) % l];
+            }
+            else {
+                // Extrapolate the first point.
+                p0 = {
+                    x: 2 * points[0].x - points[1].x,
+                    y: 2 * points[0].y - points[1].y,
+                    z: 2 * getZ(points[0]) - getZ(points[1]),
+                };
+            }
+            var p1 = points[intPoint % l];
+            var p2 = points[(intPoint + 1) % l];
+            if (this.closed || intPoint + 2 < l) {
+                p3 = points[(intPoint + 2) % l];
+            }
+            else {
+                // Extrapolate the last point.
+                var n = l - 1;
+                p3 = {
+                    x: 2 * points[n].x - points[n - 1].x,
+                    y: 2 * points[n].y - points[n - 1].y,
+                    z: 2 * getZ(points[n]) - getZ(points[n - 1]),
+                };
+            }
+            if (this.curveType === 'centripetal' || this.curveType === 'chordal') {
+                var pow = this.curveType === 'chordal' ? 0.5 : 0.25;
+                var dt0 = Math.pow(Math.pow(distanceBetween(p0, p1), 2), pow);
+                var dt1 = Math.pow(Math.pow(distanceBetween(p1, p2), 2), pow);
+                var dt2 = Math.pow(Math.pow(distanceBetween(p2, p3), 2), pow);
+                if (dt1 < 1e-4)
+                    dt1 = 1.0;
+                if (dt0 < 1e-4)
+                    dt0 = dt1;
+                if (dt2 < 1e-4)
+                    dt2 = dt1;
+                point.x = nonUniformCatmullRomInterpolate(p0.x, p1.x, p2.x, p3.x, weight, dt0, dt1, dt2);
+                point.y = nonUniformCatmullRomInterpolate(p0.y, p1.y, p2.y, p3.y, weight, dt0, dt1, dt2);
+                if ('z' in point)
+                    point.z = nonUniformCatmullRomInterpolate(getZ(p0), getZ(p1), getZ(p2), getZ(p3), weight, dt0, dt1, dt2);
+            }
+            else {
+                point.x = catmullRomInterpolate(p0.x, p1.x, p2.x, p3.x, weight, this.tension);
+                point.y = catmullRomInterpolate(p0.y, p1.y, p2.y, p3.y, weight, this.tension);
+                if ('z' in point)
+                    point.z = catmullRomInterpolate(getZ(p0), getZ(p1), getZ(p2), getZ(p3), weight, this.tension);
+            }
+            return point;
+        };
+        CatmullRomCurve.prototype.copy = function (source) {
+            _super.prototype.copy.call(this, source);
+            this.points = source.points.map(function (p) { return clonePoint(p); });
+            this.closed = source.closed;
+            this.curveType = source.curveType;
+            this.tension = source.tension;
+            return this;
+        };
+        CatmullRomCurve.prototype.clone = function () {
+            return new CatmullRomCurve([], this.closed, this.curveType, this.tension).copy(this);
+        };
+        return CatmullRomCurve;
+    }(Curve));
+    /**
+     * A path made of chained curves. `t` in `[0, 1]` is distributed by arc
+     * length, so a Tween driving `t` moves at near-constant speed when sampled
+     * with `getPointAt()`, and proportionally through each child with `getPoint()`.
+     */
+    var CurvePath = /** @class */ (function (_super) {
+        __extends(CurvePath, _super);
+        function CurvePath(curves) {
+            if (curves === void 0) { curves = []; }
+            var _this = _super.call(this) || this;
+            _this.type = 'CurvePath';
+            _this.curves = [];
+            _this.autoClose = false;
+            _this.curves = curves;
+            return _this;
+        }
+        /** Add a curve to the end of the path. */
+        CurvePath.prototype.add = function (curve) {
+            this.curves.push(curve);
+            this.updateArcLengths();
+            return this;
+        };
+        /** Connect the end of the path back to the start with a line. */
+        CurvePath.prototype.closePath = function () {
+            if (this.curves.length === 0)
+                return this;
+            var start = this.curves[0].getPoint(0);
+            var end = this.curves[this.curves.length - 1].getPoint(1);
+            if (distanceBetween(start, end) > Number.EPSILON)
+                this.add(new LineCurve(clonePoint(end), clonePoint(start)));
+            this.autoClose = true;
+            return this;
+        };
+        /** Length of each child curve (cached until the path changes). */
+        CurvePath.prototype.getCurveLengths = function () {
+            return this.curves.map(function (curve) { return curve.getLength(); });
+        };
+        CurvePath.prototype.getPoint = function (t, optionalTarget) {
+            if (this.curves.length === 0)
+                throw new Error('CurvePath needs at least one curve. Use path.add(curve).');
+            if (this.curves.length === 1)
+                return this.curves[0].getPoint(t, optionalTarget);
+            // Distribute `t` by arc length so short segments are not over-weighted.
+            var lengths = this.getCurveLengths();
+            var total = lengths.reduce(function (sum, len) { return sum + len; }, 0);
+            var target = t * total;
+            var i = 0;
+            while (i < lengths.length - 1 && target > lengths[i]) {
+                target -= lengths[i];
+                i++;
+            }
+            var fraction = lengths[i] === 0 ? 0 : target / lengths[i];
+            return this.curves[i].getPoint(fraction, optionalTarget);
+        };
+        CurvePath.prototype.getLength = function () {
+            return this.getCurveLengths().reduce(function (sum, len) { return sum + len; }, 0);
+        };
+        CurvePath.prototype.updateArcLengths = function () {
+            this.needsUpdate = true;
+            for (var _i = 0, _a = this.curves; _i < _a.length; _i++) {
+                var curve = _a[_i];
+                curve.updateArcLengths();
+            }
+            _super.prototype.updateArcLengths.call(this);
+        };
+        CurvePath.prototype.copy = function (source) {
+            _super.prototype.copy.call(this, source);
+            this.curves = source.curves.map(function (curve) { return curve.clone(); });
+            this.autoClose = source.autoClose;
+            return this;
+        };
+        CurvePath.prototype.clone = function () {
+            return new CurvePath().copy(this);
+        };
+        return CurvePath;
+    }(Curve));
+    var Path = CurvePath;
 
     var VERSION = '25.0.0';
 
@@ -983,6 +2340,10 @@
      */
     var nextId = Sequence.nextId;
     /**
+     * @deprecated The global TWEEN Group will be removed in a following major
+     * release. To migrate, create a `new Group()` instead of using `TWEEN` as a
+     * group.
+     
      * Controlling groups of tweens
      *
      * Using the TWEEN singleton to manage your tweens can cause issues in large apps with many components.
@@ -1242,6 +2603,15 @@
         Sequence: Sequence,
         nextId: nextId,
         Tween: Tween,
+        Timeline: Timeline,
+        TimeScaler: TimeScaler,
+        Curve: Curve,
+        LineCurve: LineCurve,
+        QuadraticBezierCurve: QuadraticBezierCurve,
+        CubicBezierCurve: CubicBezierCurve,
+        CatmullRomCurve: CatmullRomCurve,
+        CurvePath: CurvePath,
+        Path: Path,
         VERSION: VERSION,
         /**
          * @deprecated The global TWEEN Group will be removed in a following major
@@ -1485,10 +2855,19 @@
         update: update,
     };
 
+    exports.CatmullRomCurve = CatmullRomCurve;
+    exports.CubicBezierCurve = CubicBezierCurve;
+    exports.Curve = Curve;
+    exports.CurvePath = CurvePath;
     exports.Easing = Easing;
     exports.Group = Group;
     exports.Interpolation = Interpolation;
+    exports.LineCurve = LineCurve;
+    exports.Path = Path;
+    exports.QuadraticBezierCurve = QuadraticBezierCurve;
     exports.Sequence = Sequence;
+    exports.TimeScaler = TimeScaler;
+    exports.Timeline = Timeline;
     exports.Tween = Tween;
     exports.VERSION = VERSION;
     exports.add = add;

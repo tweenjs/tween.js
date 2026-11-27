@@ -14,10 +14,34 @@ jobs:
         node-version: [lts/*]
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
+          cache: npm
       - run: npm clean-install
+      - run: npx playwright install --with-deps chromium
+
+      # Uncomment this if for some reason you suspect CI (Linux) build differes from local, then you can inspect output.
+      # - name: Upload dist artifact
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: dist
+      #     path: dist/
+
       - run: npm test
+
+      - name: Upload Playwright rest results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-test-results
+          path: test-results/
+
+      - name: Upload Playwright e2e snapshots
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-e2e-snapshots
+          path: e2e/**/*-snapshots/

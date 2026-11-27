@@ -5,7 +5,6 @@ JavaScript (TypeScript) tweening engine for easy animations, incorporating optim
 [![NPM Version][npm-image]][npm-url]
 [![CDNJS][cdnjs-image]][cdnjs-url]
 [![NPM Downloads][downloads-image]][downloads-url]
-[![Build and Tests][ci-image]][ci-url]
 
 More languages: [English](./README.md), [简体中文](./README_zh-CN.md)
 
@@ -29,7 +28,7 @@ More languages: [English](./README.md), [简体中文](./README_zh-CN.md)
 
 	const coords = {x: 0, y: 0} // Start at (0, 0)
 
-	const tween = new Tween(coords, false) // Create a new tween that modifies 'coords'.
+	const tween = new Tween(coords) // Create a new tween that modifies 'coords'.
 		.to({x: 300, y: 200}, 1000) // Move to (300, 200) in 1 second.
 		.easing(Easing.Quadratic.InOut) // Use an easing function to make the animation smooth.
 		.onUpdate(() => {
@@ -253,6 +252,35 @@ More languages: [English](./README.md), [简体中文](./README_zh-CN.md)
 			Animate an array of values<br />
 			(<a href="examples/16_animate_an_array_of_values.html">source</a>)
 		</td>
+		<td>
+			<a href="http://tweenjs.github.io/tween.js/examples/23_curve_path.html">
+				<img width="100" height="50" src="https://tweenjs.github.io/tween.js/assets/examples/03_graphs.png" alt="Curve path" />
+			</a>
+		</td>
+		<td>
+			Curve path<br />
+			(<a href="examples/23_curve_path.html">source</a>)
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<a href="http://tweenjs.github.io/tween.js/examples/24_lume_curve.html">
+				<img width="100" height="50" src="https://tweenjs.github.io/tween.js/assets/examples/24_lume_curve.png" alt="Lume 3D curve" />
+			</a>
+		</td>
+		<td>
+			Lume 3D curve<br />
+			(<a href="examples/24_lume_curve.html">source</a>)
+		</td>
+		<td>
+			<a href="http://tweenjs.github.io/tween.js/examples/25_timescaler.html">
+				<img width="100" height="50" src="assets/examples/25_timescaler.png" alt="TimeScaler" />
+			</a>
+		</td>
+		<td>
+			TimeScaler<br />
+			(<a href="examples/25_timescaler.html">source</a>)
+		</td>
 	</tr>
 </table>
 
@@ -335,12 +363,16 @@ TypeScript) file, and the build tool will know how to find the source code from
 `node_modules` without needing to create an `importmap` script:
 
 ```javascript
-import * as TWEEN from '@tweenjs/tween.js'
+import {Tween} from '@tweenjs/tween.js'
 ```
 
 However, note that this approach requires always running a build tool for your
 app to work, while the `importmap` approach will simply work without any build
 tools as a simple static HTML site.
+
+Update a single tween directly with `tween.update()`. When you need to manage
+multiple tweens together, create a group with `new Group()`. See
+[Controlling groups of tweens](docs/user_guide.md#controlling-groups-of-tweens).
 
 ## Manual build
 
@@ -354,25 +386,15 @@ npm install
 npm run build
 ```
 
-This will create some builds in the `dist` directory. There are currently two different builds of the library:
+This will create a build in the `dist` directory:
 
-- ES6 Module in `/dist/tween.esm.js` (recommended)
-- UMD in `/dist/tween.umd.js` (deprecated, will be removed in a future major version)
+- ES6 Module in `/dist/tween.esm.js`
 
-You are now able to copy one of those two files into your project, and use like this (recommended):
+You are now able to copy this file into your project and use it like this:
 
 ```html
 <script type="module">
 	import {Tween} from 'path/to/tween.esm.js'
-</script>
-```
-
-or (deprecated, to be removed in future major):
-
-```html
-<script src="path/to/tween.umd.js"></script>
-<script>
-	const {Tween} = TWEEN
 </script>
 ```
 
@@ -381,51 +403,6 @@ where `path/to` is replaced with the location where you placed the file.
 > [!Note]
 > You can also download these files from unpkg, for example here:
 > https://unpkg.com/browse/@tweenjs/tween.js@23.1.3/dist/
-
-## Global variable from CDN (deprecated)
-
-> [!Note]
-> This method is deprecated and will be removed in a future major version!
-
-Install a global `TWEEN` variable from a content-delivery network (CDN) using the UMD file.
-
-From cdnjs:
-
-```html
-<script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/23.1.3/tween.umd.js"></script>
-```
-
-Or from unpkg.com:
-
-```html
-<script src="https://unpkg.com/@tweenjs/tween.js@^23.1.3/dist/tween.umd.js"></script>
-```
-
-Then use the `TWEEN` variable in any script:
-
-```html
-<script>
-	const {Tween, Easing, Group /*, ...*/} = TWEEN
-
-	const tween = new Tween(someObject)
-	// ...
-</script>
-```
-
-> [!Note]
-> unpkg.com supports a semver version in the URL, where the `^` in the
-> URL tells unpkg to give you the latest version 20.x.x.
-
-## CommonJS (deprecated)
-
-Skip this section if you don't know what CommonJS is!
-
-> [!Note]
-> This method is deprecated and will be removed in a future major version!
-
-Any of the above methods work in older systems that still use CommonJS. Repeat
-any of the above methods but using `dist/tween.cjs` instead of
-`dist/tween.esm.js` or `dist/tween.umd.js`.
 
 # Documentation
 
@@ -456,7 +433,10 @@ features or fixes) in `src/tests.ts` to be accepted. See
 
 # People
 
-Maintainers: [Joe Pea (@trusktr)](https://github.com/trusktr).
+Maintainers:
+
+- [Joe Pea (@trusktr)](https://github.com/trusktr)
+- [Dav (@dalisoft)](https://github.com/dalisoft)
 
 [All contributors](http://github.com/tweenjs/tween.js/contributors).
 
@@ -478,7 +458,5 @@ Maintainers: [Joe Pea (@trusktr)](https://github.com/trusktr).
 [npm-url]: https://npmjs.org/package/@tweenjs/tween.js
 [downloads-image]: https://img.shields.io/npm/dm/@tweenjs/tween.js.svg
 [downloads-url]: https://npmjs.org/package/@tweenjs/tween.js
-[ci-image]: https://github.com/tweenjs/tween.js/workflows/build%20and%20tests/badge.svg?branch=master
-[ci-url]: https://github.com/tweenjs/tween.js/actions
 [cdnjs-image]: https://img.shields.io/cdnjs/v/tween.js.svg
 [cdnjs-url]: https://cdnjs.com/libraries/tween.js

@@ -93,7 +93,7 @@ You'll see this a lot in the examples, so it's good to be familiar with it! Chec
 
 ## Animating with tween.js
 
-Tween.js doesn't run by itself. You need to tell it when to run, by explicitly calling the `update` method of each tween, or the `update` method of a `Group` that has multiple tweens (more on Groups below). The recommended method is to do this inside your main animation loop, which should be called with `requestAnimationFrame` for getting the best graphics performance:
+Tween.js doesn't run by itself. For a single tween, call its `update` method directly. When you need to update multiple tweens together, use a `Group` and call its `update` method instead (more on Groups below). The recommended method is to do this inside your main animation loop, which should be called with `requestAnimationFrame` for getting the best graphics performance:
 
 We've seen this example before:
 
@@ -160,6 +160,8 @@ function animate(time) {
 }
 ```
 
+If a Tween is not started, `tween.update(time)` does nothing and returns `false`. Call `.start()` first so the tween is playing.
+
 ### `pause`
 
 While an tween is running (i.e. it has already been `start`ed and may have
@@ -183,6 +185,8 @@ tween.pause()
 ```
 
 ### `chain`
+
+> **Deprecated** Prefer a `Timeline` to sequence tweens (`timeline.add(tweenA).add(tweenB)`); see Timeline.
 
 Things get more interesting when you sequence different tweens in order, i.e. setup one tween to start once a previous one has finished. We call this _chaining tweens_, and it's done with the `chain` method. Thus, to make `tweenB` start after `tweenA` finishes:
 
@@ -209,6 +213,8 @@ tweenA.chain(tweenB, tweenC)
 
 ### `repeat`
 
+> **Deprecated** Prefer `timeline.add(tween, {repeat: 3})` (total plays) instead; see Timeline.
+
 If you wanted a tween to repeat forever you could chain it to itself, but a better way is to use the `repeat` method. It accepts a parameter that describes how many repetitions you want after the first tween is completed:
 
 ```javascript
@@ -221,6 +227,8 @@ Check the [Repeat](../examples/08_repeat.html) example.
 
 ### `yoyo`
 
+> **Deprecated** Prefer explicit forward/backward tweens in a Timeline instead, e.g. `timeline.add(tween)` + `timeline.add(tween.reverse())` or the `timeline.add(tween, {yoyo: true})` shortcut; see Timeline.
+
 This function only has effect if used along with `repeat`. When active, the behaviour of the tween will be _like a yoyo_, i.e. it will bounce to and from the start and end values, instead of just repeating the same sequence from the beginning:
 
 ```js
@@ -229,6 +237,8 @@ tween.yoyo(true) // tween will 'yoyo' between start and end values
 ```
 
 ### `delay`
+
+> **Deprecated** Prefer a timeline offset (`timeline.add(tween, 1000)`) instead; see Timeline.
 
 More complex arrangements might require delaying a tween before it actually starts running. You can do that using the `delay` method:
 
@@ -240,6 +250,8 @@ tween.start()
 will start executing 1 second after the `start` method has been called.
 
 ### `repeatDelay`
+
+> **Deprecated** Prefer Timeline composition instead; see Timeline.
 
 Normally the `delay` time is applied between repetitions of a tween, but if a value is provided to the `repeatDelay` function then that value will determine the total time elapsed between repetitions of a tween.
 
@@ -317,8 +329,212 @@ Remove all tween from a group.
 
 ### `group.update(time?)`
 
-Update all tweens in a group, with an optional time value. If time value is not
-supplied, it default to the current time.
+Update all tweens in a group, with an optional time value. If a time value is
+not supplied, it defaults to the current time. Finished or stopped tweens stay
+in the group until removed explicitly with `group.remove(tween)`,
+`tween.remove()`, or `group.removeAll()`.
+
+## Timeline (sequencing and overlapping)
+
+A `Group` updates many tweens at once, but it has no notion of order: every
+tween keeps its own start time. When you need tweens to play in sequence, to
+overlap with precise offsets, or to repeat as a whole, use a `Timeline`
+instead of `.chain()`:
+
+```js
+import {Timeline, Tween} from '@tweenjs/tween.js'
+
+// Sequential by default: `add()` appends after the last child.
+const timeline = new Timeline().add(new Tween(obj1).to({x: 100}, 1000)).add(new Tween(obj2).to({y: 100}, 1000))
+
+timeline.start()
+
+function animate(time) {
+	requestAnimationFrame(animate)
+	timeline.update(time)
+}
+```
+
+Pass an explicit offset for parallel or staggered playback:
+
+```js
+const timeline = new Timeline()
+	.add(tweenA, 0) // start at 0ms
+	.add(tweenB, 0) // in parallel with tweenA
+	.add(tweenC, 500) // start at 500ms
+```
+
+For labels and insertion, use the typed API instead of a string DSL:
+
+```js
+timeline.addLabel('intro', 300)
+
+timeline.add(tweenD, 'intro') // align to label
+timeline.add(tweenE, {at: 'intro', offset: 100}) // 400ms
+timeline.add(tweenF, {at: tweenD, offset: -100}) // 100ms before tweenD
+timeline.add(tweenH, tweenD) // align to tweenD's start
+timeline.add([tweenI, tweenJ, tweenK], {at: 'intro', stagger: 150}) // 150ms between starts
+timeline.add(tweenG, {atIndex: 2, shift: true}) // insert before child #3 and shift later children
+```
+
+Timeline APIs:
+
+- Labels:
+  - `timeline.addLabel(name, time)`
+  - `timeline.getLabel(name)`
+  - `timeline.removeLabel(name)`
+  - Reserved labels: `start` is always `0`, and `end` is always the current
+    end of the timeline. These labels cannot be changed or removed.
+- Child placement:
+  - `timeline.add(child)` appends at `end`
+  - `timeline.add(child, 500)` places a child at an absolute local time
+  - `timeline.add(child, 'intro')` aligns to an existing label
+  - `timeline.add(child, otherChild)` aligns to another child's start time
+  - `timeline.add(child, {at, offset, shift, repeat, yoyo})` combines a target
+    location with an offset, optional insertion shifting, and repeat/yoyo
+    expansion (see below)
+  - `timeline.add(child, {atIndex, offset, shift, repeat, yoyo})` targets a
+    child by index; `atIndex` takes precedence over `at`
+  - `timeline.add([a, b, c], {at, stagger})` starts array children at the same
+    base placement plus `stagger * index`
+  - `timeline.add(child, {repeat: 3})` plays the child 3 times in a row (see
+    repeats below)
+  - `timeline.add(child, {yoyo: true})` plays forward then backward (see yoyo
+    below)
+  - `timeline.add([a, b])` adds sequentially; `timeline.add([a, b], 0)` adds
+    in parallel (`repeat`/`yoyo` apply per child)
+- Child management:
+  - `timeline.getAll()`
+  - `timeline.has(child)`
+  - `timeline.remove(child)`
+  - `timeline.removeAll()`
+- Playback and timing:
+  - `timeline.start(time?)`
+  - `timeline.update(time?)`
+  - `timeline.isPlaying()`
+  - `timeline.isPaused()`
+  - `timeline.getDuration()`
+  - `timeline.getTotalDuration()`
+  - `timeline.pause()`
+  - `timeline.resume()`
+  - `timeline.stop()`
+- Child-wide convenience APIs:
+  - `timeline.easingAll(fn, recurse?)`
+- Callbacks:
+  - `timeline.onStart(fn)`
+  - `timeline.onUpdate(fn)`
+  - `timeline.onComplete(fn)`
+  - `timeline.onStop(fn)`
+- Composition:
+  - Timelines can be nested inside other timelines.
+  - A `Timeline` can also be added to a `Group` (`group.add(timeline)`) — just
+    don't add its children to a `Group` as well, or they would be updated
+    twice.
+
+Timeline intentionally does not mirror Tween's legacy orchestration helpers
+such as `delay()`, `repeat()`, `repeatDelay()`, or `yoyo()` (deprecated on
+`Tween`, to be removed in a future major version). Instead:
+
+- use offsets or labels to create gaps
+- repeat by adding the tween multiple times: each extra play clones it
+  internally (documented), so every clip owns its playback state:
+
+```js
+// replacement for tween.repeat(): plays three times
+timeline.add(tween)
+timeline.add(tween)
+timeline.add(tween)
+
+// shortcut for the above
+timeline.add(tween, {repeat: 3})
+```
+
+One `add()` call may not expand past 72 hours of clips (a full three-day
+conference); anything beyond that throws instead of allocating millions of
+clones.
+
+- yoyo by composing a reversed clip (see `Tween.reverse()`):
+
+```js
+// replacement for tween.yoyo()
+timeline.add(tween)
+timeline.add(tween.reverse())
+
+// shortcut for the above
+timeline.add(tween, {yoyo: true})
+
+// forward, backward, forward, backward
+timeline.add(tween, {yoyo: true, repeat: 2})
+```
+
+### `Tween.clone()` and `Tween.reverse()`
+
+- `tween.clone()` returns an independent copy (same object, end values,
+  duration, easing, interpolation, dynamic flag, callbacks) with no playback
+  state. Start values are snapshotted right away, so repeated plays all start
+  from the same state.
+- `tween.reverse()` returns a new tween playing the same values backwards,
+  from end to start.
+- Chains are not copied; compose with `Timeline` instead.
+- `Timeline.clone()` copies entries, custom labels, and callbacks, cloning
+  every child, so `add(nestedTimeline, {repeat: 2})` works too.
+
+Check [Timeline](../examples/20_timeline.html),
+[Timeline slider](../examples/21_timeline_slider.html), and
+[Timeline repeat](../examples/22_timeline_repeat.html) for working examples.
+
+## TimeScaler (slow motion, fast-forward, freeze)
+
+`Tween` has no time-scaling logic of its own (see #655): it just maps the
+time values you pass to `update()` into progress. To play animations in
+slow motion, fast-forward, or frozen, map your source clock through a
+`TimeScaler` first and pass the scaled time on. This works with `Tween`,
+`Group`, and `Timeline` — anything that takes a time value:
+
+```js
+import {TimeScaler, Tween} from '@tweenjs/tween.js'
+
+const scaler = new TimeScaler(1)
+const startTime = performance.now()
+scaler.start(startTime)
+tween.start(startTime)
+
+function animate(time) {
+	requestAnimationFrame(animate)
+	tween.update(scaler.update(time))
+}
+
+// Dynamic scale, no Tween changes needed:
+scaler.scale = 0.5 // slow motion
+scaler.scale = 0 // freeze (resume never jumps)
+scaler.scale = 2 // fast-forward
+```
+
+APIs:
+
+- `new TimeScaler(scale?)` — initial scale, defaults to `1` (unscaled)
+- `scaler.scale` — change or read the scale live; it applies to the next
+  source-clock delta, and can itself be animated with a `Tween`
+- `scaler.start(rawTime?)` — anchor both clocks to the same source time
+  (defaults to `now()`). Pass the same time to `tween.start()` so even the
+  interval before the first animation frame is scaled. Call it again to
+  re-anchor when restarting from scratch.
+- `scaler.update(rawTime?)` — map a source reading (defaults to `now()`)
+  to scaled time; pass the result to `tween.update()`, `group.update()`,
+  or `timeline.update()`. Without `start()`, the first call anchors both
+  clocks and returns its input.
+- `scaler.getTime()` — last scaled time returned or anchored by `start()`
+
+Negative scales run the scaled clock backwards. A constant scale of `1`
+is the identity. After changing the scale back to `1`, the scaled clock
+retains its accumulated offset.
+
+When animating `scaler.scale` with a separate tween on the raw clock, update
+the scaler first, then update the scale tween. Each sampled scale then
+applies to the following source-clock interval.
+
+Check [TimeScaler](../examples/25_timescaler.html) for a working example
+with a live scale slider and an animated scale.
 
 ## Changing the easing function (AKA make it bouncy)
 
@@ -389,8 +605,8 @@ const trickyObjTween = new Tween({
 })
 	.to({propertyA: 100, propertyB: 200})
 	.onUpdate(function (object) {
-		object.setA(object.propertyA)
-		object.setB(object.propertyB)
+		trickyObj.setA(object.propertyA)
+		trickyObj.setB(object.propertyB)
 	})
 ```
 
