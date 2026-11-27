@@ -25,8 +25,7 @@ body {
 		-apple-system,
 		'Segoe UI',
 		sans-serif;
-	background:
-		radial-gradient(1100px 500px at 15% -5%, #ffe4ef 0%, transparent 60%),
+	background: radial-gradient(1100px 500px at 15% -5%, #ffe4ef 0%, transparent 60%),
 		radial-gradient(1000px 520px at 90% 0%, #e0e7ff 0%, transparent 62%),
 		radial-gradient(900px 700px at 50% 110%, #fef3c7 0%, transparent 60%),
 		linear-gradient(180deg, #f7f5ff 0%, #fdf6f9 55%, #fffaf0 100%);
@@ -267,8 +266,7 @@ section {
 	width: 100%;
 	height: 360px;
 	display: block;
-	background:
-		radial-gradient(420px 200px at 50% 0%, rgba(255, 255, 255, 0.9), transparent 70%),
+	background: radial-gradient(420px 200px at 50% 0%, rgba(255, 255, 255, 0.9), transparent 70%),
 		linear-gradient(180deg, #ffffff 0%, #fbf8ff 100%);
 	border: 1px solid var(--border);
 	border-radius: 12px;
