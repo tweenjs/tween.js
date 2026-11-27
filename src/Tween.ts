@@ -18,8 +18,6 @@ import type {InterpolationFunction} from './Interpolation'
 import type Group from './Group'
 
 export class Tween<T extends UnknownProps = any> {
-	static autoStartOnUpdate = false
-
 	private _isPaused = false
 	private _pauseStart = 0
 	private _valuesStart: UnknownProps = {}
@@ -521,20 +519,13 @@ export class Tween<T extends UnknownProps = any> {
 	 * @returns true if the tween is still playing after the update, false
 	 * otherwise (calling update on a paused tween still returns true because
 	 * it is still playing, just paused).
-	 *
-	 * @param autoStart - When true, calling update will implicitly call start()
-	 * as well. Note, if you stop() or end() the tween, but are still calling
-	 * update(), it will start again!
 	 */
-	update(time = now(), autoStart = Tween.autoStartOnUpdate): boolean {
+	update(time = now()): boolean {
 		if (this._isPaused) return true
 
 		let property
 
-		if (!this._goToEnd && !this._isPlaying) {
-			if (autoStart) this.start(time, true)
-			else return false
-		}
+		if (!this._goToEnd && !this._isPlaying) return false
 
 		this._goToEnd = false
 

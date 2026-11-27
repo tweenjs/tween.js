@@ -160,9 +160,7 @@ function animate(time) {
 }
 ```
 
-If a Tween is not started, `tween.update(time)` does nothing by default. Call `.start` or `.resume` first so a tween is playing.
-
-Calling `tween.update(time, true)` with `true` as the second argument will auto-start a Tween (not recommended).
+If a Tween is not started, `tween.update(time)` does nothing and returns `false`. Call `.start()` first so the tween is playing.
 
 ### `pause`
 
@@ -331,8 +329,10 @@ Remove all tween from a group.
 
 ### `group.update(time?)`
 
-Update all tweens in a group, with an optional time value. If time value is not
-supplied, it default to the current time.
+Update all tweens in a group, with an optional time value. If a time value is
+not supplied, it defaults to the current time. Finished or stopped tweens stay
+in the group until removed explicitly with `group.remove(tween)`,
+`tween.remove()`, or `group.removeAll()`.
 
 ## Timeline (sequencing and overlapping)
 

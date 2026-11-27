@@ -113,12 +113,6 @@ type TimelineEntry = {
  * ```
  */
 export class Timeline {
-	/**
-	 * When true, calling {@link update} on a stopped timeline will
-	 * implicitly call {@link start} first. Defaults to false.
-	 */
-	static autoStartOnUpdate = false
-
 	private _id = Sequence.nextId()
 	private _entries: Array<TimelineEntry> = []
 	private _labels: Record<string, number> = {start: 0, end: 0}
@@ -603,17 +597,11 @@ export class Timeline {
 	 * Children use a local clock (0 = timeline start).
 	 *
 	 * @param time - The current time in milliseconds. Defaults to `now()`.
-	 * @param autoStart - When true and the timeline is stopped, implicitly
-	 * call {@link start} first. Defaults to
-	 * {@link Timeline.autoStartOnUpdate}.
 	 */
-	update(time = now(), autoStart = Timeline.autoStartOnUpdate): boolean {
+	update(time = now()): boolean {
 		if (this._isPaused) return true
 
-		if (!this._isPlaying) {
-			if (autoStart) this.start(time)
-			else return false
-		}
+		if (!this._isPlaying) return false
 
 		if (time < this._startTime) return true
 

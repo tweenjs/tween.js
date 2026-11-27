@@ -15,6 +15,11 @@ library. User-facing docs live in `examples/` and `README.md`.
   `prettier . --check` locally but never exist in CI.
 - Install tooling project-wide, never system-wide (f.e. browsers via
   `PLAYWRIGHT_BROWSERS_PATH=.browsers/`, which is gitignored).
+- `Tween.update(time?)`, `Timeline.update(time?)`, and `Group.update(time?)`
+  only advance time; playback starts exclusively via `start()` /
+  `startFromCurrentValues()`, and groups never auto-remove finished or stopped
+  children (remove explicitly via `group.remove(child)`, `tween.remove()`, or
+  `group.removeAll()`).
 
 ## Implementation notes
 
@@ -53,3 +58,11 @@ library. User-facing docs live in `examples/` and `README.md`.
   vendored speed-highlight overlay, `Tween`/`Timeline`/`Easing`
   autocomplete. No core library changes. How to run/test/check: see
   `dev-docs/09-timeline-gui.md` §How to run / test / check. ✅
+- **10 — Remove legacy CommonJS and AMD distributions (#655)** [`dev-docs/10-remove-commonjs-build.md`](dev-docs/10-remove-commonjs-build.md)
+  Drops the `dist/tween.cjs` and `dist/tween.amd.js` Rollup targets, removes
+  CJS paths from `package.json` (`main` and `exports["."].require`), and removes
+  deprecated CJS docs and the `nodejs-commonjs` example project. ✅
+- **11 — Remove `autoStart` and `Group.update` `preserve` (#655)** [`dev-docs/11-remove-update-autostart.md`](dev-docs/11-remove-update-autostart.md)
+  Removes `autoStart` and `autoStartOnUpdate` from `Tween` and `Timeline`, and
+  removes `preserve` and auto-removal from `Group.update(time?)`, so `update()`
+  only advances time and never implicitly starts or removes animations. ✅

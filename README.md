@@ -5,7 +5,6 @@ JavaScript (TypeScript) tweening engine for easy animations, incorporating optim
 [![NPM Version][npm-image]][npm-url]
 [![CDNJS][cdnjs-image]][cdnjs-url]
 [![NPM Downloads][downloads-image]][downloads-url]
-[![Build and Tests][ci-image]][ci-url]
 
 More languages: [English](./README.md), [简体中文](./README_zh-CN.md)
 
@@ -405,17 +404,6 @@ where `path/to` is replaced with the location where you placed the file.
 > You can also download these files from unpkg, for example here:
 > https://unpkg.com/browse/@tweenjs/tween.js@23.1.3/dist/
 
-## CommonJS (deprecated)
-
-Skip this section if you don't know what CommonJS is!
-
-> [!Note]
-> This method is deprecated and will be removed in a future major version!
-
-Any of the above methods work in older systems that still use CommonJS. Repeat
-any of the above methods but using `dist/tween.cjs` instead of
-`dist/tween.esm.js`.
-
 # Documentation
 
 - [User guide](./docs/user_guide.md)
@@ -470,7 +458,5 @@ Maintainers:
 [npm-url]: https://npmjs.org/package/@tweenjs/tween.js
 [downloads-image]: https://img.shields.io/npm/dm/@tweenjs/tween.js.svg
 [downloads-url]: https://npmjs.org/package/@tweenjs/tween.js
-[ci-image]: https://github.com/tweenjs/tween.js/workflows/build%20and%20tests/badge.svg?branch=master
-[ci-url]: https://github.com/tweenjs/tween.js/actions
 [cdnjs-image]: https://img.shields.io/cdnjs/v/tween.js.svg
 [cdnjs-url]: https://cdnjs.com/libraries/tween.js
