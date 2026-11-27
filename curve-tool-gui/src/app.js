@@ -335,15 +335,21 @@ function draw() {
 
 // ---- preview race (a real Tween with the edited easing) ----
 
+// previewT is the LINEAR clock (ghost dot + readout time); easedT is the
+// tween-driven value (coral dot). They must stay separate: feeding eased
+// time back into the clock fast-forwards ease-out curves to the end.
+let easedT = 0
+
 function buildTween() {
 	previewT = 0
+	easedT = 0
 	previewDir = 1
 	const state = {t: 0}
 	tween = new Tween(state)
 		.to({t: 1}, duration)
 		.easing(currentEasing())
 		.onUpdate(() => {
-			previewT = state.t
+			easedT = state.t
 			renderPreview()
 		})
 		.start(0)
@@ -353,7 +359,7 @@ function buildTween() {
 function renderPreview() {
 	const trackW = els.track.clientWidth - 16
 	const dotW = 40
-	const y = currentEasing()(Math.max(0, Math.min(1, previewT)))
+	const y = easedT
 	const x = Math.max(0, Math.min(1, y)) * (trackW - dotW)
 	const gx = previewT * (trackW - 14)
 	els.dot.style.transform = `translateX(${Math.round(x)}px)`
@@ -403,7 +409,7 @@ function buildTweenSilent() {
 		.to({t: 1}, duration)
 		.easing(currentEasing())
 		.onUpdate(() => {
-			previewT = state.t
+			easedT = state.t
 		})
 		.start(0)
 }
@@ -422,9 +428,11 @@ function pause() {
 function stop() {
 	stopRaf()
 	previewT = 0
+	easedT = 0
 	previewDir = 1
 	buildTweenSilent()
 	if (tween) tween.update(0)
+	easedT = 0
 	renderPreview()
 }
 
