@@ -13,6 +13,8 @@ library. User-facing docs live in `examples/` and `README.md`.
   `prettier` (f.e. 3.9.x vs the lockfile's 3.2.2) formats CSS differently than
   CI, and untracked tool caches (f.e. `.rumdl_cache/`) fail
   `prettier . --check` locally but never exist in CI.
+- Install tooling project-wide, never system-wide (f.e. browsers via
+  `PLAYWRIGHT_BROWSERS_PATH=.browsers/`, which is gitignored).
 - `Tween.update(time?)`, `Timeline.update(time?)`, and `Group.update(time?)`
   only advance time; playback starts exclusively via `start()` /
   `startFromCurrentValues()`, and groups never auto-remove finished or stopped
@@ -49,11 +51,18 @@ library. User-facing docs live in `examples/` and `README.md`.
   Scales a monotonic source clock into tween times (`scale`, `start`, `update`)
   so `Tween`/`Group`/`Timeline` stay scale-free per #655. Constant
   scale 1 is the identity; 0 freezes, negatives run backwards. ✅
-- **09 — Remove legacy CommonJS and AMD distributions (#655)** [`dev-docs/09-remove-commonjs-build.md`](dev-docs/09-remove-commonjs-build.md)
+- **09 — Timeline GUI** [`dev-docs/09-timeline-gui.md`](dev-docs/09-timeline-gui.md)
+  Vanilla ESM track editor in `timeline-gui/` (tracks, ruler/labels,
+  explicit-clock scrub, inspector, live stage). Code is the interchange
+  format: editable box with `parseCode`, strict no-`eval` literal parser,
+  vendored speed-highlight overlay, `Tween`/`Timeline`/`Easing`
+  autocomplete. No core library changes. How to run/test/check: see
+  `dev-docs/09-timeline-gui.md` §How to run / test / check. ✅
+- **10 — Remove legacy CommonJS and AMD distributions (#655)** [`dev-docs/10-remove-commonjs-build.md`](dev-docs/10-remove-commonjs-build.md)
   Drops the `dist/tween.cjs` and `dist/tween.amd.js` Rollup targets, removes
   CJS paths from `package.json` (`main` and `exports["."].require`), and removes
   deprecated CJS docs and the `nodejs-commonjs` example project. ✅
-- **10 — Remove `autoStart` and `Group.update` `preserve` (#655)** [`dev-docs/10-remove-update-autostart.md`](dev-docs/10-remove-update-autostart.md)
+- **11 — Remove `autoStart` and `Group.update` `preserve` (#655)** [`dev-docs/11-remove-update-autostart.md`](dev-docs/11-remove-update-autostart.md)
   Removes `autoStart` and `autoStartOnUpdate` from `Tween` and `Timeline`, and
   removes `preserve` and auto-removal from `Group.update(time?)`, so `update()`
   only advances time and never implicitly starts or removes animations. ✅

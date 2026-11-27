@@ -3,3 +3,4 @@ dist/
 .vscode/
 examples/js/stats.min.js
 examples/example-projects/plain-typescript-modules/**/*.js
+timeline-gui/vendor/

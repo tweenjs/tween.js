@@ -1,0 +1,1 @@
+var t={type:"cmnt",sub:[{type:"err",match:/\b(TODO|FIXME|DEBUG|OPTIMIZE|WARNING|XXX|BUG)\b/g},{type:"class",match:/\bIDEA\b/g},{type:"insert",match:/\b(CHANGED|FIX|CHANGE)\b/g},{type:"oper",match:/\bQUESTION\b/g}]};var a={type:"cmnt",sub:[{type:"kwd",match:/@\w+/g},{type:"type",match:/{[\w\s|<>,.@\[\]]+}/g},{type:"var",match:/\[[\w\s="']+\]/g},...t.sub]};export{a as default};
