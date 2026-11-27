@@ -12,3 +12,5 @@ test-results/
 .browsers/
 .zcodeignore
 .claude
+# Local OpenCode project config (machine-specific model settings).
+opencode.jsonc

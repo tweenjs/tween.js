@@ -57,3 +57,8 @@ library. User-facing docs live in `examples/` and `README.md`.
   Removes `autoStart` and `autoStartOnUpdate` from `Tween` and `Timeline`, and
   removes `preserve` and auto-removal from `Group.update(time?)`, so `update()`
   only advances time and never implicitly starts or removes animations. ✅
+- **11 — Curve Tool GUI** [`dev-docs/11-curve-tool-gui.md`](dev-docs/11-curve-tool-gui.md)
+  AE/Premiere-style multi-point easing editor in `curve-tool-gui/`
+  (zero-dep vanilla ESM, mirroring `timeline-gui/`): Custom keyframe graph
+  vs locked built-in `Easing.*` source, presets, live preview race driven
+  by a real `Tween`, SVG path interchange, vendored `dist/` build. ✅

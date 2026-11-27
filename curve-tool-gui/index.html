@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>tween.js — Curve Tool</title>
+		<link rel="stylesheet" href="./src/styles.css" />
+		<script type="importmap">
+			{
+				"imports": {
+					"@tweenjs/tween.js": "./vendor/tween/tween.esm.js"
+				}
+			}
+		</script>
+	</head>
+	<body>
+		<div class="page-glow" aria-hidden="true"></div>
+		<header class="top">
+			<h1>Curve Tool <span>for tween.js</span></h1>
+			<button id="btn-play" title="Play preview">▶</button>
+			<button id="btn-pause" title="Pause preview">⏸</button>
+			<button id="btn-stop" title="Stop preview">⏹</button>
+			<button id="btn-yoyo" class="active" title="Toggle ping-pong">🔁</button>
+			<select id="sel-duration" title="Preview duration">
+				<option value="600">0.6s</option>
+				<option value="1200" selected>1.2s</option>
+				<option value="2400">2.4s</option>
+			</select>
+			<select id="sel-overlay" title="Easing source: Custom graph or locked built-in"></select>
+			<span id="readout">t=0.00 · y=0.00</span>
+		</header>
+
+		<main>
+			<div id="boot-error" hidden>
+				Curve Tool failed to start. <span id="boot-detail"></span>Serve this folder over HTTP instead, e.g. run
+				<code>npx --yes serve .</code> inside <code>curve-tool-gui/</code> and open the shown localhost URL (or use VS
+				Code&#39;s Live Server extension).
+			</div>
+			<div class="tool-col">
+				<div class="duo">
+					<section class="editor-wrap card">
+						<div class="toolbar">
+							<strong>Graph editor</strong>
+							<span class="spacer"></span>
+							<button id="btn-reset" title="Reset to Ease">Reset</button>
+						</div>
+						<div class="canvas-wrap" id="canvas-wrap">
+							<canvas id="curve-canvas" title="Drag points and pink handles"></canvas>
+							<div id="canvas-lock" hidden>
+								🔒 Built-in easing — the graph is locked. Switch the source to Custom to edit it.
+							</div>
+						</div>
+						<p class="hint">
+							Drag the indigo points and pink handles — double-click empty space to add a keyframe, double-click a point
+							(or Delete) to remove it. Endpoints stay pinned at (0, 0) → (1, 1), like the After Effects speed graph.
+						</p>
+						<div id="presets"></div>
+					</section>
+
+					<section class="preview-wrap card">
+						<div class="toolbar">
+							<strong>Preview race</strong>
+							<span class="legend"><i class="sw eased"></i>yours<i class="sw linear"></i>linear</span>
+						</div>
+						<div id="preview-track">
+							<div id="ghost-dot"></div>
+							<div id="preview-dot">0%</div>
+						</div>
+						<div id="preview-meta"></div>
+						<div class="spacer"></div>
+						<div class="toolbar">
+							<span id="path-chip" title="Active easing source"></span>
+						</div>
+					</section>
+				</div>
+
+				<section class="code card">
+					<div class="toolbar">
+						<strong>Code</strong>
+						<span class="spacer"></span>
+						<button id="btn-apply-code">Apply code</button>
+						<button id="btn-revert-code">Revert</button>
+						<button id="btn-copy-code">Copy</button>
+					</div>
+					<div id="code-error" hidden></div>
+					<textarea id="code-in" spellcheck="false"></textarea>
+					<p class="hint">
+						Paste an SVG path (<code>M…C…</code> from Figma/Illustrator), the whole snippet, or a classic
+						<code>cubic-bezier(…)</code> — then Apply. The curve persists to <code>localStorage</code> automatically.
+					</p>
+				</section>
+			</div>
+
+			<aside class="inspector card">
+				<h2>Keyframes</h2>
+				<div id="inspector-body"></div>
+				<h2>Compare</h2>
+				<p class="hint">
+					Pick <code>Custom</code> to edit the graph, or a built-in <code>Easing</code> to preview it locked.
+				</p>
+				<label class="field"
+					><span>Easing source</span
+					><select id="sel-overlay-2"></select
+				></label>
+			</aside>
+		</main>
+
+		<script>
+			window.__guiBooted = false
+			;(function () {
+				var show = function (detail) {
+					var el = document.getElementById('boot-error')
+					if (el) el.hidden = false
+					var d = document.getElementById('boot-detail')
+					if (d && detail) d.textContent = detail
+				}
+				// Called with the specific reason when the module fails to
+				// load (missing vendor copy) or throws during startup.
+				window.__guiFailed = function (detail) {
+					if (!window.__guiBooted) show(detail)
+				}
+				window.addEventListener(
+					'error',
+					function (e) {
+						var detail = ''
+						if (e && e.target && e.target !== window && e.target.src) {
+							detail =
+								'Could not load ' +
+								e.target.src +
+								' — did the vendored copy go missing? Run `npm run build` then `npm run vendor`. '
+						} else if (e && e.message) {
+							detail = e.message + ' '
+						}
+						window.__guiFailed(detail)
+					},
+					true,
+				)
+				window.addEventListener('unhandledrejection', function (e) {
+					var reason = (e && e.reason && (e.reason.message || String(e.reason))) || 'startup failed'
+					window.__guiFailed(reason + ' ')
+				})
+				setTimeout(function () {
+					if (window.__guiBooted) return
+					show(
+						location.protocol === 'file:'
+							? 'This page was opened from file:// — browsers refuse to load ES modules there. '
+							: 'The app module did not finish loading — check the console for errors. ',
+					)
+				}, 2500)
+			})()
+		</script>
+		<script type="module" src="./src/app.js"></script>
+	</body>
+</html>
