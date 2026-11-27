@@ -22,6 +22,10 @@ declare const Easing: Readonly<{
     Back: Readonly<EasingFunctionGroup>;
     Bounce: Readonly<EasingFunctionGroup>;
     generatePow(power?: number): EasingFunctionGroup;
+    generateExponential(base?: number): EasingFunctionGroup;
+    generateBack(overshoot?: number): EasingFunctionGroup;
+    generateElastic(amplitude?: number, period?: number): EasingFunctionGroup;
+    generateSteps(steps?: number): EasingFunctionGroup;
 }>;
 
 /**
@@ -1064,6 +1068,10 @@ declare const exports: {
         Back: Readonly<EasingFunctionGroup>;
         Bounce: Readonly<EasingFunctionGroup>;
         generatePow(power?: number): EasingFunctionGroup;
+        generateExponential(base?: number): EasingFunctionGroup;
+        generateBack(overshoot?: number): EasingFunctionGroup;
+        generateElastic(amplitude?: number, period?: number): EasingFunctionGroup;
+        generateSteps(steps?: number): EasingFunctionGroup;
     }>;
     Group: typeof Group;
     Interpolation: {
