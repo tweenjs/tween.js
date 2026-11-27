@@ -2709,6 +2709,57 @@ export const tests = {
 		test.done()
 	},
 
+	'Test TWEEN.Easing.generateExponential(1) equals Linear'(test: Test): void {
+		const ease1 = TWEEN.Easing.generateExponential(1)
+
+		const compareWithLinear = (ease: EasingFunctionGroup, amount: number) => {
+			const linearResult = TWEEN.Easing.Linear.None(amount)
+			test.equal(linearResult, ease.In(amount))
+			test.equal(linearResult, ease.Out(amount))
+			test.equal(linearResult, ease.InOut(amount))
+		}
+		compareWithLinear(ease1, 0)
+		compareWithLinear(ease1, 0.25)
+		compareWithLinear(ease1, 0.5)
+		compareWithLinear(ease1, 0.75)
+		compareWithLinear(ease1, 1)
+
+		test.done()
+	},
+
+	'Test TWEEN.Easing.generateExponential(n) should pass 0.0, 0.5, 1.0'(test: Test): void {
+		const checkEdgeValue = (ease: EasingFunctionGroup) => {
+			test.equal(ease.In(0.0), 0.0)
+			test.equal(ease.Out(0.0), 0.0)
+			test.equal(ease.InOut(0.0), 0.0)
+
+			test.equal(ease.InOut(0.5), 0.5)
+
+			test.equal(ease.In(1.0), 1.0)
+			test.equal(ease.Out(1.0), 1.0)
+			test.equal(ease.InOut(1.0), 1.0)
+		}
+		checkEdgeValue(TWEEN.Easing.generateExponential(1))
+		checkEdgeValue(TWEEN.Easing.generateExponential(2))
+		checkEdgeValue(TWEEN.Easing.generateExponential())
+		checkEdgeValue(TWEEN.Easing.generateExponential(300))
+		checkEdgeValue(TWEEN.Easing.generateExponential(1000))
+
+		test.done()
+	},
+
+	'Test TWEEN.Easing.generateExponential() should approximate Exponential'(test: Test): void {
+		const generated = TWEEN.Easing.generateExponential(300)
+		toBeCloseTo(test, generated.In(0.25), TWEEN.Easing.Exponential.In(0.25), 2)
+		toBeCloseTo(test, generated.In(0.5), TWEEN.Easing.Exponential.In(0.5), 2)
+		toBeCloseTo(test, generated.In(0.75), TWEEN.Easing.Exponential.In(0.75), 2)
+		toBeCloseTo(test, generated.Out(0.25), TWEEN.Easing.Exponential.Out(0.25), 2)
+		toBeCloseTo(test, generated.Out(0.5), TWEEN.Easing.Exponential.Out(0.5), 2)
+		toBeCloseTo(test, generated.Out(0.75), TWEEN.Easing.Exponential.Out(0.75), 2)
+
+		test.done()
+	},
+
 	'Test TWEEN.Easing.generateBack() should match default Back at default overshoot'(test: Test): void {
 		const defaultBack = TWEEN.Easing.generateBack()
 		const amount = Math.LOG10E

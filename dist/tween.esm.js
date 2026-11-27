@@ -211,6 +211,31 @@ var Easing = Object.freeze({
             },
         };
     },
+    generateExponential: function (base) {
+        if (base === void 0) { base = 300; }
+        // A base of 300 makes the curve very close to Easing.Exponential,
+        // but unlike Exponential it starts at 0 instead of jumping to a
+        // positive value, avoiding the jump described in #116.
+        // https://www.desmos.com/calculator/pioplwo3zq
+        if (base <= 0) {
+            console.warn('base should be larger than 0. You might like to try between 20 and 400, maybe more. Setting a default value of 300.');
+            base = 300;
+        }
+        return {
+            In: function (amount) {
+                return amount * Math.pow(base, (amount - 1));
+            },
+            Out: function (amount) {
+                return 1 - (1 - amount) * Math.pow(base, -amount);
+            },
+            InOut: function (amount) {
+                if (amount < 0.5) {
+                    return amount * Math.pow(base, (amount * 2 - 1));
+                }
+                return 1 - (1 - amount) * Math.pow(base, (1 - amount * 2));
+            },
+        };
+    },
     generateBack: function (overshoot) {
         if (overshoot === void 0) { overshoot = 1.70158; }
         var s = overshoot;
@@ -244,14 +269,14 @@ var Easing = Object.freeze({
                     return 0;
                 if (amount === 1)
                     return 1;
-                return -(a * Math.pow(2, 10 * (amount - 1)) * Math.sin(((amount - 1) - s) * (2 * Math.PI) / p));
+                return -(a * Math.pow(2, 10 * (amount - 1)) * Math.sin(((amount - 1 - s) * (2 * Math.PI)) / p));
             },
             Out: function (amount) {
                 if (amount === 0)
                     return 0;
                 if (amount === 1)
                     return 1;
-                return a * Math.pow(2, -10 * amount) * Math.sin((amount - s) * (2 * Math.PI) / p) + 1;
+                return a * Math.pow(2, -10 * amount) * Math.sin(((amount - s) * (2 * Math.PI)) / p) + 1;
             },
             InOut: function (amount) {
                 if (amount === 0)
@@ -260,9 +285,9 @@ var Easing = Object.freeze({
                     return 1;
                 amount *= 2;
                 if (amount < 1) {
-                    return -0.5 * (a * Math.pow(2, 10 * (amount - 1)) * Math.sin(((amount - 1) - sIO) * (2 * Math.PI) / pIO));
+                    return -0.5 * (a * Math.pow(2, 10 * (amount - 1)) * Math.sin(((amount - 1 - sIO) * (2 * Math.PI)) / pIO));
                 }
-                return 0.5 * (a * Math.pow(2, -10 * (amount - 1)) * Math.sin(((amount - 1) - sIO) * (2 * Math.PI) / pIO)) + 1;
+                return 0.5 * (a * Math.pow(2, -10 * (amount - 1)) * Math.sin(((amount - 1 - sIO) * (2 * Math.PI)) / pIO)) + 1;
             },
         };
     },

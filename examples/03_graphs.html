@@ -92,6 +92,11 @@
 
 				target.appendChild(document.createElement('br'))
 
+				const customExponential = TWEEN.Easing.generateExponential(300)
+				target.appendChild(createGraph(group, 'generateExponential(300).In', customExponential.In))
+				target.appendChild(createGraph(group, 'generateExponential(300).Out', customExponential.Out))
+				target.appendChild(createGraph(group, 'generateExponential(300).InOut', customExponential.InOut))
+
 				const customBack = TWEEN.Easing.generateBack(3)
 				target.appendChild(createGraph(group, 'generateBack(3).In', customBack.In))
 				target.appendChild(createGraph(group, 'generateBack(3).Out', customBack.Out))
