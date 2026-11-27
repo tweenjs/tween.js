@@ -32,43 +32,47 @@
 
 		<main>
 			<div id="boot-error" hidden>
-				Curve Tool failed to start. <span id="boot-detail"></span>Serve this folder over HTTP instead, e.g. run instead,
-				e.g. run <code>npx --yes serve .</code> inside <code>curve-tool-gui/</code> and open the shown localhost URL (or
-				use VS Code&#39;s Live Server extension).
+				Curve Tool failed to start. <span id="boot-detail"></span>Serve this folder over HTTP instead, e.g. run
+				<code>npx --yes serve .</code> inside <code>curve-tool-gui/</code> and open the shown localhost URL (or use VS
+				Code&#39;s Live Server extension).
 			</div>
-			<div>
-				<section class="editor-wrap card">
-					<div class="toolbar">
-						<strong>Graph editor</strong>
-						<span class="spacer"></span>
-						<button id="btn-reset" title="Reset to Ease">Reset</button>
-					</div>
-					<div class="canvas-wrap" id="canvas-wrap">
-						<canvas id="curve-canvas" title="Drag points and pink handles"></canvas>
-						<div id="canvas-lock" hidden>
-							🔒 Built-in easing — the graph is locked. Switch the source to Custom to edit it.
+			<div class="tool-col">
+				<div class="duo">
+					<section class="editor-wrap card">
+						<div class="toolbar">
+							<strong>Graph editor</strong>
+							<span class="spacer"></span>
+							<button id="btn-reset" title="Reset to Ease">Reset</button>
 						</div>
-					</div>
-					<p class="hint">
-						Drag the indigo points and pink handles — double-click empty space to add a keyframe, double-click a point
-						(or Delete) to remove it. Endpoints stay pinned at (0, 0) → (1, 1), like the After Effects speed graph.
-					</p>
-					<div id="presets"></div>
-				</section>
+						<div class="canvas-wrap" id="canvas-wrap">
+							<canvas id="curve-canvas" title="Drag points and pink handles"></canvas>
+							<div id="canvas-lock" hidden>
+								🔒 Built-in easing — the graph is locked. Switch the source to Custom to edit it.
+							</div>
+						</div>
+						<p class="hint">
+							Drag the indigo points and pink handles — double-click empty space to add a keyframe, double-click a point
+							(or Delete) to remove it. Endpoints stay pinned at (0, 0) → (1, 1), like the After Effects speed graph.
+						</p>
+						<div id="presets"></div>
+					</section>
 
-				<section class="preview-wrap card">
-					<div class="toolbar">
-						<strong>Preview race</strong>
-						<span class="legend"><i class="sw eased"></i>yours<i class="sw linear"></i>linear</span>
-						<span class="spacer"></span>
-						<span id="path-chip" title="SVG path data"></span>
-					</div>
-					<div id="preview-track">
-						<div id="ghost-dot"></div>
-						<div id="preview-dot">0%</div>
-					</div>
-					<div id="preview-meta"></div>
-				</section>
+					<section class="preview-wrap card">
+						<div class="toolbar">
+							<strong>Preview race</strong>
+							<span class="legend"><i class="sw eased"></i>yours<i class="sw linear"></i>linear</span>
+						</div>
+						<div id="preview-track">
+							<div id="ghost-dot"></div>
+							<div id="preview-dot">0%</div>
+						</div>
+						<div id="preview-meta"></div>
+						<div class="spacer"></div>
+						<div class="toolbar">
+							<span id="path-chip" title="Active easing source"></span>
+						</div>
+					</section>
+				</div>
 
 				<section class="code card">
 					<div class="toolbar">

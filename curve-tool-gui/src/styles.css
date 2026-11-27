@@ -116,19 +116,49 @@ button.active {
 }
 
 main {
-	max-width: 1140px;
+	max-width: 1480px;
 	margin: 0 auto;
 	padding: 18px;
 	display: grid;
-	grid-template-columns: 1fr 248px;
+	grid-template-columns: minmax(0, 1fr) 248px;
 	gap: 16px;
 }
 
-main > div:first-child {
+main > div.tool-col {
 	min-width: 0;
 	display: flex;
 	flex-direction: column;
 	gap: 16px;
+}
+
+/* Wide screens: graph editor and preview race share one equal row so the
+   easing stays visible while it is being shaped. */
+.duo {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+	gap: 16px;
+	align-items: stretch;
+}
+
+.preview-wrap {
+	display: flex;
+	flex-direction: column;
+}
+
+.preview-wrap .spacer {
+	flex: 1;
+}
+
+@media (max-width: 1000px) {
+	.duo {
+		grid-template-columns: minmax(0, 1fr);
+	}
+	main {
+		grid-template-columns: minmax(0, 1fr);
+	}
+	aside.inspector {
+		position: static;
+	}
 }
 
 .card {
@@ -189,6 +219,7 @@ section {
 }
 
 #boot-error {
+	grid-column: 1 / -1;
 	margin-bottom: 4px;
 	padding: 12px;
 	border: 1px solid #f0a3b8;
@@ -266,7 +297,8 @@ section {
 
 #preview-track {
 	position: relative;
-	height: 72px;
+	flex: 1;
+	min-height: 180px;
 	background: linear-gradient(90deg, #eef0ff, #fdf2f8 55%, #fff7ed);
 	border: 1px solid var(--border);
 	border-radius: 12px;
@@ -283,10 +315,11 @@ section {
 
 #ghost-dot {
 	position: absolute;
-	top: 27px;
+	top: 50%;
 	left: 8px;
 	width: 18px;
 	height: 18px;
+	margin-top: -9px;
 	border-radius: 50%;
 	background: #c3c8d4;
 	opacity: 0.85;
@@ -294,10 +327,11 @@ section {
 
 #preview-dot {
 	position: absolute;
-	top: 14px;
+	top: 50%;
 	left: 8px;
 	width: 44px;
 	height: 44px;
+	margin-top: -22px;
 	border-radius: 50%;
 	background: linear-gradient(135deg, #ffd9e8, #f472b6 55%, #a855f7);
 	box-shadow:
@@ -320,14 +354,14 @@ section {
 }
 
 #path-chip {
-	max-width: 46%;
-	white-space: nowrap;
-	overflow: hidden;
-	text-overflow: ellipsis;
+	font-family: ui-monospace, monospace;
+	color: var(--accent-deep);
+	font-size: 11px;
 	background: var(--accent-soft);
 	border: 1px solid var(--border);
 	padding: 4px 10px;
 	border-radius: 999px;
+	overflow-wrap: anywhere;
 }
 
 #preview-meta {
