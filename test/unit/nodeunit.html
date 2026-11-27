@@ -3,13 +3,12 @@
 		<title>nodeunit based tests</title>
 		<script src="nodeunit.js"></script>
 		<script src="../../dist/tween.umd.js"></script>
-		<script src="tests.js"></script>
+		<!-- Run the build first for this file to exist. -->
+		<script src="../../.tmp/tests.umd.js"></script>
 	</head>
 	<body>
 		<script>
-			nodeunit.run({
-				tween: getTests(TWEEN),
-			})
+			nodeunit.run({tween: TWEEN.tests})
 		</script>
 	</body>
 </html>

@@ -1,47 +1,66 @@
 import now from './Now'
-import type {Tween, UnknownProps} from './Tween'
+import type {Tween} from './Tween'
+import type {Timeline} from './Timeline'
+
+export type GroupChild = Tween<any> | Timeline
 
 /**
  * Controlling groups of tweens
  *
  * Using the TWEEN singleton to manage your tweens can cause issues in large apps with many components.
  * In these cases, you may want to create your own smaller groups of tween
+ *
+ * Groups can also hold `Timeline` instances (timelines are playable, like tweens).
  */
 export default class Group {
-	private _tweens: {
-		[key: string]: Tween<UnknownProps>
-	} = {}
+	private _tweens: Record<string, GroupChild> = {}
+	private _tweensAddedDuringUpdate: Record<string, GroupChild> = {}
 
-	private _tweensAddedDuringUpdate: {
-		[key: string]: Tween<UnknownProps>
-	} = {}
+	constructor(...tweens: Array<GroupChild>) {
+		this.add(...tweens)
+	}
 
-	getAll(): Array<Tween<UnknownProps>> {
-		return Object.keys(this._tweens).map(tweenId => {
-			return this._tweens[tweenId]
-		})
+	getAll(): Array<GroupChild> {
+		return Object.keys(this._tweens).map(tweenId => this._tweens[tweenId])
 	}
 
 	removeAll(): void {
 		this._tweens = {}
 	}
 
-	add(tween: Tween<UnknownProps>): void {
-		this._tweens[tween.getId()] = tween
-		this._tweensAddedDuringUpdate[tween.getId()] = tween
+	add(...tweens: Array<GroupChild>): void {
+		for (const tween of tweens) {
+			// Remove from any other group first, a tween can only be in one group at a time.
+			// @ts-expect-error library internal access
+			tween._group?.remove(tween)
+
+			// @ts-expect-error library internal access
+			tween._group = this
+
+			this._tweens[tween.getId()] = tween
+			this._tweensAddedDuringUpdate[tween.getId()] = tween
+		}
 	}
 
-	remove(tween: Tween<UnknownProps>): void {
-		delete this._tweens[tween.getId()]
-		delete this._tweensAddedDuringUpdate[tween.getId()]
+	remove(...tweens: Array<GroupChild>): void {
+		for (const tween of tweens) {
+			// @ts-expect-error library internal access
+			tween._group = undefined
+
+			delete this._tweens[tween.getId()]
+			delete this._tweensAddedDuringUpdate[tween.getId()]
+		}
 	}
 
-	update(time: number = now(), preserve = false): boolean {
+	/** Return true if all tweens in the group are not paused or playing. */
+	allStopped() {
+		return this.getAll().every(tween => !tween.isPlaying())
+	}
+
+	update(time: number = now()): void {
 		let tweenIds = Object.keys(this._tweens)
 
-		if (tweenIds.length === 0) {
-			return false
-		}
+		if (tweenIds.length === 0) return
 
 		// Tweens are updated in "batches". If you add a new tween during an
 		// update, then the new tween will be updated in the next batch.
@@ -52,17 +71,26 @@ export default class Group {
 			this._tweensAddedDuringUpdate = {}
 
 			for (let i = 0; i < tweenIds.length; i++) {
-				const tween = this._tweens[tweenIds[i]]
-				const autoStart = !preserve
-
-				if (tween && tween.update(time, autoStart) === false && !preserve) {
-					delete this._tweens[tweenIds[i]]
-				}
+				this._tweens[tweenIds[i]]?.update(time)
 			}
 
 			tweenIds = Object.keys(this._tweensAddedDuringUpdate)
 		}
+	}
+	onComplete(callback: (object: Array<GroupChild>) => void) {
+		const group = this.getAll()
+		group.forEach(child => {
+			const prevCallback = child.getCompleteCallback()
+			const notifyIfComplete = () => {
+				// After the onComplete callback completes, _isPlaying is updated to false, so if the total number of completed tweens is -1, then they are all complete.
+				const completedGroup = group.filter(tween => !tween.isPlaying())
+				if (completedGroup.length === group.length - 1) callback(group)
+			}
 
-		return true
+			child.onComplete(object => {
+				prevCallback?.(object)
+				notifyIfComplete()
+			})
+		})
 	}
 }

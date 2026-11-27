@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 	<head>
 		<title>Tween.js / animate an array of values</title>
@@ -9,9 +9,7 @@
 		<div id="info">
 			<h1><a href="http://github.com/tweenjs/tween.js">tween.js</a></h1>
 			<h2>16 _ animate an array of values</h2>
-			<p>
-				Animate multiple objects with a single tween using an array of values.
-			</p>
+			<p>Animate multiple objects with a single tween using an array of values.</p>
 		</div>
 		<div class="container">
 			<div id="target0" class="box">one</div>
@@ -19,31 +17,27 @@
 			<div id="target2" class="box">three</div>
 		</div>
 
-		<script src="../dist/tween.umd.js"></script>
-		<script src="js/RequestAnimationFrame.js"></script>
-		<script>
-			init()
-			animate()
+		<script type="module">
+			import * as TWEEN from '../dist/tween.esm.js'
 
-			function init() {
-				var target,
-					axes = ['Y', 'Z', 'X'],
-					tween1 = new TWEEN.Tween([0, 0, 0])
-						.to([360, 540, '+180'], 2000)
-						.repeat(1)
-						.delay(1000)
-						.easing(TWEEN.Easing.Cubic.InOut)
-						.onUpdate(function (rotations) {
-							for (var i = 0; i < rotations.length; i++)
-								document.getElementById('target' + i).style.transform =
-									'rotate' + axes[i] + '(' + Math.floor(rotations[i]) + 'deg)'
-						})
-						.start()
-			}
+			const axes = ['Y', 'Z', 'X']
+			const tween1 = new TWEEN.Tween([0, 0, 0])
+				.to([360, 540, '+180'], 2000)
+				.repeat(1)
+				.delay(1000)
+				.easing(TWEEN.Easing.Cubic.InOut)
+				.onUpdate(function (rotations) {
+					for (let i = 0; i < rotations.length; i++)
+						document.getElementById('target' + i).style.transform =
+							'rotate' + axes[i] + '(' + Math.floor(rotations[i]) + 'deg)'
+				})
+				.start()
+
+			animate()
 
 			function animate(time) {
 				// Keep requesting frames only if we still need to update.
-				if (TWEEN.update(time)) requestAnimationFrame(animate)
+				if (tween1.update(time)) requestAnimationFrame(animate)
 			}
 		</script>
 

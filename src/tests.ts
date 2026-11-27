@@ -1,5 +1,6 @@
+import {tickTime, patchPerformanceNow, restorePerformanceNow} from './test-performance-now-fake'
 import * as TWEEN from './Index'
-import * as FakeTimers from '@sinonjs/fake-timers'
+import type {EasingFunctionGroup} from './Easing'
 
 export const tests = {
 	hello(test: Test): void {
@@ -15,7 +16,7 @@ export const tests = {
 
 	'TWEEN object stores tweens automatically on start'(test: Test): void {
 		const numTweensBefore = TWEEN.getAll().length,
-			t = new TWEEN.Tween({})
+			t = new TWEEN.Tween({}, true)
 
 		t.start()
 
@@ -26,7 +27,7 @@ export const tests = {
 	},
 
 	'TWEEN.removeAll()'(test: Test): void {
-		const t = new TWEEN.Tween({})
+		const t = new TWEEN.Tween({}, true)
 
 		TWEEN.removeAll()
 
@@ -34,7 +35,11 @@ export const tests = {
 
 		t.start()
 
-		test.equal(TWEEN.getAll().length, 1, 'A tween has been added')
+		test.equal(TWEEN.getAll().length, 0, 'Tweens are not automatically added/removed')
+
+		TWEEN.add(t)
+
+		test.equal(TWEEN.getAll().length, 1, 'A tween has to be manually added')
 
 		TWEEN.removeAll()
 
@@ -45,7 +50,7 @@ export const tests = {
 	'TWEEN.add()'(test: Test): void {
 		const all = TWEEN.getAll(),
 			numTweens = all.length,
-			t = new TWEEN.Tween({})
+			t = new TWEEN.Tween({}, true)
 
 		TWEEN.add(t)
 
@@ -57,7 +62,7 @@ export const tests = {
 	'TWEEN.remove()'(test: Test): void {
 		const all = TWEEN.getAll(),
 			numTweens = all.length,
-			t = new TWEEN.Tween({})
+			t = new TWEEN.Tween({}, true)
 
 		TWEEN.add(t)
 
@@ -70,30 +75,13 @@ export const tests = {
 		test.done()
 	},
 
-	'TWEEN.update() returns false when done (no tweens to animate)'(test: Test): void {
+	'TWEEN.update() does not remove tweens when they are finished'(test: Test): void {
 		TWEEN.removeAll()
 
-		test.deepEqual(TWEEN.update(), false)
-		test.done()
-	},
+		const t1 = new TWEEN.Tween({}, true).to({}, 1000),
+			t2 = new TWEEN.Tween({}, true).to({}, 2000)
 
-	'TWEEN.update() returns true when there are active tweens'(test: Test): void {
-		TWEEN.removeAll()
-
-		const t = new TWEEN.Tween({})
-		t.start()
-
-		test.deepEqual(TWEEN.update(), true)
-		test.done()
-	},
-
-	'TWEEN.update() removes tweens when they are finished'(test: Test): void {
-		TWEEN.removeAll()
-
-		const t1 = new TWEEN.Tween({}).to({}, 1000),
-			t2 = new TWEEN.Tween({}).to({}, 2000)
-
-		test.equal(TWEEN.getAll().length, 0)
+		test.equal(TWEEN.getAll().length, 2)
 
 		t1.start(0)
 		t2.start(0)
@@ -107,34 +95,9 @@ export const tests = {
 		test.equal(TWEEN.getAll().length, 2)
 
 		TWEEN.update(1000)
-		test.equal(TWEEN.getAll().length, 1)
-		test.equal(TWEEN.getAll().indexOf(t1), -1)
-		test.ok(TWEEN.getAll().indexOf(t2) != -1)
-		test.done()
-	},
-	'TWEEN.update() does not remove tweens when they are finished with preserve flag'(test: Test): void {
-		TWEEN.removeAll()
-
-		const t1 = new TWEEN.Tween({}).to({}, 1000),
-			t2 = new TWEEN.Tween({}).to({}, 2000)
-
-		test.equal(TWEEN.getAll().length, 0)
-
-		t1.start(0)
-		t2.start(0)
-
 		test.equal(TWEEN.getAll().length, 2)
 
-		TWEEN.update(0, true)
-		test.equal(TWEEN.getAll().length, 2)
-
-		TWEEN.update(999, true)
-		test.equal(TWEEN.getAll().length, 2)
-
-		TWEEN.update(1000, true)
-		test.equal(TWEEN.getAll().length, 2)
-
-		TWEEN.update(1001, true)
+		TWEEN.update(1001)
 		test.equal(TWEEN.getAll().length, 2)
 		test.ok(TWEEN.getAll().indexOf(t1) != -1)
 		test.ok(TWEEN.getAll().indexOf(t2) != -1)
@@ -147,20 +110,27 @@ export const tests = {
 		const target1 = {a: 0}
 		const target2 = {b: 0}
 
-		const t1 = new TWEEN.Tween(target1).to({a: 1}, 1000),
-			t2 = new TWEEN.Tween(target2).to({b: 1}, 2000)
+		const t1 = new TWEEN.Tween(target1, true).to({a: 1}, 1000),
+			t2 = new TWEEN.Tween(target2, true).to({b: 1}, 2000)
 
 		t1.start(0)
 		t2.start(0)
 
-		// To be able to make a tween go backward in time, it must be
-		// updated with preserve set to true. Otherwise, the
-		// backward-in-time feature does not apply.
-		TWEEN.update(200, true)
-		TWEEN.update(2500, true)
-		TWEEN.update(500, true)
+		TWEEN.update(200)
+		TWEEN.update(2500)
 
 		test.equal(TWEEN.getAll().length, 2)
+
+		// If you want to go backward in time, start back at the beginning
+		// first, then go to any time between the start and end time.
+		t1.start(0)
+		t2.start(0)
+
+		TWEEN.update(750)
+		test.equal(target1.a, 0.75)
+		test.equal(target2.b, 0.375)
+
+		TWEEN.update(500)
 		test.equal(target1.a, 0.5)
 		test.equal(target2.b, 0.25)
 
@@ -202,6 +172,9 @@ export const tests = {
 
 		test.ok(t.onStart() instanceof TWEEN.Tween)
 		test.equal(t.onStart(), t)
+
+		test.ok(t.onEveryStart() instanceof TWEEN.Tween)
+		test.equal(t.onEveryStart(), t)
 
 		test.ok(t.onStop() instanceof TWEEN.Tween)
 		test.equal(t.onStop(), t)
@@ -503,22 +476,22 @@ export const tests = {
 	},
 
 	'Test TWEEN.Tween.start()'(test: Test): void {
+		TWEEN.removeAll()
+
 		const obj = {},
-			t = new TWEEN.Tween(obj)
+			t = new TWEEN.Tween(obj, true)
 
 		t.to({}, 1000)
 
-		TWEEN.removeAll()
-		test.equal(TWEEN.getAll().length, 0) // TODO move to TWEEN test
+		test.equal(TWEEN.getAll().length, 1)
 
 		t.start(0)
 
-		test.equal(TWEEN.getAll().length, 1) // TODO ditto
-		test.equal(TWEEN.getAll()[0], t)
+		test.equal(TWEEN.getAll().length, 1)
 		test.done()
 	},
 
-	'Ensure tweens start without calling start() method.'(test: Test): void {
+	'Ensure tweens do not start without calling start() method.'(test: Test): void {
 		const obj = {x: 0},
 			t = new TWEEN.Tween(obj)
 
@@ -527,15 +500,68 @@ export const tests = {
 		t.onStart(() => (started = true))
 		t.onComplete(() => (started = false))
 
-		t.update(0)
+		test.equal(t.update(0), false)
+		test.deepEqual(started, false)
+		test.deepEqual(obj.x, 0)
+		test.equal(t.update(500), false)
+		test.deepEqual(started, false)
+		test.deepEqual(obj.x, 0)
+
+		t.start(0)
+		test.equal(t.update(0), true)
 		test.deepEqual(started, true)
 		test.deepEqual(obj.x, 0)
-		t.update(500)
+		test.equal(t.update(500), true)
 		test.deepEqual(started, true)
 		test.deepEqual(obj.x, 500)
-		t.update(1000)
+
+		t.stop()
+		test.equal(t.update(750), false)
+		test.deepEqual(obj.x, 500)
+
+		t.start(500)
+		test.equal(t.update(1500), false)
 		test.deepEqual(obj.x, 1000)
 		test.deepEqual(started, false)
+
+		test.done()
+	},
+
+	'Ensure Group.update() and Timeline.update() never start stopped tweens or timelines.'(test: Test): void {
+		const obj = {x: 0}
+		const group = new TWEEN.Group()
+		const tween = new TWEEN.Tween(obj, group).to({x: 100}, 1000)
+
+		group.update(0)
+		group.update(500)
+		test.equal(tween.isPlaying(), false)
+		test.equal(obj.x, 0)
+
+		tween.start(0)
+		group.update(500)
+		test.equal(obj.x, 50)
+		tween.stop()
+		group.update(750)
+		test.equal(tween.isPlaying(), false)
+		test.equal(obj.x, 50)
+
+		const tlObj = {y: 0}
+		const tl = new TWEEN.Timeline().add(new TWEEN.Tween(tlObj).to({y: 100}, 1000))
+		let tlStarted = false
+		tl.onStart(() => (tlStarted = true))
+
+		test.equal(tl.update(0), false)
+		test.equal(tl.update(500), false)
+		test.equal(tlStarted, false)
+		test.equal(tlObj.y, 0)
+
+		tl.start(0)
+		test.equal(tl.update(500), true)
+		test.equal(tlStarted, true)
+		test.equal(tlObj.y, 50)
+		tl.stop()
+		test.equal(tl.update(750), false)
+		test.equal(tlObj.y, 50)
 
 		test.done()
 	},
@@ -549,6 +575,7 @@ export const tests = {
 		const fox = {x: 0, y: 0}
 		const tf = new TWEEN.Tween(fox)
 		tf.to(rabbit, 1000) // fox chase rabbit!
+		tf.dynamic(true)
 		tf.start(0)
 
 		tr.update(200)
@@ -580,17 +607,18 @@ export const tests = {
 	},
 
 	'Test TWEEN.Tween.stop()'(test: Test): void {
+		TWEEN.removeAll()
+
 		const obj = {},
-			t = new TWEEN.Tween(obj)
+			t = new TWEEN.Tween(obj, true)
 
 		t.to({x: 2}, 1000)
 
-		TWEEN.removeAll()
-
 		t.start()
-		t.stop()
+		test.equal(TWEEN.getAll().length, 1)
 
-		test.equal(TWEEN.getAll().length, 0)
+		t.stop()
+		test.equal(TWEEN.getAll().length, 1)
 		test.done()
 	},
 
@@ -627,6 +655,46 @@ export const tests = {
 		t.start(0)
 		t.update(500)
 		test.equal(obj.x, TWEEN.Easing.Quadratic.In(0.5))
+		test.done()
+	},
+
+	'Test TWEEN.Tween.EasingFunctionGroup should be frozen'(test: Test): void {
+		const replaceEasingFunction = (easingGroup: EasingFunctionGroup) => {
+			const throwsWithReassigned = () => {
+				easingGroup.In = (amount: number) => {
+					return 1.0 + amount
+				}
+				easingGroup.Out = (amount: number) => {
+					return 1.0 + amount
+				}
+				easingGroup.InOut = (amount: number) => {
+					return 1.0 + amount
+				}
+			}
+			test.throws(throwsWithReassigned)
+			test.equal(easingGroup.In(0.0), 0.0)
+			test.equal(easingGroup.Out(0.0), 0.0)
+			test.equal(easingGroup.InOut(0.0), 0.0)
+			test.equal(easingGroup.In(1.0), 1.0)
+			test.equal(easingGroup.Out(1.0), 1.0)
+			test.equal(easingGroup.InOut(1.0), 1.0)
+		}
+
+		const Easing = TWEEN.Easing
+		const easingGroups = [
+			Easing.Quadratic,
+			Easing.Cubic,
+			Easing.Quartic,
+			Easing.Quintic,
+			Easing.Sinusoidal,
+			Easing.Exponential,
+			Easing.Circular,
+			Easing.Elastic,
+			Easing.Back,
+			Easing.Bounce,
+		]
+		easingGroups.forEach(replaceEasingFunction)
+
 		test.done()
 	},
 
@@ -783,13 +851,13 @@ export const tests = {
 	},
 
 	'Test TWEEN.Tween.chain --with one tween'(test: Test): void {
-		const t = new TWEEN.Tween({}),
-			t2 = new TWEEN.Tween({})
+		TWEEN.removeAll()
+
+		const t = new TWEEN.Tween({}, true),
+			t2 = new TWEEN.Tween({}, true)
 		let tStarted = false,
 			tCompleted = false,
 			t2Started = false
-
-		TWEEN.removeAll()
 
 		t.to({}, 1000)
 		t2.to({}, 1000)
@@ -831,12 +899,12 @@ export const tests = {
 	},
 
 	'Test TWEEN.Tween.chain --with several tweens in an array'(test: Test): void {
-		const t = new TWEEN.Tween({}),
-			chainedTweens = [],
+		TWEEN.removeAll()
+
+		const t = new TWEEN.Tween({}, true),
+			chainedTweens: TWEEN.Tween<any>[] = [],
 			numChained = 3
 		let numChainedStarted = 0
-
-		TWEEN.removeAll()
 
 		t.to({}, 1000)
 
@@ -845,7 +913,7 @@ export const tests = {
 		}
 
 		for (let i = 0; i < numChained; i++) {
-			const chained = new TWEEN.Tween({})
+			const chained = new TWEEN.Tween({}, true)
 			chained.to({}, 1000)
 
 			chainedTweens.push(chained)
@@ -867,11 +935,11 @@ export const tests = {
 	},
 
 	'Test TWEEN.Tween.chain allows endless loops'(test: Test): void {
-		const obj = {x: 0},
-			t1 = new TWEEN.Tween(obj).to({x: 100}, 1000),
-			t2 = new TWEEN.Tween(obj).to({x: 0}, 1000)
-
 		TWEEN.removeAll()
+
+		const obj = {x: 0},
+			t1 = new TWEEN.Tween(obj, true).to({x: 100}, 1000),
+			t2 = new TWEEN.Tween(obj, true).to({x: 0}, 1000)
 
 		t1.chain(t2)
 		t2.chain(t1)
@@ -909,8 +977,8 @@ export const tests = {
 		// Repeat the same test but with the tweens added in the
 		// opposite order.
 		const obj2 = {x: 0}
-		const t3 = new TWEEN.Tween(obj2).to({x: 200}, 1000)
-		const t4 = new TWEEN.Tween(obj2).to({x: 100}, 1000)
+		const t3 = new TWEEN.Tween(obj2, true).to({x: 200}, 1000)
+		const t4 = new TWEEN.Tween(obj2, true).to({x: 100}, 1000)
 
 		t4.chain(t3)
 		t3.chain(t4)
@@ -952,9 +1020,44 @@ export const tests = {
 		test.done()
 	},
 
+	'Test TWEEN.Tween.startFromCurrentValues'(test: Test): void {
+		TWEEN.removeAll()
+
+		const obj = {x: 0},
+			t = new TWEEN.Tween(obj, true).to({x: 100})
+
+		test.equal(obj.x, 0)
+
+		// x == 0
+		t.start(0)
+		TWEEN.update(0)
+
+		test.equal(obj.x, 0)
+
+		TWEEN.update(1500)
+		test.equal(obj.x, 100)
+
+		obj.x = 200
+
+		t.startFromCurrentValues(0)
+
+		TWEEN.update(0)
+		test.equal(obj.x, 200)
+
+		TWEEN.update(500)
+		test.equal(obj.x, 150)
+
+		TWEEN.update(1000)
+		test.equal(obj.x, 100)
+
+		test.done()
+	},
+
 	'Test TWEEN.Tween.onStart'(test: Test): void {
+		TWEEN.removeAll()
+
 		const obj = {},
-			t = new TWEEN.Tween(obj)
+			t = new TWEEN.Tween(obj, true)
 		let counter = 0
 
 		t.to({x: 2}, 1000)
@@ -976,9 +1079,43 @@ export const tests = {
 		test.done()
 	},
 
-	'Test TWEEN.Tween.onStop'(test: Test): void {
+	'Test TWEEN.Tween.onEveryStart'(test: Test): void {
+		TWEEN.removeAll()
+
 		const obj = {},
-			t = new TWEEN.Tween(obj)
+			t = new TWEEN.Tween(obj, true)
+		let counter = 0
+
+		t.to({x: 2}, 500)
+		t.delay(500)
+		t.repeat(Infinity)
+		t.onEveryStart(function (): void {
+			counter++
+		})
+
+		test.deepEqual(counter, 0)
+
+		t.start(0)
+		TWEEN.update(0)
+		test.deepEqual(counter, 0, 'onEveryStart callback not called before delayed start')
+
+		TWEEN.update(500)
+		test.deepEqual(counter, 1, 'onEveryStart callback called at delayed start')
+
+		TWEEN.update(1000)
+		test.deepEqual(counter, 1, 'onEveryStart callback not called before delayed repeat start')
+
+		TWEEN.update(1500)
+		test.deepEqual(counter, 2, 'onEveryStart callback called at delayed repeat start')
+
+		test.done()
+	},
+
+	'Test TWEEN.Tween.onStop'(test: Test): void {
+		TWEEN.removeAll()
+
+		const obj = {},
+			t = new TWEEN.Tween(obj, true)
 		let counter = 0
 
 		t.to({x: 2}, 1000)
@@ -1008,8 +1145,10 @@ export const tests = {
 	},
 
 	'Test TWEEN.Tween.onUpdate'(test: Test): void {
+		TWEEN.removeAll()
+
 		const obj = {},
-			t = new TWEEN.Tween(obj)
+			t = new TWEEN.Tween(obj, true)
 		let counter = 0
 
 		t.to({x: 2}, 1000)
@@ -1040,8 +1179,10 @@ export const tests = {
 	},
 
 	'Test TWEEN.Tween.onComplete'(test: Test): void {
+		TWEEN.removeAll()
+
 		const obj = {},
-			t = new TWEEN.Tween(obj)
+			t = new TWEEN.Tween(obj, true)
 		let counter = 0
 
 		t.to({x: 2}, 1000)
@@ -1074,7 +1215,7 @@ export const tests = {
 		TWEEN.removeAll()
 
 		const obj = {x: 0},
-			t = new TWEEN.Tween(obj).to({x: 100}, 100)
+			t = new TWEEN.Tween(obj, true).to({x: 100}, 100)
 
 		t.start(0)
 
@@ -1096,7 +1237,7 @@ export const tests = {
 		TWEEN.removeAll()
 
 		const obj = {x: 0},
-			t = new TWEEN.Tween(obj).to({x: 100}, 100).repeat(1)
+			t = new TWEEN.Tween(obj, true).to({x: 100}, 100).repeat(1)
 
 		t.start(0)
 
@@ -1121,7 +1262,7 @@ export const tests = {
 		TWEEN.removeAll()
 
 		const obj = {x: 0},
-			t = new TWEEN.Tween(obj).to({x: 100}, 100).repeat(Infinity)
+			t = new TWEEN.Tween(obj, true).to({x: 100}, 100).repeat(Infinity)
 
 		t.start(0)
 
@@ -1149,7 +1290,7 @@ export const tests = {
 		TWEEN.removeAll()
 
 		const obj = {x: 0, y: 0},
-			t = new TWEEN.Tween(obj).to({x: '+100', y: '-100'}, 100).repeat(1)
+			t = new TWEEN.Tween(obj, true).to({x: '+100', y: '-100'}, 100).repeat(1)
 
 		t.start(0)
 
@@ -1179,7 +1320,7 @@ export const tests = {
 		TWEEN.removeAll()
 
 		const obj = {x: 0},
-			t = new TWEEN.Tween(obj).to({x: 100}, 100).repeat(Infinity).yoyo(true)
+			t = new TWEEN.Tween(obj, true).to({x: 100}, 100).repeat(Infinity).yoyo(true)
 
 		t.start(0)
 
@@ -1207,7 +1348,7 @@ export const tests = {
 		TWEEN.removeAll()
 
 		const obj = {x: 0},
-			t = new TWEEN.Tween(obj).to({x: 100}, 100).repeat(1).yoyo(true)
+			t = new TWEEN.Tween(obj, true).to({x: 100}, 100).repeat(1).yoyo(true)
 
 		t.start(0)
 
@@ -1235,7 +1376,7 @@ export const tests = {
 		TWEEN.removeAll()
 
 		const obj = {x: 0},
-			t = new TWEEN.Tween(obj)
+			t = new TWEEN.Tween(obj, true)
 				.to({x: [100, 200]}, 100)
 				.repeat(1)
 				.yoyo(true)
@@ -1261,7 +1402,7 @@ export const tests = {
 		TWEEN.removeAll()
 
 		const obj = {x: 0},
-			t = new TWEEN.Tween(obj).to({x: 100}, 100).repeat(1).yoyo(true)
+			t = new TWEEN.Tween(obj, true).to({x: 100}, 100).repeat(1).yoyo(true)
 
 		t.start(0)
 
@@ -1302,13 +1443,13 @@ export const tests = {
 	},
 
 	'Test TWEEN.Tween.stopChainedTweens()'(test: Test): void {
-		const t = new TWEEN.Tween({}),
-			t2 = new TWEEN.Tween({})
+		TWEEN.removeAll()
+
+		const t = new TWEEN.Tween({}, true),
+			t2 = new TWEEN.Tween({}, true)
 		let tStarted = false,
 			tCompleted = false,
 			t2Started = false
-
-		TWEEN.removeAll()
 
 		t.to({}, 1000)
 		t2.delay(500).to({}, 1000)
@@ -1340,19 +1481,25 @@ export const tests = {
 
 		test.equal(tStarted, true)
 		test.equal(t2Started, false)
-		test.equal(TWEEN.getAll().length, 0)
+		test.equal(TWEEN.getAll().length, 2)
+
+		TWEEN.update(1501)
+
+		test.equal(t2Started, false)
 
 		test.done()
 	},
 
 	'Test TWEEN.Tween.chain progressess into chained tweens'(test: Test): void {
+		TWEEN.removeAll()
+
 		const obj = {t: 1000}
 
 		// 1000 of nothing
-		const blank = new TWEEN.Tween({}).to({}, 1000)
+		const blank = new TWEEN.Tween({}, true).to({}, 1000)
 
 		// tween obj.t from 1000 -> 2000 (in time with update time)
-		const next = new TWEEN.Tween(obj).to({t: 2000}, 1000)
+		const next = new TWEEN.Tween(obj, true).to({t: 2000}, 1000)
 
 		blank.chain(next).start(0)
 
@@ -1371,7 +1518,7 @@ export const tests = {
 
 		const tween1 = new TWEEN.Tween(object1).to(target1, 1000)
 
-		tween1.start()
+		tween1.start(0)
 		tween1.end()
 
 		test.equal(object1.x, 50)
@@ -1401,7 +1548,7 @@ export const tests = {
 			test.ok(true)
 		})
 
-		tween1.start()
+		tween1.start(0)
 		tween1.end()
 
 		test.done()
@@ -1432,7 +1579,7 @@ export const tests = {
 		TWEEN.removeAll()
 
 		const obj = {x: 0},
-			t = new TWEEN.Tween(obj).to({x: 100}, 100).repeat(1).delay(100)
+			t = new TWEEN.Tween(obj, true).to({x: 100}, 100).repeat(1).delay(100)
 
 		t.start(0)
 
@@ -1464,7 +1611,7 @@ export const tests = {
 		TWEEN.removeAll()
 
 		const obj = {x: 0},
-			t = new TWEEN.Tween(obj).to({x: 100}, 100).repeat(1).repeatDelay(200)
+			t = new TWEEN.Tween(obj, true).to({x: 100}, 100).repeat(1).repeatDelay(200)
 
 		t.start(0)
 
@@ -1496,7 +1643,7 @@ export const tests = {
 		TWEEN.removeAll()
 
 		const obj = {x: 0},
-			t = new TWEEN.Tween(obj).to({x: 100}, 100).delay(100).repeat(1).repeatDelay(200)
+			t = new TWEEN.Tween(obj, true).to({x: 100}, 100).delay(100).repeat(1).repeatDelay(200)
 
 		t.start(0)
 
@@ -1524,7 +1671,337 @@ export const tests = {
 		test.done()
 	},
 
+	'TWEEN.Tween.onRepeat should not be called if repeat = 0 or default'(test: Test): void {
+		TWEEN.removeAll()
+
+		const obj = {x: 0}
+		let callbackCounter = 0
+
+		const t = new TWEEN.Tween(obj, true).to({x: 100}, 100).start(0)
+		t.onRepeat(() => {
+			callbackCounter++
+		})
+
+		TWEEN.update(0)
+		test.equal(callbackCounter, 0)
+		TWEEN.update(50)
+		test.equal(callbackCounter, 0)
+		TWEEN.update(100)
+		test.equal(callbackCounter, 0)
+		TWEEN.update(150)
+		test.equal(callbackCounter, 0)
+		test.ok(!t.isPlaying())
+
+		test.done()
+	},
+
+	'TWEEN.Tween.onRepeat should be called once if repeat = 1'(test: Test): void {
+		TWEEN.removeAll()
+
+		const obj = {x: 0}
+		let callbackCounter = 0
+
+		const t = new TWEEN.Tween(obj, true).to({x: 100}, 100).repeat(1).start(0)
+		t.onRepeat(() => {
+			callbackCounter++
+		})
+
+		TWEEN.update(0)
+		test.equal(callbackCounter, 0)
+		TWEEN.update(50)
+		test.equal(callbackCounter, 0)
+		TWEEN.update(99.99999999)
+		test.equal(callbackCounter, 0)
+		TWEEN.update(100)
+		test.equal(callbackCounter, 1)
+		test.ok(t.isPlaying())
+
+		TWEEN.update(150)
+		test.equal(callbackCounter, 1)
+		TWEEN.update(200)
+		test.equal(callbackCounter, 1)
+		test.ok(!t.isPlaying())
+
+		test.done()
+	},
+
+	'TWEEN.Tween.onRepeat should be called every time if repeat = Infinity'(test: Test): void {
+		TWEEN.removeAll()
+
+		const obj = {x: 0}
+		let callbackCounter = 0
+
+		const t = new TWEEN.Tween(obj, true).to({x: 100}, 100).repeat(Infinity).start(0)
+		t.onRepeat(() => {
+			callbackCounter++
+		})
+
+		const repeatTween = (repeatCount: number): void => {
+			TWEEN.update(repeatCount * 100)
+			test.equal(callbackCounter, repeatCount)
+			TWEEN.update(50 + repeatCount * 100)
+			test.equal(callbackCounter, repeatCount)
+			TWEEN.update(99.99999999 + repeatCount * 100)
+			test.equal(callbackCounter, repeatCount)
+			TWEEN.update(100 + repeatCount * 100)
+			test.equal(callbackCounter, repeatCount + 1)
+			test.ok(t.isPlaying())
+		}
+
+		for (let i = 0; i < 10; i++) {
+			repeatTween(i)
+		}
+
+		test.done()
+	},
+
+	'TWEEN.Tween.onRepeat should not be called if Tween.pause() or Tween.stop(), and should be called after Tween.resume() or restart'(
+		test: Test,
+	): void {
+		TWEEN.removeAll()
+
+		const generateTween = () => {
+			const obj = {x: 0}
+			const counter = {count: 0}
+			const tween = new TWEEN.Tween(obj, true).to({x: 100}, 100).repeat(Infinity).start(0)
+			tween.onRepeat(() => {
+				counter.count++
+			})
+			return {
+				tween,
+				counter,
+			}
+		}
+
+		const tweenPause = generateTween()
+		const tweenStop = generateTween()
+
+		TWEEN.update(100)
+		test.equal(tweenPause.counter.count, 1, 'repeats after first completion')
+		test.equal(tweenStop.counter.count, 1, 'repeats after first completion')
+
+		TWEEN.update(200)
+		test.equal(tweenPause.counter.count, 2, 'repeats after second completion')
+		test.equal(tweenStop.counter.count, 2, 'repeats after second completion')
+
+		tweenPause.tween.pause(200)
+		TWEEN.update(300)
+		test.equal(tweenPause.counter.count, 2, 'tween is paused hence it did not repeat')
+		test.equal(tweenStop.counter.count, 3, 'tween is not stopped hence it repeated')
+
+		tweenPause.tween.resume(300)
+		tweenStop.tween.stop()
+		TWEEN.update(400)
+		test.equal(tweenPause.counter.count, 3, 'tween is resumed so it repeated')
+		test.equal(tweenStop.counter.count, 3, 'tween was stopped hence it did not repeat')
+
+		tweenStop.tween.start(400)
+		TWEEN.update(500)
+		test.equal(tweenPause.counter.count, 4, 'tween is not paused hence it repeated')
+		test.equal(tweenStop.counter.count, 4, 'tween is not stopped hence it repeated')
+
+		test.done()
+	},
+
+	'If Tween.delay is set, TWEEN.Tween.onRepeat should be called when repeat section finished'(test: Test): void {
+		TWEEN.removeAll()
+
+		const obj = {x: 0}
+		let callbackCounter = 0
+
+		const t = new TWEEN.Tween(obj, true).to({x: 100}, 100).delay(50).repeat(1).start(0)
+		t.onRepeat(() => {
+			callbackCounter++
+		})
+
+		TWEEN.update(0)
+		test.equal(callbackCounter, 0)
+
+		TWEEN.update(50) //start first section
+		test.equal(obj.x, 0)
+		test.equal(callbackCounter, 0)
+
+		TWEEN.update(100)
+		test.equal(obj.x, 50)
+		test.equal(callbackCounter, 0)
+
+		TWEEN.update(150) //first section is finished
+		test.equal(obj.x, 100)
+		test.equal(callbackCounter, 1)
+
+		TWEEN.update(200) //restart
+		test.equal(obj.x, 0)
+		test.equal(callbackCounter, 1)
+
+		TWEEN.update(250)
+		test.equal(obj.x, 50)
+		test.equal(callbackCounter, 1)
+
+		TWEEN.update(300) //second section is finished
+		test.equal(obj.x, 100)
+		test.equal(callbackCounter, 1)
+		test.ok(!t.isPlaying())
+
+		TWEEN.update(400)
+		test.equal(obj.x, 100)
+		test.equal(callbackCounter, 1)
+
+		test.done()
+	},
+
+	'If Tween.repeatDelay is set, TWEEN.Tween.onRepeat should be called when repeat section finished'(test: Test): void {
+		TWEEN.removeAll()
+
+		const obj = {x: 0}
+		let callbackCounter = 0
+
+		const t = new TWEEN.Tween(obj, true).to({x: 100}, 100).repeatDelay(100).repeat(1).start(0)
+		t.onRepeat(() => {
+			callbackCounter++
+		})
+
+		TWEEN.update(0)
+		test.equal(callbackCounter, 0)
+
+		TWEEN.update(50)
+		test.equal(callbackCounter, 0)
+
+		TWEEN.update(99.99999999)
+		test.equal(callbackCounter, 0)
+
+		TWEEN.update(100) //first section is finished
+		test.equal(callbackCounter, 1)
+
+		TWEEN.update(150) //delay
+		test.equal(callbackCounter, 1)
+
+		TWEEN.update(200) //restart
+		test.equal(callbackCounter, 1)
+
+		TWEEN.update(300) //second section is finished
+		test.equal(callbackCounter, 1)
+		test.ok(!t.isPlaying())
+
+		TWEEN.update(400)
+		test.equal(callbackCounter, 1)
+
+		test.done()
+	},
+
+	'Test TWEEN.update() should reduce the repeat count'(test: Test) {
+		TWEEN.removeAll()
+
+		const obj = {x: 0},
+			t = new TWEEN.Tween(obj, true).to({x: 100}, 100).repeat(5).delay(100)
+
+		t.start(0)
+
+		TWEEN.update(100)
+		// @ts-expect-error
+		test.equal(t._repeat, 5)
+
+		TWEEN.update(150)
+		// @ts-expect-error
+		test.equal(t._repeat, 5)
+
+		TWEEN.update(200)
+		// @ts-expect-error
+		test.equal(t._repeat, 4)
+
+		TWEEN.update(250)
+		// @ts-expect-error
+		test.equal(t._repeat, 4)
+
+		TWEEN.update(300)
+		// @ts-expect-error
+		test.equal(t._repeat, 4)
+
+		TWEEN.update(350)
+		// @ts-expect-error
+		test.equal(t._repeat, 4)
+
+		TWEEN.update(400)
+		// @ts-expect-error
+		test.equal(t._repeat, 3)
+
+		test.done()
+	},
+
+	'Test TWEEN.update() should reduce the repeat count multiple times'(test: Test) {
+		TWEEN.removeAll()
+
+		const obj = {x: 0},
+			t = new TWEEN.Tween(obj, true).to({x: 100}, 100).repeat(5).delay(100)
+
+		t.start(0)
+
+		TWEEN.update(400)
+		// @ts-expect-error
+		test.equal(t._repeat, 3)
+
+		test.done()
+	},
+
+	'Test browser tab sleep with delay'(test: Test) {
+		TWEEN.removeAll()
+
+		const obj = {x: 0},
+			t = new TWEEN.Tween(obj, true).to({x: 100}, 100).repeat(Infinity).delay(100)
+
+		t.start(0)
+
+		TWEEN.update(350)
+		test.equal(obj.x, 50)
+
+		TWEEN.update(750)
+		test.equal(obj.x, 50)
+
+		test.done()
+	},
+
+	'Test browser tab sleep with repeatDelay'(test: Test) {
+		TWEEN.removeAll()
+
+		const obj = {x: 0},
+			t = new TWEEN.Tween(obj, true).to({x: 100}, 100).repeat(1).repeatDelay(200)
+
+		t.start(0)
+
+		TWEEN.update(350)
+		test.equal(obj.x, 50)
+
+		TWEEN.update(600)
+		test.equal(obj.x, 100)
+
+		TWEEN.update(Infinity)
+		test.equal(obj.x, 100)
+
+		test.done()
+	},
+
+	'Test browser tab sleep with repeatDelay and delay'(test: Test) {
+		TWEEN.removeAll()
+
+		const obj = {x: 0},
+			t = new TWEEN.Tween(obj, true).to({x: 100}, 100).delay(100).repeat(1).repeatDelay(200)
+
+		t.start(0)
+
+		TWEEN.update(450)
+		test.equal(obj.x, 50)
+
+		TWEEN.update(500)
+		test.equal(obj.x, 100)
+
+		TWEEN.update(Infinity)
+		test.equal(obj.x, 100)
+
+		test.done()
+	},
+
 	'Tween.js compatible with Object.defineProperty getter / setters'(test: Test): void {
+		TWEEN.removeAll()
+
 		const obj = {_x: 0, x: 0}
 
 		Object.defineProperty(obj, 'x', {
@@ -1538,7 +2015,7 @@ export const tests = {
 
 		test.equal(obj.x, 0)
 
-		const t = new TWEEN.Tween(obj).to({x: 100}, 100)
+		const t = new TWEEN.Tween(obj, true).to({x: 100}, 100)
 
 		t.start(0)
 
@@ -1557,8 +2034,6 @@ export const tests = {
 	},
 
 	'tween.isPlaying() is false before the tween starts'(test: Test): void {
-		TWEEN.removeAll()
-
 		const t = new TWEEN.Tween({x: 0}).to({x: 1}, 100)
 
 		test.equal(t.isPlaying(), false)
@@ -1567,8 +2042,6 @@ export const tests = {
 	},
 
 	'tween.isPlaying() is true when a tween is started and before it ends'(test: Test): void {
-		TWEEN.removeAll()
-
 		const t = new TWEEN.Tween({x: 0}).to({x: 1}, 100)
 		t.start(0)
 		test.equal(t.isPlaying(), true)
@@ -1579,7 +2052,7 @@ export const tests = {
 	'tween.isPlaying() is false after a tween ends'(test: Test): void {
 		TWEEN.removeAll()
 
-		const t = new TWEEN.Tween({x: 0}).to({x: 1}, 100)
+		const t = new TWEEN.Tween({x: 0}, true).to({x: 1}, 100)
 		t.start(0)
 		TWEEN.update(150)
 		test.equal(t.isPlaying(), false)
@@ -1591,7 +2064,7 @@ export const tests = {
 		TWEEN.removeAll()
 
 		const object = {x: 0}
-		const t = new TWEEN.Tween(object).to({x: 1}, 0)
+		const t = new TWEEN.Tween(object, true).to({x: 1}, 0)
 		t.start(0)
 		TWEEN.update(0)
 
@@ -1608,6 +2081,108 @@ export const tests = {
 		test.ok(group.getAll() instanceof Array)
 		test.done()
 	},
+	'Custom group.onComplete() should be triggered when all Tweens in the group have reached their completion, and the child Tween.onComplete() should also be fired'(
+		test: Test,
+	): void {
+		TWEEN.removeAll()
+
+		const t = new TWEEN.Tween({x: 1}),
+			t2 = new TWEEN.Tween({x: 1}),
+			t3 = new TWEEN.Tween({x: 1}),
+			group = new TWEEN.Group()
+		let groupCounter = 0,
+			childCounter = 0,
+			childCounter2 = 0,
+			childCounter3 = 0
+
+		group.add(t)
+		group.add(t2)
+		group.add(t3)
+
+		t.to({x: 2}, 1000)
+		t2.to({x: 2}, 2000)
+		t3.to({x: 2}, 3000)
+
+		t.onComplete(function (): void {
+			childCounter++
+		})
+		t2.onComplete(function (): void {
+			childCounter2++
+		})
+		t3.onComplete(function (): void {
+			childCounter3++
+		})
+		group.onComplete(function (): void {
+			groupCounter++
+		})
+
+		t.start(0)
+		t2.start(0)
+		t3.start(0)
+
+		group.update(0)
+		test.deepEqual(groupCounter, 0)
+		test.deepEqual(childCounter, 0)
+		test.deepEqual(childCounter2, 0)
+		test.deepEqual(childCounter3, 0)
+
+		group.update(1000)
+		test.deepEqual(groupCounter, 0)
+		test.deepEqual(childCounter, 1)
+		test.deepEqual(childCounter2, 0)
+		test.deepEqual(childCounter3, 0)
+
+		group.update(2000)
+		test.deepEqual(childCounter, 1)
+		test.deepEqual(groupCounter, 0)
+		test.deepEqual(childCounter2, 1)
+		test.deepEqual(childCounter3, 0)
+
+		group.update(3000)
+		test.deepEqual(groupCounter, 1)
+		test.deepEqual(childCounter, 1)
+		test.deepEqual(childCounter2, 1)
+		test.deepEqual(childCounter3, 1)
+		test.done()
+	},
+
+	'Custom group.onComplete() works with Timeline children without Tween casts'(test: Test): void {
+		const group = new TWEEN.Group()
+		const tweenObj = {x: 0}
+		const timelineObj = {y: 0}
+		const tween = new TWEEN.Tween(tweenObj).to({x: 1}, 100)
+		const timelineChildTween = new TWEEN.Tween(timelineObj).to({y: 1}, 200)
+		const timeline = new TWEEN.Timeline().add(timelineChildTween, 0)
+		let tweenCompleteCount = 0
+		let timelineCompleteCount = 0
+		let groupCompleteCount = 0
+
+		tween.onComplete(() => {
+			tweenCompleteCount++
+		})
+		timeline.onComplete(() => {
+			timelineCompleteCount++
+		})
+		group.add(tween, timeline)
+		group.onComplete(() => {
+			groupCompleteCount++
+		})
+
+		tween.start(0)
+		timeline.start(0)
+
+		group.update(100)
+		test.equal(tweenCompleteCount, 1)
+		test.equal(timelineCompleteCount, 0)
+		test.equal(groupCompleteCount, 0)
+
+		group.update(200)
+		test.equal(tweenCompleteCount, 1)
+		test.equal(timelineCompleteCount, 1)
+		test.equal(groupCompleteCount, 1)
+
+		test.done()
+	},
 
 	'Custom group stores tweens instead of global TWEEN group'(test: Test): void {
 		const group = new TWEEN.Group()
@@ -1615,7 +2190,7 @@ export const tests = {
 		const numGlobalTweensBefore = TWEEN.getAll().length
 		const numGroupTweensBefore = group.getAll().length
 
-		const globalTween = new TWEEN.Tween({})
+		const globalTween = new TWEEN.Tween({}, true)
 		const groupTweenA = new TWEEN.Tween({}, group)
 		const groupTweenB = new TWEEN.Tween({}, group)
 
@@ -1637,7 +2212,7 @@ export const tests = {
 		test.equal(TWEEN.getAll().length, 0, 'No global tweens left')
 		test.equal(group.getAll().length, 0, 'No group tweens left')
 
-		const globalTween = new TWEEN.Tween({})
+		const globalTween = new TWEEN.Tween({}, true)
 		const groupTweenA = new TWEEN.Tween({}, group)
 		const groupTweenB = new TWEEN.Tween({}, group)
 
@@ -1669,7 +2244,7 @@ export const tests = {
 		test.equal(TWEEN.getAll().length, 0, 'No global tweens left')
 		test.equal(group.getAll().length, 0, 'No group tweens left')
 
-		const globalTween = new TWEEN.Tween({})
+		const globalTween = new TWEEN.Tween({}, true)
 		const groupTweenA = new TWEEN.Tween({}, group)
 		const groupTweenB = new TWEEN.Tween({}, group)
 
@@ -1695,19 +2270,16 @@ export const tests = {
 	"Custom group.add() doesn't conflict with global TWEEN group, or vice versa"(test: Test): void {
 		const group = new TWEEN.Group()
 
-		const globalTween = new TWEEN.Tween({})
+		const globalTween = new TWEEN.Tween({}, true)
 		const groupTweenA = new TWEEN.Tween({}, group)
 		const groupTweenB = new TWEEN.Tween({}, group)
-
-		const numGlobalTweens = TWEEN.getAll().length
-		const numGroupTweens = group.getAll().length
 
 		TWEEN.add(globalTween)
 		group.add(groupTweenA)
 		group.add(groupTweenB)
 
-		test.equal(numGlobalTweens + 1, TWEEN.getAll().length)
-		test.equal(numGroupTweens + 2, group.getAll().length)
+		test.equal(TWEEN.getAll().length, 1)
+		test.equal(group.getAll().length, 2)
 
 		test.done()
 	},
@@ -1720,7 +2292,7 @@ export const tests = {
 		const duration = 1000
 
 		const globalObj = {x: 1}
-		new TWEEN.Tween(globalObj).to(endObj, duration).start(0)
+		new TWEEN.Tween(globalObj, true).to(endObj, duration).start(0)
 
 		const groupObj = {x: 1}
 		new TWEEN.Tween(groupObj, group).to(endObj, duration).start(0)
@@ -1740,7 +2312,7 @@ export const tests = {
 		const duration = 1000
 
 		const globalObj = {x: 1}
-		new TWEEN.Tween(globalObj).to(endObj, duration).start(0)
+		new TWEEN.Tween(globalObj, true).to(endObj, duration).start(0)
 
 		const groupObj = {x: 1}
 		new TWEEN.Tween(groupObj, group).to(endObj, duration).start(0)
@@ -1754,7 +2326,7 @@ export const tests = {
 
 	'Ensure tweens work without any group'(test: Test): void {
 		const obj = {x: 0},
-			t = new TWEEN.Tween(obj, false)
+			t = new TWEEN.Tween(obj)
 
 		t.to({x: 1000}, 1000)
 
@@ -1781,13 +2353,13 @@ export const tests = {
 	'Stopping a tween within an update callback will not cause an error.'(test: Test): void {
 		TWEEN.removeAll()
 
-		const tweenA = new TWEEN.Tween({x: 1, y: 2})
+		const tweenA = new TWEEN.Tween({x: 1, y: 2}, true)
 			.to({x: 3, y: 4}, 1000)
 			.onUpdate(function (): void {
 				tweenB.stop()
 			})
 			.start(0)
-		const tweenB = new TWEEN.Tween({x: 5, y: 6})
+		const tweenB = new TWEEN.Tween({x: 5, y: 6}, true)
 			.to({x: 7, y: 8})
 			.onUpdate(function (): void {
 				tweenA.stop()
@@ -1816,6 +2388,14 @@ export const tests = {
 		test.done()
 	},
 
+	'Get the duration with .getDuration'(test: Test): void {
+		const obj = {x: 1}
+		const t = new TWEEN.Tween(obj).to({x: 2}).duration(100)
+
+		test.deepEqual(t.getDuration(), 100)
+		test.done()
+	},
+
 	"Tween.group sets the tween's group."(test: Test): void {
 		const group = new TWEEN.Group()
 
@@ -1828,16 +2408,16 @@ export const tests = {
 	},
 
 	'Test TWEEN.Tween.pause() and TWEEN.Tween.resume()'(test: Test): void {
+		TWEEN.removeAll()
+
 		const obj = {x: 0.0},
-			t = new TWEEN.Tween(obj)
+			t = new TWEEN.Tween(obj, true)
 
 		t.to({x: 1.0}, 1000)
 
-		TWEEN.removeAll()
-		test.equal(TWEEN.getAll().length, 0)
+		test.equal(TWEEN.getAll().length, 1)
 
 		t.start(0)
-		test.equal(TWEEN.getAll().length, 1)
 		test.equal(t.isPaused(), false)
 
 		TWEEN.update(400)
@@ -1845,7 +2425,7 @@ export const tests = {
 
 		t.pause(450)
 		test.equal(t.isPaused(), true)
-		test.equal(TWEEN.getAll().length, 0)
+		test.equal(TWEEN.getAll().length, 1)
 		test.equal(obj.x, 0.4)
 
 		TWEEN.update(900)
@@ -1870,7 +2450,7 @@ export const tests = {
 
 	'Test TWEEN.Tween.pause() and TWEEN.Tween.resume(), without groups'(test: Test): void {
 		const obj = {x: 0.0},
-			t = new TWEEN.Tween(obj, false)
+			t = new TWEEN.Tween(obj)
 
 		t.to({x: 1.0}, 1000)
 
@@ -1903,22 +2483,60 @@ export const tests = {
 		test.done()
 	},
 
-	'Arrays in the object passed to to() are not modified by start().'(test: Test): void {
-		const start = {x: 10, y: 20}
-		const end = {x: 100, y: 200, values: ['a', 'b']}
-		const valuesArray = end.values
+	'Arrays in the object passed to to() are not modified by start() if dynamic is false.'(test: Test): void {
+		const start = {x: 10, y: 20, z: 30}
+		const end = {x: 100, y: 200, z: ['+10', '-10']}
+		const valuesArray = end.z
 		new TWEEN.Tween(start).to(end).start()
-		test.equal(valuesArray, end.values)
-		test.equal(end.values.length, 2)
-		test.equal(end.values[0], 'a')
-		test.equal(end.values[1], 'b')
+		test.equal(valuesArray, end.z)
+		test.equal(end.z.length, 2)
+		test.equal(end.z[0], '+10')
+		test.equal(end.z[1], '-10')
+		test.done()
+	},
+
+	'Arrays in the object passed to to() are modified by start() if dynamic is true.'(test: Test): void {
+		const start = {x: 10, y: 20, z: 30}
+		const end = {x: 100, y: 200, z: ['+10', '-10']}
+		const valuesArray = end.z
+		test.equal(end.z.length, 2)
+		new TWEEN.Tween(start).to(end).dynamic(true).start()
+		test.notEqual(valuesArray, end.z)
+		test.equal(end.z.length, 3)
+		test.equal(end.z[0], 30)
+		test.equal(end.z[1], 40)
+		test.equal(end.z[2], 20)
+		test.done()
+	},
+
+	'Arrays in the object passed to to() are not modified by start() if they are not interpolation arrays, regardless of dynamic.'(
+		test: Test,
+	): void {
+		// eslint-disable-next-line
+		function testWithDynamic(start: any, end: any, dynamic: boolean): void {
+			// const start = {x: 10, y: 20, z: [1, 2]}
+			// const end = {x: 100, y: 200, z: ['a', 'b']}
+			const valuesArray = end.z
+			new TWEEN.Tween(start).to(end).dynamic(dynamic).start()
+			test.equal(valuesArray, end.z)
+			test.equal(end.z.length, 2)
+			test.equal(end.z[0], 'a')
+			test.equal(end.z[1], 'b')
+		}
+
+		testWithDynamic({x: 10, y: 20, z: [1, 2]}, {x: 100, y: 200, z: ['a', 'b']}, true)
+		testWithDynamic({x: 10, y: 20, z: [1, 2]}, {x: 100, y: 200, z: ['a', 'b']}, false)
+		testWithDynamic({x: 10, y: 20, z: 30}, {x: 100, y: 200, z: ['a', 'b']}, true)
+		testWithDynamic({x: 10, y: 20, z: 30}, {x: 100, y: 200, z: ['a', 'b']}, false)
 		test.done()
 	},
 
 	'Tween.js animate nested object'(test: Test): void {
+		TWEEN.removeAll()
+
 		const obj = {scale: {x: 0}, alpha: 0}
 
-		const t = new TWEEN.Tween(obj).to({scale: {x: 100}, alpha: 100}, 100)
+		const t = new TWEEN.Tween(obj, true).to({scale: {x: 100}, alpha: 100}, 100)
 		t.start(0)
 
 		test.equal(obj.scale.x, 0)
@@ -1939,9 +2557,11 @@ export const tests = {
 	},
 
 	'Tween.js animate nested object including relative value'(test: Test): void {
+		TWEEN.removeAll()
+
 		const obj = {world: {hero: {scale: {x: 0}, x: 100}}, time: 0}
 
-		const t = new TWEEN.Tween(obj).to({world: {hero: {scale: {x: 100}, x: '+100'}}, time: 100}, 100)
+		const t = new TWEEN.Tween(obj, true).to({world: {hero: {scale: {x: 100}, x: '+100'}}, time: 100}, 100)
 		t.start(0)
 
 		test.equal(obj.world.hero.scale.x, 0)
@@ -1965,14 +2585,14 @@ export const tests = {
 	},
 
 	'Test TWEEN.Tween with nested objects'(test: Test): void {
+		TWEEN.removeAll()
+
 		const obj = {x: 0.0, y: 100, some: {value: 0.0, style: {opacity: 1.0}}},
-			t = new TWEEN.Tween(obj)
+			t = new TWEEN.Tween(obj, true)
 
 		t.to({x: 1.0, y: 200, some: {value: 1.0, style: {opacity: 0.5}}}, 1000)
 
-		TWEEN.removeAll()
-
-		test.equal(TWEEN.getAll().length, 0)
+		test.equal(TWEEN.getAll().length, 1)
 
 		t.start(0)
 
@@ -2004,14 +2624,14 @@ export const tests = {
 	},
 
 	'Test TWEEN.Tween.pause() and .resume() with nested objects'(test: Test): void {
+		TWEEN.removeAll()
+
 		const obj = {x: 0.0, y: 100, some: {value: 0.0}},
-			t = new TWEEN.Tween(obj)
+			t = new TWEEN.Tween(obj, true)
 
 		t.to({x: 1.0, y: 200, some: {value: 1.0}}, 1000)
 
-		TWEEN.removeAll()
-
-		test.equal(TWEEN.getAll().length, 0)
+		test.equal(TWEEN.getAll().length, 1)
 
 		t.start(0)
 
@@ -2027,7 +2647,7 @@ export const tests = {
 		t.pause(450)
 
 		test.equal(t.isPaused(), true)
-		test.equal(TWEEN.getAll().length, 0)
+		test.equal(TWEEN.getAll().length, 1)
 		test.equal(obj.x, 0.4)
 		test.equal(obj.y, 140)
 		test.equal(obj.some.value, 0.4)
@@ -2089,6 +2709,157 @@ export const tests = {
 		test.done()
 	},
 
+	'Test TWEEN.Easing.generateExponential(1) equals Linear'(test: Test): void {
+		const ease1 = TWEEN.Easing.generateExponential(1)
+
+		const compareWithLinear = (ease: EasingFunctionGroup, amount: number) => {
+			const linearResult = TWEEN.Easing.Linear.None(amount)
+			test.equal(linearResult, ease.In(amount))
+			test.equal(linearResult, ease.Out(amount))
+			test.equal(linearResult, ease.InOut(amount))
+		}
+		compareWithLinear(ease1, 0)
+		compareWithLinear(ease1, 0.25)
+		compareWithLinear(ease1, 0.5)
+		compareWithLinear(ease1, 0.75)
+		compareWithLinear(ease1, 1)
+
+		test.done()
+	},
+
+	'Test TWEEN.Easing.generateExponential(n) should pass 0.0, 0.5, 1.0'(test: Test): void {
+		const checkEdgeValue = (ease: EasingFunctionGroup) => {
+			test.equal(ease.In(0.0), 0.0)
+			test.equal(ease.Out(0.0), 0.0)
+			test.equal(ease.InOut(0.0), 0.0)
+
+			test.equal(ease.InOut(0.5), 0.5)
+
+			test.equal(ease.In(1.0), 1.0)
+			test.equal(ease.Out(1.0), 1.0)
+			test.equal(ease.InOut(1.0), 1.0)
+		}
+		checkEdgeValue(TWEEN.Easing.generateExponential(1))
+		checkEdgeValue(TWEEN.Easing.generateExponential(2))
+		checkEdgeValue(TWEEN.Easing.generateExponential())
+		checkEdgeValue(TWEEN.Easing.generateExponential(300))
+		checkEdgeValue(TWEEN.Easing.generateExponential(1000))
+
+		test.done()
+	},
+
+	'Test TWEEN.Easing.generateExponential() should approximate Exponential'(test: Test): void {
+		const generated = TWEEN.Easing.generateExponential(300)
+		toBeCloseTo(test, generated.In(0.25), TWEEN.Easing.Exponential.In(0.25), 2)
+		toBeCloseTo(test, generated.In(0.5), TWEEN.Easing.Exponential.In(0.5), 2)
+		toBeCloseTo(test, generated.In(0.75), TWEEN.Easing.Exponential.In(0.75), 2)
+		toBeCloseTo(test, generated.Out(0.25), TWEEN.Easing.Exponential.Out(0.25), 2)
+		toBeCloseTo(test, generated.Out(0.5), TWEEN.Easing.Exponential.Out(0.5), 2)
+		toBeCloseTo(test, generated.Out(0.75), TWEEN.Easing.Exponential.Out(0.75), 2)
+
+		test.done()
+	},
+
+	'Test TWEEN.Easing.generateBack() should match default Back at default overshoot'(test: Test): void {
+		const defaultBack = TWEEN.Easing.generateBack()
+		const amount = Math.LOG10E
+		toBeCloseTo(test, defaultBack.In(amount), TWEEN.Easing.Back.In(amount), 14)
+		toBeCloseTo(test, defaultBack.Out(amount), TWEEN.Easing.Back.Out(amount), 14)
+		toBeCloseTo(test, defaultBack.InOut(amount), TWEEN.Easing.Back.InOut(amount), 14)
+		test.done()
+	},
+
+	'Test TWEEN.Easing.generateBack(n) should pass 0.0, 0.5, 1.0'(test: Test): void {
+		const checkEdgeValue = (ease: EasingFunctionGroup) => {
+			test.equal(ease.InOut(0.0), 0.0)
+			test.equal(ease.In(0.0), 0.0)
+			test.equal(ease.Out(0.0), 0.0)
+
+			test.equal(ease.InOut(0.5), 0.5)
+
+			test.equal(ease.InOut(1.0), 1.0)
+			test.equal(ease.In(1.0), 1.0)
+			test.equal(ease.Out(1.0), 1.0)
+		}
+		checkEdgeValue(TWEEN.Easing.generateBack(0))
+		checkEdgeValue(TWEEN.Easing.generateBack(1.0))
+		checkEdgeValue(TWEEN.Easing.generateBack())
+		checkEdgeValue(TWEEN.Easing.generateBack(2.5))
+		checkEdgeValue(TWEEN.Easing.generateBack(5.0))
+		test.done()
+	},
+
+	'Test TWEEN.Easing.generateElastic() should pass 0.0, 0.5, 1.0'(test: Test): void {
+		const checkEdgeValue = (ease: EasingFunctionGroup) => {
+			test.equal(ease.In(0.0), 0.0)
+			test.equal(ease.Out(0.0), 0.0)
+			test.equal(ease.InOut(0.0), 0.0)
+
+			toBeCloseTo(test, ease.InOut(0.5), 0.5, 10)
+
+			test.equal(ease.In(1.0), 1.0)
+			test.equal(ease.Out(1.0), 1.0)
+			test.equal(ease.InOut(1.0), 1.0)
+		}
+		checkEdgeValue(TWEEN.Easing.generateElastic())
+		checkEdgeValue(TWEEN.Easing.generateElastic(1, 0.3))
+		checkEdgeValue(TWEEN.Easing.generateElastic(1.5, 0.4))
+		checkEdgeValue(TWEEN.Easing.generateElastic(2, 0.5))
+		test.done()
+	},
+
+	'Test TWEEN.Easing.generateSteps() should pass 0.0, 0.5, 1.0'(test: Test): void {
+		const checkEdgeValue = (ease: EasingFunctionGroup) => {
+			test.equal(ease.In(0.0), 0.0)
+			test.equal(ease.Out(0.0), 0.0)
+			test.equal(ease.InOut(0.0), 0.0)
+
+			test.equal(ease.In(1.0), 1.0)
+			test.equal(ease.Out(1.0), 1.0)
+			test.equal(ease.InOut(1.0), 1.0)
+		}
+		checkEdgeValue(TWEEN.Easing.generateSteps(1))
+		checkEdgeValue(TWEEN.Easing.generateSteps(4))
+		checkEdgeValue(TWEEN.Easing.generateSteps())
+		checkEdgeValue(TWEEN.Easing.generateSteps(100))
+		test.done()
+	},
+
+	'Test TWEEN.Easing.generateSteps() produces discrete values'(test: Test): void {
+		const steps4 = TWEEN.Easing.generateSteps(4)
+
+		test.equal(steps4.In(0.0), 0.0)
+		test.equal(steps4.In(0.1), 0.25)
+		test.equal(steps4.In(0.25), 0.25)
+		test.equal(steps4.In(0.3), 0.5)
+		test.equal(steps4.In(0.5), 0.5)
+		test.equal(steps4.In(0.7), 0.75)
+		test.equal(steps4.In(0.75), 0.75)
+		test.equal(steps4.In(0.9), 1.0)
+		test.equal(steps4.In(1.0), 1.0)
+
+		test.equal(steps4.Out(0.0), 0.0)
+		test.equal(steps4.Out(0.1), 0.0)
+		test.equal(steps4.Out(0.25), 0.25)
+		test.equal(steps4.Out(0.5), 0.5)
+		test.equal(steps4.Out(0.7), 0.5)
+		test.equal(steps4.Out(0.75), 0.75)
+		test.equal(steps4.Out(1.0), 1.0)
+
+		test.done()
+	},
+
+	'Test TWEEN.Easing.generateSteps() InOut should be 0.5 at midpoint'(test: Test): void {
+		test.equal(TWEEN.Easing.generateSteps(1).InOut(0.5), 0.5)
+		test.equal(TWEEN.Easing.generateSteps(2).InOut(0.5), 0.5)
+		test.equal(TWEEN.Easing.generateSteps(3).InOut(0.5), 0.5)
+		test.equal(TWEEN.Easing.generateSteps(4).InOut(0.5), 0.5)
+		test.equal(TWEEN.Easing.generateSteps(5).InOut(0.5), 0.5)
+		test.equal(TWEEN.Easing.generateSteps(10).InOut(0.5), 0.5)
+		test.equal(TWEEN.Easing.generateSteps(100).InOut(0.5), 0.5)
+		test.done()
+	},
+
 	'Test TWEEN.Easing.generatePow(n) should pass 0.0, 0.5, 1.0'(test: Test): void {
 		const checkEdgeValue = (ease: EasingFunctionGroup) => {
 			test.equal(ease.InOut(0.0), 0.0)
@@ -2113,20 +2884,125 @@ export const tests = {
 		test.done()
 	},
 
+	"Test TWEEN.to(ends) shouldn't grow endless on ends value"(test: Test): void {
+		TWEEN.removeAll()
+
+		const target = {y: 0}
+		const ends = {y: [100, 200]}
+		const tween = new TWEEN.Tween(target, true).to(ends, 1000)
+
+		tween.stop().start(0)
+		tween.stop().start(0)
+
+		TWEEN.update(250)
+		test.equal(target.y, 50)
+
+		test.done()
+	},
+
+	'Test TWEEN.Tween.to() with a dynamic target provided as object'(test: Test): void {
+		TWEEN.removeAll()
+
+		const dynamicTargetValue = {x: 5}
+		const chasingValue = {x: 0}
+		const duration = 1000 // must be even
+		const t1 = new TWEEN.Tween(dynamicTargetValue, true).to({x: 10}, duration),
+			t2 = new TWEEN.Tween(chasingValue, true).to(dynamicTargetValue, duration).dynamic(true)
+
+		test.equal(TWEEN.getAll().length, 2)
+
+		t1.start(0)
+		t2.start(0)
+		test.notDeepEqual(chasingValue, dynamicTargetValue)
+
+		TWEEN.update(duration / 2)
+		test.notDeepEqual(chasingValue, dynamicTargetValue)
+
+		TWEEN.update(duration)
+		test.deepEqual(chasingValue, dynamicTargetValue)
+
+		test.done()
+	},
+
+	'Test TWEEN.Tween.to() with a dynamic target provided as array': function (test: Test): void {
+		TWEEN.removeAll()
+
+		const dynamicTargetValue = [5]
+		const chasingValue = [0]
+		const duration = 1000 // must be even
+		const t1 = new TWEEN.Tween(dynamicTargetValue, true).to([10], duration),
+			t2 = new TWEEN.Tween(chasingValue, true).to(dynamicTargetValue, duration).dynamic(true)
+
+		test.equal(TWEEN.getAll().length, 2)
+
+		t1.start(0)
+		t2.start(0)
+		test.notDeepEqual(chasingValue, dynamicTargetValue)
+
+		TWEEN.update(duration / 2)
+		test.notDeepEqual(chasingValue, dynamicTargetValue)
+
+		TWEEN.update(duration)
+		test.deepEqual(chasingValue, dynamicTargetValue)
+
+		test.done()
+	},
+
+	'Test TWEEN.Tween.to() with multiple dynamic targets provided as array': function (test: Test): void {
+		TWEEN.removeAll()
+
+		const dynamicTargetValues = {x: [4, 10, 12, 20]}
+		const chasingValue = {x: 0}
+		const duration = 1000 // must be even
+		const tweens = []
+
+		const observedValues = []
+		for (let i = 0; i < dynamicTargetValues.x.length; i++) {
+			const initialValue = {x: 0}
+			observedValues.push(initialValue)
+			tweens.push(
+				new TWEEN.Tween(initialValue, true).to({x: dynamicTargetValues.x[i]}, duration).onUpdate(function (object) {
+					// TODO the fact that we need `index + 1` instead of just
+					// `index` here is confusing. It is because Tween adds an
+					// axtra start value at the beginning of the array. Update
+					// Tween so it does not add the start value to the array,
+					// and instead reads it from _valuesStart.
+					dynamicTargetValues.x[i + 1] = object.x
+				}),
+			)
+		}
+
+		const t = new TWEEN.Tween(chasingValue, true).to(dynamicTargetValues, duration).dynamic(true)
+
+		test.equal(TWEEN.getAll().length, 5)
+
+		tweens.forEach(tween => tween.start(0))
+		t.start(0)
+
+		test.equal(TWEEN.getAll().length, tweens.length + 1)
+
+		for (let i = 0; i < tweens.length; i++) {
+			const progress = ((i + 1) * duration) / tweens.length
+			TWEEN.update(progress)
+			test.equal(chasingValue.x, observedValues[i].x)
+		}
+
+		test.done()
+	},
+
 	'Test TWEEN.Tween.update() with no arguments'(test: Test): void {
-		const clock = FakeTimers.install()
+		patchPerformanceNow()
+
 		const targetNow = {x: 0.0}
 		const targetTime = {x: 0.0}
 
 		const tweenNow = new TWEEN.Tween(targetNow).to({x: 1.0}).start()
 		const tweenTime = new TWEEN.Tween(targetTime).to({x: 1.0}).start(0)
 
-		let currentTime = 0
 		const tick = (time: number) => {
-			currentTime += time
-			clock.tick(time)
+			tickTime(time)
 			tweenNow.update()
-			tweenTime.update(currentTime)
+			tweenTime.update(time)
 			test.equal(targetNow.x, targetTime.x)
 		}
 
@@ -2136,7 +3012,1223 @@ export const tests = {
 		tick(100)
 		tick(20000)
 
-		clock.uninstall()
+		restorePerformanceNow()
+
+		test.done()
+	},
+
+	// Timeline tests
+
+	'Timeline is sequential by default (replaces chain)'(test: Test): void {
+		const obj1 = {x: 0}
+		const obj2 = {y: 0}
+		const t1 = new TWEEN.Tween(obj1).to({x: 100}, 1000)
+		const t2 = new TWEEN.Tween(obj2).to({y: 100}, 1000)
+		const tl = new TWEEN.Timeline().add(t1).add(t2)
+
+		test.equal(tl.getDuration(), 2000)
+
+		tl.start(0)
+		tl.update(0)
+		test.equal(obj1.x, 0)
+		test.equal(obj2.y, 0)
+
+		tl.update(500)
+		test.equal(obj1.x, 50)
+		test.equal(obj2.y, 0)
+
+		tl.update(1000)
+		test.equal(obj1.x, 100)
+		test.equal(obj2.y, 0)
+
+		tl.update(1500)
+		test.equal(obj1.x, 100)
+		test.equal(obj2.y, 50)
+
+		const stillPlaying = tl.update(2000)
+		test.equal(obj1.x, 100)
+		test.equal(obj2.y, 100)
+		test.equal(stillPlaying, false)
+		test.ok(!tl.isPlaying())
+
+		test.done()
+	},
+
+	'Timeline parallel via explicit offset 0'(test: Test): void {
+		const obj1 = {x: 0}
+		const obj2 = {y: 0}
+		const t1 = new TWEEN.Tween(obj1).to({x: 100}, 1000)
+		const t2 = new TWEEN.Tween(obj2).to({y: 100}, 1000)
+		const tl = new TWEEN.Timeline().add(t1, 0).add(t2, 0)
+
+		test.equal(tl.getDuration(), 1000)
+
+		tl.start(0)
+		tl.update(500)
+		test.equal(obj1.x, 50)
+		test.equal(obj2.y, 50)
+
+		tl.update(1000)
+		test.equal(obj1.x, 100)
+		test.equal(obj2.y, 100)
+
+		test.done()
+	},
+
+	'Timeline with staggered offsets'(test: Test): void {
+		const obj1 = {x: 0}
+		const obj2 = {y: 0}
+		const t1 = new TWEEN.Tween(obj1).to({x: 100}, 1000)
+		const t2 = new TWEEN.Tween(obj2).to({y: 100}, 1000)
+		const tl = new TWEEN.Timeline().add(t1, 0).add(t2, 500)
+
+		test.equal(tl.getDuration(), 1500)
+
+		tl.start(0)
+		tl.update(250)
+		test.equal(obj1.x, 25)
+		test.equal(obj2.y, 0)
+
+		tl.update(750)
+		test.equal(obj1.x, 75)
+		test.equal(obj2.y, 25)
+
+		tl.update(1500)
+		test.equal(obj1.x, 100)
+		test.equal(obj2.y, 100)
+
+		test.done()
+	},
+
+	'Timeline supports labels and typed positions'(test: Test): void {
+		const obj = {x: 0}
+		const t1 = new TWEEN.Tween(obj).to({x: 100}, 1000)
+		const tl = new TWEEN.Timeline().add(t1, 0)
+		tl.addLabel('mid', 500)
+		test.equal(tl.getLabel('mid'), 500)
+		test.equal(tl.getLabel('start'), 0)
+		test.equal(tl.getLabel('end'), 1000)
+		tl.addLabel('start', 250)
+		tl.addLabel('end', 250)
+		test.equal(tl.getLabel('start'), 0)
+		test.equal(tl.getLabel('end'), 1000)
+
+		const obj2 = {y: 0}
+		const t2 = new TWEEN.Tween(obj2).to({y: 100}, 500)
+		tl.add(t2, 'mid')
+		test.equal(tl.getDuration(), 1000)
+
+		const obj3 = {z: 0}
+		const t3 = new TWEEN.Tween(obj3).to({z: 100}, 200)
+		tl.add(t3, {at: 'mid', offset: 100})
+		// max is still 1000 from first tween
+		test.equal(tl.getDuration(), 1000)
+
+		const obj4 = {w: 0}
+		const t4 = new TWEEN.Tween(obj4).to({w: 100}, 200)
+		tl.add(t4, {at: t2, offset: -100})
+
+		const tl2 = new TWEEN.Timeline()
+		const a = new TWEEN.Tween({x: 0}).to({x: 1}, 400)
+		const b = new TWEEN.Tween({x: 0}).to({x: 1}, 400)
+		tl2.add(a, 100)
+		tl2.add(b, a)
+		test.equal(tl2.getDuration(), 500)
+
+		tl.start(0)
+		tl.update(600)
+		test.equal(obj.x, 60)
+		test.equal(obj2.y, 20)
+		test.equal(obj3.z, 0)
+		test.equal(obj4.w, 100)
+
+		tl.update(800)
+		test.equal(obj3.z, 100)
+
+		tl.removeLabel('mid')
+		tl.removeLabel('start')
+		tl.removeLabel('end')
+		test.equal(tl.getLabel('mid'), undefined)
+		test.equal(tl.getLabel('start'), 0)
+		test.equal(tl.getLabel('end'), 1000)
+
+		test.done()
+	},
+
+	'Timeline add options support atIndex precedence and shift'(test: Test): void {
+		const o1 = {x: 0}
+		const o2 = {y: 0}
+		const o3 = {z: 0}
+		const a = new TWEEN.Tween(o1).to({x: 100}, 100)
+		const b = new TWEEN.Tween(o2).to({y: 100}, 100)
+		const c = new TWEEN.Tween(o3).to({z: 100}, 100)
+		const tl = new TWEEN.Timeline().add(a).add(b).add(c)
+
+		const insertedObj = {w: 0}
+		const inserted = new TWEEN.Tween(insertedObj).to({w: 100}, 50)
+		tl.add(inserted, {atIndex: 1, shift: true})
+		test.equal(tl.getAll()[1], inserted)
+		test.equal(tl.getDuration(), 350)
+
+		const refObj = {v: 0}
+		const ref = new TWEEN.Tween(refObj).to({v: 100}, 50)
+		tl.add(ref, {at: 0, atIndex: 2, offset: -25})
+		test.equal(tl.getDuration(), 350)
+
+		tl.start(0)
+		tl.update(0)
+		test.equal(refObj.v, 0)
+
+		tl.update(100)
+		test.equal(o1.x, 100)
+		test.equal(insertedObj.w, 0)
+		test.equal(o2.y, 0)
+		test.equal(o3.z, 0)
+
+		tl.update(125)
+		test.equal(refObj.v, 0)
+		test.equal(o2.y, 0)
+
+		tl.update(175)
+		test.equal(refObj.v, 100)
+		test.equal(o2.y, 25)
+
+		tl.update(325)
+		test.equal(o3.z, 75)
+
+		test.done()
+	},
+
+	'Timeline add array sequentially by default, parallel with explicit offset, and stagger with options'(
+		test: Test,
+	): void {
+		const o1 = {x: 0}
+		const o2 = {x: 0}
+		const a = new TWEEN.Tween(o1).to({x: 100}, 500)
+		const b = new TWEEN.Tween(o2).to({x: 100}, 500)
+
+		const seq = new TWEEN.Timeline().add([a, b])
+		test.equal(seq.getDuration(), 1000)
+
+		const o3 = {x: 0}
+		const o4 = {x: 0}
+		const c = new TWEEN.Tween(o3).to({x: 100}, 500)
+		const d = new TWEEN.Tween(o4).to({x: 100}, 500)
+		const par = new TWEEN.Timeline().add([c, d], 0)
+		test.equal(par.getDuration(), 500)
+
+		const o5 = {x: 0}
+		const o6 = {x: 0}
+		const o7 = {x: 0}
+		const e = new TWEEN.Tween(o5).to({x: 100}, 500)
+		const f = new TWEEN.Tween(o6).to({x: 100}, 500)
+		const g = new TWEEN.Tween(o7).to({x: 100}, 500)
+		const staggered = new TWEEN.Timeline().add([e, f, g], {at: 0, stagger: 250})
+		test.equal(staggered.getDuration(), 1000)
+
+		staggered.start(0)
+		staggered.update(250)
+		test.equal(o5.x, 50)
+		test.equal(o6.x, 0)
+		test.equal(o7.x, 0)
+
+		staggered.update(500)
+		test.equal(o5.x, 100)
+		test.equal(o6.x, 50)
+		test.equal(o7.x, 0)
+
+		staggered.update(1000)
+		test.equal(o5.x, 100)
+		test.equal(o6.x, 100)
+		test.equal(o7.x, 100)
+
+		test.done()
+	},
+
+	'Timeline nesting (timeline in timeline)'(test: Test): void {
+		const o1 = {x: 0}
+		const o2 = {y: 0}
+		const o3 = {z: 0}
+		const t1 = new TWEEN.Tween(o1).to({x: 100}, 500)
+		const t2 = new TWEEN.Tween(o2).to({y: 100}, 500)
+		const inner = new TWEEN.Timeline().add(t1).add(t2)
+		test.equal(inner.getDuration(), 1000)
+
+		const t3 = new TWEEN.Tween(o3).to({z: 100}, 1000)
+		const outer = new TWEEN.Timeline().add(inner, 0).add(t3, 0)
+		test.equal(outer.getDuration(), 1000)
+
+		outer.start(0)
+		outer.update(250)
+		test.equal(o1.x, 50)
+		test.equal(o2.y, 0)
+		test.equal(o3.z, 25)
+
+		outer.update(750)
+		test.equal(o1.x, 100)
+		test.equal(o2.y, 50)
+		test.equal(o3.z, 75)
+
+		outer.update(1000)
+		test.equal(o1.x, 100)
+		test.equal(o2.y, 100)
+		test.equal(o3.z, 100)
+
+		test.done()
+	},
+
+	'Timeline nesting two levels deep (multiple timelines inside timelines)'(test: Test): void {
+		const o = {x: 0, y: 0}
+		// innerA: sequential same-property tweens (0-200: x 0->50, 200-400: x 50->100)
+		const innerA = new TWEEN.Timeline()
+			.add(new TWEEN.Tween(o).to({x: 50}, 200))
+			.add(new TWEEN.Tween(o).to({x: 100}, 200))
+		// innerB: parallel with innerA (y 0->100 over 400)
+		const innerB = new TWEEN.Timeline().add(new TWEEN.Tween(o).to({y: 100}, 400), 0)
+		const mid = new TWEEN.Timeline().add(innerA, 0).add(innerB, 0)
+		test.equal(mid.getDuration(), 400)
+
+		const outer = new TWEEN.Timeline().add(mid, 0).add(new TWEEN.Tween(o).to({y: 0}, 100))
+		test.equal(outer.getDuration(), 500)
+
+		outer.start(0)
+		outer.update(100)
+		test.equal(o.x, 25)
+		test.equal(o.y, 25)
+
+		outer.update(300)
+		test.equal(o.x, 75)
+		test.equal(o.y, 75)
+
+		// The final tween starts exactly here, capturing y at its current 100.
+		outer.update(400)
+		test.equal(o.x, 100)
+		test.equal(o.y, 100)
+
+		test.equal(outer.update(500), false)
+		test.equal(o.x, 100)
+		test.equal(o.y, 0)
+
+		test.done()
+	},
+
+	'Timeline scrubbing back across a nested timeline'(test: Test): void {
+		const o = {x: 0}
+		const inner = new TWEEN.Timeline().add(new TWEEN.Tween(o).to({x: 100}, 400))
+		const outer = new TWEEN.Timeline().add(inner, 100)
+		test.equal(outer.getDuration(), 500)
+
+		outer.start(0)
+		outer.update(300)
+		test.equal(o.x, 50) // inner local time 200/400
+
+		outer.update(200)
+		test.equal(o.x, 25) // scrub back mid-child
+
+		outer.update(50)
+		test.equal(o.x, 0) // before the nested timeline's offset: snapped to start
+
+		outer.update(500)
+		test.equal(o.x, 100)
+		test.equal(outer.update(500), false)
+
+		test.done()
+	},
+
+	'Timeline pause and resume freezes nested timelines'(test: Test): void {
+		const o = {x: 0}
+		const inner = new TWEEN.Timeline().add(new TWEEN.Tween(o).to({x: 100}, 400))
+		const outer = new TWEEN.Timeline().add(inner, 0)
+
+		outer.start(0)
+		outer.update(200)
+		test.equal(o.x, 50)
+
+		outer.pause(200)
+		outer.update(600)
+		test.equal(o.x, 50)
+
+		outer.resume(600)
+		outer.update(700)
+		test.equal(o.x, 75)
+
+		test.equal(outer.update(800), false)
+		test.equal(o.x, 100)
+
+		test.done()
+	},
+
+	'Timeline pause and resume freezes children'(test: Test): void {
+		const obj = {x: 0}
+		const t = new TWEEN.Tween(obj).to({x: 100}, 1000)
+		const tl = new TWEEN.Timeline().add(t, 0)
+
+		tl.start(0)
+		tl.update(400)
+		test.equal(obj.x, 40)
+
+		tl.pause(400)
+		tl.update(800)
+		test.equal(obj.x, 40)
+
+		tl.resume(1000)
+		tl.update(1100)
+		test.equal(obj.x, 50)
+
+		tl.update(1600)
+		test.equal(obj.x, 100)
+
+		test.done()
+	},
+
+	'Timeline stop stops children and fires onStop'(test: Test): void {
+		let stopped = false
+		const obj = {x: 0}
+		const t = new TWEEN.Tween(obj).to({x: 100}, 1000)
+		const tl = new TWEEN.Timeline().add(t, 0).onStop(() => (stopped = true))
+
+		tl.start(0)
+		tl.update(500)
+		test.equal(obj.x, 50)
+
+		tl.stop()
+		test.equal(stopped, true)
+		test.ok(!tl.isPlaying())
+		test.ok(!t.isPlaying())
+
+		test.done()
+	},
+
+	'Timeline callbacks onStart onUpdate onComplete'(test: Test): void {
+		let starts = 0
+		let updates = 0
+		let completes = 0
+		let lastElapsed = -1
+		const obj = {x: 0}
+		const t = new TWEEN.Tween(obj).to({x: 100}, 500)
+		const tl = new TWEEN.Timeline()
+			.add(t, 0)
+			.onStart(() => starts++)
+			.onUpdate((_tl, elapsed) => {
+				updates++
+				lastElapsed = elapsed
+			})
+			.onComplete(() => completes++)
+
+		tl.start(0)
+		tl.update(0)
+		test.equal(starts, 1)
+		test.ok(updates >= 1)
+
+		tl.update(250)
+		test.equal(obj.x, 50)
+
+		const alive = tl.update(500)
+		test.equal(alive, false)
+		test.equal(completes, 1)
+		test.equal(lastElapsed, 1)
+
+		// onComplete only once
+		tl.update(600)
+		test.equal(completes, 1)
+
+		test.done()
+	},
+
+	'Timeline easingAll applies to direct children and optionally recurses'(test: Test): void {
+		const outerObj = {x: 0}
+		const innerObj = {x: 0}
+		const inner = new TWEEN.Timeline().add(new TWEEN.Tween(innerObj).to({x: 100}, 100), 0)
+		const tl = new TWEEN.Timeline().add(new TWEEN.Tween(outerObj).to({x: 100}, 100), 0).add(inner, 0)
+
+		test.equal((tl as any).interpolation, undefined)
+		test.equal(tl.easingAll(TWEEN.Easing.Quadratic.In), tl)
+
+		tl.start(0)
+		tl.update(50)
+		test.equal(outerObj.x, 25)
+		test.equal(innerObj.x, 50)
+
+		const outerObj2 = {x: 0}
+		const innerObj2 = {x: 0}
+		const inner2 = new TWEEN.Timeline().add(new TWEEN.Tween(innerObj2).to({x: 100}, 100), 0)
+		const tl2 = new TWEEN.Timeline()
+			.add(new TWEEN.Tween(outerObj2).to({x: 100}, 100), 0)
+			.add(inner2, 0)
+			.easingAll(TWEEN.Easing.Quadratic.In, true)
+
+		tl2.start(0)
+		tl2.update(50)
+		test.equal(outerObj2.x, 25)
+		test.equal(innerObj2.x, 25)
+
+		test.done()
+	},
+
+	'Timeline getTotalDuration reflects child durations'(test: Test): void {
+		const t = new TWEEN.Tween({x: 0}).to({x: 1}, 400)
+		test.equal(t.getTotalDuration(), 400)
+
+		const tRepeat = new TWEEN.Tween({x: 0}).to({x: 1}, 100).repeat(1)
+		test.equal(tRepeat.getTotalDuration(), 200)
+
+		const tDelayRepeat = new TWEEN.Tween({x: 0}).to({x: 1}, 100).delay(100).repeat(1)
+		// delay 100 + duration 100 + 1 * (100 + 100)
+		test.equal(tDelayRepeat.getTotalDuration(), 400)
+
+		const tl = new TWEEN.Timeline().add(t, 0)
+		test.equal(tl.getDuration(), 400)
+		test.equal(tl.getTotalDuration(), 400)
+
+		const tlChild = new TWEEN.Timeline().add(tDelayRepeat, 0)
+		test.equal(tlChild.getDuration(), 400)
+		test.equal(tlChild.getTotalDuration(), 400)
+
+		test.done()
+	},
+
+	'Timeline remove and has and removeAll'(test: Test): void {
+		const t1 = new TWEEN.Tween({x: 0}).to({x: 1}, 500)
+		const t2 = new TWEEN.Tween({x: 0}).to({x: 1}, 500)
+		const tl = new TWEEN.Timeline().add(t1).add(t2)
+		test.equal(tl.getDuration(), 1000)
+		test.ok(tl.has(t1))
+
+		// Removing the first child leaves a gap (second child still at offset 500).
+		tl.remove(t1)
+		test.ok(!tl.has(t1))
+		test.equal(tl.getDuration(), 1000)
+
+		// Removing the last child shrinks the timeline.
+		const t3 = new TWEEN.Tween({x: 0}).to({x: 1}, 500)
+		const tl2 = new TWEEN.Timeline().add(t1).add(t3)
+		test.equal(tl2.getDuration(), 1000)
+		tl2.remove(t3)
+		test.equal(tl2.getDuration(), 500)
+
+		tl.removeAll()
+		test.equal(tl.getDuration(), 0)
+		test.equal(tl.getAll().length, 0)
+
+		test.done()
+	},
+
+	'Timeline respects child delay on top of offset'(test: Test): void {
+		const obj = {x: 0}
+		const t = new TWEEN.Tween(obj).to({x: 100}, 500).delay(200)
+		const tl = new TWEEN.Timeline().add(t, 100)
+		// offset 100 + delay 200 + duration 500
+		test.equal(tl.getDuration(), 800)
+
+		tl.start(0)
+		tl.update(100)
+		test.equal(obj.x, 0)
+		tl.update(300)
+		test.equal(obj.x, 0)
+		tl.update(550)
+		test.equal(obj.x, 50)
+		tl.update(800)
+		test.equal(obj.x, 100)
+
+		test.done()
+	},
+
+	'Timeline can be added to a Group'(test: Test): void {
+		const group = new TWEEN.Group()
+		const obj = {x: 0}
+		const t = new TWEEN.Tween(obj).to({x: 100}, 500)
+		const tl = new TWEEN.Timeline().add(t, 0)
+		group.add(tl as any)
+		test.equal(group.getAll().length, 1)
+
+		tl.start(0)
+		group.update(250)
+		test.equal(obj.x, 50)
+
+		group.update(500)
+		test.equal(obj.x, 100)
+
+		test.done()
+	},
+
+	'Timeline chaining returns same instance'(test: Test): void {
+		const tl = new TWEEN.Timeline()
+		const t = new TWEEN.Tween({x: 0}).to({x: 1}, 100)
+		test.equal(tl.add(t), tl)
+		test.equal(tl.onStart(), tl)
+		test.equal(tl.onUpdate(), tl)
+		test.equal(tl.onComplete(), tl)
+		test.equal(tl.onStop(), tl)
+		test.equal(tl.start(), tl)
+		test.equal(tl.pause(), tl)
+		test.equal(tl.resume(), tl)
+		test.equal(tl.stop(), tl)
+		test.done()
+	},
+
+	'Timeline sequential same-property tweens chain end-to-start values'(test: Test): void {
+		const obj = {x: 0}
+		const t1 = new TWEEN.Tween(obj).to({x: 100}, 1000)
+		const t2 = new TWEEN.Tween(obj).to({x: 0}, 1000)
+		const tl = new TWEEN.Timeline().add(t1).add(t2)
+
+		tl.start(0)
+		tl.update(0)
+		test.equal(obj.x, 0)
+
+		tl.update(500)
+		test.equal(obj.x, 50)
+
+		// Handoff: second tween must start from the first tween's end value.
+		tl.update(1000)
+		test.equal(obj.x, 100)
+
+		tl.update(1500)
+		test.equal(obj.x, 50)
+
+		test.equal(tl.update(2000), false)
+		test.equal(obj.x, 0)
+
+		test.done()
+	},
+
+	'Timeline scrubbing back to start restores start values'(test: Test): void {
+		const obj = {x: 0, y: 0, size: 100}
+		const tl = new TWEEN.Timeline()
+			.add(new TWEEN.Tween(obj).to({x: 100}, 500))
+			.add(new TWEEN.Tween(obj).to({y: 100}, 500))
+			.add(new TWEEN.Tween(obj).to({size: 200}, 500))
+
+		const scrub = (v: number): void => {
+			if (!tl.isPlaying()) tl.start(0)
+			tl.update(v)
+		}
+
+		scrub(1500)
+		test.equal(obj.x, 100)
+		test.equal(obj.y, 100)
+		test.equal(obj.size, 200)
+		test.ok(!tl.isPlaying())
+
+		// Scrub back to zero: children that already ended output their
+		// end values (no eager snap on fresh start). Only entry 0 runs.
+		scrub(0)
+		test.equal(obj.x, 0)
+		test.equal(obj.y, 100) // stale from forward play (entry 1 not restarted)
+		test.equal(obj.size, 200) // stale from forward play (entry 2 not restarted)
+
+		// And forward again still works after scrubbing back.
+		scrub(750)
+		test.equal(obj.x, 100)
+		test.equal(obj.y, 50)
+		test.equal(obj.size, 200) // entry 2 not yet reached at offset 1000
+
+		test.done()
+	},
+
+	'Tween.clone() copies config and plays independently'(test: Test): void {
+		const obj = {x: 0}
+		const t = new TWEEN.Tween(obj).to({x: 100}, 500)
+		const c = t.clone()
+
+		test.ok(c !== t)
+		test.equal(c.getDuration(), 500)
+
+		c.start(0)
+		c.update(250)
+		test.equal(obj.x, 50)
+		c.update(500)
+		test.equal(obj.x, 100)
+
+		// The original is untouched by playing the clone.
+		test.ok(!t.isPlaying())
+
+		test.done()
+	},
+
+	'Tween.clone() does not throw with yoyo, delay, or repeat'(test: Test): void {
+		test.ok(new TWEEN.Tween({}).to({}).delay(10).clone())
+		test.ok(new TWEEN.Tween({}).to({}).repeat(2).clone())
+		test.ok(new TWEEN.Tween({}).to({}).yoyo(true).clone())
+
+		test.done()
+	},
+
+	'Tween.reverse() plays backwards'(test: Test): void {
+		const obj = {x: 0}
+		const t = new TWEEN.Tween(obj).to({x: 100}, 500)
+		const r = t.reverse()
+
+		test.ok(r !== t)
+
+		// Reversed tween plays end to start, regardless of the object state.
+		obj.x = 100
+		r.start(0)
+		r.update(0)
+		test.equal(obj.x, 100)
+		r.update(250)
+		test.equal(obj.x, 50)
+		r.update(500)
+		test.equal(obj.x, 0)
+
+		test.done()
+	},
+
+	'Tween.reverse() does not throw with yoyo, delay, or repeat'(test: Test): void {
+		test.ok(new TWEEN.Tween({}).to({}).delay(10).reverse())
+		test.ok(new TWEEN.Tween({}).to({}).repeat(2).reverse())
+		test.ok(new TWEEN.Tween({}).to({}).yoyo(true).reverse())
+
+		test.done()
+	},
+
+	'Tween.reverse().reverse() plays forward again'(test: Test): void {
+		const obj = {x: 0}
+		const fwd = new TWEEN.Tween(obj).to({x: 100}, 500).reverse().reverse()
+
+		fwd.start(0)
+		fwd.update(250)
+		test.equal(obj.x, 50)
+		fwd.update(500)
+		test.equal(obj.x, 100)
+
+		test.done()
+	},
+
+	'Timeline.add(tween, {repeat}) repeats via clones'(test: Test): void {
+		const obj = {x: 0}
+		const t = new TWEEN.Tween(obj).to({x: 100}, 500)
+		const tl = new TWEEN.Timeline().add(t, {repeat: 3})
+
+		test.equal(tl.getDuration(), 1500)
+		test.equal(tl.getAll().length, 3)
+
+		tl.start(0)
+		tl.update(250)
+		test.equal(obj.x, 50)
+
+		// Every repetition restarts from the original start value.
+		tl.update(750)
+		test.equal(obj.x, 50)
+
+		tl.update(1250)
+		test.equal(obj.x, 50)
+
+		test.equal(tl.update(1500), false)
+		test.equal(obj.x, 100)
+
+		// Manual triple add is equivalent.
+		const obj2 = {x: 0}
+		const t2 = new TWEEN.Tween(obj2).to({x: 100}, 500)
+		const manual = new TWEEN.Timeline().add(t2).add(t2).add(t2)
+		test.equal(manual.getDuration(), 1500)
+		test.equal(manual.getAll().length, 3)
+
+		test.done()
+	},
+
+	'Timeline.add(tween, {yoyo}) plays forward then backward'(test: Test): void {
+		const obj = {x: 0}
+		const t = new TWEEN.Tween(obj).to({x: 100}, 500)
+		const tl = new TWEEN.Timeline().add(t, {yoyo: true})
+
+		test.equal(tl.getAll().length, 2)
+		test.equal(tl.getDuration(), 1000)
+
+		tl.start(0)
+		tl.update(250)
+		test.equal(obj.x, 50)
+		tl.update(500)
+		test.equal(obj.x, 100)
+		tl.update(750)
+		test.equal(obj.x, 50)
+		test.equal(tl.update(1000), false)
+		test.equal(obj.x, 0)
+
+		// Manual forward + reverse() is equivalent.
+		const obj2 = {x: 0}
+		const t2 = new TWEEN.Tween(obj2).to({x: 100}, 500)
+		const manual = new TWEEN.Timeline().add(t2).add(t2.reverse())
+		test.equal(manual.getDuration(), 1000)
+
+		test.done()
+	},
+
+	'Timeline.add(tween, {yoyo: true, repeat: 2}) plays forward, backward, forward, backward'(test: Test): void {
+		const obj = {x: 0}
+		const t = new TWEEN.Tween(obj).to({x: 100}, 500)
+		const tl = new TWEEN.Timeline().add(t, {yoyo: true, repeat: 2})
+
+		test.equal(tl.getAll().length, 4)
+		test.equal(tl.getDuration(), 2000)
+
+		tl.start(0)
+		tl.update(250)
+		test.equal(obj.x, 50)
+		tl.update(500)
+		test.equal(obj.x, 100)
+		tl.update(750)
+		test.equal(obj.x, 50)
+		tl.update(1000)
+		test.equal(obj.x, 0)
+		tl.update(1250)
+		test.equal(obj.x, 50)
+		tl.update(1500)
+		test.equal(obj.x, 100)
+		tl.update(1750)
+		test.equal(obj.x, 50)
+		test.equal(tl.update(2000), false)
+		test.equal(obj.x, 0)
+
+		test.done()
+	},
+
+	'Timeline.add() validates repeat and yoyo expansion'(test: Test): void {
+		const t = new TWEEN.Tween({x: 0}).to({x: 1}, 100)
+
+		test.throws(() => new TWEEN.Timeline().add(t, {repeat: 0}))
+		test.throws(() => new TWEEN.Timeline().add(t, {repeat: 1.5}))
+		test.throws(() => new TWEEN.Timeline().add(t, {repeat: -2}))
+
+		// Yoyo expansion is only supported for Tween children.
+		test.throws(() => new TWEEN.Timeline().add(new TWEEN.Timeline(), {yoyo: true}))
+
+		// Nested timelines repeat via cloning.
+		const obj = {x: 0}
+		const inner = new TWEEN.Timeline().add(new TWEEN.Tween(obj).to({x: 100}, 500))
+		const outer = new TWEEN.Timeline().add(inner, {repeat: 2})
+
+		test.equal(outer.getDuration(), 1000)
+
+		outer.start(0)
+		outer.update(750)
+		test.equal(obj.x, 50)
+		test.equal(outer.update(1000), false)
+		test.equal(obj.x, 100)
+
+		test.done()
+	},
+
+	'Timeline.add() caps expansion at 72 hours'(test: Test): void {
+		const hour = 60 * 60 * 1000
+		// 72 one-hour clips fit exactly; 74 do not (yoyo doubles the plays).
+		test.ok(new TWEEN.Timeline().add(new TWEEN.Tween({x: 0}).to({x: 1}, hour), {yoyo: true, repeat: 36}))
+		test.throws(() => new TWEEN.Timeline().add(new TWEEN.Tween({x: 0}).to({x: 1}, hour), {yoyo: true, repeat: 37}))
+		// Huge repeats fail fast instead of allocating millions of clones.
+		test.throws(() => new TWEEN.Timeline().add(new TWEEN.Tween({x: 0}).to({x: 1}, 1000), {repeat: 1000000}))
+
+		test.done()
+	},
+
+	// TimeScaler tests (see #722: decoupled time scaling, Tween stays simple).
+
+	'TimeScaler scales the elapsed time before the first animation frame'(test: Test): void {
+		const startTime = 1000
+		const scaler = new TWEEN.TimeScaler(0.5)
+		const obj = {x: 0}
+		const tween = new TWEEN.Tween(obj).to({x: 100}, 1000)
+
+		test.equal(scaler.start(startTime), scaler)
+		test.equal(scaler.getTime(), startTime)
+		tween.start(startTime)
+		tween.update(scaler.update(1500))
+		test.equal(obj.x, 25)
+		tween.update(scaler.update(2000))
+		test.equal(obj.x, 50)
+
+		scaler.start(3000)
+		test.equal(scaler.update(3200), 3100)
+		scaler.start(5000)
+		test.equal(scaler.update(5200), 5100)
+
+		test.done()
+	},
+
+	'TimeScaler start defaults to now and anchors frozen and backwards clocks'(test: Test): void {
+		TWEEN.setNow(() => 1000)
+		try {
+			const scaler = new TWEEN.TimeScaler(0)
+			scaler.start()
+			test.equal(scaler.update(1500), 1000)
+			scaler.scale = -1
+			test.equal(scaler.update(1600), 900)
+		} finally {
+			TWEEN.setNow(() => performance.now())
+		}
+
+		test.done()
+	},
+
+	'TimeScaler with scale 1 is the identity and drives a tween normally'(test: Test): void {
+		const scaler = new TWEEN.TimeScaler()
+
+		test.equal(scaler.scale, 1)
+		test.equal(scaler.update(1000), 1000)
+		test.equal(scaler.update(1100), 1100)
+		test.equal(scaler.getTime(), 1100)
+
+		const obj = {x: 0}
+		const t = new TWEEN.Tween(obj).to({x: 100}, 1000)
+		t.start(scaler.update(2000))
+		t.update(scaler.update(2500))
+		test.equal(obj.x, 50)
+		t.update(scaler.update(3000))
+		test.equal(obj.x, 100)
+
+		test.done()
+	},
+
+	'TimeScaler scale 2 runs a tween twice as fast'(test: Test): void {
+		const scaler = new TWEEN.TimeScaler(2)
+		test.equal(scaler.scale, 2)
+
+		const obj = {x: 0}
+		const t = new TWEEN.Tween(obj).to({x: 100}, 1000)
+		t.start(scaler.update(0))
+		t.update(scaler.update(250))
+		test.equal(obj.x, 50)
+		t.update(scaler.update(500))
+		test.equal(obj.x, 100)
+
+		test.done()
+	},
+
+	'TimeScaler scale 0.5 runs a tween at half speed'(test: Test): void {
+		const scaler = new TWEEN.TimeScaler(0.5)
+
+		const obj = {x: 0}
+		const t = new TWEEN.Tween(obj).to({x: 100}, 1000)
+		t.start(scaler.update(0))
+		t.update(scaler.update(500))
+		test.equal(obj.x, 25)
+		t.update(scaler.update(1000))
+		test.equal(obj.x, 50)
+		t.update(scaler.update(2000))
+		test.equal(obj.x, 100)
+
+		test.done()
+	},
+
+	'TimeScaler scale 0 freezes and resume continues without jumping'(test: Test): void {
+		const scaler = new TWEEN.TimeScaler(1)
+
+		const obj = {x: 0}
+		const t = new TWEEN.Tween(obj).to({x: 100}, 1000)
+		t.start(scaler.update(0))
+
+		t.update(scaler.update(400))
+		test.equal(obj.x, 40)
+
+		scaler.scale = 0
+		test.equal(scaler.scale, 0)
+		t.update(scaler.update(900))
+		test.equal(obj.x, 40)
+		test.equal(scaler.getTime(), 400)
+
+		// Resuming does not jump: raw time kept flowing while frozen.
+		scaler.scale = 1
+		t.update(scaler.update(1000))
+		test.equal(obj.x, 50)
+		t.update(scaler.update(1600))
+		test.equal(obj.x, 100)
+
+		test.done()
+	},
+
+	'TimeScaler scale changes speed from then on'(test: Test): void {
+		const scaler = new TWEEN.TimeScaler(1)
+		scaler.scale = 2
+		test.equal(scaler.scale, 2)
+
+		const obj = {x: 0}
+		const t = new TWEEN.Tween(obj).to({x: 100}, 1000)
+		t.start(scaler.update(0))
+
+		// First scaled delta uses the new scale immediately.
+		t.update(scaler.update(100))
+		test.equal(obj.x, 20)
+
+		scaler.scale = 0.5
+		t.update(scaler.update(300))
+		test.equal(obj.x, 30)
+
+		test.done()
+	},
+
+	'TimeScaler start re-anchors the clock for replay'(test: Test): void {
+		const scaler = new TWEEN.TimeScaler(2)
+
+		const obj = {x: 0}
+		const t = new TWEEN.Tween(obj).to({x: 100}, 1000)
+
+		t.start(scaler.update(5000))
+		t.update(scaler.update(5250))
+		test.equal(obj.x, 50)
+
+		const restartTime = 9000
+		scaler.start(restartTime)
+		obj.x = 0
+		const t2 = new TWEEN.Tween(obj).to({x: 100}, 1000)
+		t2.start(restartTime)
+		test.equal(scaler.getTime(), 9000)
+		test.equal(scaler.scale, 2)
+		t2.update(scaler.update(9250))
+		test.equal(obj.x, 50)
+
+		test.done()
+	},
+
+	'TimeScaler negative scale runs the scaled clock backwards'(test: Test): void {
+		const scaler = new TWEEN.TimeScaler(1)
+
+		const obj = {x: 0}
+		const t = new TWEEN.Tween(obj).to({x: 100}, 1000)
+		t.start(scaler.update(0))
+		t.update(scaler.update(500))
+		test.equal(obj.x, 50)
+
+		scaler.scale = -1
+		t.update(scaler.update(600))
+		test.equal(obj.x, 40)
+
+		test.done()
+	},
+
+	'TimeScaler scale can be animated by a separate tween'(test: Test): void {
+		const scaler = new TWEEN.TimeScaler(0)
+		const obj = {x: 0}
+		const tween = new TWEEN.Tween(obj).to({x: 100}, 1000)
+		const scaleTween = new TWEEN.Tween(scaler).to({scale: 1}, 2000)
+		const startTime = 1000
+		scaler.start(startTime)
+		tween.start(startTime)
+		scaleTween.start(startTime)
+
+		tween.update(scaler.update(1500))
+		scaleTween.update(1500)
+		test.equal(obj.x, 0)
+		test.equal(scaler.scale, 0.25)
+		tween.update(scaler.update(2000))
+		scaleTween.update(2000)
+		test.equal(obj.x, 12.5)
+		test.equal(scaler.scale, 0.5)
+		tween.update(scaler.update(2500))
+		scaleTween.update(2500)
+		test.equal(obj.x, 37.5)
+		test.equal(scaler.scale, 0.75)
+		tween.update(scaler.update(3000))
+		scaleTween.update(3000)
+		test.equal(obj.x, 75)
+		test.equal(scaler.scale, 1)
+		tween.update(scaler.update(3250))
+		test.equal(obj.x, 100)
+
+		test.done()
+	},
+
+	'TimeScaler drives a Group and a Timeline'(test: Test): void {
+		const scaler = new TWEEN.TimeScaler(2)
+
+		const group = new TWEEN.Group()
+		const obj = {x: 0}
+		const t = new TWEEN.Tween(obj).to({x: 100}, 1000)
+		group.add(t)
+		t.start(scaler.update(0))
+		group.update(scaler.update(250))
+		test.equal(obj.x, 50)
+
+		const obj2 = {y: 0}
+		const tl = new TWEEN.Timeline().add(new TWEEN.Tween(obj2).to({y: 100}, 1000), 0)
+		tl.start(scaler.update(1000))
+		tl.update(scaler.update(1250))
+		test.equal(obj2.y, 50)
+
+		test.done()
+	},
+
+	'TimeScaler looping restart via update() === false keeps playing'(test: Test): void {
+		const scaler = new TWEEN.TimeScaler(1)
+		const obj = {x: 0}
+		const t = new TWEEN.Tween(obj).to({x: 100}, 1000)
+		const tick = (raw: number): void => {
+			const scaled = scaler.update(raw)
+			if (t.update(scaled) === false) {
+				obj.x = 0
+				t.start(scaled)
+			}
+		}
+
+		t.start(scaler.update(0))
+		tick(500)
+		test.equal(obj.x, 50)
+		tick(1000)
+		// Completed and restarted on the scaled clock: back at start, still playing.
+		test.equal(obj.x, 0)
+		test.ok(t.isPlaying())
+		tick(1500)
+		test.equal(obj.x, 50)
+
+		test.done()
+	},
+	'Curve LineCurve interpolates endpoints and midpoint'(test: Test): void {
+		const curve = new TWEEN.LineCurve({x: 0, y: 0}, {x: 10, y: 20})
+
+		test.deepEqual(curve.getPoint(0), {x: 0, y: 0})
+		test.deepEqual(curve.getPoint(1), {x: 10, y: 20})
+		test.deepEqual(curve.getPoint(0.5), {x: 5, y: 10})
+
+		// optionalTarget is mutated and returned, so a tweened object can drive it.
+		const position = {x: -1, y: -1}
+		const out = curve.getPoint(0.5, position)
+		test.equal(out, position)
+		test.deepEqual(position, {x: 5, y: 10})
+
+		// 3D control points produce 3D samples.
+		const curve3D = new TWEEN.LineCurve({x: 0, y: 0, z: 0}, {x: 10, y: 0, z: 10})
+		test.deepEqual(curve3D.getPoint(0.5), {x: 5, y: 0, z: 5})
+		const pos3D = {x: 0, y: 0, z: 0}
+		curve3D.getPoint(0.5, pos3D)
+		test.deepEqual(pos3D, {x: 5, y: 0, z: 5})
+
+		test.done()
+	},
+
+	'Curve Bezier passes through endpoints'(test: Test): void {
+		const quad = new TWEEN.QuadraticBezierCurve({x: 0, y: 0}, {x: 5, y: 10}, {x: 10, y: 0})
+		test.deepEqual(quad.getPoint(0), {x: 0, y: 0})
+		test.deepEqual(quad.getPoint(1), {x: 10, y: 0})
+		toBeCloseTo(test, quad.getPoint(0.5).x, 5)
+		toBeCloseTo(test, quad.getPoint(0.5).y, 5)
+
+		const cubic = new TWEEN.CubicBezierCurve({x: 0, y: 0}, {x: 0, y: 10}, {x: 10, y: 10}, {x: 10, y: 0})
+		test.deepEqual(cubic.getPoint(0), {x: 0, y: 0})
+		test.deepEqual(cubic.getPoint(1), {x: 10, y: 0})
+
+		test.done()
+	},
+
+	'Curve CatmullRom passes through control points'(test: Test): void {
+		const points = [
+			{x: 0, y: 0},
+			{x: 10, y: 0},
+			{x: 10, y: 10},
+			{x: 0, y: 10},
+		]
+		const curve = new TWEEN.CatmullRomCurve(points)
+
+		test.deepEqual(curve.getPoint(0), {x: 0, y: 0})
+		test.deepEqual(curve.getPoint(1), {x: 0, y: 10})
+		// With 4 points, t = 1/3 and 2/3 land exactly on the inner control points.
+		toBeCloseTo(test, curve.getPoint(1 / 3).x, 10, 6)
+		toBeCloseTo(test, curve.getPoint(1 / 3).y, 0, 6)
+		toBeCloseTo(test, curve.getPoint(2 / 3).x, 10, 6)
+		toBeCloseTo(test, curve.getPoint(2 / 3).y, 10, 6)
+
+		test.equal(curve.getPoints(4).length, 5)
+		test.equal(curve.getSpacedPoints(4).length, 5)
+		test.ok(curve.getLength() > 0)
+
+		test.done()
+	},
+
+	'Curve CurvePath chains curves and distributes t by length'(test: Test): void {
+		const path = new TWEEN.CurvePath([
+			new TWEEN.LineCurve({x: 0, y: 0}, {x: 10, y: 0}),
+			new TWEEN.LineCurve({x: 10, y: 0}, {x: 10, y: 10}),
+		])
+
+		test.deepEqual(path.getPoint(0), {x: 0, y: 0})
+		test.deepEqual(path.getPoint(1), {x: 10, y: 10})
+		// Equal-length segments: halfway lands on the joint.
+		toBeCloseTo(test, path.getPoint(0.5).x, 10, 6)
+		toBeCloseTo(test, path.getPoint(0.5).y, 0, 6)
+		test.ok(path.getLength() > 0)
+		test.deepEqual(path.getCurveLengths(), [10, 10])
+
+		// Path is the alias for CurvePath (see #721 naming).
+		test.equal(TWEEN.Path, TWEEN.CurvePath)
+
+		test.done()
+	},
+
+	'Curve Tween 0->1 drives position along path (demo pattern)'(test: Test): void {
+		const curve = new TWEEN.CatmullRomCurve([
+			{x: 0, y: 0},
+			{x: 10, y: 0},
+			{x: 10, y: 10},
+		])
+		const position = {x: 0, y: 0}
+		const progress = {t: 0}
+
+		const tween = new TWEEN.Tween(progress).to({t: 1}, 1000)
+		tween.onUpdate(() => curve.getPoint(progress.t, position))
+		tween.start(0)
+
+		tween.update(0)
+		test.deepEqual(position, {x: 0, y: 0})
+
+		tween.update(500)
+		test.ok(position.x > 0 && position.y >= 0)
+
+		tween.update(1000)
+		toBeCloseTo(test, position.x, 10, 6)
+		toBeCloseTo(test, position.y, 10, 6)
+
+		test.done()
+	},
+
+	'Curve Bezier curves match Interpolation.Bezier for the same control values'(test: Test): void {
+		const values4 = [0, Math.PI, Math.SQRT2, Math.E]
+		const [a, b, c, d] = values4.map(v => ({x: v, y: 0}))
+		const cubic = new TWEEN.CubicBezierCurve(a, b, c, d)
+
+		const values3 = values4.slice(0, 3)
+		const [p, q, r] = values3.map(v => ({x: v, y: 0}))
+		const quad = new TWEEN.QuadraticBezierCurve(p, q, r)
+
+		for (const k of [0, 0.1, Math.LOG10E, 0.5, 0.9, 1]) {
+			toBeCloseTo(test, cubic.getPoint(k).x, TWEEN.Interpolation.Bezier(values4, k), 14)
+			toBeCloseTo(test, quad.getPoint(k).x, TWEEN.Interpolation.Bezier(values3, k), 14)
+		}
+
+		test.done()
+	},
+
+	'Curve CatmullRomCurve hits the same knots as Interpolation.CatmullRom'(test: Test): void {
+		const values = [0, Math.PI, Math.SQRT2, Math.E]
+		const curve = new TWEEN.CatmullRomCurve(
+			values.map(v => ({x: v, y: 0})),
+			false,
+			'catmullrom',
+			0.5,
+		)
+
+		// Uniform-tension Catmull-Rom distributes knots exactly like the legacy
+		// scalar interpolation: knot i lands at t = i / (n - 1).
+		for (let i = 0; i < values.length; i++) {
+			toBeCloseTo(
+				test,
+				curve.getPoint(i / (values.length - 1)).x,
+				TWEEN.Interpolation.CatmullRom(values, i / (values.length - 1)),
+				12,
+			)
+		}
+
+		test.done()
+	},
+
+	'Curve CurvePath of lines matches Interpolation.Linear for evenly spaced values'(test: Test): void {
+		const values = [0, 10, 20, 30]
+		const points = values.map(v => ({x: v, y: 0}))
+		const path = new TWEEN.CurvePath(points.slice(0, -1).map((p, i) => new TWEEN.LineCurve(p, points[i + 1])))
+
+		// Equal-length segments make arc-length distribution identical to the
+		// legacy uniform per-segment distribution. Unevenly spaced values
+		// intentionally differ: the path moves at near-constant speed.
+		for (const k of [0, 0.25, Math.LOG10E, 0.5, 0.75, 1]) {
+			toBeCloseTo(test, path.getPoint(k).x, TWEEN.Interpolation.Linear(values, k), 12)
+		}
+
 		test.done()
 	},
 }
@@ -2144,15 +4236,12 @@ export const tests = {
 type Test = {
 	ok(a: unknown, failMessage?: string): void
 	equal(a: unknown, b: unknown, failMessage?: string): void
+	notEqual(a: unknown, b: unknown, failMessage?: string): void
 	deepEqual(a: unknown, b: unknown, failMessage?: string): void
+	notDeepEqual(a: unknown, b: unknown, failMessage?: string): void
 	expect(n: number): void
+	throws(block: unknown, error?: unknown, message?: string): void
 	done(): void
-}
-
-type EasingFunctionGroup = {
-	In(amount: number): number
-	Out(amount: number): number
-	InOut(amount: number): number
 }
 
 function toBeCloseTo(test: Test, numberA: number, numberB: number, numDigits = 2): void {
@@ -2165,3 +4254,10 @@ expect : ${numberB}
 diff : ${diff}`,
 	)
 }
+
+// TODO test that starting and stopping a tween multiple times doesn't cause
+// interpolation arrays to modified yet again (and similar with other
+// initialization items). Initialization should happen only once, on first
+// start.
+
+// TODO test onRepeat
